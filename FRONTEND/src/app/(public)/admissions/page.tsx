@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -20,7 +20,14 @@ import {
   PenTool,
   Award,
   ArrowDown,
-  ChevronRight
+  ChevronRight,
+  Phone,
+  Mail,
+  User,
+  GraduationCap,
+  Building,
+  HeartPulse,
+  BadgeCheck
 } from 'lucide-react';
 import { addAdmissionToQueue } from '@/lib/admissions-utils';
 
@@ -72,70 +79,50 @@ const INITIAL_FORM: FormData = {
   medicalConditions: '',
 };
 
-const ADMISSION_PHASES = [
+const ADMISSION_STEPS = [
   {
     num: '01',
-    tabTitle: 'Online Application',
-    badge: 'Stage 01 • Application Submission',
-    title: 'Complete Online Application',
-    tagline: 'Streamlined, 10-minute digital enrollment portal.',
-    desc: 'Families begin the admissions journey by completing our secure digital application. Enter your child’s biodata, previous academic performance records, and authorized guardian contact details.',
-    highlights: [
-      { label: 'Instant Reference', detail: 'A unique application reference number (e.g. OSC-ADM-2026-XXXX) is issued immediately upon submission.' },
-      { label: 'Direct Intake', detail: 'Upload digital copies of birth certificates and previous term report cards without physical campus visits.' },
-      { label: 'Committee Review', detail: 'Applications are instantly routed to the Admissions Board for preliminary credential vetting.' },
-    ],
+    badge: 'Stage 01',
+    shapeName: 'Cathedral Arch',
+    title: 'Digital Application',
+    tagline: '10-minute online registration',
+    desc: 'Submit scholar biodata, previous academic records, and verified guardian contact details through our secure digital admissions portal.',
+    metric: 'Instant Reference Issued',
     image: '/library.jpg',
-    imageCaption: 'Rotunda Library — Digital Admissions & Research Portal',
-    nextTitle: 'Proceed to Step 02: Entrance Screening',
+    caption: 'Rotunda Library — Digital Intake Portal',
   },
   {
     num: '02',
-    tabTitle: 'Entrance Screening',
-    badge: 'Stage 02 • Credential Vetting & Docket',
-    title: 'Entrance Screening & Invitation',
-    tagline: 'Shortlisted candidates receive official assessment passes.',
-    desc: 'Our academic review board inspects academic transcripts and background information. Qualified applicants receive an official invitation slip detailing their examination date, venue, and reporting schedule.',
-    highlights: [
-      { label: 'Direct Notification', detail: 'Examination passes are dispatched directly via SMS and secure email to primary guardians.' },
-      { label: 'Guidance Notes', detail: 'Candidates receive preparation syllabus evaluated across Mathematics, English, and Aptitude.' },
-      { label: 'Accommodations', detail: 'Special arrangements available for diaspora and out-of-state transferring scholars.' },
-    ],
+    badge: 'Stage 02',
+    shapeName: 'Discernment Lens',
+    title: 'Credential Screening',
+    tagline: 'Admissions committee review',
+    desc: 'Academic records and background credentials are evaluated. Shortlisted candidates receive their official entrance examination docket and venue schedule.',
+    metric: 'Docket Dispatched in 48h',
     image: '/classroom.jpg',
-    imageCaption: 'Collegiate Lecture Hall — Admissions Screening & Briefing',
-    nextTitle: 'Proceed to Step 03: Assessment Day',
+    caption: 'Collegiate Hall — Screening & Briefing',
   },
   {
     num: '03',
-    tabTitle: 'Assessment Day',
-    badge: 'Stage 03 • Academic & Character Evaluation',
-    title: 'Assessment Day & Pastoral Interview',
-    tagline: 'Rigorous cognitive evaluation in collegiate seminar rooms.',
-    desc: 'Candidates visit our campus for a proctored examination evaluating English proficiency, mathematical agility, and analytical problem-solving, accompanied by an interactive pastoral conversation.',
-    highlights: [
-      { label: 'Holistic Evaluation', detail: 'We assess intellectual curiosity, communication clarity, and values alignment alongside test scores.' },
-      { label: 'Proctored Standard', detail: 'Examinations are administered in small seminar formats to ensure calm, focused performance.' },
-      { label: 'Campus Tour', detail: 'Parents enjoy an escorted private walkthrough of our STEM laboratories and residential halls.' },
-    ],
+    badge: 'Stage 03',
+    shapeName: 'Collegiate Crest',
+    title: 'Assessment Day',
+    tagline: 'On-campus academic evaluation',
+    desc: 'Scholars sit a proctored assessment evaluated across Mathematics, English, and analytical problem-solving, accompanied by an interactive pastoral interview.',
+    metric: 'Proctored Campus Session',
     image: '/stem-lab.jpg',
-    imageCaption: 'STEM & Applied Science Labs — Proctored Testing Facility',
-    nextTitle: 'Proceed to Step 04: Offer & Enrolment',
+    caption: 'STEM Laboratories — Proctored Testing',
   },
   {
     num: '04',
-    tabTitle: 'Offer & Enrolment',
-    badge: 'Stage 04 • Formal Admission & Onboarding',
-    title: 'Offer of Admission & Matriculation',
-    tagline: 'Welcoming future leaders into the Oakland community.',
-    desc: 'Successful applicants receive an official Letter of Offer and Welcome Dossier. Guardians confirm acceptance to secure class placement, receive house assignments, and access the school uniform and books portal.',
-    highlights: [
-      { label: 'Swift Decision', detail: 'Official decisions are communicated within 5 business days following the on-campus assessment.' },
-      { label: 'House Induction', detail: 'Scholars are formally inducted into one of our four historic collegiate houses upon enrollment.' },
-      { label: 'Orientation', detail: 'Comprehensive induction program for new scholars and families prior to term resumption.' },
-    ],
+    badge: 'Stage 04',
+    shapeName: 'Sovereign Portal',
+    title: 'Offer & Enrollment',
+    tagline: 'Matriculation & house induction',
+    desc: 'Successful candidates receive their formal Letter of Offer and welcome pack. Guardians confirm acceptance to secure class placement and house assignment.',
+    metric: 'Official Decision in 5 Days',
     image: '/campus-quad.jpg',
-    imageCaption: 'The Central Quadrangle — Matriculation & Scholar Induction',
-    nextTitle: 'Start Online Application (Step 1)',
+    caption: 'Central Quadrangle — Scholar Matriculation',
   },
 ];
 
@@ -147,7 +134,33 @@ export default function PublicAdmissionsPage() {
   const [applicationNo, setApplicationNo] = useState('');
   const [step, setStep] = useState(1);
   const [activeJourneyStep, setActiveJourneyStep] = useState<number>(0);
+  const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
   const totalSteps = 3;
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const focalY = window.innerHeight * 0.45;
+      let closestIdx = 0;
+      let minDistance = Infinity;
+
+      stepRefs.current.forEach((el, idx) => {
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const centerY = rect.top + rect.height * 0.5;
+        const dist = Math.abs(centerY - focalY);
+        if (dist < minDistance) {
+          minDistance = dist;
+          closestIdx = idx;
+        }
+      });
+
+      setActiveJourneyStep(closestIdx);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -284,34 +297,34 @@ export default function PublicAdmissionsPage() {
         }
         .adm-title em { font-style: italic; color: #d4a85a; }
 
-        /* ── SECTION: ADMISSIONS JOURNEY WALKTHROUGH (NO CARDS) ── */
-        .adm-journey-section {
+        /* ── SECTION: ADMISSIONS SCROLL SHOWCASE (STICKY IMAGE CROSSFADE) ── */
+        .adm-scroll-section {
           background: #07181a;
           position: relative;
-          padding: 100px 32px 110px;
+          padding: 120px 32px 140px;
           border-top: 1px solid rgba(212, 168, 90, 0.25);
           border-bottom: 1px solid rgba(212, 168, 90, 0.25);
-          overflow: hidden;
           color: #ffffff;
         }
-        .adm-journey-ambient {
+        .adm-scroll-ambient {
           position: absolute;
           inset: 0;
-          background: radial-gradient(circle at 50% 0%, rgba(212, 168, 90, 0.09) 0%, transparent 60%);
+          background: radial-gradient(circle at 70% 30%, rgba(212, 168, 90, 0.08) 0%, transparent 60%),
+                      radial-gradient(circle at 20% 70%, rgba(15, 58, 62, 0.35) 0%, transparent 50%);
           pointer-events: none;
         }
-        .adm-journey-inner {
+        .adm-scroll-inner {
           max-width: 1280px;
           margin: 0 auto;
           position: relative;
           z-index: 2;
         }
-        .adm-journey-header {
-          text-align: center;
+        .adm-scroll-header {
+          text-align: left;
           max-width: 760px;
-          margin: 0 auto 50px;
+          margin-bottom: 70px;
         }
-        .adm-journey-eyebrow {
+        .adm-scroll-eyebrow {
           font-family: 'Inter', sans-serif;
           font-size: 11px;
           font-weight: 700;
@@ -323,28 +336,26 @@ export default function PublicAdmissionsPage() {
           align-items: center;
           gap: 12px;
         }
-        .adm-journey-eyebrow::before,
-        .adm-journey-eyebrow::after {
+        .adm-scroll-eyebrow::before {
           content: '';
           display: block;
           width: 36px;
           height: 1px;
           background: #d4a85a;
-          opacity: 0.5;
         }
-        .adm-journey-title {
+        .adm-scroll-title {
           font-family: 'Playfair Display', Georgia, serif;
-          font-size: clamp(34px, 4vw, 52px);
+          font-size: clamp(34px, 4vw, 54px);
           font-weight: 700;
           color: #ffffff;
           line-height: 1.15;
           margin-bottom: 16px;
         }
-        .adm-journey-title em {
+        .adm-scroll-title em {
           font-style: italic;
           color: #d4a85a;
         }
-        .adm-journey-sub {
+        .adm-scroll-sub {
           font-family: 'Inter', sans-serif;
           font-size: 15px;
           font-weight: 300;
@@ -352,177 +363,160 @@ export default function PublicAdmissionsPage() {
           color: rgba(255, 255, 255, 0.72);
         }
 
-        /* ── HORIZONTAL STEPPER RAIL (NO CARDS) ── */
-        .adm-stepper-rail {
+        /* ── TWO-COLUMN STICKY SCROLL SHOWCASE ── */
+        .adm-scroll-showcase {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          border-bottom: 1px solid rgba(212, 168, 90, 0.25);
+          grid-template-columns: 1.15fr 1fr;
+          gap: 80px;
+          align-items: start;
           position: relative;
-          margin-bottom: 60px;
         }
-        .adm-stepper-tab {
-          background: transparent;
-          border: none;
-          padding: 20px 16px;
-          cursor: pointer;
-          text-align: left;
+
+        /* ── LEFT: SCROLLING STEPS ── */
+        .adm-steps-col {
           position: relative;
-          transition: all 0.3s ease;
-          display: flex;
-          align-items: center;
-          gap: 14px;
+          padding-left: 54px;
         }
-        .adm-stepper-tab:hover {
-          background: rgba(255, 255, 255, 0.02);
-        }
-        .adm-tab-num {
-          font-family: 'Playfair Display', serif;
-          font-size: 20px;
-          font-weight: 700;
-          color: rgba(212, 168, 90, 0.4);
-          transition: color 0.3s, transform 0.3s;
-        }
-        .adm-stepper-tab.active .adm-tab-num,
-        .adm-stepper-tab:hover .adm-tab-num {
-          color: #d4a85a;
-          transform: scale(1.1);
-        }
-        .adm-tab-label {
-          font-family: 'Inter', sans-serif;
-          font-size: 12px;
-          font-weight: 600;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-          color: rgba(255, 255, 255, 0.55);
-          transition: color 0.3s;
-        }
-        .adm-stepper-tab.active .adm-tab-label {
-          color: #ffffff;
-          font-weight: 700;
-        }
-        .adm-tab-indicator {
+        .adm-timeline-spine {
           position: absolute;
-          bottom: -1px;
-          left: 0;
-          right: 0;
-          height: 2px;
-          background: #d4a85a;
-          box-shadow: 0 0 12px rgba(212, 168, 90, 0.8);
-          opacity: 0;
-          transition: opacity 0.3s ease;
+          left: 14px;
+          top: 40px;
+          bottom: 120px;
+          width: 2px;
+          background: rgba(212, 168, 90, 0.15);
         }
-        .adm-stepper-tab.active .adm-tab-indicator {
+        .adm-timeline-glow {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 2px;
+          background: #d4a85a;
+          box-shadow: 0 0 12px rgba(212, 168, 90, 0.85);
+          transition: height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .adm-step-item {
+          min-height: 380px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding: 30px 0;
+          position: relative;
+          cursor: pointer;
+          opacity: 0.28;
+          transform: translateY(12px);
+          filter: blur(0.4px);
+          transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                      filter 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .adm-step-item.is-active {
+          opacity: 1;
+          transform: translateY(0);
+          filter: blur(0);
+        }
+        .adm-step-item:hover {
+          opacity: 0.8;
+        }
+        .adm-step-item.is-active:hover {
           opacity: 1;
         }
 
-        /* ── THE STAGE (EDITORIAL SPLIT - NO CARDS) ── */
-        .adm-stage {
-          display: grid;
-          grid-template-columns: 1.15fr 1fr;
-          gap: 70px;
-          align-items: stretch;
-          min-height: 520px;
-        }
-        .adm-stage-narrative {
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          padding: 10px 0;
-          animation: stageFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-        @keyframes stageFadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(12px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .stage-eyebrow-row {
+        .adm-step-indicator-node {
+          position: absolute;
+          left: -54px;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          width: 26px;
+          height: 26px;
+          border-radius: 50%;
+          border: 1px solid rgba(212, 168, 90, 0.35);
+          background: #07181a;
           display: flex;
           align-items: center;
-          gap: 16px;
-          margin-bottom: 8px;
+          justify-content: center;
+          transition: all 0.4s ease;
+          z-index: 3;
         }
-        .stage-watermark-num {
+        .adm-step-item.is-active .adm-step-indicator-node {
+          border-color: #d4a85a;
+          box-shadow: 0 0 16px rgba(212, 168, 90, 0.9);
+          background: #d4a85a;
+        }
+        .adm-step-node-core {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: rgba(212, 168, 90, 0.4);
+          transition: all 0.3s ease;
+        }
+        .adm-step-item.is-active .adm-step-node-core {
+          background: #07181a;
+        }
+
+        .adm-step-meta {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          margin-bottom: 12px;
+        }
+        .adm-step-num {
           font-family: 'Playfair Display', serif;
-          font-size: clamp(52px, 5.5vw, 76px);
+          font-size: clamp(48px, 4.5vw, 68px);
           font-weight: 900;
           line-height: 1;
           color: #d4a85a;
-          letter-spacing: -0.02em;
+          letter-spacing: -0.03em;
         }
-        .stage-phase-tag {
+        .adm-step-badge {
           font-family: 'Inter', sans-serif;
-          font-size: 11px;
+          font-size: 10px;
           font-weight: 700;
-          letter-spacing: 0.18em;
+          letter-spacing: 0.2em;
           text-transform: uppercase;
           color: #d4a85a;
           background: rgba(212, 168, 90, 0.12);
           border: 1px solid rgba(212, 168, 90, 0.3);
-          padding: 5px 12px;
+          padding: 4px 12px;
           border-radius: 20px;
         }
-        .stage-heading {
+        .adm-step-metric {
+          font-family: 'Inter', sans-serif;
+          font-size: 11px;
+          font-weight: 500;
+          color: rgba(255, 255, 255, 0.6);
+          letter-spacing: 0.05em;
+        }
+
+        .adm-step-heading {
           font-family: 'Playfair Display', Georgia, serif;
-          font-size: clamp(28px, 3.2vw, 42px);
+          font-size: clamp(26px, 2.8vw, 38px);
           font-weight: 700;
           color: #ffffff;
           line-height: 1.2;
-          margin-bottom: 12px;
+          margin-bottom: 8px;
         }
-        .stage-tagline {
+        .adm-step-tagline {
           font-family: 'Playfair Display', Georgia, serif;
-          font-size: 16px;
+          font-size: 15px;
           font-style: italic;
           color: #d4a85a;
-          margin-bottom: 16px;
+          margin-bottom: 14px;
         }
-        .stage-desc {
+        .adm-step-desc {
           font-family: 'Inter', sans-serif;
           font-size: 15px;
           line-height: 1.8;
-          color: rgba(255, 255, 255, 0.8);
+          color: rgba(255, 255, 255, 0.82);
           font-weight: 300;
-          margin-bottom: 28px;
-        }
-        .stage-highlights {
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
-          padding-top: 24px;
-          margin-bottom: 32px;
-        }
-        .stage-highlight-item {
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-          font-size: 13px;
-          color: rgba(255, 255, 255, 0.85);
-          line-height: 1.6;
-        }
-        .stage-highlight-icon {
-          color: #d4a85a;
-          margin-top: 2px;
-          flex-shrink: 0;
-        }
-        .stage-highlight-item strong {
-          color: #ffffff;
-          font-weight: 600;
+          max-width: 520px;
         }
 
-        .stage-footer-actions {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-          flex-wrap: wrap;
-          padding-top: 10px;
+        .adm-steps-action {
+          padding-top: 40px;
+          padding-bottom: 20px;
         }
-        .stage-btn-primary {
+        .adm-scroll-cta {
           font-family: 'Inter', sans-serif;
           font-size: 12px;
           font-weight: 700;
@@ -530,221 +524,396 @@ export default function PublicAdmissionsPage() {
           text-transform: uppercase;
           background: #d4a85a;
           color: #07181a;
-          padding: 15px 30px;
+          padding: 16px 34px;
           border-radius: 2px;
           text-decoration: none;
           display: inline-flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
           transition: all 0.25s ease;
-          box-shadow: 0 8px 24px rgba(212, 168, 90, 0.25);
+          box-shadow: 0 10px 30px rgba(212, 168, 90, 0.3);
         }
-        .stage-btn-primary:hover {
+        .adm-scroll-cta:hover {
           background: #c4943e;
           transform: translateY(-2px);
-          box-shadow: 0 12px 30px rgba(212, 168, 90, 0.35);
-        }
-        .stage-btn-next {
-          background: transparent;
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          color: #ffffff;
-          font-family: 'Inter', sans-serif;
-          font-size: 12px;
-          font-weight: 600;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          padding: 14px 24px;
-          border-radius: 2px;
-          cursor: pointer;
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          transition: all 0.25s ease;
-        }
-        .stage-btn-next:hover {
-          border-color: #d4a85a;
-          color: #d4a85a;
-          transform: translateX(3px);
+          box-shadow: 0 14px 36px rgba(212, 168, 90, 0.45);
         }
 
-        /* ── RIGHT VISUAL STAGE ── */
-        .adm-stage-media {
-          position: relative;
-          display: flex;
-          flex-direction: column;
-          height: 100%;
+        /* ── RIGHT: STICKY CINEMATIC IMAGE WINDOW ── */
+        .adm-sticky-col {
+          position: sticky;
+          top: 110px;
+          align-self: flex-start;
+          height: 540px;
+          z-index: 10;
         }
-        .adm-visual-frame {
+        .adm-sticky-frame {
           position: relative;
           width: 100%;
           height: 100%;
-          min-height: 480px;
-          border: 1px solid rgba(212, 168, 90, 0.35);
+          border: 1.5px solid rgba(212, 168, 90, 0.5);
+          box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.85),
+                      0 0 50px rgba(212, 168, 90, 0.16);
           overflow: hidden;
-          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+          background: #040c0d;
+          transition: border-radius 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+                      transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+                      border-color 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+                      box-shadow 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+          will-change: border-radius, transform;
         }
-        .adm-visual-img {
+
+        /* ── DYNAMIC ARCHITECTURAL SHAPE MORPHING PER STEP ── */
+        .adm-sticky-frame.shape-0 {
+          /* Stage 01: Cathedral Arch (Noble curved arch dome) */
+          border-radius: 260px 260px 28px 28px;
+          transform: translateY(0) scale(1);
+        }
+        .adm-sticky-frame.shape-1 {
+          /* Stage 02: Discernment Lens (Asymmetric diagonal leaf/eye) */
+          border-radius: 28px 240px 28px 240px;
+          transform: translateY(2px) scale(0.995);
+        }
+        .adm-sticky-frame.shape-2 {
+          /* Stage 03: Collegiate Crest (Heraldic scholastic shield) */
+          border-radius: 44px 44px 240px 240px;
+          transform: translateY(0) scale(1);
+        }
+        .adm-sticky-frame.shape-3 {
+          /* Stage 04: Sovereign Portal (Opposing majestic diagonal portal) */
+          border-radius: 240px 28px 240px 28px;
+          transform: translateY(-2px) scale(1.005);
+        }
+
+        /* Ambient contour halo that follows the morphing shape */
+        .adm-sticky-halo {
+          position: absolute;
+          inset: -2px;
+          border-radius: inherit;
+          border: 1px solid rgba(212, 168, 90, 0.3);
+          pointer-events: none;
+          z-index: 2;
+          transition: border-radius 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* The crossfading image layers */
+        .adm-image-layer {
+          position: absolute;
+          inset: 0;
+          opacity: 0;
+          transform: scale(1.08) translateY(8px);
+          transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                      transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+          pointer-events: none;
+          will-change: opacity, transform;
+        }
+        .adm-image-layer.is-active {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+          pointer-events: auto;
+        }
+        .adm-layer-img {
           object-fit: cover;
           width: 100%;
           height: 100%;
-          transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .adm-visual-frame:hover .adm-visual-img {
-          transform: scale(1.03);
-        }
-        .adm-visual-badge {
+        .adm-layer-vignette {
           position: absolute;
-          bottom: 24px;
-          left: 24px;
-          right: 24px;
-          background: rgba(7, 24, 26, 0.92);
-          backdrop-filter: blur(12px);
-          border: 1px solid rgba(212, 168, 90, 0.5);
-          padding: 16px 20px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          color: #ffffff;
+          inset: 0;
+          background: linear-gradient(180deg, rgba(7, 24, 26, 0.1) 0%, rgba(7, 24, 26, 0.75) 100%);
+          pointer-events: none;
         }
-        .adm-visual-badge-text {
-          font-family: 'Playfair Display', serif;
-          font-size: 14px;
-          font-weight: 600;
-          color: #ffffff;
+
+
+
+        /* ── SECTION: ADMISSIONS FORM ── */
+        .adm-body {
+          background: radial-gradient(circle at 10% 12%, rgba(212, 168, 90, 0.08) 0%, transparent 45%),
+                      radial-gradient(circle at 90% 88%, rgba(15, 58, 62, 0.06) 0%, transparent 45%),
+                      #f8f6f2;
+          padding: 96px 32px 120px;
+          position: relative;
+          border-top: 1px solid rgba(212, 168, 90, 0.22);
         }
-        .adm-visual-badge-step {
+        .adm-body-inner {
+          max-width: 1320px;
+          margin: 0 auto;
+        }
+
+        /* Intro Banner */
+        .adm-form-intro {
+          text-align: center;
+          max-width: 780px;
+          margin: 0 auto 54px;
+        }
+        .adm-form-intro-title {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: 40px;
+          font-weight: 700;
+          color: #07181a;
+          line-height: 1.2;
+          margin-bottom: 14px;
+          letter-spacing: -0.015em;
+        }
+        .adm-form-intro-title em {
+          font-style: italic;
+          color: #b88a38;
+        }
+        .adm-form-intro-sub {
           font-family: 'Inter', sans-serif;
-          font-size: 10px;
+          font-size: 15px;
+          font-weight: 400;
+          color: #64748b;
+          line-height: 1.65;
+          max-width: 620px;
+          margin: 0 auto;
+        }
+
+        /* 2-Column Grid */
+        .adm-form-grid {
+          display: grid;
+          grid-template-columns: 1fr 390px;
+          gap: 48px;
+          align-items: start;
+        }
+
+        /* ── LUXURY FORM CARD ── */
+        .adm-form-card {
+          background: #ffffff;
+          border: 1px solid #e7dfd4;
+          border-radius: 18px;
+          box-shadow: 0 20px 48px -16px rgba(7, 24, 26, 0.08), 0 2px 6px rgba(7, 24, 26, 0.02);
+          overflow: hidden;
+          transition: border-color 0.3s ease;
+        }
+        .adm-form-card:hover {
+          border-color: rgba(212, 168, 90, 0.45);
+        }
+
+        /* Header & Stepper */
+        .adm-form-header {
+          background: linear-gradient(135deg, #07181a 0%, #0d262a 100%);
+          padding: 30px 40px 22px;
+          position: relative;
+          border-bottom: 1px solid rgba(212, 168, 90, 0.22);
+        }
+        .adm-form-header-top {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 20px;
+          margin-bottom: 22px;
+        }
+        .adm-form-eyebrow {
+          font-family: 'Inter', sans-serif;
+          font-size: 11px;
           font-weight: 700;
           letter-spacing: 0.16em;
           text-transform: uppercase;
           color: #d4a85a;
-        }
-        .stage-nav-dots {
+          margin-bottom: 4px;
           display: flex;
           align-items: center;
-          justify-content: center;
-          gap: 12px;
-          margin-top: 24px;
-        }
-        .stage-dot-btn {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-          border: 1px solid rgba(212, 168, 90, 0.4);
-          background: transparent;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          padding: 0;
-        }
-        .stage-dot-btn.active {
-          background: #d4a85a;
-          box-shadow: 0 0 10px rgba(212, 168, 90, 0.8);
-          transform: scale(1.25);
-        }
-
-        /* ── FORM LAYOUT ── */
-        .adm-body {
-          background: #f5f2ed;
-          padding: 80px 32px;
-        }
-        .adm-body-inner {
-          max-width: 1280px;
-          margin: 0 auto;
-          display: grid;
-          grid-template-columns: 1fr 380px;
-          gap: 60px;
-          align-items: start;
-        }
-
-        /* ── FORM CARD ── */
-        .adm-form-wrap {
-          background: #ffffff;
-        }
-        .adm-form-header {
-          background: #07181a;
-          padding: 32px 40px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
+          gap: 6px;
         }
         .adm-form-title {
           font-family: 'Playfair Display', Georgia, serif;
-          font-size: 22px;
+          font-size: 24px;
           font-weight: 700;
           color: #ffffff;
+          letter-spacing: -0.01em;
+          line-height: 1.25;
         }
-        .adm-stepper {
+
+        /* Stepper Pills */
+        .adm-stepper-pills {
           display: flex;
           align-items: center;
           gap: 8px;
         }
-        .adm-step-dot {
-          width: 28px;
-          height: 28px;
+        .adm-step-pill {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 14px;
+          border-radius: 999px;
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          font-weight: 600;
+          background: rgba(255, 255, 255, 0.05);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          color: rgba(255, 255, 255, 0.55);
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .adm-step-pill.is-active {
+          background: rgba(212, 168, 90, 0.15);
+          border-color: #d4a85a;
+          color: #ffffff;
+          box-shadow: 0 0 16px rgba(212, 168, 90, 0.25);
+        }
+        .adm-step-pill.is-done {
+          background: rgba(16, 185, 129, 0.12);
+          border-color: rgba(16, 185, 129, 0.35);
+          color: #a7f3d0;
+        }
+        .adm-step-pill-num {
+          width: 20px;
+          height: 20px;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-family: 'Inter', sans-serif;
           font-size: 11px;
           font-weight: 700;
-          transition: background 0.3s;
+          background: rgba(255, 255, 255, 0.1);
+          color: rgba(255, 255, 255, 0.7);
         }
-        .adm-step-dot.active { background: #d4a85a; color: #07181a; }
-        .adm-step-dot.done { background: #0f3a3e; color: #d4a85a; }
-        .adm-step-dot.future { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); }
-        .adm-step-line { width: 24px; height: 1px; background: rgba(255,255,255,0.15); }
+        .adm-step-pill.is-active .adm-step-pill-num {
+          background: #d4a85a;
+          color: #07181a;
+        }
+        .adm-step-pill.is-done .adm-step-pill-num {
+          background: #10b981;
+          color: #ffffff;
+        }
 
-        .adm-form-body { padding: 40px; }
-        .adm-section-label {
-          font-family: 'Inter', sans-serif;
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: 0.25em;
-          text-transform: uppercase;
-          color: #b3141f;
-          margin-bottom: 24px;
-          padding-bottom: 12px;
-          border-bottom: 1px solid #e8e4de;
+        /* Stepper Progress Bar */
+        .adm-stepper-progress-track {
+          width: 100%;
+          height: 3px;
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 999px;
+          overflow: hidden;
+          position: relative;
+        }
+        .adm-stepper-progress-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #d4a85a 0%, #f3d79b 100%);
+          border-radius: 999px;
+          transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 0 8px rgba(212, 168, 90, 0.8);
+        }
+
+        /* Form Body & Sections */
+        .adm-form-body {
+          padding: 44px 44px 40px;
+        }
+
+        .adm-section-header {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
+          margin-bottom: 24px;
+          padding-bottom: 14px;
+          border-bottom: 1px solid #ebe5dc;
         }
-        .adm-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-        .adm-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-        .adm-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 20px; }
+        .adm-section-badge {
+          font-family: 'Inter', sans-serif;
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: #8b651f;
+          background: rgba(212, 168, 90, 0.14);
+          border: 1px solid rgba(212, 168, 90, 0.35);
+          padding: 4px 10px;
+          border-radius: 999px;
+        }
+        .adm-section-title {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: 18px;
+          font-weight: 700;
+          color: #07181a;
+          letter-spacing: -0.01em;
+        }
+        .adm-section-line {
+          flex: 1;
+          height: 1px;
+          background: linear-gradient(90deg, #ebe5dc 0%, transparent 100%);
+        }
+
+        .adm-grid-2 {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 22px;
+          margin-bottom: 22px;
+        }
+        .adm-grid-3 {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 22px;
+          margin-bottom: 22px;
+        }
+        .adm-field {
+          display: flex;
+          flex-direction: column;
+          gap: 7px;
+          position: relative;
+        }
         .adm-label {
           font-family: 'Inter', sans-serif;
-          font-size: 11px;
+          font-size: 11.5px;
           font-weight: 600;
           color: #374151;
-          letter-spacing: 0.05em;
+          letter-spacing: 0.04em;
           text-transform: uppercase;
+          display: flex;
+          align-items: center;
+          gap: 4px;
         }
+        .adm-req {
+          color: #d4a85a;
+          font-weight: 700;
+        }
+
         .adm-input {
           font-family: 'Inter', sans-serif;
           font-size: 14px;
           font-weight: 400;
           color: #07181a;
-          background: #f9f8f6;
-          border: 1px solid #e0dbd3;
+          background: #ffffff;
+          border: 1.5px solid #ded8ce;
+          border-radius: 8px;
           padding: 13px 16px;
           outline: none;
-          transition: border-color 0.2s, background 0.2s;
+          transition: all 0.2s ease-in-out;
           width: 100%;
-          -webkit-appearance: none;
+          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
         }
-        .adm-input:focus { border-color: #07181a; background: #ffffff; }
-        .adm-input::placeholder { color: #9ca3af; }
-        select.adm-input { cursor: pointer; }
+        .adm-input:hover {
+          border-color: #c5bcae;
+        }
+        .adm-input:focus {
+          border-color: #d4a85a;
+          background: #ffffff;
+          box-shadow: 0 0 0 4px rgba(212, 168, 90, 0.16);
+        }
+        .adm-input::placeholder {
+          color: #9ca3af;
+          font-weight: 300;
+        }
+
+        /* Custom Dropdown Chevron */
+        select.adm-input {
+          cursor: pointer;
+          appearance: none;
+          -webkit-appearance: none;
+          -moz-appearance: none;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2307181a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 14px center;
+          background-size: 14px;
+          padding-right: 40px;
+        }
+
+        /* Form Footer Buttons */
         .adm-nav-row {
           display: flex;
           justify-content: space-between;
           align-items: center;
           padding-top: 32px;
-          border-top: 1px solid #e8e4de;
-          margin-top: 12px;
+          border-top: 1px solid #ebe5dc;
+          margin-top: 16px;
         }
         .adm-btn-back {
           font-family: 'Inter', sans-serif;
@@ -752,14 +921,22 @@ export default function PublicAdmissionsPage() {
           font-weight: 600;
           letter-spacing: 0.08em;
           text-transform: uppercase;
-          color: #6b7280;
-          background: transparent;
-          border: 1px solid #d1cbc2;
-          padding: 12px 24px;
+          color: #4b5563;
+          background: #fdfbf8;
+          border: 1px solid #dcd5ca;
+          border-radius: 8px;
+          padding: 13px 26px;
           cursor: pointer;
-          transition: border-color 0.2s, color 0.2s;
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          transition: all 0.2s ease;
         }
-        .adm-btn-back:hover { border-color: #07181a; color: #07181a; }
+        .adm-btn-back:hover {
+          border-color: #07181a;
+          color: #07181a;
+          background: #ffffff;
+        }
         .adm-btn-next {
           font-family: 'Inter', sans-serif;
           font-size: 12px;
@@ -767,77 +944,257 @@ export default function PublicAdmissionsPage() {
           letter-spacing: 0.12em;
           text-transform: uppercase;
           color: #07181a;
-          background: #d4a85a;
+          background: linear-gradient(135deg, #d4a85a 0%, #b88a38 100%);
           border: none;
-          padding: 14px 32px;
+          border-radius: 8px;
+          padding: 14px 34px;
           cursor: pointer;
-          display: flex;
+          display: inline-flex;
           align-items: center;
-          gap: 8px;
-          transition: background 0.2s;
+          gap: 10px;
+          box-shadow: 0 8px 24px -4px rgba(212, 168, 90, 0.45);
+          transition: all 0.25s ease;
         }
-        .adm-btn-next:hover { background: #c4943e; }
+        .adm-btn-next:hover {
+          background: linear-gradient(135deg, #dfb46c 0%, #c4943e 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 12px 28px -4px rgba(212, 168, 90, 0.55);
+        }
+        .adm-btn-next:active {
+          transform: translateY(0);
+        }
 
-        /* ── SIDEBAR ── */
-        .adm-sidebar { display: flex; flex-direction: column; gap: 24px; }
-        .adm-info-block {
-          background: #07181a;
-          padding: 36px;
-        }
-        .adm-info-title {
-          font-family: 'Playfair Display', Georgia, serif;
-          font-size: 20px;
-          font-weight: 700;
-          color: #ffffff;
-          margin-bottom: 20px;
-          line-height: 1.3;
-        }
-        .adm-info-list { display: flex; flex-direction: column; gap: 14px; }
-        .adm-info-item {
+        /* ── PRESTIGE SIDEBAR ── */
+        .adm-sidebar {
           display: flex;
-          align-items: flex-start;
-          gap: 12px;
-          font-family: 'Inter', sans-serif;
-          font-size: 13px;
-          font-weight: 300;
-          color: rgba(255,255,255,0.55);
-          line-height: 1.55;
+          flex-direction: column;
+          gap: 24px;
         }
-        .adm-info-item-dot {
-          width: 5px;
-          height: 5px;
+
+        .adm-sidebar-card {
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: 0 12px 36px -10px rgba(7, 24, 26, 0.07);
+        }
+
+        /* 1. Protocol Card */
+        .adm-protocol-card {
+          background: linear-gradient(165deg, #07181a 0%, #0d262a 100%);
+          border: 1px solid rgba(212, 168, 90, 0.25);
+          padding: 34px 28px;
+          color: #ffffff;
+          position: relative;
+        }
+        .adm-protocol-card::before {
+          content: '';
+          position: absolute;
+          top: -30px; right: -30px;
+          width: 140px; height: 140px;
           border-radius: 50%;
-          background: #d4a85a;
-          margin-top: 7px;
-          flex-shrink: 0;
+          background: radial-gradient(circle, rgba(212, 168, 90, 0.15) 0%, transparent 70%);
+          pointer-events: none;
         }
-        .adm-contact-block {
-          background: #f0ebe3;
-          padding: 32px;
-          border-left: 3px solid #d4a85a;
-        }
-        .adm-contact-label {
+        .adm-protocol-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
           font-family: 'Inter', sans-serif;
           font-size: 10px;
           font-weight: 700;
-          letter-spacing: 0.25em;
+          letter-spacing: 0.18em;
           text-transform: uppercase;
-          color: #b3141f;
-          margin-bottom: 12px;
+          color: #d4a85a;
+          margin-bottom: 10px;
         }
-        .adm-contact-detail {
+        .adm-protocol-title {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: 21px;
+          font-weight: 700;
+          color: #ffffff;
+          line-height: 1.3;
+          margin-bottom: 22px;
+        }
+        .adm-protocol-timeline {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          position: relative;
+        }
+        .adm-protocol-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 14px;
+          position: relative;
+        }
+        .adm-protocol-num {
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: rgba(212, 168, 90, 0.15);
+          border: 1px solid rgba(212, 168, 90, 0.35);
+          color: #d4a85a;
+          font-family: 'Inter', sans-serif;
+          font-size: 11px;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+          margin-top: 1px;
+        }
+        .adm-protocol-content {
+          flex: 1;
+        }
+        .adm-protocol-heading {
           font-family: 'Inter', sans-serif;
           font-size: 13px;
-          font-weight: 400;
-          color: #374151;
-          line-height: 1.8;
+          font-weight: 600;
+          color: #ffffff;
+          margin-bottom: 2px;
+          line-height: 1.35;
         }
-        .adm-contact-detail strong {
-          display: block;
-          font-size: 15px;
+        .adm-protocol-text {
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          font-weight: 300;
+          color: rgba(255, 255, 255, 0.65);
+          line-height: 1.5;
+        }
+
+        /* 2. Cohort Availability Card */
+        .adm-cohort-card {
+          background: #ffffff;
+          border: 1px solid #e5ded2;
+          padding: 28px 26px;
+        }
+        .adm-cohort-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 16px;
+        }
+        .adm-cohort-title {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: 18px;
+          font-weight: 700;
+          color: #07181a;
+        }
+        .adm-cohort-pulse-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          font-family: 'Inter', sans-serif;
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: #15803d;
+          background: #f0fdf4;
+          padding: 3px 8px;
+          border-radius: 999px;
+          border: 1px solid #bbf7d0;
+        }
+        .adm-pulse-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #22c55e;
+          animation: admPulse 2s infinite;
+        }
+        @keyframes admPulse {
+          0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+          70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+          100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+        .adm-cohort-list {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .adm-cohort-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 10px 14px;
+          background: #fbf9f6;
+          border: 1px solid #eee7dc;
+          border-radius: 8px;
+        }
+        .adm-cohort-class {
+          font-family: 'Inter', sans-serif;
+          font-size: 13px;
           font-weight: 600;
           color: #07181a;
-          margin-bottom: 4px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .adm-cohort-status {
+          font-family: 'Inter', sans-serif;
+          font-size: 11px;
+          font-weight: 600;
+          padding: 3px 8px;
+          border-radius: 6px;
+        }
+        .adm-cohort-status.open {
+          background: #ecfdf5;
+          color: #047857;
+          border: 1px solid #a7f3d0;
+        }
+        .adm-cohort-status.limited {
+          background: #fffbeb;
+          color: #b45309;
+          border: 1px solid #fde68a;
+        }
+
+        /* 3. Admissions Desk Support Card */
+        .adm-desk-card {
+          background: linear-gradient(135deg, #f7f3eb 0%, #ede6da 100%);
+          border: 1px solid rgba(212, 168, 90, 0.35);
+          padding: 28px 26px;
+          border-left: 4px solid #d4a85a;
+        }
+        .adm-desk-badge {
+          font-family: 'Inter', sans-serif;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          color: #8b651f;
+          margin-bottom: 8px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .adm-desk-title {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: 19px;
+          font-weight: 700;
+          color: #07181a;
+          margin-bottom: 14px;
+        }
+        .adm-desk-items {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .adm-desk-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          font-family: 'Inter', sans-serif;
+          font-size: 13px;
+          color: #374151;
+          line-height: 1.5;
+        }
+        .adm-desk-icon {
+          color: #0f3a3e;
+          flex-shrink: 0;
+          margin-top: 2px;
+        }
+        .adm-desk-strong {
+          color: #07181a;
+          font-weight: 600;
         }
 
         /* ── SUCCESS SCREEN ── */
@@ -944,23 +1301,58 @@ export default function PublicAdmissionsPage() {
         }
 
         @media (max-width: 1024px) {
-          .adm-body-inner { grid-template-columns: 1fr; }
-          .adm-sidebar { order: -1; }
-          .adm-stepper-rail { grid-template-columns: repeat(2, 1fr); }
-          .adm-stage { grid-template-columns: 1fr; gap: 40px; }
-          .adm-visual-frame { min-height: 380px; height: 380px; }
+          .adm-form-grid {
+            grid-template-columns: 1fr;
+            gap: 40px;
+          }
+          .adm-sidebar {
+            order: 2;
+          }
+          .adm-scroll-showcase {
+            grid-template-columns: 1fr;
+            gap: 40px;
+          }
+          .adm-sticky-col {
+            position: sticky;
+            top: 75px;
+            height: 360px;
+            margin-bottom: 20px;
+          }
+          .adm-sticky-frame.shape-0 { border-radius: 160px 160px 20px 20px; }
+          .adm-sticky-frame.shape-1 { border-radius: 20px 160px 20px 160px; }
+          .adm-sticky-frame.shape-2 { border-radius: 24px 24px 160px 160px; }
+          .adm-sticky-frame.shape-3 { border-radius: 160px 20px 160px 20px; }
+          .adm-steps-col {
+            padding-left: 40px;
+          }
+          .adm-timeline-spine {
+            left: 10px;
+          }
+          .adm-step-indicator-node {
+            left: -40px;
+          }
         }
         @media (max-width: 640px) {
           .adm-hero { height: 360px; }
-          .adm-hero-content, .adm-body, .adm-journey-section { padding-left: 20px; padding-right: 20px; }
-          .adm-journey-section { padding-top: 60px; padding-bottom: 60px; }
-          .adm-stepper-rail { grid-template-columns: 1fr; }
-          .adm-visual-frame { min-height: 280px; height: 280px; }
-          .stage-footer-actions { flex-direction: column; align-items: stretch; }
-          .stage-btn-primary, .stage-btn-next { width: 100%; justify-content: center; }
-          .adm-form-body { padding: 24px 20px; }
-          .adm-form-header { padding: 24px 20px; }
-          .adm-grid-2, .adm-grid-3 { grid-template-columns: 1fr; }
+          .adm-hero-content, .adm-body, .adm-scroll-section { padding-left: 20px; padding-right: 20px; }
+          .adm-body { padding-top: 60px; padding-bottom: 80px; }
+          .adm-form-intro { margin-bottom: 36px; }
+          .adm-form-intro-title { font-size: 28px; }
+          .adm-form-body { padding: 28px 20px 24px; }
+          .adm-form-header { padding: 24px 20px 18px; }
+          .adm-form-header-top { flex-direction: column; align-items: flex-start; gap: 14px; }
+          .adm-stepper-pills { width: 100%; justify-content: space-between; }
+          .adm-step-pill-label { display: none; }
+          .adm-scroll-section { padding-top: 60px; padding-bottom: 60px; }
+          .adm-sticky-col { height: 260px; }
+          .adm-sticky-frame.shape-0 { border-radius: 120px 120px 16px 16px; }
+          .adm-sticky-frame.shape-1 { border-radius: 16px 120px 16px 120px; }
+          .adm-sticky-frame.shape-2 { border-radius: 18px 18px 120px 120px; }
+          .adm-sticky-frame.shape-3 { border-radius: 120px 16px 120px 16px; }
+          .adm-step-item { min-height: 300px; padding: 20px 0; }
+          .adm-scroll-cta { width: 100%; justify-content: center; }
+          .adm-grid-2, .adm-grid-3 { grid-template-columns: 1fr; gap: 16px; }
+          .adm-protocol-card, .adm-cohort-card, .adm-desk-card { padding: 24px 20px; }
           .adm-success-body { padding: 28px 24px; }
           .adm-success-header { padding: 36px 24px; }
         }
@@ -978,355 +1370,496 @@ export default function PublicAdmissionsPage() {
         </div>
       </section>
 
-      {/* ── SECTION: ADMISSIONS JOURNEY WALKTHROUGH (CARDLESS EDITORIAL STAGE) ── */}
-      <section className="adm-journey-section">
-        <div className="adm-journey-ambient" />
-        <div className="adm-journey-inner">
-          <div className="adm-journey-header">
-            <div className="adm-journey-eyebrow">Admissions Protocol</div>
-            <h2 className="adm-journey-title">
-              The Four-Stage Pathway to <em>Enrollment</em>
+      {/* ── SECTION: ADMISSIONS SCROLL SHOWCASE (STICKY IMAGE CROSSFADE) ── */}
+      <section className="adm-scroll-section" id="admissions-pathway">
+        <div className="adm-scroll-ambient" />
+        <div className="adm-scroll-inner">
+          <div className="adm-scroll-header">
+            <div className="adm-scroll-eyebrow">Admissions Pathway</div>
+            <h2 className="adm-scroll-title">
+              The Four Milestones to <em>Enrollment</em>
             </h2>
-            <p className="adm-journey-sub">
-              A transparent, merit-guided admissions journey designed to evaluate intellectual readiness, personal character, and welcome families into the Oakland community.
+            <p className="adm-scroll-sub">
+              A transparent, merit-guided journey welcoming exceptional scholars to Oakland Schools.
             </p>
           </div>
 
-          {/* Stepper Rail - Sleek horizontal timeline, zero cards */}
-          <div className="adm-stepper-rail">
-            {ADMISSION_PHASES.map((p, idx) => {
-              const isActive = activeJourneyStep === idx;
-              return (
-                <button
-                  key={p.num}
-                  type="button"
-                  onClick={() => setActiveJourneyStep(idx)}
-                  className={`adm-stepper-tab ${isActive ? 'active' : ''}`}
-                >
-                  <span className="adm-tab-num">{p.num}</span>
-                  <span className="adm-tab-label">{p.tabTitle}</span>
-                  <div className="adm-tab-indicator" />
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Editorial Stage - 2 column showcase */}
-          {(() => {
-            const currentPhase = ADMISSION_PHASES[activeJourneyStep] || ADMISSION_PHASES[0];
-            const isLastPhase = activeJourneyStep === ADMISSION_PHASES.length - 1;
-            return (
-              <div key={currentPhase.num} className="adm-stage">
-                {/* Left Narrative */}
-                <div className="adm-stage-narrative">
-                  <div>
-                    <div className="stage-eyebrow-row">
-                      <span className="stage-watermark-num">{currentPhase.num}</span>
-                      <span className="stage-phase-tag">{currentPhase.badge}</span>
-                    </div>
-
-                    <h3 className="stage-heading">{currentPhase.title}</h3>
-                    <p className="stage-tagline">{currentPhase.tagline}</p>
-                    <p className="stage-desc">{currentPhase.desc}</p>
-
-                    <div className="stage-highlights">
-                      {currentPhase.highlights.map((h, hIdx) => (
-                        <div key={hIdx} className="stage-highlight-item">
-                          <CheckCircle2 size={16} className="stage-highlight-icon" />
-                          <div>
-                            <strong>{h.label}: </strong>
-                            <span>{h.detail}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="stage-footer-actions">
-                    <a href="#admission-form" className="stage-btn-primary">
-                      <span>Begin Online Application</span>
-                      <ArrowDown size={14} />
-                    </a>
-
-                    <button
-                      type="button"
-                      onClick={() => setActiveJourneyStep((prev) => (prev + 1) % ADMISSION_PHASES.length)}
-                      className="stage-btn-next"
-                    >
-                      <span>{isLastPhase ? 'Back to Step 01' : `Next: Step 0${activeJourneyStep + 2}`}</span>
-                      <ChevronRight size={14} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Right Visual Stage */}
-                <div className="adm-stage-media">
-                  <div className="adm-visual-frame">
-                    <Image
-                      src={currentPhase.image}
-                      alt={currentPhase.title}
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                      className="adm-visual-img"
-                      priority
-                    />
-                    <div className="adm-visual-badge">
-                      <span className="adm-visual-badge-text">{currentPhase.imageCaption}</span>
-                      <span className="adm-visual-badge-step">Stage 0{activeJourneyStep + 1} of 04</span>
-                    </div>
-                  </div>
-
-                  {/* Navigation Dots */}
-                  <div className="stage-nav-dots">
-                    {ADMISSION_PHASES.map((_, dotIdx) => (
-                      <button
-                        key={dotIdx}
-                        type="button"
-                        aria-label={`Jump to stage ${dotIdx + 1}`}
-                        onClick={() => setActiveJourneyStep(dotIdx)}
-                        className={`stage-dot-btn ${activeJourneyStep === dotIdx ? 'active' : ''}`}
-                      />
-                    ))}
-                  </div>
-                </div>
+          <div className="adm-scroll-showcase">
+            {/* LEFT: Scrolling Steps Milestones */}
+            <div className="adm-steps-col">
+              <div className="adm-timeline-spine">
+                <div
+                  className="adm-timeline-glow"
+                  style={{
+                    height: `${(activeJourneyStep / (ADMISSION_STEPS.length - 1)) * 100}%`,
+                  }}
+                />
               </div>
-            );
-          })()}
+
+              {ADMISSION_STEPS.map((step, idx) => {
+                const isActive = activeJourneyStep === idx;
+                return (
+                  <div
+                    key={step.num}
+                    ref={(el) => {
+                      stepRefs.current[idx] = el;
+                    }}
+                    className={`adm-step-item ${isActive ? 'is-active' : ''}`}
+                    onClick={() => {
+                      stepRefs.current[idx]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }}
+                  >
+                    <div className="adm-step-indicator-node">
+                      <div className="adm-step-node-core" />
+                    </div>
+
+                    <div className="adm-step-meta">
+                      <span className="adm-step-num">{step.num}</span>
+                      <span className="adm-step-badge">{step.badge}</span>
+                      <span className="adm-step-metric">{step.metric}</span>
+                    </div>
+
+                    <h3 className="adm-step-heading">{step.title}</h3>
+                    <p className="adm-step-tagline">{step.tagline}</p>
+                    <p className="adm-step-desc">{step.desc}</p>
+                  </div>
+                );
+              })}
+
+              <div className="adm-steps-action">
+                <a href="#admission-form" className="adm-scroll-cta">
+                  <span>Begin Online Application</span>
+                  <ArrowDown size={14} />
+                </a>
+              </div>
+            </div>
+
+            {/* RIGHT: Sticky Image Stage */}
+            <div className="adm-sticky-col">
+              <div className={`adm-sticky-frame shape-${activeJourneyStep}`}>
+                <div className="adm-sticky-halo" />
+                {ADMISSION_STEPS.map((step, idx) => {
+                  const isActive = activeJourneyStep === idx;
+                  return (
+                    <div
+                      key={step.num}
+                      className={`adm-image-layer ${isActive ? 'is-active' : ''}`}
+                    >
+                      <Image
+                        src={step.image}
+                        alt={step.title}
+                        fill
+                        sizes="(max-width: 1024px) 100vw, 550px"
+                        className="adm-layer-img"
+                        priority={idx === 0}
+                      />
+                      <div className="adm-layer-vignette" />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* ── FORM BODY ── */}
+      {/* ── SECTION: APPLICATION DOSSIER & SIDEBAR ── */}
       <div className="adm-body" id="admission-form">
         <div className="adm-body-inner">
-          {/* FORM */}
-          <form onSubmit={handleSubmit}>
-            <div className="adm-form-wrap">
-              {/* Header */}
-              <div className="adm-form-header">
-                <span className="adm-form-title">
-                  {step === 1 ? 'Student Information' : step === 2 ? 'Guardian & Contact' : 'Medical & Declaration'}
-                </span>
-                <div className="adm-stepper">
-                  {[1, 2, 3].map((s, i) => (
-                    <React.Fragment key={s}>
-                      <div className={`adm-step-dot ${s === step ? 'active' : s < step ? 'done' : 'future'}`}>{s}</div>
-                      {i < 2 && <div className="adm-step-line" />}
-                    </React.Fragment>
+          {/* Section Introduction */}
+          <div className="adm-form-intro">
+            <h2 className="adm-form-intro-title">
+              Student <em>Application Form</em>
+            </h2>
+            <p className="adm-form-intro-sub">
+              Please fill out the form below to apply for admission for the 2026 / 2027 academic session.
+            </p>
+          </div>
+
+          <div className="adm-form-grid">
+            {/* FORM CARD */}
+            <form onSubmit={handleSubmit}>
+              <div className="adm-form-card">
+                {/* Prestige Header & Stepper */}
+                <div className="adm-form-header">
+                  <div className="adm-form-header-top">
+                    <div>
+                      <div className="adm-form-eyebrow">
+                        <GraduationCap size={13} />
+                        <span>Step {step} of 3</span>
+                      </div>
+                      <span className="adm-form-title">
+                        {step === 1 ? 'Student Details' : step === 2 ? 'Guardian Details' : 'Declaration'}
+                      </span>
+                    </div>
+
+                    {/* Stepper Pills */}
+                    <div className="adm-stepper-pills">
+                      {[
+                        { num: 1, label: 'Student' },
+                        { num: 2, label: 'Guardian' },
+                        { num: 3, label: 'Declaration' }
+                      ].map((item) => {
+                        const isDone = item.num < step;
+                        const isActive = item.num === step;
+                        return (
+                          <div
+                            key={item.num}
+                            className={`adm-step-pill ${isActive ? 'is-active' : isDone ? 'is-done' : ''}`}
+                            onClick={() => {
+                              // Allow moving back to already visited steps
+                              if (item.num < step) setStep(item.num);
+                            }}
+                            style={{ cursor: item.num < step ? 'pointer' : 'default' }}
+                          >
+                            <span className="adm-step-pill-num">
+                              {isDone ? <Check size={11} strokeWidth={3} /> : item.num}
+                            </span>
+                            <span className="adm-step-pill-label">{item.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Progress Indicator Track */}
+                  <div className="adm-stepper-progress-track">
+                    <div
+                      className="adm-stepper-progress-fill"
+                      style={{
+                        width: step === 1 ? '33.33%' : step === 2 ? '66.66%' : '100%'
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Step 1 — Candidate */}
+                {step === 1 && (
+                  <div className="adm-form-body">
+                    <div className="adm-section-header">
+                      <span className="adm-section-badge">Part 01</span>
+                      <h3 className="adm-section-title">Student Details</h3>
+                      <div className="adm-section-line" />
+                    </div>
+
+                    <div className="adm-grid-3">
+                      <div className="adm-field">
+                        <label className="adm-label">Surname <span className="adm-req">*</span></label>
+                        <input required name="surname" value={formData.surname} onChange={handleChange} className="adm-input" placeholder="e.g. Balogun" />
+                      </div>
+                      <div className="adm-field">
+                        <label className="adm-label">First Name <span className="adm-req">*</span></label>
+                        <input required name="firstName" value={formData.firstName} onChange={handleChange} className="adm-input" placeholder="e.g. Adewale" />
+                      </div>
+                      <div className="adm-field">
+                        <label className="adm-label">Middle Name</label>
+                        <input name="middleName" value={formData.middleName} onChange={handleChange} className="adm-input" placeholder="Optional" />
+                      </div>
+                    </div>
+
+                    <div className="adm-grid-3">
+                      <div className="adm-field">
+                        <label className="adm-label">Gender <span className="adm-req">*</span></label>
+                        <select required name="gender" value={formData.gender} onChange={handleChange} className="adm-input">
+                          <option>Male</option>
+                          <option>Female</option>
+                        </select>
+                      </div>
+                      <div className="adm-field">
+                        <label className="adm-label">Date of Birth <span className="adm-req">*</span></label>
+                        <input required type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} className="adm-input" />
+                      </div>
+                      <div className="adm-field">
+                        <label className="adm-label">Class Applying For <span className="adm-req">*</span></label>
+                        <select required name="classApplyingFor" value={formData.classApplyingFor} onChange={handleChange} className="adm-input">
+                          {['JSS 1','JSS 2','JSS 3','SS 1','SS 2','SS 3'].map(c => <option key={c}>{c}</option>)}
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="adm-grid-3">
+                      <div className="adm-field">
+                        <label className="adm-label">State of Origin <span className="adm-req">*</span></label>
+                        <input required name="stateOfOrigin" value={formData.stateOfOrigin} onChange={handleChange} className="adm-input" placeholder="e.g. Lagos State" />
+                      </div>
+                      <div className="adm-field">
+                        <label className="adm-label">LGA <span className="adm-req">*</span></label>
+                        <input required name="lga" value={formData.lga} onChange={handleChange} className="adm-input" placeholder="e.g. Eti-Osa" />
+                      </div>
+                      <div className="adm-field">
+                        <label className="adm-label">Religion</label>
+                        <select name="religion" value={formData.religion} onChange={handleChange} className="adm-input">
+                          <option>Christianity</option>
+                          <option>Islam</option>
+                          <option>Other</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="adm-section-header" style={{ marginTop: 36 }}>
+                      <span className="adm-section-badge">Part 02</span>
+                      <h3 className="adm-section-title">Previous School</h3>
+                      <div className="adm-section-line" />
+                    </div>
+
+                    <div className="adm-grid-2">
+                      <div className="adm-field">
+                        <label className="adm-label">Previous School <span className="adm-req">*</span></label>
+                        <input required name="previousSchool" value={formData.previousSchool} onChange={handleChange} className="adm-input" placeholder="e.g. Corona Primary School" />
+                      </div>
+                      <div className="adm-field">
+                        <label className="adm-label">Last Class Passed <span className="adm-req">*</span></label>
+                        <input required name="lastClassPassed" value={formData.lastClassPassed} onChange={handleChange} className="adm-input" placeholder="e.g. Primary 6 or JSS 3" />
+                      </div>
+                    </div>
+
+                    <div className="adm-nav-row">
+                      <span />
+                      <button type="button" className="adm-btn-next" onClick={() => setStep(2)}>
+                        <span>Next: Guardian Details</span>
+                        <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 2 — Guardian */}
+                {step === 2 && (
+                  <div className="adm-form-body">
+                    <div className="adm-section-header">
+                      <span className="adm-section-badge">Part 01</span>
+                      <h3 className="adm-section-title">Father Details</h3>
+                      <div className="adm-section-line" />
+                    </div>
+
+                    <div className="adm-grid-3">
+                      <div className="adm-field">
+                        <label className="adm-label">Full Name <span className="adm-req">*</span></label>
+                        <input required name="fatherName" value={formData.fatherName} onChange={handleChange} className="adm-input" placeholder="Title and Full Name" />
+                      </div>
+                      <div className="adm-field">
+                        <label className="adm-label">Phone <span className="adm-req">*</span></label>
+                        <input required name="fatherPhone" value={formData.fatherPhone} onChange={handleChange} className="adm-input" placeholder="+234 800 000 0000" />
+                      </div>
+                      <div className="adm-field">
+                        <label className="adm-label">Email <span className="adm-req">*</span></label>
+                        <input required type="email" name="fatherEmail" value={formData.fatherEmail} onChange={handleChange} className="adm-input" placeholder="father@email.com" />
+                      </div>
+                    </div>
+
+                    <div className="adm-section-header" style={{ marginTop: 36 }}>
+                      <span className="adm-section-badge">Part 02</span>
+                      <h3 className="adm-section-title">Mother Details</h3>
+                      <div className="adm-section-line" />
+                    </div>
+
+                    <div className="adm-grid-3">
+                      <div className="adm-field">
+                        <label className="adm-label">Full Name <span className="adm-req">*</span></label>
+                        <input required name="motherName" value={formData.motherName} onChange={handleChange} className="adm-input" placeholder="Title and Full Name" />
+                      </div>
+                      <div className="adm-field">
+                        <label className="adm-label">Phone <span className="adm-req">*</span></label>
+                        <input required name="motherPhone" value={formData.motherPhone} onChange={handleChange} className="adm-input" placeholder="+234 800 000 0000" />
+                      </div>
+                      <div className="adm-field">
+                        <label className="adm-label">Email</label>
+                        <input type="email" name="motherEmail" value={formData.motherEmail} onChange={handleChange} className="adm-input" placeholder="mother@email.com" />
+                      </div>
+                    </div>
+
+                    <div className="adm-section-header" style={{ marginTop: 36 }}>
+                      <span className="adm-section-badge">Part 03</span>
+                      <h3 className="adm-section-title">Home Address</h3>
+                      <div className="adm-section-line" />
+                    </div>
+
+                    <div className="adm-field">
+                      <label className="adm-label">Residential Address <span className="adm-req">*</span></label>
+                      <input required name="residentialAddress" value={formData.residentialAddress} onChange={handleChange} className="adm-input" placeholder="House No, Street, Estate, City, State" />
+                    </div>
+
+                    <div className="adm-nav-row">
+                      <button type="button" className="adm-btn-back" onClick={() => setStep(1)}>
+                        ← Back
+                      </button>
+                      <button type="button" className="adm-btn-next" onClick={() => setStep(3)}>
+                        <span>Next: Declaration</span>
+                        <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 3 — Medical & Declaration */}
+                {step === 3 && (
+                  <div className="adm-form-body">
+                    <div className="adm-section-header">
+                      <span className="adm-section-badge">Part 01</span>
+                      <h3 className="adm-section-title">Medical Information</h3>
+                      <div className="adm-section-line" />
+                    </div>
+
+                    <div className="adm-grid-3">
+                      <div className="adm-field">
+                        <label className="adm-label">Blood Group <span className="adm-req">*</span></label>
+                        <select required name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} className="adm-input">
+                          {['A+','A−','B+','B−','O+','O−','AB+','AB−'].map(b => <option key={b}>{b}</option>)}
+                        </select>
+                      </div>
+                      <div className="adm-field">
+                        <label className="adm-label">Genotype <span className="adm-req">*</span></label>
+                        <select required name="genotype" value={formData.genotype} onChange={handleChange} className="adm-input">
+                          {['AA','AS','SS','AC','SC'].map(g => <option key={g}>{g}</option>)}
+                        </select>
+                      </div>
+                      <div className="adm-field">
+                        <label className="adm-label">Medical Conditions</label>
+                        <input name="medicalConditions" value={formData.medicalConditions} onChange={handleChange} className="adm-input" placeholder="None or specify condition" />
+                      </div>
+                    </div>
+
+                    <div className="adm-section-header" style={{ marginTop: 36 }}>
+                      <span className="adm-section-badge">Part 02</span>
+                      <h3 className="adm-section-title">Declaration</h3>
+                      <div className="adm-section-line" />
+                    </div>
+
+                    <div style={{ background: '#fbf9f6', border: '1px solid #ebe5dc', borderRadius: 10, padding: '20px 24px', marginBottom: 28 }}>
+                      <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#4b5563', lineHeight: 1.7, margin: 0 }}>
+                        By submitting this application, I confirm that all information provided is accurate and complete. I understand that false information will lead to disqualification. I agree to Oakland Schools using this information for admission assessment and enrollment.
+                      </p>
+                    </div>
+
+                    <div className="adm-nav-row">
+                      <button type="button" className="adm-btn-back" onClick={() => setStep(2)}>
+                        ← Back
+                      </button>
+                      <button type="submit" className="adm-btn-next">
+                        <span>Submit Application</span>
+                        <Send size={14} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </form>
+
+            {/* PRESTIGE SIDEBAR */}
+            <div className="adm-sidebar">
+              {/* 1. Protocol Card */}
+              <div className="adm-sidebar-card adm-protocol-card">
+                <div className="adm-protocol-badge">
+                  <ShieldCheck size={13} />
+                  <span>Admissions Guide</span>
+                </div>
+                <div className="adm-protocol-title">
+                  What to Expect After Applying
+                </div>
+
+                <div className="adm-protocol-timeline">
+                  {[
+                    {
+                      num: '1',
+                      title: 'Confirmation Email',
+                      desc: 'You will receive a confirmation email with your application reference number within minutes.'
+                    },
+                    {
+                      num: '2',
+                      title: 'Exam Slip',
+                      desc: 'Shortlisted candidates will receive an entrance exam slip within 10 business days.'
+                    },
+                    {
+                      num: '3',
+                      title: 'Entrance Assessment',
+                      desc: 'The student will write an entrance test in English, Mathematics, and General Science.'
+                    },
+                    {
+                      num: '4',
+                      title: 'Results',
+                      desc: 'Results are sent directly to the guardian email address provided.'
+                    },
+                    {
+                      num: '5',
+                      title: 'Admission Offer',
+                      desc: 'Successful applicants receive an official Oakland Schools Admission Offer Letter.'
+                    }
+                  ].map((item) => (
+                    <div className="adm-protocol-item" key={item.num}>
+                      <div className="adm-protocol-num">{item.num}</div>
+                      <div className="adm-protocol-content">
+                        <div className="adm-protocol-heading">{item.title}</div>
+                        <div className="adm-protocol-text">{item.desc}</div>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
 
-              {/* Step 1 — Student */}
-              {step === 1 && (
-                <div className="adm-form-body">
-                  <div className="adm-section-label">Personal Biodata</div>
-                  <div className="adm-grid-3">
-                    <div className="adm-field">
-                      <label className="adm-label">Surname *</label>
-                      <input required name="surname" value={formData.surname} onChange={handleChange} className="adm-input" placeholder="e.g. Balogun" />
-                    </div>
-                    <div className="adm-field">
-                      <label className="adm-label">First Name *</label>
-                      <input required name="firstName" value={formData.firstName} onChange={handleChange} className="adm-input" placeholder="e.g. Adewale" />
-                    </div>
-                    <div className="adm-field">
-                      <label className="adm-label">Middle Name</label>
-                      <input name="middleName" value={formData.middleName} onChange={handleChange} className="adm-input" placeholder="Optional" />
-                    </div>
-                  </div>
-                  <div className="adm-grid-3">
-                    <div className="adm-field">
-                      <label className="adm-label">Gender *</label>
-                      <select required name="gender" value={formData.gender} onChange={handleChange} className="adm-input">
-                        <option>Male</option>
-                        <option>Female</option>
-                      </select>
-                    </div>
-                    <div className="adm-field">
-                      <label className="adm-label">Date of Birth *</label>
-                      <input required type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleChange} className="adm-input" />
-                    </div>
-                    <div className="adm-field">
-                      <label className="adm-label">Class Applying For *</label>
-                      <select required name="classApplyingFor" value={formData.classApplyingFor} onChange={handleChange} className="adm-input">
-                        {['JSS 1','JSS 2','JSS 3','SS 1','SS 2','SS 3'].map(c => <option key={c}>{c}</option>)}
-                      </select>
-                    </div>
-                  </div>
-                  <div className="adm-grid-3">
-                    <div className="adm-field">
-                      <label className="adm-label">State of Origin *</label>
-                      <input required name="stateOfOrigin" value={formData.stateOfOrigin} onChange={handleChange} className="adm-input" placeholder="e.g. Lagos State" />
-                    </div>
-                    <div className="adm-field">
-                      <label className="adm-label">LGA *</label>
-                      <input required name="lga" value={formData.lga} onChange={handleChange} className="adm-input" placeholder="e.g. Eti-Osa" />
-                    </div>
-                    <div className="adm-field">
-                      <label className="adm-label">Religion</label>
-                      <select name="religion" value={formData.religion} onChange={handleChange} className="adm-input">
-                        <option>Christianity</option>
-                        <option>Islam</option>
-                        <option>Other</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="adm-section-label" style={{ marginTop: 24 }}>Previous Education</div>
-                  <div className="adm-grid-2">
-                    <div className="adm-field">
-                      <label className="adm-label">Previous School *</label>
-                      <input required name="previousSchool" value={formData.previousSchool} onChange={handleChange} className="adm-input" placeholder="e.g. Corona Primary School" />
-                    </div>
-                    <div className="adm-field">
-                      <label className="adm-label">Last Class Passed *</label>
-                      <input required name="lastClassPassed" value={formData.lastClassPassed} onChange={handleChange} className="adm-input" placeholder="e.g. Primary 6 / JSS 3" />
-                    </div>
-                  </div>
-
-                  <div className="adm-nav-row">
-                    <span />
-                    <button type="button" className="adm-btn-next" onClick={() => setStep(2)}>
-                      Next: Guardian Info <ArrowRight size={13} />
-                    </button>
+              {/* 2. Cohort Availability Card */}
+              <div className="adm-sidebar-card adm-cohort-card">
+                <div className="adm-cohort-header">
+                  <div className="adm-cohort-title">Available Classes</div>
+                  <div className="adm-cohort-pulse-badge">
+                    <div className="adm-pulse-dot" />
+                    <span>2026 / 2027</span>
                   </div>
                 </div>
-              )}
 
-              {/* Step 2 — Guardian */}
-              {step === 2 && (
-                <div className="adm-form-body">
-                  <div className="adm-section-label">Father / Male Guardian</div>
-                  <div className="adm-grid-3">
-                    <div className="adm-field">
-                      <label className="adm-label">Full Name *</label>
-                      <input required name="fatherName" value={formData.fatherName} onChange={handleChange} className="adm-input" placeholder="Title + Full Name" />
+                <div className="adm-cohort-list">
+                  {[
+                    { grade: 'JSS 1', status: 'Limited Spaces', type: 'limited' },
+                    { grade: 'JSS 2', status: 'Available', type: 'open' },
+                    { grade: 'SS 1', status: 'Available', type: 'open' },
+                    { grade: 'SS 2', status: 'Limited Spaces', type: 'limited' }
+                  ].map((cohort) => (
+                    <div className="adm-cohort-row" key={cohort.grade}>
+                      <div className="adm-cohort-class">
+                        <CheckCircle2 size={14} style={{ color: cohort.type === 'open' ? '#059669' : '#d97706' }} />
+                        <span>{cohort.grade}</span>
+                      </div>
+                      <span className={`adm-cohort-status ${cohort.type}`}>
+                        {cohort.status}
+                      </span>
                     </div>
-                    <div className="adm-field">
-                      <label className="adm-label">Phone *</label>
-                      <input required name="fatherPhone" value={formData.fatherPhone} onChange={handleChange} className="adm-input" placeholder="+234 800 000 0000" />
-                    </div>
-                    <div className="adm-field">
-                      <label className="adm-label">Email *</label>
-                      <input required type="email" name="fatherEmail" value={formData.fatherEmail} onChange={handleChange} className="adm-input" placeholder="father@email.com" />
+                  ))}
+                </div>
+              </div>
+
+              {/* 3. Admissions Bureau Contact Card */}
+              <div className="adm-sidebar-card adm-desk-card">
+                <div className="adm-desk-badge">
+                  <Building size={13} />
+                  <span>Admissions Office</span>
+                </div>
+                <div className="adm-desk-title">Contact Us</div>
+
+                <div className="adm-desk-items">
+                  <div className="adm-desk-item">
+                    <Phone size={15} className="adm-desk-icon" />
+                    <div>
+                      <div className="adm-desk-strong">+234 800 625 5263</div>
+                      <div style={{ fontSize: 11, color: '#6b7280' }}>Direct admissions desk helpline</div>
                     </div>
                   </div>
 
-                  <div className="adm-section-label" style={{ marginTop: 24 }}>Mother / Female Guardian</div>
-                  <div className="adm-grid-3">
-                    <div className="adm-field">
-                      <label className="adm-label">Full Name *</label>
-                      <input required name="motherName" value={formData.motherName} onChange={handleChange} className="adm-input" placeholder="Title + Full Name" />
-                    </div>
-                    <div className="adm-field">
-                      <label className="adm-label">Phone *</label>
-                      <input required name="motherPhone" value={formData.motherPhone} onChange={handleChange} className="adm-input" placeholder="+234 800 000 0000" />
-                    </div>
-                    <div className="adm-field">
-                      <label className="adm-label">Email</label>
-                      <input type="email" name="motherEmail" value={formData.motherEmail} onChange={handleChange} className="adm-input" placeholder="mother@email.com" />
+                  <div className="adm-desk-item">
+                    <Mail size={15} className="adm-desk-icon" />
+                    <div>
+                      <div className="adm-desk-strong">admissions@oaklandschools.edu</div>
+                      <div style={{ fontSize: 11, color: '#6b7280' }}>Admissions correspondence</div>
                     </div>
                   </div>
 
-                  <div className="adm-section-label" style={{ marginTop: 24 }}>Home Address</div>
-                  <div className="adm-field">
-                    <label className="adm-label">Residential Address *</label>
-                    <input required name="residentialAddress" value={formData.residentialAddress} onChange={handleChange} className="adm-input" placeholder="House No, Street, Estate, City, State" />
-                  </div>
-
-                  <div className="adm-nav-row">
-                    <button type="button" className="adm-btn-back" onClick={() => setStep(1)}>← Back</button>
-                    <button type="button" className="adm-btn-next" onClick={() => setStep(3)}>
-                      Next: Medical Info <ArrowRight size={13} />
-                    </button>
+                  <div className="adm-desk-item">
+                    <Clock size={15} className="adm-desk-icon" />
+                    <div>
+                      <div className="adm-desk-strong">Office Hours</div>
+                      <div style={{ fontSize: 12 }}>Monday – Friday: 8:00am – 4:00pm</div>
+                      <div style={{ fontSize: 12 }}>Saturday: 9:00am – 12:00pm</div>
+                    </div>
                   </div>
                 </div>
-              )}
-
-              {/* Step 3 — Medical */}
-              {step === 3 && (
-                <div className="adm-form-body">
-                  <div className="adm-section-label">Medical Information</div>
-                  <div className="adm-grid-3">
-                    <div className="adm-field">
-                      <label className="adm-label">Blood Group *</label>
-                      <select required name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} className="adm-input">
-                        {['A+','A−','B+','B−','O+','O−','AB+','AB−'].map(b => <option key={b}>{b}</option>)}
-                      </select>
-                    </div>
-                    <div className="adm-field">
-                      <label className="adm-label">Genotype *</label>
-                      <select required name="genotype" value={formData.genotype} onChange={handleChange} className="adm-input">
-                        {['AA','AS','SS','AC','SC'].map(g => <option key={g}>{g}</option>)}
-                      </select>
-                    </div>
-                    <div className="adm-field">
-                      <label className="adm-label">Known Allergies / Conditions</label>
-                      <input name="medicalConditions" value={formData.medicalConditions} onChange={handleChange} className="adm-input" placeholder="None / specify if any" />
-                    </div>
-                  </div>
-
-                  <div className="adm-section-label" style={{ marginTop: 24, color: '#07181a', borderColor: '#d4c9b8' }}>Declaration</div>
-                  <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#6b7280', lineHeight: 1.7, marginBottom: 24 }}>
-                    By submitting this application, I/we confirm that all information provided is accurate and complete. I/we understand that any false declaration will lead to disqualification. I/we consent to Oakland Schools collecting and processing this data for the purposes of admissions assessment and student enrolment.
-                  </p>
-
-                  <div className="adm-nav-row">
-                    <button type="button" className="adm-btn-back" onClick={() => setStep(2)}>← Back</button>
-                    <button type="submit" className="adm-btn-next">
-                      Submit Application <Send size={13} />
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </form>
-
-          {/* SIDEBAR */}
-          <div className="adm-sidebar">
-            <div className="adm-info-block">
-              <div className="adm-info-title">What to Expect After Applying</div>
-              <div className="adm-info-list">
-                {[
-                  'You will receive an automated acknowledgement email within minutes of submission.',
-                  'Shortlisted candidates are contacted within 10 business days with an exam slip.',
-                  'Entrance assessment covers English, Mathematics, and Basic Science / General Knowledge.',
-                  'Results are communicated privately to the parent/guardian email provided.',
-                  'Successful candidates receive an official Oakland Schools Admission Offer Letter.',
-                  'Acceptance of offer must be confirmed within 7 days to secure placement.',
-                ].map((t, i) => (
-                  <div className="adm-info-item" key={i}>
-                    <div className="adm-info-item-dot" />
-                    <span>{t}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="adm-contact-block">
-              <div className="adm-contact-label">Admissions Office</div>
-              <div className="adm-contact-detail">
-                <strong>+234 800 625 5263</strong>
-                admissions@oaklandschools.edu
-              </div>
-              <div className="adm-contact-detail" style={{ marginTop: 12 }}>
-                <strong>Office Hours</strong>
-                Monday – Friday: 8:00am – 4:00pm<br />
-                Saturday: 9:00am – 12:00pm
-              </div>
-            </div>
-
-            <div style={{ background: '#ffffff', padding: 28 }}>
-              <p style={{ fontFamily: 'Playfair Display, Georgia, serif', fontSize: 18, fontWeight: 700, color: '#07181a', marginBottom: 16, lineHeight: 1.3 }}>
-                Classes Currently Accepting Applications
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {['JSS 1 — Limited Spaces', 'JSS 2 — Available', 'SS 1 — Available', 'SS 2 — Limited Spaces'].map((c, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#374151' }}>
-                    <CheckCircle2 size={15} style={{ color: '#0f3a3e', flexShrink: 0 }} />
-                    {c}
-                  </div>
-                ))}
               </div>
             </div>
           </div>
@@ -1361,7 +1894,7 @@ function SuccessScreen({
   };
 
   const primaryPhone = formData?.fatherPhone || formData?.motherPhone || '—';
-  const guardian = formData?.fatherName || formData?.motherName || 'Parent / Guardian';
+  const guardian = formData?.fatherName || formData?.motherName || 'Guardian';
 
   return (
     <div className="min-h-screen bg-slate-50/60 py-12 px-4 sm:px-6 flex items-center justify-center print:bg-white print:p-0 print:m-0">
@@ -1443,7 +1976,7 @@ function SuccessScreen({
 
             <div className="p-3.5 rounded-xl bg-slate-50/80 border border-slate-100 print:bg-white print:border-slate-200">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                Parent / Guardian
+                Guardian
               </span>
               <p className="font-semibold text-slate-800 text-xs mt-0.5">{guardian}</p>
               <p className="text-[11px] text-slate-500 font-mono">{primaryPhone}</p>
