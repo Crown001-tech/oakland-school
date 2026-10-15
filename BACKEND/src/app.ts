@@ -9,9 +9,28 @@ export function createApp(): Express {
   const app = express();
 
   // Security & Cross-Origin Configuration
+  const configuredOrigins = (ENV.CORS_ORIGIN || '')
+    .split(',')
+    .map((o) => o.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+
+  const allowedOrigins = [
+    ...configuredOrigins,
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+  ];
+
   app.use(
     cors({
-      origin: [ENV.CORS_ORIGIN, 'http://localhost:3000', 'http://127.0.0.1:3000'],
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        const normalized = origin.replace(/\/$/, '');
+        if (allowedOrigins.some((allowed) => allowed === '*' || allowed === normalized)) {
+          callback(null, true);
+        } else {
+          callback(null, false);
+        }
+      },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'x-demo-role', 'X-Requested-With', 'Accept'],
