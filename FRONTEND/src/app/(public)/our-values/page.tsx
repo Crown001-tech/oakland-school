@@ -245,8 +245,8 @@ export default function OurValuesPage() {
         .pillar-spread {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 80px;
-          align-items: center;
+          gap: 70px;
+          align-items: stretch;
           margin-bottom: 120px;
         }
         .pillar-spread:last-child {
@@ -261,22 +261,18 @@ export default function OurValuesPage() {
 
         .spread-media {
           position: relative;
-        }
-        .spread-media::before {
-          content: '';
-          position: absolute;
-          inset: -12px;
-          border: 1px solid var(--gold);
-          pointer-events: none;
-          z-index: 1;
-          opacity: 0.6;
+          display: flex;
+          flex-direction: column;
+          height: 100%;
         }
         .spread-img-box {
           position: relative;
-          aspect-ratio: 16/11;
+          width: 100%;
+          height: 100%;
+          min-height: 480px;
+          border: 1px solid var(--border-gold);
           overflow: hidden;
           box-shadow: 0 24px 60px rgba(7, 24, 26, 0.12);
-          z-index: 2;
         }
         .spread-img {
           object-fit: cover;
@@ -289,22 +285,37 @@ export default function OurValuesPage() {
         }
 
         .spread-content {
-          padding: 10px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          height: 100%;
+          padding: 4px 0;
         }
         .spread-num {
           font-family: 'Playfair Display', serif;
-          font-size: 64px;
-          font-weight: 900;
-          color: rgba(212, 168, 90, 0.35);
+          font-size: 42px;
+          font-weight: 800;
+          color: var(--gold);
           line-height: 1;
-          margin-bottom: -16px;
+          margin-bottom: 12px;
+          letter-spacing: -0.01em;
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+        .spread-num::after {
+          content: '';
+          width: 44px;
+          height: 1px;
+          background: var(--gold);
+          opacity: 0.5;
         }
         .spread-title {
           font-family: 'Playfair Display', serif;
           font-size: clamp(28px, 3vw, 40px);
           font-weight: 700;
           color: var(--obsidian);
-          margin-bottom: 18px;
+          margin-bottom: 16px;
           line-height: 1.2;
         }
         .spread-tagline {
@@ -328,6 +339,7 @@ export default function OurValuesPage() {
           gap: 12px;
           border-top: 1px solid rgba(0, 0, 0, 0.08);
           padding-top: 20px;
+          margin-top: auto;
         }
         .spread-manifesto-list li {
           display: flex;
@@ -674,6 +686,7 @@ export default function OurValuesPage() {
         @media (max-width: 1024px) {
           .ethos-manifesto-inner { grid-template-columns: 1fr; gap: 30px; }
           .pillar-spread, .pillar-spread.reverse { grid-template-columns: 1fr; gap: 40px; direction: ltr; }
+          .spread-img-box { min-height: 320px; aspect-ratio: 16/10; }
           .house-tabs { grid-template-columns: 1fr 1fr; }
           .house-spotlight { grid-template-columns: 1fr; gap: 40px; padding: 36px; }
         }
@@ -725,7 +738,7 @@ export default function OurValuesPage() {
       <section className="columns-section">
         <div className="columns-inner">
           <div className="columns-intro">
-            <div className="section-eyebrow">The Five Cornerstones</div>
+            <div className="section-eyebrow">Pillars of Character</div>
             <h2 className="editorial-heading">
               How Character is <em>Formed</em>, Not Merely Taught
             </h2>

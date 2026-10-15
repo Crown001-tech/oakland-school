@@ -167,8 +167,14 @@ export default function AcademicsPage() {
           margin: 0 auto;
           display: grid;
           grid-template-columns: 1.15fr 1fr;
-          gap: 80px;
-          align-items: center;
+          gap: 60px;
+          align-items: stretch;
+        }
+        .philosophy-content {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          height: 100%;
         }
         .section-eyebrow {
           display: inline-flex;
@@ -189,37 +195,38 @@ export default function AcademicsPage() {
         }
         .editorial-heading {
           font-family: 'Playfair Display', serif;
-          font-size: clamp(32px, 3.8vw, 52px);
+          font-size: clamp(32px, 3.8vw, 50px);
           font-weight: 700;
           line-height: 1.15;
           color: var(--obsidian);
           letter-spacing: -0.01em;
-          margin-bottom: 24px;
+          margin-bottom: 20px;
         }
         .editorial-heading em {
           font-style: italic;
           color: var(--crimson);
         }
         .body-p {
-          font-size: 16px;
-          line-height: 1.85;
+          font-size: 15px;
+          line-height: 1.8;
           color: #3e4a59;
           font-weight: 300;
-          margin-bottom: 20px;
+          margin-bottom: 24px;
         }
         .curriculum-pills {
           display: flex;
           flex-direction: column;
           gap: 16px;
-          margin-top: 32px;
+          margin-top: auto;
         }
         .curriculum-pill {
           display: flex;
           align-items: flex-start;
           gap: 16px;
-          padding: 20px 24px;
+          padding: 18px 22px;
           background: #faf8f5;
           border-left: 3px solid var(--gold);
+          border-radius: 2px;
           transition: background 0.3s;
         }
         .curriculum-pill:hover {
@@ -232,24 +239,29 @@ export default function AcademicsPage() {
         }
         .pill-title {
           font-family: 'Playfair Display', serif;
-          font-size: 18px;
+          font-size: 17px;
           font-weight: 700;
           color: var(--obsidian);
           margin-bottom: 4px;
         }
         .pill-desc {
           font-size: 13px;
-          line-height: 1.6;
+          line-height: 1.55;
           color: var(--text-muted);
           font-weight: 300;
         }
 
         .dual-visual {
           position: relative;
+          display: flex;
+          flex-direction: column;
+          height: 100%;
         }
         .dual-visual-frame {
           position: relative;
-          aspect-ratio: 4/5;
+          width: 100%;
+          height: 100%;
+          min-height: 440px;
           border: 1px solid var(--border-gold);
           overflow: hidden;
           box-shadow: 0 24px 60px rgba(7, 24, 26, 0.12);
@@ -261,18 +273,18 @@ export default function AcademicsPage() {
         }
         .dual-badge-floating {
           position: absolute;
-          bottom: 28px;
-          left: 28px;
-          right: 28px;
+          bottom: 24px;
+          left: 24px;
+          right: 24px;
           background: rgba(7, 24, 26, 0.94);
           backdrop-filter: blur(10px);
           border: 1px solid var(--gold);
-          padding: 24px;
+          padding: 20px 24px;
           color: #ffffff;
         }
         .dual-badge-title {
           font-family: 'Playfair Display', serif;
-          font-size: 18px;
+          font-size: 17px;
           font-weight: 700;
           color: var(--gold);
           margin-bottom: 6px;
@@ -408,7 +420,7 @@ export default function AcademicsPage() {
 
         /* ── SECTION: ASSESSMENT & GRADING ── */
         .grading-section {
-          padding: 130px 32px;
+          padding: 120px 32px;
           background: var(--cream);
         }
         .grading-inner {
@@ -417,27 +429,29 @@ export default function AcademicsPage() {
         }
         .grading-layout {
           display: grid;
-          grid-template-columns: 1fr 1.2fr;
-          gap: 80px;
+          grid-template-columns: 1fr 1.15fr;
+          gap: 60px;
           align-items: center;
         }
         .grading-split-box {
           background: #ffffff;
           border: 1px solid rgba(0, 0, 0, 0.08);
-          padding: 44px;
-          box-shadow: 0 20px 40px rgba(7, 24, 26, 0.05);
+          padding: 32px 28px;
+          box-shadow: 0 16px 36px rgba(7, 24, 26, 0.04);
+          margin-top: 24px;
         }
         .split-bar-container {
-          margin: 28px 0;
+          margin: 20px 0 16px;
         }
         .split-bar {
-          height: 36px;
+          height: 38px;
           display: flex;
           overflow: hidden;
+          border-radius: 4px;
           font-family: 'Inter', sans-serif;
           font-size: 11px;
           font-weight: 700;
-          letter-spacing: 0.1em;
+          letter-spacing: 0.08em;
           text-transform: uppercase;
         }
         .split-bar-ca {
@@ -461,53 +475,167 @@ export default function AcademicsPage() {
           display: grid;
           grid-template-columns: 1fr 1fr;
           gap: 20px;
-          margin-top: 24px;
+          margin-top: 18px;
+          padding-top: 18px;
+          border-top: 1px solid rgba(0, 0, 0, 0.06);
         }
         .legend-item h5 {
           font-family: 'Playfair Display', serif;
-          font-size: 18px;
+          font-size: 15px;
           font-weight: 700;
           color: var(--obsidian);
-          margin-bottom: 6px;
+          margin-bottom: 4px;
         }
         .legend-item p {
           font-size: 12px;
           color: var(--text-muted);
-          line-height: 1.6;
+          line-height: 1.55;
         }
 
-        .grade-table-card {
-          background: #ffffff;
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          overflow: hidden;
+        /* ── TABLET MOCKUP CHASSIS ── */
+        .tablet-mockup-wrapper {
+          position: relative;
+          width: 100%;
+          max-width: 580px;
+          margin: 0 auto;
         }
-        .grade-table {
+        .tablet-chassis {
+          background: #101a1c;
+          border-radius: 28px;
+          padding: 14px 12px 16px;
+          box-shadow: 
+            0 24px 60px rgba(7, 24, 26, 0.22),
+            0 8px 24px rgba(7, 24, 26, 0.12),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+          position: relative;
+        }
+        .tablet-camera-notch {
+          width: 7px;
+          height: 7px;
+          background: #1c2b2e;
+          border-radius: 50%;
+          margin: 0 auto 10px;
+          box-shadow: inset 0 1px 2px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.08);
+        }
+        .tablet-screen {
+          background: #ffffff;
+          border-radius: 16px;
+          overflow: hidden;
+          box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+        }
+        .tablet-screen-header {
+          background: #07181a;
+          padding: 12px 16px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid rgba(212, 168, 90, 0.25);
+        }
+        .tablet-screen-brand {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .tablet-screen-brand-icon {
+          width: 20px;
+          height: 20px;
+          border-radius: 50%;
+          background: var(--gold);
+          color: var(--obsidian);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 800;
+          font-size: 11px;
+        }
+        .tablet-screen-title {
+          font-family: 'Playfair Display', serif;
+          font-size: 13px;
+          font-weight: 700;
+          color: #ffffff;
+          letter-spacing: 0.02em;
+        }
+        .tablet-verified-pill {
+          font-family: 'Inter', sans-serif;
+          font-size: 10px;
+          font-weight: 600;
+          color: var(--gold);
+          background: rgba(212, 168, 90, 0.14);
+          border: 1px solid rgba(212, 168, 90, 0.3);
+          padding: 2px 7px;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .tablet-table {
           width: 100%;
           border-collapse: collapse;
           font-family: 'Inter', sans-serif;
         }
-        .grade-table th {
-          background: var(--obsidian);
-          color: var(--gold);
-          font-size: 11px;
+        .tablet-table th {
+          background: #faf8f5;
+          color: #4b5866;
+          font-size: 10px;
           font-weight: 700;
-          letter-spacing: 0.16em;
+          letter-spacing: 0.1em;
           text-transform: uppercase;
-          padding: 16px 20px;
+          padding: 9px 14px;
           text-align: left;
+          border-bottom: 1px solid #eae6df;
         }
-        .grade-table td {
-          padding: 16px 20px;
-          border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-          font-size: 13px;
+        .tablet-table td {
+          padding: 9px 14px;
+          font-size: 12px;
           color: var(--obsidian);
+          border-bottom: 1px solid #f3efea;
         }
-        .grade-table tr:hover td {
+        .tablet-table tr:last-child td {
+          border-bottom: none;
+        }
+        .tablet-table tr:hover td {
           background: #faf8f5;
         }
-        .grade-badge-a {
+        .grade-badge-pill {
+          display: inline-block;
           font-weight: 700;
-          color: #0d8a4f;
+          font-size: 11px;
+          padding: 2px 7px;
+          border-radius: 4px;
+        }
+        .grade-pill-a {
+          background: #e6f7ef;
+          color: #0b7844;
+        }
+        .grade-pill-b {
+          background: #e8f0fe;
+          color: #1a56db;
+        }
+        .grade-pill-c {
+          background: #fef3c7;
+          color: #92400e;
+        }
+        .grade-pill-f {
+          background: #fee2e2;
+          color: #b91c1c;
+        }
+        .tablet-screen-footer {
+          padding: 8px 16px;
+          background: #faf8f5;
+          border-top: 1px solid #eae6df;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 10px;
+          color: #718096;
+        }
+        .tablet-home-indicator {
+          width: 90px;
+          height: 3px;
+          background: #94a3b8;
+          border-radius: 2px;
+          margin: 10px auto 0;
+          opacity: 0.6;
         }
 
         /* ── SECTION: ACADEMIC CALENDAR ── */
@@ -521,51 +649,81 @@ export default function AcademicsPage() {
           margin: 0 auto;
         }
         .term-selector {
-          display: flex;
-          gap: 16px;
-          margin: 40px 0;
-          flex-wrap: wrap;
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
+          margin: 40px 0 32px;
         }
         .term-btn {
-          flex: 1;
-          min-width: 240px;
           background: #faf8f5;
           border: 1px solid rgba(0, 0, 0, 0.08);
-          padding: 24px;
+          padding: 22px;
           cursor: pointer;
           text-align: left;
-          transition: all 0.3s ease;
+          transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+          border-radius: 4px;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          position: relative;
         }
         .term-btn:hover {
           border-color: var(--gold);
           background: #ffffff;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(7, 24, 26, 0.06);
         }
         .term-btn.active {
           background: var(--obsidian);
           color: #ffffff;
-          border-color: var(--obsidian);
-          box-shadow: 0 12px 28px rgba(7, 24, 26, 0.12);
+          border-color: var(--gold);
+          box-shadow: 0 14px 32px rgba(7, 24, 26, 0.14);
+        }
+        .term-btn-badge-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 2px;
         }
         .term-btn-badge {
+          display: inline-block;
           font-size: 10px;
           font-weight: 700;
-          letter-spacing: 0.2em;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
           color: var(--gold);
-          margin-bottom: 8px;
+          background: rgba(212, 168, 90, 0.12);
+          border: 1px solid rgba(212, 168, 90, 0.28);
+          padding: 3px 8px;
+          border-radius: 12px;
+        }
+        .term-btn.active .term-btn-badge {
+          background: var(--gold);
+          color: var(--obsidian);
+          border-color: var(--gold);
+          font-weight: 800;
         }
         .term-btn-title {
           font-family: 'Playfair Display', serif;
           font-size: 20px;
           font-weight: 700;
-          margin-bottom: 4px;
+          color: var(--obsidian);
+          line-height: 1.25;
+          white-space: nowrap;
+        }
+        .term-btn.active .term-btn-title {
+          color: #ffffff;
         }
         .term-btn-dates {
           font-size: 12px;
           color: var(--text-muted);
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          margin-top: 2px;
         }
         .term-btn.active .term-btn-dates {
-          color: rgba(255, 255, 255, 0.65);
+          color: rgba(255, 255, 255, 0.7);
         }
 
         .calendar-agenda {
@@ -692,6 +850,7 @@ export default function AcademicsPage() {
           .grading-layout { grid-template-columns: 1fr; gap: 40px; }
           .agenda-row { grid-template-columns: 1fr; gap: 8px; }
           .agenda-tag { text-align: left; }
+          .term-selector { grid-template-columns: 1fr; }
         }
         @media (max-width: 768px) {
           .acad-metrics-inner { grid-template-columns: 1fr 1fr; gap: 24px; }
@@ -743,7 +902,7 @@ export default function AcademicsPage() {
           <div className="acad-metric-item">
             <div className="acad-metric-num">98.4%</div>
             <div className="acad-metric-lbl">Cambridge Distinction Rate</div>
-            <div className="acad-metric-desc">Grades A* to B across all IGCSE sitting cohorts</div>
+            <div className="acad-metric-desc">Grades A* to B across all graduating classes</div>
           </div>
         </div>
       </section>
@@ -751,24 +910,23 @@ export default function AcademicsPage() {
       {/* ── SECTION: PHILOSOPHY & DUAL CURRICULUM ── */}
       <section className="philosophy-section">
         <div className="philosophy-inner">
-          <div>
-            <div className="section-eyebrow">Curricular Synthesis</div>
-            <h2 className="editorial-heading">
-              The Dual-Engine of <em>British Depth</em> &amp; National Excellence.
-            </h2>
-            <p className="body-p">
-              At Oakland Schools, our academic framework is engineered to eliminate false dichotomies between local cultural relevance and international competitiveness. We run a harmonized dual curriculum where scholars master the Nigerian National Curriculum while concurrently completing the British National Curriculum leading to Cambridge IGCSE qualifications.
-            </p>
-            <p className="body-p">
-              This provides our graduates with an incomparable strategic advantage: eligibility for prestigious Nigerian universities via JAMB/UTME alongside direct, unconditional matriculation into leading Ivy League, Russell Group, and Canadian research universities.
-            </p>
+          <div className="philosophy-content">
+            <div>
+              <div className="section-eyebrow">Curricular Synthesis</div>
+              <h2 className="editorial-heading">
+                The Dual-Engine of <em>British Depth</em> &amp; National Excellence.
+              </h2>
+              <p className="body-p">
+                Our academic framework harmonizes the depth of the British National Curriculum and Cambridge IGCSE with the comprehensive rigor of the Nigerian National Curriculum, preparing scholars for top universities worldwide.
+              </p>
+            </div>
 
             <div className="curriculum-pills">
               <div className="curriculum-pill">
                 <Globe2 className="pill-icon" size={22} />
                 <div>
-                  <h4 className="pill-title">Cambridge Assessment International Education</h4>
-                  <p className="pill-desc">Lower Secondary Checkpoint at JSS 3 and Cambridge IGCSE at SS 2/3 with worldwide university recognition.</p>
+                  <h4 className="pill-title">Cambridge International Education</h4>
+                  <p className="pill-desc">Lower Secondary Checkpoint at JSS 3 and Cambridge IGCSE at SS 2–3 with worldwide university recognition.</p>
                 </div>
               </div>
 
@@ -776,7 +934,7 @@ export default function AcademicsPage() {
                 <Award className="pill-icon" size={22} />
                 <div>
                   <h4 className="pill-title">National Examinations (WAEC &amp; NECO)</h4>
-                  <p className="pill-desc">WASSCE and BECE examinations administered under rigorous proprietary preparation protocols with 100% distinction target.</p>
+                  <p className="pill-desc">BECE and WASSCE administered with structured preparation, targeting 100% university admission readiness.</p>
                 </div>
               </div>
             </div>
@@ -791,9 +949,9 @@ export default function AcademicsPage() {
                 className="dual-visual-img"
               />
               <div className="dual-badge-floating">
-                <h4 className="dual-badge-title">Interactive Seminar Pedagogy</h4>
+                <h4 className="dual-badge-title">Interactive Seminar Learning</h4>
                 <p className="dual-badge-desc">
-                  Classes are conducted in collegiate seminar formats that privilege critical dialogue, socratic questioning, and empirical problem solving over rote memorization.
+                  Classes are conducted in seminar formats that encourage critical inquiry, dialogue, and empirical problem solving over rote memorization.
                 </p>
               </div>
             </div>
@@ -940,20 +1098,20 @@ export default function AcademicsPage() {
         <div className="grading-inner">
           <div className="grading-layout">
             <div>
-              <div className="section-eyebrow">Academic Accountability</div>
+              <div className="section-eyebrow">Academic Standards</div>
               <h2 className="editorial-heading">
                 Continuous Assessment &amp; <em>Grading Integrity</em>
               </h2>
               <p className="body-p">
-                Academic progression at Oakland is governed by transparent, continuous evaluation. We do not evaluate students solely on one high-stakes terminal examination; continuous weekly mastery ensures long-term retention and intellectual discipline.
+                Academic progression combines ongoing evaluation with terminal examinations, ensuring steady mastery and intellectual discipline across every subject.
               </p>
 
               <div className="grading-split-box">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#b3141f' }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--crimson)' }}>
                     Evaluation Distribution
                   </span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#07181a' }}>100% Total Scale</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--obsidian)' }}>100% Total Scale</span>
                 </div>
 
                 <div className="split-bar-container">
@@ -966,71 +1124,94 @@ export default function AcademicsPage() {
                 <div className="split-legend">
                   <div className="legend-item">
                     <h5>CA Breakdown (40%)</h5>
-                    <p>CA1 Project (20%) &bull; CA2 Mid-Term Proctored Examination (20%). Enforces project-based inquiry and independent research.</p>
+                    <p>Projects, lab practicals, and mid-term assessments testing independent inquiry.</p>
                   </div>
                   <div className="legend-item">
                     <h5>Terminal Exam (60%)</h5>
-                    <p>Comprehensive synoptic examination evaluating cumulative mastery across theoretical and practical dimensions.</p>
+                    <p>Comprehensive end-of-term examination evaluating cumulative subject mastery.</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="grade-table-card">
-              <table className="grade-table">
-                <thead>
-                  <tr>
-                    <th>Score Range</th>
-                    <th>Grade</th>
-                    <th>GPA Point</th>
-                    <th>Classification</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>90% – 100%</td>
-                    <td className="grade-badge-a">A+</td>
-                    <td>4.00</td>
-                    <td>High Distinction</td>
-                  </tr>
-                  <tr>
-                    <td>80% – 89%</td>
-                    <td className="grade-badge-a">A</td>
-                    <td>3.80</td>
-                    <td>Distinction</td>
-                  </tr>
-                  <tr>
-                    <td>70% – 79%</td>
-                    <td style={{ fontWeight: 600, color: '#1652f0' }}>B+</td>
-                    <td>3.40</td>
-                    <td>Very Good</td>
-                  </tr>
-                  <tr>
-                    <td>65% – 69%</td>
-                    <td style={{ fontWeight: 600, color: '#1652f0' }}>B</td>
-                    <td>3.00</td>
-                    <td>Good / Credit</td>
-                  </tr>
-                  <tr>
-                    <td>60% – 64%</td>
-                    <td style={{ fontWeight: 600, color: '#8c5e00' }}>C+</td>
-                    <td>2.60</td>
-                    <td>Credit</td>
-                  </tr>
-                  <tr>
-                    <td>50% – 59%</td>
-                    <td style={{ fontWeight: 600, color: '#8c5e00' }}>C</td>
-                    <td>2.00</td>
-                    <td>Pass / Baseline</td>
-                  </tr>
-                  <tr>
-                    <td>Below 50%</td>
-                    <td style={{ fontWeight: 700, color: '#b3141f' }}>F</td>
-                    <td>0.00</td>
-                    <td>Mandatory Remediation</td>
-                  </tr>
-                </tbody>
-              </table>
+            {/* Tablet Mockup Chassis */}
+            <div className="tablet-mockup-wrapper">
+              <div className="tablet-chassis">
+                <div className="tablet-camera-notch" />
+                <div className="tablet-screen">
+                  <div className="tablet-screen-header">
+                    <div className="tablet-screen-brand">
+                      <div className="tablet-screen-brand-icon">O</div>
+                      <span className="tablet-screen-title">Oakland Academic Record</span>
+                    </div>
+                    <div className="tablet-verified-pill">
+                      <CheckCircle2 size={11} color="var(--gold)" />
+                      <span>Grading Standard</span>
+                    </div>
+                  </div>
+
+                  <table className="tablet-table">
+                    <thead>
+                      <tr>
+                        <th>Score Range</th>
+                        <th>Grade</th>
+                        <th>GPA</th>
+                        <th>Classification</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>90% – 100%</td>
+                        <td><span className="grade-badge-pill grade-pill-a">A+</span></td>
+                        <td>4.00</td>
+                        <td style={{ fontWeight: 600 }}>High Distinction</td>
+                      </tr>
+                      <tr>
+                        <td>80% – 89%</td>
+                        <td><span className="grade-badge-pill grade-pill-a">A</span></td>
+                        <td>3.80</td>
+                        <td>Distinction</td>
+                      </tr>
+                      <tr>
+                        <td>70% – 79%</td>
+                        <td><span className="grade-badge-pill grade-pill-b">B+</span></td>
+                        <td>3.40</td>
+                        <td>Very Good</td>
+                      </tr>
+                      <tr>
+                        <td>65% – 69%</td>
+                        <td><span className="grade-badge-pill grade-pill-b">B</span></td>
+                        <td>3.00</td>
+                        <td>Credit</td>
+                      </tr>
+                      <tr>
+                        <td>60% – 64%</td>
+                        <td><span className="grade-badge-pill grade-pill-c">C+</span></td>
+                        <td>2.60</td>
+                        <td>Credit</td>
+                      </tr>
+                      <tr>
+                        <td>50% – 59%</td>
+                        <td><span className="grade-badge-pill grade-pill-c">C</span></td>
+                        <td>2.00</td>
+                        <td>Pass</td>
+                      </tr>
+                      <tr>
+                        <td>Below 50%</td>
+                        <td><span className="grade-badge-pill grade-pill-f">F</span></td>
+                        <td>0.00</td>
+                        <td style={{ color: 'var(--crimson)', fontWeight: 600 }}>Remediation</td>
+                      </tr>
+                    </tbody>
+                  </table>
+
+                  <div className="tablet-screen-footer">
+                    <span>Grading Scale &bull; Senior &amp; Junior Divisions</span>
+                    <span style={{ color: 'var(--gold)', fontWeight: 600 }}>Oakland Standard</span>
+                  </div>
+                </div>
+                <div className="tablet-home-indicator" />
+              </div>
             </div>
           </div>
         </div>
@@ -1040,7 +1221,7 @@ export default function AcademicsPage() {
       <section className="calendar-section">
         <div className="calendar-inner">
           <div style={{ textAlign: 'center', maxWidth: 720, margin: '0 auto' }}>
-            <div className="section-eyebrow" style={{ justifyContent: 'center' }}>Session 2026 / 2027</div>
+            <div className="section-eyebrow" style={{ justifyContent: 'center' }}>2026 – 2027 Academic Session</div>
             <h2 className="editorial-heading">Institutional Academic Term Structure</h2>
             <p style={{ color: '#5a6578', fontSize: 15, fontWeight: 300, lineHeight: 1.8 }}>
               Oakland operates on a tripartite term calendar designed to balance rigorous academic immersion with intellectual rejuvenation.
@@ -1052,27 +1233,39 @@ export default function AcademicsPage() {
               onClick={() => setActiveTerm(1)}
               className={`term-btn ${activeTerm === 1 ? 'active' : ''}`}
             >
-              <div className="term-btn-badge">Current Term</div>
+              <div className="term-btn-badge-row">
+                <span className="term-btn-badge">Current Term</span>
+              </div>
               <div className="term-btn-title">Term 1: Autumn</div>
-              <div className="term-btn-dates">September 1, 2026 – December 18, 2026</div>
+              <div className="term-btn-dates">
+                <Calendar size={13} /> Sept 1, 2026 – Dec 18, 2026
+              </div>
             </button>
 
             <button
               onClick={() => setActiveTerm(2)}
               className={`term-btn ${activeTerm === 2 ? 'active' : ''}`}
             >
-              <div className="term-btn-badge">Upcoming</div>
+              <div className="term-btn-badge-row">
+                <span className="term-btn-badge">Upcoming</span>
+              </div>
               <div className="term-btn-title">Term 2: Lent</div>
-              <div className="term-btn-dates">January 11, 2027 – April 9, 2027</div>
+              <div className="term-btn-dates">
+                <Calendar size={13} /> Jan 11, 2027 – Apr 9, 2027
+              </div>
             </button>
 
             <button
               onClick={() => setActiveTerm(3)}
               className={`term-btn ${activeTerm === 3 ? 'active' : ''}`}
             >
-              <div className="term-btn-badge">Final Term</div>
+              <div className="term-btn-badge-row">
+                <span className="term-btn-badge">Final Term</span>
+              </div>
               <div className="term-btn-title">Term 3: Trinity</div>
-              <div className="term-btn-dates">April 26, 2027 – July 16, 2027</div>
+              <div className="term-btn-dates">
+                <Calendar size={13} /> Apr 26, 2027 – Jul 16, 2027
+              </div>
             </button>
           </div>
 

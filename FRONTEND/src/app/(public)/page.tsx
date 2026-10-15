@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight as ChevRight } from 'lucide-react';
+import { ArrowRight, ChevronDown, ChevronLeft, ChevronRight as ChevRight, BookOpen, Sprout, Users, Building2, GraduationCap, Landmark } from 'lucide-react';
 
 /* ─────────────── COUNTER HOOK ─────────────── */
 function useCountUp(target: number, duration = 2000, trigger: boolean) {
@@ -46,32 +46,38 @@ const ROTATING_WORDS = ['Excellence', 'Character', 'Leadership', 'Integrity', 'P
 /* ─────────────── PILLARS DATA ─────────────── */
 const PILLARS = [
   {
-    icon: '📐',
+    icon: BookOpen,
+    image: '/classroom.jpg',
     title: 'Academic Rigour',
     text: 'CA scores (40%) and terminal exams (60%) are transparently verified before any result is published.',
   },
   {
-    icon: '🌱',
+    icon: Sprout,
+    image: '/orchestra.jpg',
     title: 'Character & Values',
     text: 'Daily assemblies, pastoral care, and a house system nurture discipline, integrity, and responsibility.',
   },
   {
-    icon: '👨‍👩‍👧',
+    icon: Users,
+    image: '/campus-quad.jpg',
     title: 'Parent Visibility',
     text: 'Automated alerts for attendance, incidents, and sealed digital report cards keep parents fully informed.',
   },
   {
-    icon: '🏛️',
+    icon: Building2,
+    image: '/stem-lab.jpg',
     title: 'Modern Facilities',
     text: 'Smart-board classrooms, chemistry and biology labs, a two-storey library, and ICT suites — all in daily use.',
   },
   {
-    icon: '🎓',
+    icon: GraduationCap,
+    image: '/headmaster.jpg',
     title: 'Qualified Teachers',
     text: 'Every teacher is a subject-certified specialist — assigned only within their area of professional training.',
   },
   {
-    icon: '💼',
+    icon: Landmark,
+    image: '/library.jpg',
     title: 'Financial Integrity',
     text: 'A fully audited bursary system handles all fees, salaries, and expenditures with complete accountability.',
   },
@@ -80,6 +86,11 @@ const PILLARS = [
 export default function HomePage() {
   const statsRef = useRef<HTMLDivElement>(null);
   const [statsVisible, setStatsVisible] = useState(false);
+
+  /* Pillars reveal state */
+  const pillarsRef = useRef<HTMLElement>(null);
+  const [pillarsVisible, setPillarsVisible] = useState(false);
+  const [activePillar, setActivePillar] = useState(0);
 
   /* Hero slider state */
   const [slideIndex, setSlideIndex] = useState(0);
@@ -116,6 +127,21 @@ export default function HomePage() {
       { threshold: 0.3 }
     );
     if (statsRef.current) observer.observe(statsRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  /* Pillars observer */
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setPillarsVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.12 }
+    );
+    if (pillarsRef.current) observer.observe(pillarsRef.current);
     return () => observer.disconnect();
   }, []);
 
@@ -387,136 +413,158 @@ export default function HomePage() {
           padding: 14px 20px; white-space: nowrap;
         }
 
-        /* ── PILLARS — BENTO EDITORIAL LAYOUT ── */
+        /* ── PILLARS — EVEN CARD GRID ── */
         .ok-pillars {
           background: #ffffff;
           padding: 120px 32px;
         }
         .ok-pillars-inner { max-width: 1280px; margin: 0 auto; }
 
-        /* Two-column header: left title, right description */
         .ok-pillars-header {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 60px;
-          align-items: end;
-          margin-bottom: 64px;
-          padding-bottom: 48px;
-          border-bottom: 1px solid #e8e4de;
+          margin-bottom: 56px;
+          opacity: 0;
+          transform: translateY(24px);
+          transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
         }
+        .ok-pillars-header.in { opacity: 1; transform: translateY(0); }
         .ok-pillars-header .ok-h2 { margin-bottom: 0; }
-        .ok-pillars-header .ok-body-text { margin-bottom: 0; }
 
-        /* Bento grid: asymmetric layout */
-        .ok-pillars-bento {
-          display: grid;
-          grid-template-columns: 1.4fr 1fr 1fr;
-          grid-template-rows: auto auto;
-          gap: 2px;
-          background: #e8e4de;
-        }
-
-        /* Featured pillar — tall, spans 2 rows */
-        .ok-pillar-featured {
-          grid-column: 1;
-          grid-row: 1 / 3;
-          background: #07181a;
-          padding: 64px 52px;
+        .ok-px-row {
           display: flex;
-          flex-direction: column;
-          justify-content: flex-end;
+          gap: 10px;
+          height: 580px;
+          opacity: 0;
+          transform: translateY(40px);
+          transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.15s, transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+        }
+        .ok-px-row.in { opacity: 1; transform: translateY(0); }
+
+        .ok-px {
           position: relative;
+          flex: 1 1 0;
+          min-width: 0;
           overflow: hidden;
-          min-height: 500px;
-          cursor: default;
-          transition: background 0.3s;
+          border: none;
+          padding: 0;
+          background: #07181a;
+          text-align: left;
+          cursor: pointer;
+          transition: flex-grow 0.9s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .ok-pillar-featured:hover { background: #0e2e32; }
-        .ok-pillar-featured .ok-pillar-num-bg {
-          position: absolute;
-          top: -20px; left: -10px;
-          font-family: 'Playfair Display', serif;
-          font-size: 200px;
-          font-weight: 900;
-          color: rgba(255,255,255,0.04);
-          line-height: 1;
-          pointer-events: none;
-          user-select: none;
+        .ok-px.active { flex-grow: 5; cursor: default; }
+        .ok-px:focus-visible { outline: 2px solid #d4a85a; outline-offset: 3px; }
+
+        .ok-px-img { position: absolute; inset: 0; }
+        .ok-px-img img {
+          object-fit: cover;
+          filter: grayscale(0.85) brightness(0.55);
+          transform: scale(1.12);
+          transition: filter 0.9s ease, transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .ok-pillar-featured .ok-pillar-label {
-          font-family: 'Inter', sans-serif;
-          font-size: 10px; font-weight: 700;
-          letter-spacing: 0.25em; text-transform: uppercase;
-          color: #d4a85a;
-          margin-bottom: 20px;
+        .ok-px:hover .ok-px-img img { filter: grayscale(0.4) brightness(0.65); }
+        .ok-px.active .ok-px-img img { filter: grayscale(0) brightness(0.8); transform: scale(1); }
+
+        .ok-px-shade {
+          position: absolute; inset: 0;
+          background: linear-gradient(180deg, rgba(7,24,26,0.55) 0%, rgba(7,24,26,0.15) 40%, rgba(7,24,26,0.92) 100%);
+          transition: opacity 0.6s ease;
         }
-        .ok-pillar-featured .ok-pillar-title {
-          font-family: 'Playfair Display', Georgia, serif;
-          font-size: clamp(28px, 3vw, 40px);
-          font-weight: 700; color: #fff;
-          line-height: 1.15; margin-bottom: 20px;
-        }
-        .ok-pillar-featured .ok-pillar-text {
-          font-family: 'Inter', sans-serif;
-          font-size: 15px; font-weight: 300;
-          color: rgba(255,255,255,0.6);
-          line-height: 1.8; max-width: 360px;
-        }
-        .ok-pillar-featured .ok-pillar-divider {
-          width: 48px; height: 2px;
-          background: #d4a85a;
-          margin-bottom: 28px;
+        .ok-px.active .ok-px-shade {
+          background: linear-gradient(180deg, rgba(7,24,26,0.35) 0%, rgba(7,24,26,0.1) 30%, rgba(7,24,26,0.92) 100%);
         }
 
-        /* Standard pillar cards */
-        .ok-pillar-card {
-          background: #fff;
-          padding: 44px 40px;
-          position: relative;
-          overflow: hidden;
-          cursor: default;
-          transition: background 0.3s;
-          border-left: 3px solid transparent;
+        /* Gold line along the bottom of the active panel */
+        .ok-px::after {
+          content: '';
+          position: absolute; left: 0; bottom: 0;
+          height: 3px; width: 100%;
+          background: #d4a85a;
+          transform: scaleX(0);
+          transform-origin: left;
+          transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        .ok-pillar-card:hover { background: #faf9f7; border-left-color: #d4a85a; }
-        .ok-pillar-card .ok-pillar-num {
-          font-family: 'Playfair Display', serif;
-          font-size: 11px; font-weight: 700;
+        .ok-px.active::after { transform: scaleX(1); }
+
+        /* Number sits top-left on every panel */
+        .ok-px-num {
+          position: absolute;
+          top: 28px; left: 28px;
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: 15px; font-weight: 700;
           letter-spacing: 0.2em;
-          color: #c4b9a8;
-          text-transform: uppercase;
-          margin-bottom: 32px;
-          display: block;
+          color: #d4a85a;
         }
-        .ok-pillar-card .ok-pillar-title {
+
+        /* Collapsed label: vertical title */
+        .ok-px-vlabel {
+          position: absolute;
+          left: 50%; bottom: 32px;
+          transform: translateX(-50%);
+          writing-mode: vertical-rl;
+          rotate: 180deg;
           font-family: 'Playfair Display', Georgia, serif;
           font-size: 20px; font-weight: 700;
-          color: #07181a; margin-bottom: 14px;
-          line-height: 1.25;
-          transition: color 0.3s;
+          letter-spacing: 0.04em;
+          white-space: nowrap;
+          color: rgba(255,255,255,0.85);
+          opacity: 1;
+          transition: opacity 0.4s ease 0.2s;
         }
-        .ok-pillar-card:hover .ok-pillar-title { color: #b3141f; }
-        .ok-pillar-card .ok-pillar-text {
+        .ok-px.active .ok-px-vlabel { opacity: 0; transition-delay: 0s; }
+
+        /* Expanded content */
+        .ok-px-body {
+          position: absolute;
+          left: 0; bottom: 0;
+          width: 460px; max-width: 100%;
+          padding: 0 44px 48px;
+          opacity: 0;
+          transform: translateY(24px);
+          transition: opacity 0.5s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .ok-px.active .ok-px-body {
+          opacity: 1;
+          transform: translateY(0);
+          transition-delay: 0.35s;
+        }
+        .ok-px-icon {
+          width: 52px; height: 52px;
+          display: flex; align-items: center; justify-content: center;
+          background: #d4a85a; color: #07181a;
+          margin-bottom: 24px;
+        }
+        .ok-px-title {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: clamp(28px, 3vw, 40px);
+          font-weight: 700; line-height: 1.12;
+          color: #ffffff;
+          margin-bottom: 16px;
+        }
+        .ok-px-text {
           font-family: 'Inter', sans-serif;
-          font-size: 14px; font-weight: 300;
-          color: #6b7280; line-height: 1.8;
+          font-size: 15px; font-weight: 300;
+          line-height: 1.75;
+          color: rgba(255,255,255,0.78);
+          max-width: 380px;
         }
 
-        /* Bottom row: 3 equal columns, lighter tint */
-        .ok-pillar-card.light { background: #f5f2ed; }
-        .ok-pillar-card.light:hover { background: #ede9e2; }
-
-        @media (max-width: 1024px) {
-          .ok-pillars-header { grid-template-columns: 1fr; gap: 20px; }
-          .ok-pillars-bento {
-            grid-template-columns: 1fr 1fr;
-            grid-template-rows: auto;
+        @media (max-width: 900px) {
+          .ok-px-row { flex-direction: column; height: auto; gap: 8px; }
+          .ok-px { flex: none; height: 76px; transition: height 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+          .ok-px.active { height: 400px; }
+          .ok-px-num { top: 50%; transform: translateY(-50%); }
+          .ok-px.active .ok-px-num { top: 28px; transform: none; }
+          .ok-px-vlabel {
+            writing-mode: horizontal-tb; rotate: 0deg;
+            left: 72px; bottom: auto; top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
           }
-          .ok-pillar-featured { grid-column: 1 / 3; grid-row: auto; min-height: 380px; }
+          .ok-px-body { width: 100%; padding: 0 28px 32px; }
         }
-        @media (max-width: 640px) {
-          .ok-pillars-bento { grid-template-columns: 1fr; }
-          .ok-pillar-featured { grid-column: 1; }
+        @media (prefers-reduced-motion: reduce) {
+          .ok-pillars-header, .ok-px-row { opacity: 1; transform: none; }
+          .ok-px, .ok-px *, .ok-px::after { transition: none !important; }
         }
 
         /* ── CAMPUS GALLERY ── */
@@ -758,64 +806,51 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ══ PILLARS — BENTO EDITORIAL ══ */}
-      <section className="ok-pillars" id="pillars">
+      {/* ══ PILLARS ══ */}
+      <section className="ok-pillars" id="pillars" ref={pillarsRef}>
         <div className="ok-pillars-inner">
-
-          {/* Two-column header */}
-          <div className="ok-pillars-header">
-            <div>
-              <p className="ok-section-label">The Oakland Standard</p>
-              <h2 className="ok-h2">
-                Six Pillars of<br /><em>Institutional</em> Excellence.
-              </h2>
-            </div>
-            <p className="ok-body-text" style={{ marginBottom: 0 }}>
-              Our school is built on six principles that together ensure every student receives a complete, rigorous, and purposeful education.
-            </p>
+          <div className={`ok-pillars-header ${pillarsVisible ? 'in' : ''}`}>
+            <p className="ok-section-label">The Oakland Standard</p>
+            <h2 className="ok-h2">
+              Six Pillars of<br /><em>Institutional</em> Excellence.
+            </h2>
           </div>
 
-          {/* Asymmetric bento grid */}
-          <div className="ok-pillars-bento">
-
-            {/* Featured pillar — tall, dark, left column spanning 2 rows */}
-            <div className="ok-pillar-featured">
-              <span className="ok-pillar-num-bg">01</span>
-              <p className="ok-pillar-label">Pillar 01</p>
-              <div className="ok-pillar-divider" />
-              <h3 className="ok-pillar-title">{PILLARS[0].title}</h3>
-              <p className="ok-pillar-text">{PILLARS[0].text}</p>
-            </div>
-
-            {/* Top-right: pillars 02 and 03 */}
-            <div className="ok-pillar-card">
-              <span className="ok-pillar-num">Pillar 02</span>
-              <h3 className="ok-pillar-title">{PILLARS[1].title}</h3>
-              <p className="ok-pillar-text">{PILLARS[1].text}</p>
-            </div>
-            <div className="ok-pillar-card">
-              <span className="ok-pillar-num">Pillar 03</span>
-              <h3 className="ok-pillar-title">{PILLARS[2].title}</h3>
-              <p className="ok-pillar-text">{PILLARS[2].text}</p>
-            </div>
-
-            {/* Bottom row: pillars 04, 05, 06 — lighter tint */}
-            <div className="ok-pillar-card light">
-              <span className="ok-pillar-num">Pillar 04</span>
-              <h3 className="ok-pillar-title">{PILLARS[3].title}</h3>
-              <p className="ok-pillar-text">{PILLARS[3].text}</p>
-            </div>
-            <div className="ok-pillar-card light">
-              <span className="ok-pillar-num">Pillar 05</span>
-              <h3 className="ok-pillar-title">{PILLARS[4].title}</h3>
-              <p className="ok-pillar-text">{PILLARS[4].text}</p>
-            </div>
-            <div className="ok-pillar-card light">
-              <span className="ok-pillar-num">Pillar 06</span>
-              <h3 className="ok-pillar-title">{PILLARS[5].title}</h3>
-              <p className="ok-pillar-text">{PILLARS[5].text}</p>
-            </div>
-
+          <div className={`ok-px-row ${pillarsVisible ? 'in' : ''}`}>
+            {PILLARS.map((pillar, i) => {
+              const Icon = pillar.icon;
+              const isActive = activePillar === i;
+              return (
+                <button
+                  key={pillar.title}
+                  type="button"
+                  className={`ok-px ${isActive ? 'active' : ''}`}
+                  onMouseEnter={() => setActivePillar(i)}
+                  onFocus={() => setActivePillar(i)}
+                  onClick={() => setActivePillar(i)}
+                  aria-expanded={isActive}
+                  aria-label={pillar.title}
+                >
+                  <span className="ok-px-img">
+                    <Image
+                      src={pillar.image}
+                      alt=""
+                      fill
+                      sizes="(max-width: 900px) 100vw, 60vw"
+                      quality={80}
+                    />
+                  </span>
+                  <span className="ok-px-shade" />
+                  <span className="ok-px-num">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="ok-px-vlabel">{pillar.title}</span>
+                  <span className="ok-px-body">
+                    <span className="ok-px-icon"><Icon size={24} strokeWidth={1.5} /></span>
+                    <span className="ok-px-title" style={{ display: 'block' }}>{pillar.title}</span>
+                    <span className="ok-px-text" style={{ display: 'block' }}>{pillar.text}</span>
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </section>

@@ -3,7 +3,25 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, Download, Send, X, Sparkles, ShieldCheck, Copy, Check, Printer, Clock } from 'lucide-react';
+import {
+  ArrowRight,
+  CheckCircle2,
+  Download,
+  Send,
+  X,
+  Sparkles,
+  ShieldCheck,
+  Copy,
+  Check,
+  Printer,
+  Clock,
+  FileText,
+  CalendarCheck,
+  PenTool,
+  Award,
+  ArrowDown,
+  ChevronRight
+} from 'lucide-react';
 import { addAdmissionToQueue } from '@/lib/admissions-utils';
 
 interface FormData {
@@ -54,6 +72,73 @@ const INITIAL_FORM: FormData = {
   medicalConditions: '',
 };
 
+const ADMISSION_PHASES = [
+  {
+    num: '01',
+    tabTitle: 'Online Application',
+    badge: 'Stage 01 • Application Submission',
+    title: 'Complete Online Application',
+    tagline: 'Streamlined, 10-minute digital enrollment portal.',
+    desc: 'Families begin the admissions journey by completing our secure digital application. Enter your child’s biodata, previous academic performance records, and authorized guardian contact details.',
+    highlights: [
+      { label: 'Instant Reference', detail: 'A unique application reference number (e.g. OSC-ADM-2026-XXXX) is issued immediately upon submission.' },
+      { label: 'Direct Intake', detail: 'Upload digital copies of birth certificates and previous term report cards without physical campus visits.' },
+      { label: 'Committee Review', detail: 'Applications are instantly routed to the Admissions Board for preliminary credential vetting.' },
+    ],
+    image: '/library.jpg',
+    imageCaption: 'Rotunda Library — Digital Admissions & Research Portal',
+    nextTitle: 'Proceed to Step 02: Entrance Screening',
+  },
+  {
+    num: '02',
+    tabTitle: 'Entrance Screening',
+    badge: 'Stage 02 • Credential Vetting & Docket',
+    title: 'Entrance Screening & Invitation',
+    tagline: 'Shortlisted candidates receive official assessment passes.',
+    desc: 'Our academic review board inspects academic transcripts and background information. Qualified applicants receive an official invitation slip detailing their examination date, venue, and reporting schedule.',
+    highlights: [
+      { label: 'Direct Notification', detail: 'Examination passes are dispatched directly via SMS and secure email to primary guardians.' },
+      { label: 'Guidance Notes', detail: 'Candidates receive preparation syllabus evaluated across Mathematics, English, and Aptitude.' },
+      { label: 'Accommodations', detail: 'Special arrangements available for diaspora and out-of-state transferring scholars.' },
+    ],
+    image: '/classroom.jpg',
+    imageCaption: 'Collegiate Lecture Hall — Admissions Screening & Briefing',
+    nextTitle: 'Proceed to Step 03: Assessment Day',
+  },
+  {
+    num: '03',
+    tabTitle: 'Assessment Day',
+    badge: 'Stage 03 • Academic & Character Evaluation',
+    title: 'Assessment Day & Pastoral Interview',
+    tagline: 'Rigorous cognitive evaluation in collegiate seminar rooms.',
+    desc: 'Candidates visit our campus for a proctored examination evaluating English proficiency, mathematical agility, and analytical problem-solving, accompanied by an interactive pastoral conversation.',
+    highlights: [
+      { label: 'Holistic Evaluation', detail: 'We assess intellectual curiosity, communication clarity, and values alignment alongside test scores.' },
+      { label: 'Proctored Standard', detail: 'Examinations are administered in small seminar formats to ensure calm, focused performance.' },
+      { label: 'Campus Tour', detail: 'Parents enjoy an escorted private walkthrough of our STEM laboratories and residential halls.' },
+    ],
+    image: '/stem-lab.jpg',
+    imageCaption: 'STEM & Applied Science Labs — Proctored Testing Facility',
+    nextTitle: 'Proceed to Step 04: Offer & Enrolment',
+  },
+  {
+    num: '04',
+    tabTitle: 'Offer & Enrolment',
+    badge: 'Stage 04 • Formal Admission & Onboarding',
+    title: 'Offer of Admission & Matriculation',
+    tagline: 'Welcoming future leaders into the Oakland community.',
+    desc: 'Successful applicants receive an official Letter of Offer and Welcome Dossier. Guardians confirm acceptance to secure class placement, receive house assignments, and access the school uniform and books portal.',
+    highlights: [
+      { label: 'Swift Decision', detail: 'Official decisions are communicated within 5 business days following the on-campus assessment.' },
+      { label: 'House Induction', detail: 'Scholars are formally inducted into one of our four historic collegiate houses upon enrollment.' },
+      { label: 'Orientation', detail: 'Comprehensive induction program for new scholars and families prior to term resumption.' },
+    ],
+    image: '/campus-quad.jpg',
+    imageCaption: 'The Central Quadrangle — Matriculation & Scholar Induction',
+    nextTitle: 'Start Online Application (Step 1)',
+  },
+];
+
 let seqCounter = 1000;
 
 export default function PublicAdmissionsPage() {
@@ -61,6 +146,7 @@ export default function PublicAdmissionsPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [applicationNo, setApplicationNo] = useState('');
   const [step, setStep] = useState(1);
+  const [activeJourneyStep, setActiveJourneyStep] = useState<number>(0);
   const totalSteps = 3;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -77,7 +163,7 @@ export default function PublicAdmissionsPage() {
     const fullName = `${formData.firstName} ${formData.surname}`.trim();
     const primaryPhone = formData.fatherPhone || formData.motherPhone || '—';
     const primaryEmail = formData.fatherEmail || formData.motherEmail || '—';
-    const guardianName = formData.fatherName || formData.motherName || 'Parent / Guardian';
+    const guardianName = formData.fatherName || formData.motherName || 'Guardian';
 
     // 1. Post directly into shared admissions queue with all rich profile info
     addAdmissionToQueue({
@@ -198,45 +284,363 @@ export default function PublicAdmissionsPage() {
         }
         .adm-title em { font-style: italic; color: #d4a85a; }
 
-        /* ── PROCESS STEPS ── */
-        .adm-process {
+        /* ── SECTION: ADMISSIONS JOURNEY WALKTHROUGH (NO CARDS) ── */
+        .adm-journey-section {
           background: #07181a;
-          padding: 0 32px;
+          position: relative;
+          padding: 100px 32px 110px;
+          border-top: 1px solid rgba(212, 168, 90, 0.25);
+          border-bottom: 1px solid rgba(212, 168, 90, 0.25);
+          overflow: hidden;
+          color: #ffffff;
         }
-        .adm-process-inner {
+        .adm-journey-ambient {
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(circle at 50% 0%, rgba(212, 168, 90, 0.09) 0%, transparent 60%);
+          pointer-events: none;
+        }
+        .adm-journey-inner {
           max-width: 1280px;
           margin: 0 auto;
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          border-left: 1px solid rgba(255,255,255,0.06);
-        }
-        .adm-step {
-          padding: 40px 32px;
-          border-right: 1px solid rgba(255,255,255,0.06);
           position: relative;
+          z-index: 2;
         }
-        .adm-step-num {
-          font-family: 'Playfair Display', Georgia, serif;
-          font-size: 48px;
+        .adm-journey-header {
+          text-align: center;
+          max-width: 760px;
+          margin: 0 auto 50px;
+        }
+        .adm-journey-eyebrow {
+          font-family: 'Inter', sans-serif;
+          font-size: 11px;
           font-weight: 700;
-          color: rgba(212,168,90,0.2);
-          line-height: 1;
+          letter-spacing: 0.28em;
+          text-transform: uppercase;
+          color: #d4a85a;
+          margin-bottom: 14px;
+          display: inline-flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .adm-journey-eyebrow::before,
+        .adm-journey-eyebrow::after {
+          content: '';
+          display: block;
+          width: 36px;
+          height: 1px;
+          background: #d4a85a;
+          opacity: 0.5;
+        }
+        .adm-journey-title {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: clamp(34px, 4vw, 52px);
+          font-weight: 700;
+          color: #ffffff;
+          line-height: 1.15;
           margin-bottom: 16px;
         }
-        .adm-step-title {
-          font-family: 'Inter', sans-serif;
-          font-size: 13px;
-          font-weight: 600;
-          color: #ffffff;
-          margin-bottom: 8px;
-          letter-spacing: 0.02em;
+        .adm-journey-title em {
+          font-style: italic;
+          color: #d4a85a;
         }
-        .adm-step-text {
+        .adm-journey-sub {
+          font-family: 'Inter', sans-serif;
+          font-size: 15px;
+          font-weight: 300;
+          line-height: 1.8;
+          color: rgba(255, 255, 255, 0.72);
+        }
+
+        /* ── HORIZONTAL STEPPER RAIL (NO CARDS) ── */
+        .adm-stepper-rail {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          border-bottom: 1px solid rgba(212, 168, 90, 0.25);
+          position: relative;
+          margin-bottom: 60px;
+        }
+        .adm-stepper-tab {
+          background: transparent;
+          border: none;
+          padding: 20px 16px;
+          cursor: pointer;
+          text-align: left;
+          position: relative;
+          transition: all 0.3s ease;
+          display: flex;
+          align-items: center;
+          gap: 14px;
+        }
+        .adm-stepper-tab:hover {
+          background: rgba(255, 255, 255, 0.02);
+        }
+        .adm-tab-num {
+          font-family: 'Playfair Display', serif;
+          font-size: 20px;
+          font-weight: 700;
+          color: rgba(212, 168, 90, 0.4);
+          transition: color 0.3s, transform 0.3s;
+        }
+        .adm-stepper-tab.active .adm-tab-num,
+        .adm-stepper-tab:hover .adm-tab-num {
+          color: #d4a85a;
+          transform: scale(1.1);
+        }
+        .adm-tab-label {
           font-family: 'Inter', sans-serif;
           font-size: 12px;
+          font-weight: 600;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          color: rgba(255, 255, 255, 0.55);
+          transition: color 0.3s;
+        }
+        .adm-stepper-tab.active .adm-tab-label {
+          color: #ffffff;
+          font-weight: 700;
+        }
+        .adm-tab-indicator {
+          position: absolute;
+          bottom: -1px;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: #d4a85a;
+          box-shadow: 0 0 12px rgba(212, 168, 90, 0.8);
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+        .adm-stepper-tab.active .adm-tab-indicator {
+          opacity: 1;
+        }
+
+        /* ── THE STAGE (EDITORIAL SPLIT - NO CARDS) ── */
+        .adm-stage {
+          display: grid;
+          grid-template-columns: 1.15fr 1fr;
+          gap: 70px;
+          align-items: stretch;
+          min-height: 520px;
+        }
+        .adm-stage-narrative {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: 10px 0;
+          animation: stageFadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes stageFadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(12px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .stage-eyebrow-row {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-bottom: 8px;
+        }
+        .stage-watermark-num {
+          font-family: 'Playfair Display', serif;
+          font-size: clamp(52px, 5.5vw, 76px);
+          font-weight: 900;
+          line-height: 1;
+          color: #d4a85a;
+          letter-spacing: -0.02em;
+        }
+        .stage-phase-tag {
+          font-family: 'Inter', sans-serif;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: #d4a85a;
+          background: rgba(212, 168, 90, 0.12);
+          border: 1px solid rgba(212, 168, 90, 0.3);
+          padding: 5px 12px;
+          border-radius: 20px;
+        }
+        .stage-heading {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: clamp(28px, 3.2vw, 42px);
+          font-weight: 700;
+          color: #ffffff;
+          line-height: 1.2;
+          margin-bottom: 12px;
+        }
+        .stage-tagline {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-size: 16px;
+          font-style: italic;
+          color: #d4a85a;
+          margin-bottom: 16px;
+        }
+        .stage-desc {
+          font-family: 'Inter', sans-serif;
+          font-size: 15px;
+          line-height: 1.8;
+          color: rgba(255, 255, 255, 0.8);
           font-weight: 300;
-          color: rgba(255,255,255,0.4);
-          line-height: 1.65;
+          margin-bottom: 28px;
+        }
+        .stage-highlights {
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          padding-top: 24px;
+          margin-bottom: 32px;
+        }
+        .stage-highlight-item {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          font-size: 13px;
+          color: rgba(255, 255, 255, 0.85);
+          line-height: 1.6;
+        }
+        .stage-highlight-icon {
+          color: #d4a85a;
+          margin-top: 2px;
+          flex-shrink: 0;
+        }
+        .stage-highlight-item strong {
+          color: #ffffff;
+          font-weight: 600;
+        }
+
+        .stage-footer-actions {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          flex-wrap: wrap;
+          padding-top: 10px;
+        }
+        .stage-btn-primary {
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          background: #d4a85a;
+          color: #07181a;
+          padding: 15px 30px;
+          border-radius: 2px;
+          text-decoration: none;
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          transition: all 0.25s ease;
+          box-shadow: 0 8px 24px rgba(212, 168, 90, 0.25);
+        }
+        .stage-btn-primary:hover {
+          background: #c4943e;
+          transform: translateY(-2px);
+          box-shadow: 0 12px 30px rgba(212, 168, 90, 0.35);
+        }
+        .stage-btn-next {
+          background: transparent;
+          border: 1px solid rgba(255, 255, 255, 0.3);
+          color: #ffffff;
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          padding: 14px 24px;
+          border-radius: 2px;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          transition: all 0.25s ease;
+        }
+        .stage-btn-next:hover {
+          border-color: #d4a85a;
+          color: #d4a85a;
+          transform: translateX(3px);
+        }
+
+        /* ── RIGHT VISUAL STAGE ── */
+        .adm-stage-media {
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+        }
+        .adm-visual-frame {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          min-height: 480px;
+          border: 1px solid rgba(212, 168, 90, 0.35);
+          overflow: hidden;
+          box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+        }
+        .adm-visual-img {
+          object-fit: cover;
+          width: 100%;
+          height: 100%;
+          transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .adm-visual-frame:hover .adm-visual-img {
+          transform: scale(1.03);
+        }
+        .adm-visual-badge {
+          position: absolute;
+          bottom: 24px;
+          left: 24px;
+          right: 24px;
+          background: rgba(7, 24, 26, 0.92);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(212, 168, 90, 0.5);
+          padding: 16px 20px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          color: #ffffff;
+        }
+        .adm-visual-badge-text {
+          font-family: 'Playfair Display', serif;
+          font-size: 14px;
+          font-weight: 600;
+          color: #ffffff;
+        }
+        .adm-visual-badge-step {
+          font-family: 'Inter', sans-serif;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          color: #d4a85a;
+        }
+        .stage-nav-dots {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          margin-top: 24px;
+        }
+        .stage-dot-btn {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          border: 1px solid rgba(212, 168, 90, 0.4);
+          background: transparent;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          padding: 0;
+        }
+        .stage-dot-btn.active {
+          background: #d4a85a;
+          box-shadow: 0 0 10px rgba(212, 168, 90, 0.8);
+          transform: scale(1.25);
         }
 
         /* ── FORM LAYOUT ── */
@@ -542,15 +946,21 @@ export default function PublicAdmissionsPage() {
         @media (max-width: 1024px) {
           .adm-body-inner { grid-template-columns: 1fr; }
           .adm-sidebar { order: -1; }
-          .adm-process-inner { grid-template-columns: repeat(2, 1fr); }
+          .adm-stepper-rail { grid-template-columns: repeat(2, 1fr); }
+          .adm-stage { grid-template-columns: 1fr; gap: 40px; }
+          .adm-visual-frame { min-height: 380px; height: 380px; }
         }
         @media (max-width: 640px) {
           .adm-hero { height: 360px; }
-          .adm-hero-content, .adm-body, .adm-process { padding-left: 20px; padding-right: 20px; }
+          .adm-hero-content, .adm-body, .adm-journey-section { padding-left: 20px; padding-right: 20px; }
+          .adm-journey-section { padding-top: 60px; padding-bottom: 60px; }
+          .adm-stepper-rail { grid-template-columns: 1fr; }
+          .adm-visual-frame { min-height: 280px; height: 280px; }
+          .stage-footer-actions { flex-direction: column; align-items: stretch; }
+          .stage-btn-primary, .stage-btn-next { width: 100%; justify-content: center; }
           .adm-form-body { padding: 24px 20px; }
           .adm-form-header { padding: 24px 20px; }
           .adm-grid-2, .adm-grid-3 { grid-template-columns: 1fr; }
-          .adm-process-inner { grid-template-columns: 1fr; border-left: none; }
           .adm-success-body { padding: 28px 24px; }
           .adm-success-header { padding: 36px 24px; }
         }
@@ -568,26 +978,125 @@ export default function PublicAdmissionsPage() {
         </div>
       </section>
 
-      {/* ── PROCESS STRIP ── */}
-      <div className="adm-process">
-        <div className="adm-process-inner">
-          {[
-            { n: '01', title: 'Complete Application', text: 'Fill out the online form with your child\'s biodata, guardian information, and academic history.' },
-            { n: '02', title: 'Entrance Screening', text: 'Shortlisted candidates receive an exam slip with their scheduled assessment date and venue.' },
-            { n: '03', title: 'Assessment Day', text: 'Candidates sit a structured entrance examination. Results are communicated within 5 working days.' },
-            { n: '04', title: 'Offer & Enrolment', text: 'Successful candidates receive an official admission letter and are onboarded for the new session.' },
-          ].map(s => (
-            <div className="adm-step" key={s.n}>
-              <div className="adm-step-num">{s.n}</div>
-              <div className="adm-step-title">{s.title}</div>
-              <p className="adm-step-text">{s.text}</p>
-            </div>
-          ))}
+      {/* ── SECTION: ADMISSIONS JOURNEY WALKTHROUGH (CARDLESS EDITORIAL STAGE) ── */}
+      <section className="adm-journey-section">
+        <div className="adm-journey-ambient" />
+        <div className="adm-journey-inner">
+          <div className="adm-journey-header">
+            <div className="adm-journey-eyebrow">Admissions Protocol</div>
+            <h2 className="adm-journey-title">
+              The Four-Stage Pathway to <em>Enrollment</em>
+            </h2>
+            <p className="adm-journey-sub">
+              A transparent, merit-guided admissions journey designed to evaluate intellectual readiness, personal character, and welcome families into the Oakland community.
+            </p>
+          </div>
+
+          {/* Stepper Rail - Sleek horizontal timeline, zero cards */}
+          <div className="adm-stepper-rail">
+            {ADMISSION_PHASES.map((p, idx) => {
+              const isActive = activeJourneyStep === idx;
+              return (
+                <button
+                  key={p.num}
+                  type="button"
+                  onClick={() => setActiveJourneyStep(idx)}
+                  className={`adm-stepper-tab ${isActive ? 'active' : ''}`}
+                >
+                  <span className="adm-tab-num">{p.num}</span>
+                  <span className="adm-tab-label">{p.tabTitle}</span>
+                  <div className="adm-tab-indicator" />
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Editorial Stage - 2 column showcase */}
+          {(() => {
+            const currentPhase = ADMISSION_PHASES[activeJourneyStep] || ADMISSION_PHASES[0];
+            const isLastPhase = activeJourneyStep === ADMISSION_PHASES.length - 1;
+            return (
+              <div key={currentPhase.num} className="adm-stage">
+                {/* Left Narrative */}
+                <div className="adm-stage-narrative">
+                  <div>
+                    <div className="stage-eyebrow-row">
+                      <span className="stage-watermark-num">{currentPhase.num}</span>
+                      <span className="stage-phase-tag">{currentPhase.badge}</span>
+                    </div>
+
+                    <h3 className="stage-heading">{currentPhase.title}</h3>
+                    <p className="stage-tagline">{currentPhase.tagline}</p>
+                    <p className="stage-desc">{currentPhase.desc}</p>
+
+                    <div className="stage-highlights">
+                      {currentPhase.highlights.map((h, hIdx) => (
+                        <div key={hIdx} className="stage-highlight-item">
+                          <CheckCircle2 size={16} className="stage-highlight-icon" />
+                          <div>
+                            <strong>{h.label}: </strong>
+                            <span>{h.detail}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="stage-footer-actions">
+                    <a href="#admission-form" className="stage-btn-primary">
+                      <span>Begin Online Application</span>
+                      <ArrowDown size={14} />
+                    </a>
+
+                    <button
+                      type="button"
+                      onClick={() => setActiveJourneyStep((prev) => (prev + 1) % ADMISSION_PHASES.length)}
+                      className="stage-btn-next"
+                    >
+                      <span>{isLastPhase ? 'Back to Step 01' : `Next: Step 0${activeJourneyStep + 2}`}</span>
+                      <ChevronRight size={14} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Right Visual Stage */}
+                <div className="adm-stage-media">
+                  <div className="adm-visual-frame">
+                    <Image
+                      src={currentPhase.image}
+                      alt={currentPhase.title}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      className="adm-visual-img"
+                      priority
+                    />
+                    <div className="adm-visual-badge">
+                      <span className="adm-visual-badge-text">{currentPhase.imageCaption}</span>
+                      <span className="adm-visual-badge-step">Stage 0{activeJourneyStep + 1} of 04</span>
+                    </div>
+                  </div>
+
+                  {/* Navigation Dots */}
+                  <div className="stage-nav-dots">
+                    {ADMISSION_PHASES.map((_, dotIdx) => (
+                      <button
+                        key={dotIdx}
+                        type="button"
+                        aria-label={`Jump to stage ${dotIdx + 1}`}
+                        onClick={() => setActiveJourneyStep(dotIdx)}
+                        className={`stage-dot-btn ${activeJourneyStep === dotIdx ? 'active' : ''}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
         </div>
-      </div>
+      </section>
 
       {/* ── FORM BODY ── */}
-      <div className="adm-body">
+      <div className="adm-body" id="admission-form">
         <div className="adm-body-inner">
           {/* FORM */}
           <form onSubmit={handleSubmit}>

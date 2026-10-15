@@ -154,13 +154,6 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           color: rgba(255,255,255,0.25);
           font-weight: 300;
         }
-        .ok-footer-legal {
-          font-family: 'Inter', sans-serif;
-          font-size: 11px;
-          color: #b3141f;
-          font-weight: 600;
-          letter-spacing: 0.06em;
-        }
 
         @media (max-width: 1024px) {
           .ok-footer-top { grid-template-columns: 1fr 1fr; gap: 40px; }
@@ -279,7 +272,6 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <p className="ok-footer-copy">
               © {new Date().getFullYear()} Oakland Schools. All rights reserved.
             </p>
-            <span className="ok-footer-legal">Strictly Role-Based Access Management</span>
           </div>
         </div>
       </footer>

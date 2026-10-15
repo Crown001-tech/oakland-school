@@ -60,6 +60,33 @@ export default function AboutPage() {
     },
   ];
 
+  const facilities = [
+    {
+      image: '/library.jpg',
+      alt: 'The school library',
+      tag: 'Reading',
+      title: 'The Library',
+      text: 'A two-storey library where students read, research, and study throughout the school day.',
+      features: ['Two-storey building', 'Open to all students', 'In daily use'],
+    },
+    {
+      image: '/students-lab.jpg',
+      alt: 'Students in a science laboratory',
+      tag: 'Science',
+      title: 'Science Laboratories',
+      text: 'Chemistry and biology laboratories where students put classroom theory into practice.',
+      features: ['Chemistry laboratory', 'Biology laboratory', 'In daily use'],
+    },
+    {
+      image: '/classroom.jpg',
+      alt: 'A smart-board classroom',
+      tag: 'Technology',
+      title: 'Smart Classrooms',
+      text: 'Smart-board classrooms and ICT suites bring technology into everyday lessons from JSS 1 to SS 3.',
+      features: ['Smart-board teaching', 'ICT suites', 'In daily use'],
+    },
+  ];
+
   return (
     <div className="ok-about-page">
       <style>{`
@@ -207,7 +234,15 @@ export default function AboutPage() {
           display: grid;
           grid-template-columns: 1fr 1.25fr;
           gap: 80px;
-          align-items: center;
+          align-items: start;
+        }
+        .headmaster-head {
+          max-width: 1280px;
+          margin: 0 auto 64px;
+        }
+        .headmaster-head .editorial-heading {
+          max-width: 900px;
+          margin-bottom: 0;
         }
         .portrait-frame {
           position: relative;
@@ -498,11 +533,11 @@ export default function AboutPage() {
           margin: 0 auto;
         }
         .campus-intro {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 60px;
-          align-items: flex-end;
-          margin-bottom: 70px;
+          margin-bottom: 56px;
+        }
+        .campus-intro .editorial-heading {
+          max-width: 760px;
+          margin-bottom: 0;
         }
         .campus-grid {
           display: grid;
@@ -581,84 +616,6 @@ export default function AboutPage() {
           display: flex;
           align-items: center;
           gap: 8px;
-        }
-
-        /* ── SECTION: GOVERNANCE & FACULTY COUNCIL ── */
-        .governance-section {
-          background: #ffffff;
-          padding: 120px 32px;
-          border-top: 1px solid rgba(0, 0, 0, 0.06);
-        }
-        .gov-inner {
-          max-width: 1280px;
-          margin: 0 auto;
-        }
-        .gov-banner {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 60px;
-          align-items: center;
-          background: var(--obsidian);
-          padding: 60px;
-          color: #ffffff;
-          border-left: 6px solid var(--gold);
-          margin-bottom: 80px;
-        }
-        .gov-banner h3 {
-          font-family: 'Playfair Display', serif;
-          font-size: clamp(28px, 3vw, 42px);
-          font-weight: 700;
-          line-height: 1.2;
-          color: #ffffff;
-        }
-        .gov-banner h3 em {
-          color: var(--gold);
-          font-style: italic;
-        }
-        .gov-banner p {
-          font-size: 15px;
-          font-weight: 300;
-          line-height: 1.8;
-          color: rgba(255, 255, 255, 0.78);
-        }
-
-        .pillars-quad {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 32px;
-        }
-        .quad-item {
-          padding: 32px 24px;
-          border: 1px solid rgba(0, 0, 0, 0.08);
-          background: #faf8f5;
-          position: relative;
-          transition: all 0.3s ease;
-        }
-        .quad-item:hover {
-          background: #ffffff;
-          border-color: var(--gold);
-          transform: translateY(-4px);
-          box-shadow: 0 16px 32px rgba(7, 24, 26, 0.06);
-        }
-        .quad-num {
-          font-family: 'Playfair Display', serif;
-          font-size: 28px;
-          font-weight: 700;
-          color: var(--crimson);
-          margin-bottom: 16px;
-        }
-        .quad-heading {
-          font-family: 'Playfair Display', serif;
-          font-size: 19px;
-          font-weight: 700;
-          color: var(--obsidian);
-          margin-bottom: 10px;
-        }
-        .quad-body {
-          font-size: 13px;
-          line-height: 1.7;
-          color: var(--text-muted);
-          font-weight: 300;
         }
 
         /* ── SECTION: CALL TO ACTION ── */
@@ -753,14 +710,10 @@ export default function AboutPage() {
           .headmaster-grid { grid-template-columns: 1fr; gap: 50px; }
           .timeline-showcase { grid-template-columns: 1fr; padding: 36px; }
           .campus-grid { grid-template-columns: 1fr; }
-          .pillars-quad { grid-template-columns: 1fr 1fr; }
-          .gov-banner { grid-template-columns: 1fr; padding: 40px; }
         }
         @media (max-width: 768px) {
           .stats-dock-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
-          .pillars-quad { grid-template-columns: 1fr; }
           .timeline-nav { overflow-x: auto; padding-bottom: 12px; }
-          .campus-intro { grid-template-columns: 1fr; gap: 20px; }
         }
       `}</style>
 
@@ -815,6 +768,13 @@ export default function AboutPage() {
 
       {/* ── SECTION: HEADMASTER WELCOME ── */}
       <section className="headmaster-section animate-on-scroll" id="headmaster">
+        <div className="headmaster-head">
+          <div className="section-eyebrow">A Message from the Principal</div>
+          <h2 className="editorial-heading">
+            &ldquo;We do not merely prepare students for exams; we prepare them for <em>eternity and influence</em>.&rdquo;
+          </h2>
+        </div>
+
         <div className="headmaster-grid">
           <div className="portrait-frame">
             <div className="portrait-img-box">
@@ -825,18 +785,13 @@ export default function AboutPage() {
                 className="portrait-img"
               />
               <div className="portrait-caption">
-                <div className="portrait-name">Dr. Babatunde Adeleke, F.Ed</div>
-                <div className="portrait-role">Principal &amp; Head of College</div>
+                <div className="portrait-name">Mr Seyi Bankole</div>
+                <div className="portrait-role">Principal</div>
               </div>
             </div>
           </div>
 
           <div className="headmaster-letter">
-            <div className="section-eyebrow">A Message from the Principal</div>
-            <h2 className="editorial-heading">
-              &ldquo;We do not merely prepare students for exams; we prepare them for <em>eternity and influence</em>.&rdquo;
-            </h2>
-
             <p className="drop-cap-p">
               Welcome to Oakland Schools. When we opened our gates in 2008, our founding premise was bold yet timeless: that a truly world-class education must wed intellectual precision with deep moral conviction. In an increasingly interconnected world, tomorrow&apos;s challenges will not be solved by knowledge alone, but by leaders of conscience, resilience, and vision.
             </p>
@@ -854,8 +809,8 @@ export default function AboutPage() {
             <div className="signoff-box">
               <div className="seal-mark">OS</div>
               <div className="signoff-meta">
-                <h6>Dr. Babatunde Adeleke, M.A., Ph.D.</h6>
-                <p>Head of College &bull; Oakland Schools Victoria Island</p>
+                <h6>Mr Seyi Bankole</h6>
+                <p>Principal &bull; Oakland Schools Victoria Island</p>
               </div>
             </div>
           </div>
@@ -906,135 +861,36 @@ export default function AboutPage() {
       <section className="campus-section animate-on-scroll" id="campus">
         <div className="campus-inner">
           <div className="campus-intro">
-            <div>
-              <div className="section-eyebrow">Designed for Purpose</div>
-              <h2 className="editorial-heading">
-                A Purpose-Built Haven for <em>Scholarship</em> &amp; Discovery
-              </h2>
-            </div>
-            <p style={{ color: '#5a6578', fontSize: 16, lineHeight: 1.8, fontWeight: 300 }}>
-              Our 12-acre enclosed campus in the heart of Victoria Island blends classical collegiate architecture with cutting-edge academic technology, creating an inspiring sanctuary for holistic growth.
-            </p>
+            <div className="section-eyebrow">Campus Facilities</div>
+            <h2 className="editorial-heading">
+              Facilities Built for <em>Scholarship</em> and Discovery
+            </h2>
           </div>
 
           <div className="campus-grid">
-            <div className="campus-card">
-              <div className="campus-card-media">
-                <Image
-                  src="/library.jpg"
-                  alt="The Rotunda Library"
-                  fill
-                  className="campus-card-img"
-                />
+            {facilities.map((f) => (
+              <div className="campus-card" key={f.title}>
+                <div className="campus-card-media">
+                  <Image
+                    src={f.image}
+                    alt={f.alt}
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 33vw"
+                    className="campus-card-img"
+                  />
+                </div>
+                <div className="campus-card-content">
+                  <span className="campus-tag">{f.tag}</span>
+                  <h3 className="campus-title">{f.title}</h3>
+                  <p className="campus-text">{f.text}</p>
+                  <ul className="campus-feature-list">
+                    {f.features.map((item) => (
+                      <li key={item}><CheckCircle2 size={13} style={{ color: '#b3141f' }} /> {item}</li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-              <div className="campus-card-content">
-                <span className="campus-tag">Intellectual Hub</span>
-                <h3 className="campus-title">The Rotunda Library</h3>
-                <p className="campus-text">
-                  A two-story collegiate rotunda housing over 15,000 scholarly volumes, silent reading bays, digital JSTOR archives, and quiet study alcoves.
-                </p>
-                <ul className="campus-feature-list">
-                  <li><CheckCircle2 size={13} style={{ color: '#b3141f' }} /> 15,000+ catalogued volumes</li>
-                  <li><CheckCircle2 size={13} style={{ color: '#b3141f' }} /> High-speed research terminals</li>
-                  <li><CheckCircle2 size={13} style={{ color: '#b3141f' }} /> Dedicated senior thesis suites</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="campus-card">
-              <div className="campus-card-media">
-                <Image
-                  src="/stem-lab.jpg"
-                  alt="Robotics & Science Innovation Complex"
-                  fill
-                  className="campus-card-img"
-                />
-              </div>
-              <div className="campus-card-content">
-                <span className="campus-tag">Technological Mastery</span>
-                <h3 className="campus-title">Advanced STEM Labs</h3>
-                <p className="campus-text">
-                  Four specialized laboratories for Chemistry, Biology, Physics, and Robotics, equipped with microcontrollers, 3D printers, and digital sensor suites.
-                </p>
-                <ul className="campus-feature-list">
-                  <li><CheckCircle2 size={13} style={{ color: '#b3141f' }} /> University-grade lab apparatus</li>
-                  <li><CheckCircle2 size={13} style={{ color: '#b3141f' }} /> Robotics arm programming cells</li>
-                  <li><CheckCircle2 size={13} style={{ color: '#b3141f' }} /> Strict international safety standards</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="campus-card">
-              <div className="campus-card-media">
-                <Image
-                  src="/athletics.jpg"
-                  alt="Athletics & Performing Arts"
-                  fill
-                  className="campus-card-img"
-                />
-              </div>
-              <div className="campus-card-content">
-                <span className="campus-tag">Physical &amp; Creative Vigor</span>
-                <h3 className="campus-title">Athletic &amp; Arts Arena</h3>
-                <p className="campus-text">
-                  An Olympic-grade running track, multi-purpose sports pavilion, tennis courts, and an 800-seat acoustic auditorium for symphonic and theatrical arts.
-                </p>
-                <ul className="campus-feature-list">
-                  <li><CheckCircle2 size={13} style={{ color: '#b3141f' }} /> All-weather tartan running track</li>
-                  <li><CheckCircle2 size={13} style={{ color: '#b3141f' }} /> 800-capacity acoustic hall</li>
-                  <li><CheckCircle2 size={13} style={{ color: '#b3141f' }} /> Swimming pool &amp; gymnasium</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── SECTION: GOVERNANCE & QUADRANGLE ── */}
-      <section className="governance-section animate-on-scroll" id="governance">
-        <div className="gov-inner">
-          <div className="gov-banner">
-            <div>
-              <div className="section-eyebrow" style={{ color: '#d4a85a' }}>Institutional Guardianship</div>
-              <h3>Anchored in <em>Accountability</em>, Driven by Excellence.</h3>
-            </div>
-            <p>
-              Oakland Schools operates under the strategic oversight of an independent Board of Regents comprising distinguished educationists, industry leaders, and legal scholars dedicated to sustaining our institutional mission.
-            </p>
-          </div>
-
-          <div className="pillars-quad">
-            <div className="quad-item">
-              <div className="quad-num">01</div>
-              <h4 className="quad-heading">Academic Sanctity</h4>
-              <p className="quad-body">
-                Relentless fidelity to intellectual honesty, rigorous peer evaluation, and international curricular bench-marking across JSS and SS levels.
-              </p>
-            </div>
-
-            <div className="quad-item">
-              <div className="quad-num">02</div>
-              <h4 className="quad-heading">Pastoral Care</h4>
-              <p className="quad-body">
-                A structured collegiate house system ensuring every scholar is known, cherished, safeguarded, and nurtured spiritually, emotionally, and socially.
-              </p>
-            </div>
-
-            <div className="quad-item">
-              <div className="quad-num">03</div>
-              <h4 className="quad-heading">Global Matriculation</h4>
-              <p className="quad-body">
-                Strategic university counselling pathway guiding students into Ivy League, Russell Group, and premier African universities with prestigious merit scholarships.
-              </p>
-            </div>
-
-            <div className="quad-item">
-              <div className="quad-num">04</div>
-              <h4 className="quad-heading">Civic Leadership</h4>
-              <p className="quad-body">
-                Compulsory community engagement and ethical leadership practicums instilling a profound commitment to national advancement and global stewardship.
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
