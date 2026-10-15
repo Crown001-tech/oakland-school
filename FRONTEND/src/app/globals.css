@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-crimson: #b3141f;
+  --color-brand-crimson-hover: #961019;
+  --color-brand-crimson-soft: #fdf2f3;
+  --color-brand-teal: #0f3a3e;
+  --color-brand-teal-light: #164e53;
+  --color-brand-teal-soft: #eaf3f3;
+  --color-brand-ink: #0f172a;
+  --color-brand-ink-muted: #64748b;
+  --color-brand-coral: #b3141f;
+  --color-brand-coral-hover: #961019;
+  --color-brand-coral-soft: #fdf2f3;
+  --color-brand-bg: #f8faf9;
+  --color-brand-surface: #ffffff;
+  --color-brand-border: #e2e8f0;
+}
+
+:root {
+  --background: #f8faf9;
+  --foreground: #0f172a;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom scrollbars for clean data tables */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Precision optical centering for icon + text pairings */
+button svg,
+.btn svg,
+a svg,
+span svg,
+[role="button"] svg {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+button,
+.btn,
+[role="button"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Print Styles ── */
+@media print {
+  /* Hide sidebar, nav, action buttons, modals, and elements marked no-print */
+  aside,
+  nav,
+  header,
+  [data-sidebar],
+  .sidebar,
+  .no-print,
+  .print\:hidden,
+  [class*="print:hidden"],
+  button,
+  a[href^="/proprietor"] {
+    display: none !important;
+  }
+
+  /* Force white backgrounds */
+  body,
+  main,
+  .bg-gradient-to-r,
+  [class*="bg-"] {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+  }
+
+  /* Keep hero card readable in print */
+  .bg-gradient-to-r {
+    border: 2px solid #0f3a3e !important;
+    padding: 16px !important;
+  }
+  .bg-gradient-to-r * {
+    color: #0f172a !important;
+  }
+  .bg-gradient-to-r .bg-black\/25 {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+
+  /* Tables: don't break mid-row */
+  table {
+    page-break-inside: auto;
+  }
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+
+  /* Cards: avoid page-break inside */
+  [class*="Card"],
+  [class*="card"] {
+    page-break-inside: avoid;
+    border: 1px solid #e2e8f0 !important;
+  }
+
+  /* Badges & pills stay visible */
+  [class*="Badge"],
+  [class*="badge"] {
+    border: 1px solid #94a3b8 !important;
+    background: #f8fafc !important;
+    color: #334155 !important;
+  }
+
+  /* Hide interactive-only elements */
+  button:not([type="submit"]),
+  [class*="modal"],
+  [class*="Modal"] {
+    display: none !important;
+  }
+
+  /* Full width, no margins */
+  main {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Page setup */
+  @page {
+    margin: 1.5cm;
+    size: A4;
+  }
+}
+

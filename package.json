@@ -1,0 +1,16 @@
+{
+  "name": "oakland-school-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix FRONTEND",
+    "dev:frontend": "npm run dev --prefix FRONTEND",
+    "dev:backend": "npm run dev --prefix BACKEND",
+    "build:frontend": "npm run build --prefix FRONTEND",
+    "build:backend": "npm run build --prefix BACKEND",
+    "build": "npm run build:backend && npm run build:frontend",
+    "start:frontend": "npm start --prefix FRONTEND",
+    "start:backend": "npm start --prefix BACKEND",
+    "lint": "npm run lint --prefix FRONTEND"
+  }
+}
