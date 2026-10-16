@@ -212,9 +212,9 @@ export default function HomePage() {
         }
         .ok-hero-title {
           font-family: 'Playfair Display', Georgia, serif;
-          font-size: clamp(48px, 7vw, 96px);
+          font-size: clamp(34px, 7vw, 96px);
           font-weight: 900;
-          line-height: 1.0;
+          line-height: 1.05;
           color: #ffffff;
           max-width: 780px;
           margin-bottom: 28px;
@@ -550,17 +550,17 @@ export default function HomePage() {
 
         @media (max-width: 900px) {
           .ok-px-row { flex-direction: column; height: auto; gap: 8px; }
-          .ok-px { flex: none; height: 76px; transition: height 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
-          .ok-px.active { height: 400px; }
+          .ok-px { flex: none; height: 72px; transition: height 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+          .ok-px.active { min-height: 420px; height: auto; }
           .ok-px-num { top: 50%; transform: translateY(-50%); }
-          .ok-px.active .ok-px-num { top: 28px; transform: none; }
+          .ok-px.active .ok-px-num { top: 24px; transform: none; }
           .ok-px-vlabel {
             writing-mode: horizontal-tb; rotate: 0deg;
-            left: 72px; bottom: auto; top: 50%;
+            left: 64px; bottom: auto; top: 50%;
             transform: translateY(-50%);
-            font-size: 18px;
+            font-size: 16px;
           }
-          .ok-px-body { width: 100%; padding: 0 28px 32px; }
+          .ok-px-body { width: 100%; padding: 0 24px 28px; }
         }
         @media (prefers-reduced-motion: reduce) {
           .ok-pillars-header, .ok-px-row { opacity: 1; transform: none; }
@@ -682,15 +682,41 @@ export default function HomePage() {
           .ok-gal-span-col { grid-column: 1 / 3; grid-row: 1 / 2; }
         }
         @media (max-width: 640px) {
-          .ok-hero-content { padding: 0 20px 60px; }
-          .ok-stats-inner { grid-template-columns: 1fr 1fr; }
-          .ok-editorial, .ok-pillars, .ok-gallery, .ok-academics { padding: 80px 20px; }
-          .ok-gallery-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+          .ok-hero-content { padding: 0 20px 48px; }
+          .ok-hero-sub { font-size: 14px; line-height: 1.6; margin-bottom: 28px; }
+          .ok-cta-row { flex-direction: column; align-items: stretch; gap: 12px; }
+          .ok-btn-primary, .ok-btn-ghost { width: 100%; justify-content: center; padding: 14px 20px; }
+          .ok-stats-strip { padding: 48px 16px; }
+          .ok-stats-inner { grid-template-columns: 1fr 1fr; gap: 16px; }
+          .stat-item { padding: 0 8px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 16px; }
+          .stat-number { font-size: 34px; }
+          .stat-label { font-size: 9.5px; letter-spacing: 0.12em; text-align: center; }
+          .ok-editorial, .ok-pillars, .ok-gallery, .ok-academics { padding: 64px 20px; }
+          .ok-gallery-header { flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: 32px; }
+          .ok-gallery-grid { grid-template-columns: 1fr; grid-template-rows: auto; gap: 12px; }
           .ok-gal-span-col { grid-column: 1; grid-row: 1; }
-          .ok-gal-item { height: 260px; }
-          .ok-img-stack { height: 400px; }
-          .ok-pillars-grid { grid-template-columns: 1fr; }
-          .ok-slider-nav { right: 16px; }
+          .ok-gal-item { height: 240px; }
+          .ok-gal-caption { opacity: 1; background: linear-gradient(transparent, rgba(7,24,26,0.92)); padding: 20px 16px 14px; }
+          .ok-img-stack { height: 320px; }
+          .ok-img-badge {
+            top: auto; bottom: 12px; left: auto; right: 12px;
+            transform: none; padding: 8px 12px; font-size: 9px;
+            white-space: normal; max-width: 180px; text-align: center;
+          }
+          .ok-term-item { grid-template-columns: 1fr auto; gap: 12px; padding: 18px 0; }
+          .ok-term-num { display: none; }
+          .ok-curriculum-img { height: 320px; margin-top: 24px; }
+          .ok-cta-section { padding: 80px 20px; }
+          .ok-slider-nav { bottom: 16px; right: 16px; }
+        }
+        @media (max-width: 480px) {
+          .ok-stats-inner { grid-template-columns: 1fr; gap: 20px; }
+          .stat-item { border-right: none; }
+          .ok-px.active { min-height: 440px; }
+          .ok-px-body { padding: 0 18px 24px; }
+          .ok-px-title { font-size: 24px; }
+          .ok-px-text { font-size: 13.5px; }
+          .ok-img-stack { height: 280px; }
         }
       `}</style>
 
@@ -719,7 +745,7 @@ export default function HomePage() {
             Becomes a Standard.
           </h1>
           <p className="ok-hero-sub">
-            Oakland Schools is Lagos's leading international secondary college — combining the Nigerian curriculum with global academic standards, moral formation, and leadership development.
+            Oakland Schools is Lagos&apos;s leading international secondary college — combining the Nigerian curriculum with global academic standards, moral formation, and leadership development.
           </p>
           <div className="ok-cta-row">
             <Link href="/admissions" className="ok-btn-primary">
@@ -784,10 +810,10 @@ export default function HomePage() {
               A Legacy of<br /><em>Intellectual Courage</em><br />& Character.
             </h2>
             <p className="ok-body-text">
-              Founded on the belief that African excellence deserves world-class infrastructure, Oakland Schools has grown into one of Lagos's most respected secondary institutions. Our graduates consistently succeed in WAEC, JAMB, and international scholarship programmes.
+              Founded on the belief that African excellence deserves world-class infrastructure, Oakland Schools has grown into one of Lagos&apos;s most respected secondary institutions. Our graduates consistently succeed in WAEC, JAMB, and international scholarship programmes.
             </p>
             <blockquote className="ok-pull-quote">
-              "We do not merely educate minds — we build the conscience and character of tomorrow's leaders."
+              &ldquo;We do not merely educate minds — we build the conscience and character of tomorrow&apos;s leaders.&rdquo;
             </blockquote>
             <p className="ok-body-text">
               From JSS 1 through SS 3, every student learns in a structured, technology-supported environment: smart classrooms, a two-storey library, science and ICT laboratories, and a staff of over 24 qualified professionals.
@@ -944,7 +970,7 @@ export default function HomePage() {
             Admissions Open
           </p>
           <h2 className="ok-cta-title">
-            Secure Your Child's<br /><em>Future</em> at Oakland.
+            Secure Your Child&apos;s<br /><em>Future</em> at Oakland.
           </h2>
           <div className="ok-divider" />
           <p className="ok-cta-sub">

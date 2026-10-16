@@ -1,24 +1,26 @@
 import React from 'react';
 import Link from 'next/link';
 import { Logo } from '@/components/brand/Logo';
+import { PublicNavbar } from '@/components/brand/PublicNavbar';
 import { MapPin, Mail, Phone } from 'lucide-react';
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="ok-public-root" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f5f2ed' }}>
+    <div className="ok-public-root" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f5f2ed', overflowX: 'hidden' }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
         /* ── ANNOUNCEMENT BAR ── */
         .ok-bar {
           background: #b3141f;
-          color: rgba(255,255,255,0.9);
+          color: rgba(255,255,255,0.92);
           font-family: 'Inter', sans-serif;
           font-size: 11px;
           font-weight: 500;
-          letter-spacing: 0.08em;
+          letter-spacing: 0.06em;
           text-align: center;
-          padding: 10px 20px;
+          padding: 9px 16px;
+          line-height: 1.5;
         }
         .ok-bar a {
           color: #fff;
@@ -26,6 +28,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           text-decoration: underline;
           text-underline-offset: 3px;
           margin-left: 8px;
+          white-space: nowrap;
         }
 
         /* ── NAVBAR ── */
@@ -46,12 +49,12 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 32px;
+          gap: 24px;
         }
         .ok-nav-links {
           display: flex;
           align-items: center;
-          gap: 40px;
+          gap: 8px;
           list-style: none;
         }
         .ok-nav-link {
@@ -60,22 +63,55 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           font-weight: 500;
           letter-spacing: 0.12em;
           text-transform: uppercase;
-          color: rgba(255,255,255,0.65);
+          color: rgba(255, 255, 255, 0.7);
           text-decoration: none;
-          transition: color 0.2s;
           position: relative;
-          padding-bottom: 3px;
+          padding: 8px 16px;
+          border-radius: 4px;
+          transition: color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                      background-color 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+                      transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+          will-change: transform, background-color, color;
         }
         .ok-nav-link::after {
           content: '';
           position: absolute;
-          bottom: 0; left: 0;
-          width: 0; height: 1px;
+          bottom: 4px;
+          left: 16px;
+          right: 16px;
+          height: 2px;
           background: #d4a85a;
-          transition: width 0.3s ease;
+          border-radius: 2px;
+          transform: scaleX(0);
+          transform-origin: center;
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          will-change: transform;
         }
-        .ok-nav-link:hover { color: #ffffff; }
-        .ok-nav-link:hover::after { width: 100%; }
+        .ok-nav-link:hover {
+          color: #ffffff;
+          background: rgba(212, 168, 90, 0.1);
+          transform: translateY(-1px);
+        }
+        .ok-nav-link:hover::after {
+          transform: scaleX(1);
+        }
+        .ok-nav-link.active {
+          color: #d4a85a;
+          font-weight: 600;
+          background: rgba(212, 168, 90, 0.12);
+        }
+        .ok-nav-link.active::after {
+          transform: scaleX(1);
+        }
+        .ok-nav-link:active {
+          transform: translateY(0) scale(0.98);
+        }
+
+        .ok-nav-actions {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
         .ok-nav-cta {
           font-family: 'Inter', sans-serif;
           font-size: 11px;
@@ -84,12 +120,243 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           text-transform: uppercase;
           color: #07181a;
           background: #d4a85a;
-          padding: 11px 24px;
+          padding: 10px 22px;
           text-decoration: none;
-          transition: background 0.2s;
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
           white-space: nowrap;
+          border-radius: 4px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+          will-change: transform, box-shadow;
         }
-        .ok-nav-cta:hover { background: #c4943e; }
+        .ok-nav-cta:hover {
+          background: #e5b96c;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 18px rgba(212, 168, 90, 0.35);
+        }
+        .ok-nav-cta:active {
+          transform: translateY(0) scale(0.97);
+          box-shadow: 0 2px 6px rgba(212, 168, 90, 0.2);
+        }
+
+        .ok-hamburger-btn {
+          display: none;
+          align-items: center;
+          justify-content: center;
+          width: 42px;
+          height: 42px;
+          border-radius: 6px;
+          border: 1px solid rgba(212, 168, 90, 0.3);
+          background: rgba(255, 255, 255, 0.05);
+          color: #d4a85a;
+          cursor: pointer;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          will-change: transform, background-color, border-color;
+        }
+        .ok-hamburger-btn:hover {
+          background: rgba(212, 168, 90, 0.18);
+          border-color: #d4a85a;
+          color: #ffffff;
+          transform: translateY(-1px) scale(1.05);
+          box-shadow: 0 4px 14px rgba(212, 168, 90, 0.2);
+        }
+        .ok-hamburger-btn:active {
+          transform: translateY(0) scale(0.94);
+          background: rgba(212, 168, 90, 0.28);
+        }
+
+        /* ── MOBILE DRAWER MICRO-INTERACTIONS ── */
+        .ok-drawer-close-btn {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          color: #d4a85a;
+          cursor: pointer;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          will-change: transform, background-color, border-color;
+        }
+        .ok-drawer-close-btn:hover {
+          background: rgba(212, 168, 90, 0.2);
+          border-color: #d4a85a;
+          color: #ffffff;
+          transform: rotate(90deg) scale(1.06);
+        }
+        .ok-drawer-close-btn:active {
+          transform: rotate(90deg) scale(0.92);
+        }
+
+        .ok-drawer-nav-list {
+          list-style: none;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          padding: 0;
+          margin: 0;
+        }
+        .ok-drawer-nav-link {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 14px 18px;
+          border-radius: 6px;
+          font-family: 'Inter', sans-serif;
+          font-size: 13.5px;
+          font-weight: 500;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: rgba(255, 255, 255, 0.78);
+          background: transparent;
+          border-left: 3px solid transparent;
+          text-decoration: none;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          will-change: transform, background-color, border-color;
+        }
+        .ok-drawer-nav-link:hover {
+          color: #ffffff;
+          background: rgba(212, 168, 90, 0.14);
+          border-left-color: #d4a85a;
+          transform: translateX(6px);
+        }
+        .ok-drawer-nav-link:active {
+          transform: translateX(4px) scale(0.98);
+          background: rgba(212, 168, 90, 0.22);
+        }
+        .ok-drawer-nav-link.active {
+          background: #d4a85a;
+          color: #07181a;
+          font-weight: 700;
+          border-left-color: #c4943e;
+          box-shadow: 0 4px 16px rgba(212, 168, 90, 0.25);
+          transform: none;
+        }
+        .ok-drawer-nav-link.active:hover {
+          background: #e5b96c;
+          color: #07181a;
+          transform: translateX(3px);
+          box-shadow: 0 6px 20px rgba(212, 168, 90, 0.35);
+        }
+        .ok-drawer-nav-link.active:active {
+          transform: scale(0.98);
+        }
+
+        .ok-drawer-nav-arrow {
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      opacity 0.25s ease,
+                      color 0.25s ease;
+          opacity: 0.45;
+          will-change: transform;
+        }
+        .ok-drawer-nav-link:hover .ok-drawer-nav-arrow {
+          transform: translateX(4px);
+          opacity: 1;
+          color: #d4a85a;
+        }
+        .ok-drawer-nav-link.active .ok-drawer-nav-arrow {
+          opacity: 0.9;
+          color: #07181a;
+        }
+        .ok-drawer-nav-link.active:hover .ok-drawer-nav-arrow {
+          transform: translateX(2px);
+        }
+
+        .ok-drawer-cta-primary {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 15px 20px;
+          background: #b3141f;
+          color: #ffffff;
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          text-decoration: none;
+          border-radius: 4px;
+          box-shadow: 0 4px 14px rgba(179, 20, 31, 0.35);
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          will-change: transform, box-shadow;
+        }
+        .ok-drawer-cta-primary:hover {
+          background: #c91824;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(179, 20, 31, 0.55);
+        }
+        .ok-drawer-cta-primary:hover svg {
+          transform: translateX(4px);
+        }
+        .ok-drawer-cta-primary svg {
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .ok-drawer-cta-primary:active {
+          transform: translateY(0) scale(0.98);
+          box-shadow: 0 3px 10px rgba(179, 20, 31, 0.3);
+        }
+
+        .ok-drawer-cta-secondary {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 14px 20px;
+          background: transparent;
+          border: 1px solid rgba(212, 168, 90, 0.4);
+          color: #d4a85a;
+          font-family: 'Inter', sans-serif;
+          font-size: 12px;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          text-decoration: none;
+          border-radius: 4px;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+          transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      color 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                      box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          will-change: transform, background-color, border-color;
+        }
+        .ok-drawer-cta-secondary:hover {
+          background: rgba(212, 168, 90, 0.15);
+          border-color: #d4a85a;
+          color: #ffffff;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(212, 168, 90, 0.25);
+        }
+        .ok-drawer-cta-secondary:active {
+          transform: translateY(0) scale(0.98);
+        }
 
         /* ── FOOTER ── */
         .ok-footer {
@@ -156,13 +423,16 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         }
 
         @media (max-width: 1024px) {
+          .ok-nav-links { display: none; }
+          .ok-hamburger-btn { display: flex; }
           .ok-footer-top { grid-template-columns: 1fr 1fr; gap: 40px; }
         }
         @media (max-width: 640px) {
-          .ok-nav-links { display: none; }
-          .ok-footer-top { grid-template-columns: 1fr; gap: 36px; }
-          .ok-nav-inner { padding: 0 20px; }
-          .ok-footer { padding: 60px 20px 32px; }
+          .ok-nav-inner { padding: 0 16px; height: 68px; }
+          .ok-nav-cta { display: none; }
+          .ok-bar { font-size: 10px; padding: 8px 12px; }
+          .ok-footer-top { grid-template-columns: 1fr; gap: 32px; }
+          .ok-footer { padding: 48px 16px 28px; }
         }
 
         @media print {
@@ -190,22 +460,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         <Link href="/admissions">Apply Online →</Link>
       </div>
 
-      {/* ── Navigation ── */}
-      <nav className="ok-nav">
-        <div className="ok-nav-inner">
-          <Logo size="md" href="/" theme="dark" />
-
-          <ul className="ok-nav-links">
-            <li><Link href="/" className="ok-nav-link">Home</Link></li>
-            <li><Link href="/about" className="ok-nav-link">About</Link></li>
-            <li><Link href="/academics" className="ok-nav-link">Academics</Link></li>
-            <li><Link href="/our-values" className="ok-nav-link">Our Values</Link></li>
-            <li><Link href="/admissions" className="ok-nav-link">Admissions</Link></li>
-          </ul>
-
-          <Link href="/login" className="ok-nav-cta">Staff Login</Link>
-        </div>
-      </nav>
+      {/* ── Responsive Navigation Bar ── */}
+      <PublicNavbar />
 
       {/* ── Content ── */}
       <main style={{ flex: 1 }}>{children}</main>

@@ -714,6 +714,34 @@ export default function AboutPage() {
         @media (max-width: 768px) {
           .stats-dock-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
           .timeline-nav { overflow-x: auto; padding-bottom: 12px; }
+          .portrait-frame::after { display: none; }
+          .portrait-frame::before { inset: -6px; }
+          .headmaster-letter { padding-left: 0; }
+        }
+        @media (max-width: 640px) {
+          .about-hero { padding: 100px 20px 48px; min-height: 60vh; }
+          .about-hero-subtitle { font-size: 15px; margin-bottom: 24px; }
+          .stats-dock { padding: 36px 20px; }
+          .headmaster-section, .timeline-section, .campus-section { padding: 60px 20px; }
+          .headmaster-head { margin-bottom: 32px; }
+          .drop-cap-p::first-letter {
+            font-size: 40px;
+            line-height: 34px;
+            padding-top: 2px;
+            padding-right: 10px;
+          }
+          .timeline-header { margin-bottom: 36px; gap: 20px; }
+          .timeline-showcase { padding: 24px 18px; gap: 24px; }
+          .milestone-year { font-size: clamp(48px, 12vw, 80px); }
+          .campus-card-content { padding: 24px 18px; }
+          .cta-strip { padding: 64px 20px; }
+          .cta-actions { flex-direction: column; gap: 12px; }
+          .btn-gold, .btn-outline { width: 100%; justify-content: center; }
+        }
+        @media (max-width: 480px) {
+          .stats-dock-grid { grid-template-columns: 1fr; gap: 20px; }
+          .stats-dock-item { padding-left: 16px; }
+          .stats-dock-val { font-size: 36px; }
         }
       `}</style>
 

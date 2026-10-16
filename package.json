@@ -3,14 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "npm run dev --prefix FRONTEND",
-    "dev:frontend": "npm run dev --prefix FRONTEND",
-    "dev:backend": "npm run dev --prefix BACKEND",
-    "build:frontend": "npm run build --prefix FRONTEND",
-    "build:backend": "npm run build --prefix BACKEND",
-    "build": "npm run build:backend && npm run build:frontend",
-    "start:frontend": "npm start --prefix FRONTEND",
-    "start:backend": "npm start --prefix BACKEND",
-    "lint": "npm run lint --prefix FRONTEND"
+    "dev": "pnpm --filter oakland-school dev",
+    "dev:frontend": "pnpm --filter oakland-school dev",
+    "dev:backend": "pnpm --filter oakland-school-backend dev",
+    "build:frontend": "pnpm --filter oakland-school build",
+    "build:backend": "pnpm --filter oakland-school-backend build",
+    "build": "pnpm --filter oakland-school-backend build && pnpm --filter oakland-school build",
+    "start:frontend": "pnpm --filter oakland-school start",
+    "start:backend": "pnpm --filter oakland-school-backend start",
+    "lint": "pnpm --filter oakland-school lint"
   }
 }

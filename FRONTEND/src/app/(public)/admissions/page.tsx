@@ -1300,6 +1300,10 @@ export default function PublicAdmissionsPage() {
           margin-top: 1px;
         }
 
+        .adm-step-mobile-media {
+          display: none;
+        }
+
         @media (max-width: 1024px) {
           .adm-form-grid {
             grid-template-columns: 1fr;
@@ -1332,29 +1336,46 @@ export default function PublicAdmissionsPage() {
             left: -40px;
           }
         }
+        @media (max-width: 768px) {
+          .adm-sticky-col { display: none !important; }
+          .adm-step-mobile-media {
+            display: block;
+            position: relative;
+            width: 100%;
+            height: 190px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 14px 0 12px;
+            border: 1px solid rgba(212, 168, 90, 0.3);
+          }
+          .adm-step-item { min-height: auto !important; padding: 20px 0 28px !important; }
+          .adm-steps-col { padding-left: 28px !important; }
+          .adm-timeline-spine { left: 4px !important; }
+          .adm-step-indicator-node { left: -28px !important; }
+        }
         @media (max-width: 640px) {
-          .adm-hero { height: 360px; }
-          .adm-hero-content, .adm-body, .adm-scroll-section { padding-left: 20px; padding-right: 20px; }
-          .adm-body { padding-top: 60px; padding-bottom: 80px; }
-          .adm-form-intro { margin-bottom: 36px; }
-          .adm-form-intro-title { font-size: 28px; }
-          .adm-form-body { padding: 28px 20px 24px; }
-          .adm-form-header { padding: 24px 20px 18px; }
+          .adm-hero { height: 280px; }
+          .adm-title { font-size: clamp(28px, 6vw, 44px); }
+          .adm-hero-content, .adm-body, .adm-scroll-section { padding-left: 16px; padding-right: 16px; }
+          .adm-body { padding-top: 48px; padding-bottom: 60px; }
+          .adm-form-intro { margin-bottom: 24px; }
+          .adm-form-intro-title { font-size: 26px; }
+          .adm-form-card { border-radius: 4px; }
+          .adm-form-header { padding: 20px 16px 16px; }
+          .adm-form-body { padding: 20px 16px; }
           .adm-form-header-top { flex-direction: column; align-items: flex-start; gap: 14px; }
           .adm-stepper-pills { width: 100%; justify-content: space-between; }
           .adm-step-pill-label { display: none; }
-          .adm-scroll-section { padding-top: 60px; padding-bottom: 60px; }
-          .adm-sticky-col { height: 260px; }
-          .adm-sticky-frame.shape-0 { border-radius: 120px 120px 16px 16px; }
-          .adm-sticky-frame.shape-1 { border-radius: 16px 120px 16px 120px; }
-          .adm-sticky-frame.shape-2 { border-radius: 18px 18px 120px 120px; }
-          .adm-sticky-frame.shape-3 { border-radius: 120px 16px 120px 16px; }
-          .adm-step-item { min-height: 300px; padding: 20px 0; }
+          .adm-scroll-section { padding-top: 48px; padding-bottom: 48px; }
           .adm-scroll-cta { width: 100%; justify-content: center; }
-          .adm-grid-2, .adm-grid-3 { grid-template-columns: 1fr; gap: 16px; }
-          .adm-protocol-card, .adm-cohort-card, .adm-desk-card { padding: 24px 20px; }
-          .adm-success-body { padding: 28px 24px; }
-          .adm-success-header { padding: 36px 24px; }
+          .adm-grid-2, .adm-grid-3 { grid-template-columns: 1fr; gap: 14px; }
+          .adm-protocol-card, .adm-cohort-card, .adm-desk-card { padding: 20px 16px; }
+          .adm-success-body { padding: 24px 18px; }
+          .adm-success-header { padding: 28px 18px; }
+          .adm-nav-row { flex-direction: column-reverse; gap: 10px; align-items: stretch; }
+          .adm-btn-next, .adm-btn-prev, .adm-btn-submit { width: 100%; justify-content: center; }
+          .adm-step-meta { flex-wrap: wrap; gap: 6px; }
+          .adm-step-metric { margin-left: 0; }
         }
       `}</style>
 
@@ -1420,6 +1441,15 @@ export default function PublicAdmissionsPage() {
                     </div>
 
                     <h3 className="adm-step-heading">{step.title}</h3>
+                    <div className="adm-step-mobile-media">
+                      <Image
+                        src={step.image}
+                        alt={step.title}
+                        fill
+                        sizes="(max-width: 768px) 100vw, 400px"
+                        style={{ objectFit: 'cover' }}
+                      />
+                    </div>
                     <p className="adm-step-tagline">{step.tagline}</p>
                     <p className="adm-step-desc">{step.desc}</p>
                   </div>

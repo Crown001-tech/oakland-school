@@ -694,6 +694,37 @@ export default function OurValuesPage() {
           .house-tabs { grid-template-columns: 1fr; }
           .honor-inner { padding: 40px 24px; }
         }
+        @media (max-width: 640px) {
+          .val-hero { padding: 100px 20px 48px; min-height: 60vh; }
+          .val-hero-sub { font-size: 15px; margin-bottom: 24px; }
+          .ethos-manifesto { padding: 40px 20px; }
+          .columns-section, .house-system-section, .honor-section { padding: 60px 20px; }
+          .columns-intro { margin-bottom: 40px; }
+          .pillar-spread { gap: 24px; margin-bottom: 50px; }
+          .spread-img-box { min-height: 240px; aspect-ratio: 16/10; }
+          .spread-content { padding: 0; }
+          .spread-num { font-size: 32px; }
+          .spread-title { font-size: 24px; }
+          .spread-text { font-size: 14px; }
+          .house-tabs { gap: 10px; margin-bottom: 24px; }
+          .house-tab-btn { padding: 16px; }
+          .house-spotlight { padding: 24px 18px; gap: 24px; }
+          .house-spotlight-crest { padding: 24px 16px; }
+          .crest-big { width: 70px; height: 70px; font-size: 34px; margin-bottom: 12px; }
+          .house-spotlight-info h3 { font-size: 26px; }
+          .house-meta-row { gap: 16px; padding: 12px 0; margin: 14px 0 18px; }
+          .honor-inner { padding: 32px 18px; }
+          .honor-title { font-size: 24px; }
+          .honor-signoff { flex-direction: column; align-items: flex-start; gap: 12px; }
+          .cta-strip { padding: 64px 20px; }
+          .cta-actions { flex-direction: column; gap: 12px; }
+          .btn-gold, .btn-outline { width: 100%; justify-content: center; }
+        }
+        @media (max-width: 480px) {
+          .house-tab-crest { width: 40px; height: 40px; font-size: 18px; }
+          .house-tab-name { font-size: 16px; }
+          .house-namesake-box { padding: 12px 14px; font-size: 12px; }
+        }
       `}</style>
 
       {/* ── HERO BANNER ── */}

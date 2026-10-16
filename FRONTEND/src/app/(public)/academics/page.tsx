@@ -568,8 +568,14 @@ export default function AcademicsPage() {
           align-items: center;
           gap: 4px;
         }
+        .tablet-table-scroll {
+          width: 100%;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
         .tablet-table {
           width: 100%;
+          min-width: 440px;
           border-collapse: collapse;
           font-family: 'Inter', sans-serif;
         }
@@ -853,8 +859,38 @@ export default function AcademicsPage() {
           .term-selector { grid-template-columns: 1fr; }
         }
         @media (max-width: 768px) {
-          .acad-metrics-inner { grid-template-columns: 1fr 1fr; gap: 24px; }
+          .acad-metrics-inner { grid-template-columns: 1fr 1fr; gap: 20px; }
+          .acad-metrics { padding: 36px 20px; }
+          .acad-metric-item { padding-left: 16px; }
           .subjects-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 640px) {
+          .acad-hero { padding: 100px 20px 48px; min-height: 60vh; }
+          .acad-hero-sub { font-size: 15px; margin-bottom: 24px; }
+          .philosophy-section, .pathways-section, .grading-section, .calendar-section { padding: 60px 20px; }
+          .pathways-header { margin-bottom: 36px; }
+          .pathway-tabs { gap: 8px; margin-bottom: 28px; }
+          .pathway-tab-btn { padding: 10px 16px; font-size: 11px; flex: 1; justify-content: center; min-width: 130px; }
+          .pathway-detail-card { padding: 24px 18px; gap: 24px; }
+          .grading-split-box { padding: 24px 18px; }
+          .tablet-mockup-wrapper { max-width: 100%; }
+          .tablet-chassis { border-radius: 18px; padding: 10px 8px 12px; }
+          .tablet-screen { border-radius: 12px; }
+          .tablet-table th, .tablet-table td { padding: 8px 10px; font-size: 11px; }
+          .calendar-agenda { padding: 24px 16px; }
+          .agenda-row { padding: 16px 0; }
+          .term-btn { padding: 16px; }
+          .term-btn-title { white-space: normal; font-size: 18px; }
+          .dual-badge-floating { position: static; margin-top: 16px; padding: 16px; }
+          .cta-strip { padding: 64px 20px; }
+          .cta-actions { flex-direction: column; gap: 12px; }
+          .btn-gold, .btn-outline { width: 100%; justify-content: center; }
+        }
+        @media (max-width: 480px) {
+          .acad-metrics-inner { grid-template-columns: 1fr; gap: 20px; }
+          .acad-metric-item { padding-left: 14px; }
+          .acad-metric-num { font-size: 36px; }
+          .split-legend { grid-template-columns: 1fr; gap: 14px; }
         }
       `}</style>
 
@@ -1150,60 +1186,62 @@ export default function AcademicsPage() {
                     </div>
                   </div>
 
-                  <table className="tablet-table">
-                    <thead>
-                      <tr>
-                        <th>Score Range</th>
-                        <th>Grade</th>
-                        <th>GPA</th>
-                        <th>Classification</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>90% – 100%</td>
-                        <td><span className="grade-badge-pill grade-pill-a">A+</span></td>
-                        <td>4.00</td>
-                        <td style={{ fontWeight: 600 }}>High Distinction</td>
-                      </tr>
-                      <tr>
-                        <td>80% – 89%</td>
-                        <td><span className="grade-badge-pill grade-pill-a">A</span></td>
-                        <td>3.80</td>
-                        <td>Distinction</td>
-                      </tr>
-                      <tr>
-                        <td>70% – 79%</td>
-                        <td><span className="grade-badge-pill grade-pill-b">B+</span></td>
-                        <td>3.40</td>
-                        <td>Very Good</td>
-                      </tr>
-                      <tr>
-                        <td>65% – 69%</td>
-                        <td><span className="grade-badge-pill grade-pill-b">B</span></td>
-                        <td>3.00</td>
-                        <td>Credit</td>
-                      </tr>
-                      <tr>
-                        <td>60% – 64%</td>
-                        <td><span className="grade-badge-pill grade-pill-c">C+</span></td>
-                        <td>2.60</td>
-                        <td>Credit</td>
-                      </tr>
-                      <tr>
-                        <td>50% – 59%</td>
-                        <td><span className="grade-badge-pill grade-pill-c">C</span></td>
-                        <td>2.00</td>
-                        <td>Pass</td>
-                      </tr>
-                      <tr>
-                        <td>Below 50%</td>
-                        <td><span className="grade-badge-pill grade-pill-f">F</span></td>
-                        <td>0.00</td>
-                        <td style={{ color: 'var(--crimson)', fontWeight: 600 }}>Remediation</td>
-                      </tr>
-                    </tbody>
-                  </table>
+                  <div className="tablet-table-scroll">
+                    <table className="tablet-table">
+                      <thead>
+                        <tr>
+                          <th>Score Range</th>
+                          <th>Grade</th>
+                          <th>GPA</th>
+                          <th>Classification</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>90% – 100%</td>
+                          <td><span className="grade-badge-pill grade-pill-a">A+</span></td>
+                          <td>4.00</td>
+                          <td style={{ fontWeight: 600 }}>High Distinction</td>
+                        </tr>
+                        <tr>
+                          <td>80% – 89%</td>
+                          <td><span className="grade-badge-pill grade-pill-a">A</span></td>
+                          <td>3.80</td>
+                          <td>Distinction</td>
+                        </tr>
+                        <tr>
+                          <td>70% – 79%</td>
+                          <td><span className="grade-badge-pill grade-pill-b">B+</span></td>
+                          <td>3.40</td>
+                          <td>Very Good</td>
+                        </tr>
+                        <tr>
+                          <td>65% – 69%</td>
+                          <td><span className="grade-badge-pill grade-pill-b">B</span></td>
+                          <td>3.00</td>
+                          <td>Credit</td>
+                        </tr>
+                        <tr>
+                          <td>60% – 64%</td>
+                          <td><span className="grade-badge-pill grade-pill-c">C+</span></td>
+                          <td>2.60</td>
+                          <td>Credit</td>
+                        </tr>
+                        <tr>
+                          <td>50% – 59%</td>
+                          <td><span className="grade-badge-pill grade-pill-c">C</span></td>
+                          <td>2.00</td>
+                          <td>Pass</td>
+                        </tr>
+                        <tr>
+                          <td>Below 50%</td>
+                          <td><span className="grade-badge-pill grade-pill-f">F</span></td>
+                          <td>0.00</td>
+                          <td style={{ color: 'var(--crimson)', fontWeight: 600 }}>Remediation</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
 
                   <div className="tablet-screen-footer">
                     <span>Grading Scale &bull; Senior &amp; Junior Divisions</span>
