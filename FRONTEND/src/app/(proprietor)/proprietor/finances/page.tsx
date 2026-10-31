@@ -27,6 +27,7 @@ import {
   ShoppingBag,
 } from 'lucide-react';
 import {
+  EXPENDITURE_CATEGORIES,
   PayrollRecord,
   ExpenditureRecord,
   PettyCashTransaction,
@@ -74,7 +75,7 @@ export default function ProprietorFinancesPage() {
   const [isNewVoucherModalOpen, setIsNewVoucherModalOpen] = useState(false);
 
   // New Voucher Form
-  const [voucherCategory, setVoucherCategory] = useState<string>('');
+  const [voucherCategory, setVoucherCategory] = useState<ExpenditureRecord['category'] | ''>('');
   const [voucherDesc, setVoucherDesc] = useState('');
   const [voucherAmount, setVoucherAmount] = useState('');
   const [voucherBeneficiary, setVoucherBeneficiary] = useState('');
@@ -154,10 +155,12 @@ export default function ProprietorFinancesPage() {
   const totalExpendituresLogged = expenditures.reduce((a, b) => a + b.amount, 0);
 
   // Category Totals for OpEx
-  const dieselTotal = expenditures.filter((e) => e.category === 'Diesel & Power').reduce((a, b) => a + b.amount, 0);
-  const scienceTotal = expenditures.filter((e) => e.category === 'Science & Laboratories').reduce((a, b) => a + b.amount, 0);
-  const ictTotal = expenditures.filter((e) => e.category === 'ICT & Fiber Internet').reduce((a, b) => a + b.amount, 0);
-  const stationeryTotal = expenditures.filter((e) => e.category === 'Stationery & Exam Booklets').reduce((a, b) => a + b.amount, 0);
+  const categoryTotal = (category: ExpenditureRecord['category']) =>
+    expenditures.filter((e) => e.category === category).reduce((a, b) => a + b.amount, 0);
+  const powerTotal = categoryTotal('Power');
+  const laboratoriesTotal = categoryTotal('Laboratories');
+  const technologyTotal = categoryTotal('Technology');
+  const stationeryTotal = categoryTotal('Stationery');
 
   // Handlers
   const handleSaveSalaryAdjustment = (updated: PayrollRecord) => {
@@ -177,14 +180,17 @@ export default function ProprietorFinancesPage() {
           staffCount: payrollRecords.length,
         }),
       });
-      if (res.ok) {
-        setPayrollRecords((prev) =>
-          prev.map((r) => ({ ...r, status: 'Approved & Disbursed' as const }))
-        );
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) {
+        showToast(json.message || 'Payroll was not authorized. Please try again.');
+        return;
       }
+      setPayrollRecords((prev) =>
+        prev.map((r) => ({ ...r, status: 'Approved & Disbursed' as const }))
+      );
       showToast(`Monthly Payroll (${formatNaira(monthlyPayrollTotal)}) authorized across ${payrollRecords.length} staff members.`);
     } catch {
-      showToast(`Monthly Payroll authorized.`);
+      showToast('Payroll was not authorized: network error. Please try again.');
     }
   };
 
@@ -210,6 +216,7 @@ export default function ProprietorFinancesPage() {
         setVoucherDesc('');
         setVoucherAmount('');
         setVoucherBeneficiary('');
+        setVoucherCategory('');
         showToast(`Expenditure voucher (${formatNaira(amt)}) recorded successfully.`);
         await loadData();
       } else {
@@ -718,6 +725,7 @@ export default function ProprietorFinancesPage() {
               <option value="Academic">Academic Faculty</option>
               <option value="Administration">Administration</option>
               <option value="Accounts">Accounts</option>
+              <option value="Support">Support</option>
             </select>
           </div>
 
@@ -833,7 +841,7 @@ export default function ProprietorFinancesPage() {
                 Operating Overhead
               </h2>
               <p className="text-xs text-slate-500">
-                Diesel fuel, science laboratory reagents, ICT bandwidth, facility maintenance, and examination booklets.
+                Power, laboratories, technology, maintenance, and stationery spending.
               </p>
             </div>
 
@@ -851,9 +859,9 @@ export default function ProprietorFinancesPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-bold text-slate-500 uppercase">Diesel & Power</p>
-                <p className="text-lg font-black text-slate-900 mt-0.5">{formatNaira(dieselTotal)}</p>
-                <p className="text-[9px] text-slate-400">Campus Generators</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase">Power</p>
+                <p className="text-lg font-black text-slate-900 mt-0.5">{formatNaira(powerTotal)}</p>
+                <p className="text-[9px] text-slate-400">Generators and fuel</p>
               </div>
               <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
                 <Fuel className="w-4 h-4" />
@@ -862,9 +870,9 @@ export default function ProprietorFinancesPage() {
 
             <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-bold text-slate-500 uppercase">Science Labs</p>
-                <p className="text-lg font-black text-slate-900 mt-0.5">{formatNaira(scienceTotal)}</p>
-                <p className="text-[9px] text-slate-400">Chemicals & Kits</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase">Laboratories</p>
+                <p className="text-lg font-black text-slate-900 mt-0.5">{formatNaira(laboratoriesTotal)}</p>
+                <p className="text-[9px] text-slate-400">Chemicals and kits</p>
               </div>
               <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center">
                 <BookOpen className="w-4 h-4" />
@@ -873,9 +881,9 @@ export default function ProprietorFinancesPage() {
 
             <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-bold text-slate-500 uppercase">ICT & Fiber</p>
-                <p className="text-lg font-black text-slate-900 mt-0.5">{formatNaira(ictTotal)}</p>
-                <p className="text-[9px] text-slate-400">Network & Bandwidth</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase">Technology</p>
+                <p className="text-lg font-black text-slate-900 mt-0.5">{formatNaira(technologyTotal)}</p>
+                <p className="text-[9px] text-slate-400">Network and devices</p>
               </div>
               <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
                 <Cpu className="w-4 h-4" />
@@ -884,7 +892,7 @@ export default function ProprietorFinancesPage() {
 
             <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
               <div>
-                <p className="text-[10px] font-bold text-slate-500 uppercase">Stationery & Exams</p>
+                <p className="text-[10px] font-bold text-slate-500 uppercase">Stationery</p>
                 <p className="text-lg font-black text-slate-900 mt-0.5">{formatNaira(stationeryTotal)}</p>
                 <p className="text-[9px] text-slate-400">Assessment Materials</p>
               </div>
@@ -1159,18 +1167,16 @@ export default function ProprietorFinancesPage() {
                   </label>
                   <select
                     value={voucherCategory}
-                    onChange={(e) => setVoucherCategory(e.target.value)}
+                    onChange={(e) => setVoucherCategory(e.target.value as ExpenditureRecord['category'] | '')}
                     className="w-full h-9 px-3 rounded-lg border border-slate-300 bg-white text-slate-800 cursor-pointer"
                     required
                   >
                     <option value="">Select Category</option>
-                    <option value="Power">Power</option>
-                    <option value="Laboratories">Laboratories</option>
-                    <option value="Technology">Technology</option>
-                    <option value="Stationery">Stationery</option>
-                    <option value="Maintenance">Maintenance</option>
-                    <option value="Health">Health Supplies</option>
-                    <option value="Security">Security</option>
+                    {EXPENDITURE_CATEGORIES.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
                   </select>
                 </div>
 

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { PettyCashTransaction } from '@/types/finance';
+import { PETTY_CASH_CATEGORIES, PettyCashTransaction } from '@/types/finance';
 import { X, Check, Wallet } from 'lucide-react';
 
 interface PettyCashModalProps {
@@ -15,7 +15,7 @@ interface PettyCashModalProps {
 
 export function PettyCashModal({ currentBalance, initialType, onRecord, onClose }: PettyCashModalProps) {
   const [item, setItem] = useState('');
-  const [category, setCategory] = useState<PettyCashTransaction['category']>('Office Stationery');
+  const [category, setCategory] = useState<PettyCashTransaction['category'] | ''>('');
   const [amount, setAmount] = useState('');
   const [type, setType] = useState<PettyCashTransaction['type']>(initialType || 'Outflow');
   const [requestedBy, setRequestedBy] = useState('');
@@ -46,6 +46,11 @@ export function PettyCashModal({ currentBalance, initialType, onRecord, onClose 
       return;
     }
 
+    if (!category) {
+      setErrorMsg('Please choose a category.');
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       const res = await fetch('/api/finances', {
@@ -57,7 +62,7 @@ export function PettyCashModal({ currentBalance, initialType, onRecord, onClose 
           category,
           amount: amt,
           type,
-          requestedBy: requestedBy.trim() || 'Campus Staff',
+          requestedBy: requestedBy.trim(),
         }),
       });
 
@@ -72,15 +77,15 @@ export function PettyCashModal({ currentBalance, initialType, onRecord, onClose 
 
       const newTx: PettyCashTransaction = {
         id: inserted?.id || `pc-${Date.now()}`,
-        receiptNo: inserted?.receipt_number || `PC-${new Date().getFullYear()}-0001`,
+        receiptNo: inserted?.receipt_number || '—',
         date: new Date(inserted?.date || Date.now()).toLocaleDateString('en-GB'),
         item: item.trim(),
         category: (inserted?.category || category) as PettyCashTransaction['category'],
         amount: amt,
         type,
         balanceAfter,
-        requestedBy: requestedBy.trim() || 'Campus Staff',
-        approvedBy: inserted?.approved_by || 'School Bursar',
+        requestedBy: requestedBy.trim() || '—',
+        approvedBy: inserted?.approved_by || '—',
       };
 
       onRecord(newTx);
@@ -149,14 +154,16 @@ export function PettyCashModal({ currentBalance, initialType, onRecord, onClose 
                 </label>
                 <select
                   value={category}
-                  onChange={(e) => setCategory(e.target.value as PettyCashTransaction['category'])}
+                  onChange={(e) => setCategory(e.target.value as PettyCashTransaction['category'] | '')}
+                  required
                   className="w-full min-h-[44px] sm:h-10 px-3 rounded-lg border border-slate-300 bg-white text-slate-800"
                 >
-                  <option value="Office Stationery">Stationery</option>
-                  <option value="Emergency Repair">Repairs</option>
-                  <option value="Courier Dispatch">Logistics</option>
-                  <option value="Hospitality & PTA">Hospitality</option>
-                  <option value="Consumables">Consumables</option>
+                  <option value="">Select Category</option>
+                  {PETTY_CASH_CATEGORIES.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>

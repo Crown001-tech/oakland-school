@@ -1,9 +1,24 @@
+import type { PayrollDepartment } from '@/lib/payroll';
+
+// One list per ledger, shared by every form, filter and dashboard total so they never drift apart
+export const EXPENDITURE_CATEGORIES = ['Power', 'Laboratories', 'Technology', 'Stationery', 'Maintenance', 'Health', 'Security'] as const;
+export type ExpenditureCategory = (typeof EXPENDITURE_CATEGORIES)[number];
+
+export const PETTY_CASH_CATEGORIES = ['Stationery', 'Repairs', 'Dispatch', 'Hospitality', 'Consumables'] as const;
+export type PettyCashCategory = (typeof PETTY_CASH_CATEGORIES)[number];
+
+export const isExpenditureCategory = (value: unknown): value is ExpenditureCategory =>
+  (EXPENDITURE_CATEGORIES as readonly unknown[]).includes(value);
+
+export const isPettyCashCategory = (value: unknown): value is PettyCashCategory =>
+  (PETTY_CASH_CATEGORIES as readonly unknown[]).includes(value);
+
 export interface PayrollRecord {
   id: string;
   employeeId: string;
   name: string;
   role: string;
-  department: 'Academic' | 'Administration' | 'Accounts' | 'Support' | 'Medical' | string;
+  department: PayrollDepartment;
   basicSalary: number;
   responsibilityAllowance: number; // e.g. ₦35,000 for Class Teachers
   otherAllowances: number; // Transport, housing, hazard
@@ -12,22 +27,14 @@ export interface PayrollRecord {
   netSalary: number;
   bankAccount: string;
   bankName: string;
-  status: 'Approved' | 'Pending' | 'Processing' | string;
+  status: 'Approved & Disbursed' | 'Pending Approval' | 'Processing';
   payPeriod: string; // e.g. "September 2026"
 }
 
 export interface ExpenditureRecord {
   id: string;
   voucherNo: string;
-  category:
-    | 'Power'
-    | 'Laboratories'
-    | 'Technology'
-    | 'Maintenance'
-    | 'Stationery'
-    | 'Health'
-    | 'Security'
-    | string;
+  category: ExpenditureCategory;
   description: string;
   amount: number;
   beneficiary: string;
@@ -35,7 +42,7 @@ export interface ExpenditureRecord {
   approvedBy: string;
   paymentAccount: string;
   date: string;
-  status: 'Approved' | 'Pending' | 'Review' | string;
+  status: 'Approved & Paid' | 'Pending Approval';
 }
 
 export interface PettyCashTransaction {
@@ -43,7 +50,7 @@ export interface PettyCashTransaction {
   receiptNo: string;
   date: string;
   item: string;
-  category: 'Stationery' | 'Repairs' | 'Dispatch' | 'Hospitality' | 'Consumables' | string;
+  category: PettyCashCategory;
   amount: number;
   type: 'Inflow' | 'Outflow';
   balanceAfter: number;

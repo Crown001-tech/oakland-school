@@ -177,20 +177,3 @@ export function checkApiAccess(input: ApiAccessInput): ApiAccessDenial | null {
   return null;
 }
 
-/**
- * Validates whether a parent/guardian is cryptographically and relationally authorized
- * to view or interact with a specific student's records (DEF-001 Exit Gate).
- */
-export function isParentAuthorizedForStudent(
-  targetStudentId: string,
-  guardianId: string | null | undefined,
-  guardianLinks: Array<{ guardian_id?: string; student_id?: string; guardianId?: string; studentId?: string }>
-): boolean {
-  if (!guardianId || !targetStudentId) return false;
-  return guardianLinks.some(
-    (link) =>
-      (link.guardian_id === guardianId || link.guardianId === guardianId) &&
-      (link.student_id === targetStudentId || link.studentId === targetStudentId)
-  );
-}
-

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { checkApiAccess, isParentAuthorizedForStudent } from '@/lib/api-guard';
+import { checkApiAccess } from '@/lib/api-guard';
 import { signRoleCookie, verifyRoleCookie } from '@/lib/auth-role';
 
 describe('M0 Security & Access Control Gate (Real Application Logic)', () => {
@@ -10,56 +10,7 @@ describe('M0 Security & Access Control Gate (Real Application Logic)', () => {
   });
 
   // ----------------------------------------------------------------------------
-  // 1. EXIT GATE TEST: Parent Isolation & Anti-IDOR Verification
-  // ----------------------------------------------------------------------------
-  describe('PROVES M0 EXIT GATE: Parent Cannot Access Another Family Child', () => {
-    const parentSmithGuardianId = 'guard-smith-001';
-    const parentDoeGuardianId = 'guard-doe-002';
-
-    const studentSmithId = 'student-smith-chinedu-101';
-    const studentDoeId = 'student-doe-amina-102';
-
-    const dbGuardianLinks = [
-      { guardian_id: parentSmithGuardianId, student_id: studentSmithId },
-      { guardian_id: parentDoeGuardianId, student_id: studentDoeId },
-    ];
-
-    it('allows a verified parent to access their own linked child', () => {
-      const isAllowed = isParentAuthorizedForStudent(
-        studentSmithId,
-        parentSmithGuardianId,
-        dbGuardianLinks
-      );
-      expect(isAllowed).toBe(true);
-    });
-
-    it('strictly forbids a parent from accessing another family child (cross-family IDOR)', () => {
-      const isAllowed = isParentAuthorizedForStudent(
-        studentDoeId,
-        parentSmithGuardianId,
-        dbGuardianLinks
-      );
-      expect(isAllowed).toBe(false);
-    });
-
-    it('strictly forbids access when parent has no guardian links', () => {
-      const orphanParentId = 'guard-orphan-999';
-      const isAllowed = isParentAuthorizedForStudent(
-        studentSmithId,
-        orphanParentId,
-        dbGuardianLinks
-      );
-      expect(isAllowed).toBe(false);
-    });
-
-    it('strictly forbids access when target student ID or guardian ID is null / undefined', () => {
-      expect(isParentAuthorizedForStudent('', parentSmithGuardianId, dbGuardianLinks)).toBe(false);
-      expect(isParentAuthorizedForStudent(studentSmithId, null, dbGuardianLinks)).toBe(false);
-    });
-  });
-
-  // ----------------------------------------------------------------------------
-  // 2. Real checkApiAccess Middleware Enforcer Tests
+  // 1. Real checkApiAccess Middleware Enforcer Tests
   // ----------------------------------------------------------------------------
   describe('Central checkApiAccess Enforcement', () => {
     it('permits public endpoints without an active session', () => {
@@ -216,7 +167,7 @@ describe('M0 Security & Access Control Gate (Real Application Logic)', () => {
   });
 
   // ----------------------------------------------------------------------------
-  // 3. Cryptographic Role Cookie Signing and Expiry Tests
+  // 2. Cryptographic Role Cookie Signing and Expiry Tests
   // ----------------------------------------------------------------------------
   describe('Cryptographic Role Cookie Verification', () => {
     it('correctly signs and verifies a valid role cookie', async () => {

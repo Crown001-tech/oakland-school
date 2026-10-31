@@ -345,8 +345,7 @@ export default function BursarPayrollPage() {
           <option value="Academic">Academic</option>
           <option value="Administration">Administration</option>
           <option value="Accounts">Accounts</option>
-          <option value="Operations">Operations</option>
-          <option value="Medical">Medical</option>
+          <option value="Support">Support</option>
         </select>
       </div>
 

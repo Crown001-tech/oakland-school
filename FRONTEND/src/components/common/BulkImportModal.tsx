@@ -296,9 +296,12 @@ export function BulkImportModal({
           }
         }
 
-        const email = emailIdx !== -1 && row[emailIdx]
-          ? row[emailIdx]
-          : `${name.toLowerCase().replace(/[^a-z0-9]/g, '.')}@oaklandschools.edu`;
+        // Each staff account is invited at its own address, so a row without one cannot be imported
+        const email = emailIdx !== -1 ? (row[emailIdx] || '').trim() : '';
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          errors.push(`Row ${i + 1}: Missing or invalid email for ${name}.`);
+          continue;
+        }
 
         const randomNum = Math.floor(100 + Math.random() * 900);
         const empId = role === 'Class Teacher' ? `OAK-CT-${randomNum}` : `OAK-STF-${randomNum}`;
@@ -308,7 +311,7 @@ export function BulkImportModal({
           employeeId: empId,
           name,
           email,
-          phone: phoneIdx !== -1 ? row[phoneIdx] : '+2348000000000',
+          phone: phoneIdx !== -1 ? (row[phoneIdx] || '').trim() : '',
           role,
           assignedClass: parsedHomeroom,
           assignedClasses: parsedTeachingClasses,

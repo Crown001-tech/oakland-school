@@ -18,7 +18,7 @@ import {
   X,
 } from 'lucide-react';
 import { formatNaira } from '@/lib/finance-data';
-import { ExpenditureRecord } from '@/types/finance';
+import { EXPENDITURE_CATEGORIES, ExpenditureRecord } from '@/types/finance';
 import { VoucherModal } from '@/components/finance/VoucherModal';
 
 export default function BursarExpendituresPage() {
@@ -34,7 +34,7 @@ export default function BursarExpendituresPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // New Voucher Form State
-  const [voucherCategory, setVoucherCategory] = useState<ExpenditureRecord['category']>('Diesel & Power');
+  const [voucherCategory, setVoucherCategory] = useState<ExpenditureRecord['category'] | ''>('');
   const [voucherDesc, setVoucherDesc] = useState('');
   const [voucherAmount, setVoucherAmount] = useState('');
   const [voucherBeneficiary, setVoucherBeneficiary] = useState('');
@@ -92,10 +92,12 @@ export default function BursarExpendituresPage() {
   const totalExpenditures = expenditures.reduce((a, b) => a + b.amount, 0);
 
   // Dynamic Category Totals
-  const dieselTotal = expenditures.filter((e) => e.category === 'Diesel & Power').reduce((a, b) => a + b.amount, 0);
-  const scienceTotal = expenditures.filter((e) => e.category === 'Science & Laboratories').reduce((a, b) => a + b.amount, 0);
-  const ictTotal = expenditures.filter((e) => e.category === 'ICT & Fiber Internet').reduce((a, b) => a + b.amount, 0);
-  const stationeryTotal = expenditures.filter((e) => e.category === 'Stationery & Exam Booklets').reduce((a, b) => a + b.amount, 0);
+  const categoryTotal = (category: ExpenditureRecord['category']) =>
+    expenditures.filter((e) => e.category === category).reduce((a, b) => a + b.amount, 0);
+  const powerTotal = categoryTotal('Power');
+  const laboratoriesTotal = categoryTotal('Laboratories');
+  const technologyTotal = categoryTotal('Technology');
+  const stationeryTotal = categoryTotal('Stationery');
 
   const handleCreateVoucher = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,12 +142,12 @@ export default function BursarExpendituresPage() {
       const inserted = resData.data;
       const newVch: ExpenditureRecord = {
         id: inserted?.id || `exp-${Date.now()}`,
-        voucherNo: inserted?.voucher_number || `VCH-${new Date().getFullYear()}-0001`,
+        voucherNo: inserted?.voucher_number || '—',
         category: (inserted?.category || voucherCategory) as ExpenditureRecord['category'],
         description: inserted?.description || voucherDesc.trim(),
         amount: Number(inserted?.amount ?? amt),
         beneficiary: inserted?.vendor || voucherBeneficiary.trim(),
-        approvedBy: inserted?.approved_by || inserted?.recorded_by || 'Bursar',
+        approvedBy: inserted?.approved_by || inserted?.recorded_by || '—',
         paymentAccount: (inserted?.payment_account || voucherAccount) as ExpenditureRecord['paymentAccount'],
         date: inserted?.date || new Date().toLocaleDateString('en-GB'),
         status: 'Approved & Paid',
@@ -156,6 +158,7 @@ export default function BursarExpendituresPage() {
       setVoucherDesc('');
       setVoucherAmount('');
       setVoucherBeneficiary('');
+      setVoucherCategory('');
       setActiveVoucher(newVch);
       showToast(`Expenditure voucher ${newVch.voucherNo} (${formatNaira(amt)}) recorded successfully.`);
     } catch (err: any) {
@@ -217,8 +220,8 @@ export default function BursarExpendituresPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Diesel and Power</p>
-            <p className="text-lg font-black text-slate-900 mt-0.5">{formatNaira(dieselTotal)}</p>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Power</p>
+            <p className="text-lg font-black text-slate-900 mt-0.5">{formatNaira(powerTotal)}</p>
             <p className="text-[10px] text-slate-400 mt-0.5">Generators and power</p>
           </div>
           <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center">
@@ -229,7 +232,7 @@ export default function BursarExpendituresPage() {
         <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Laboratories</p>
-            <p className="text-lg font-black text-slate-900 mt-0.5">{formatNaira(scienceTotal)}</p>
+            <p className="text-lg font-black text-slate-900 mt-0.5">{formatNaira(laboratoriesTotal)}</p>
             <p className="text-[10px] text-slate-400 mt-0.5">Science reagents and kits</p>
           </div>
           <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center">
@@ -239,8 +242,8 @@ export default function BursarExpendituresPage() {
 
         <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">ICT and Internet</p>
-            <p className="text-lg font-black text-slate-900 mt-0.5">{formatNaira(ictTotal)}</p>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Technology</p>
+            <p className="text-lg font-black text-slate-900 mt-0.5">{formatNaira(technologyTotal)}</p>
             <p className="text-[10px] text-slate-400 mt-0.5">Dedicated connections</p>
           </div>
           <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center">
@@ -250,7 +253,7 @@ export default function BursarExpendituresPage() {
 
         <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
           <div>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Stationery and Exams</p>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Stationery</p>
             <p className="text-lg font-black text-slate-900 mt-0.5">{formatNaira(stationeryTotal)}</p>
             <p className="text-[10px] text-slate-400 mt-0.5">Printing and materials</p>
           </div>
@@ -278,13 +281,11 @@ export default function BursarExpendituresPage() {
           className="min-h-[44px] px-3 rounded-lg border border-slate-300 bg-white text-xs font-medium text-slate-800 cursor-pointer"
         >
           <option value="All">All Categories</option>
-          <option value="Diesel & Power">Diesel and Power</option>
-          <option value="Science & Laboratories">Laboratories</option>
-          <option value="ICT & Fiber Internet">ICT and Internet</option>
-          <option value="Stationery & Exam Booklets">Stationery and Exams</option>
-          <option value="Facility Maintenance & HVAC">Maintenance</option>
-          <option value="Clinic & Health Supplies">Medical Supplies</option>
-          <option value="Security & Sanitation">Security</option>
+          {EXPENDITURE_CATEGORIES.map((category) => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -426,21 +427,20 @@ export default function BursarExpendituresPage() {
 
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">
-                    Expenditure Category
+                    Category
                   </label>
                   <select
                     value={voucherCategory}
-                    onChange={(e) => setVoucherCategory(e.target.value as ExpenditureRecord['category'])}
+                    onChange={(e) => setVoucherCategory(e.target.value as ExpenditureRecord['category'] | '')}
                     className="w-full min-h-[44px] px-3 rounded-lg border border-slate-300 bg-white text-slate-800"
                     required
                   >
-                    <option value="Diesel & Power">Diesel Fuel and Power</option>
-                    <option value="Science & Laboratories">Science Laboratory Supplies</option>
-                    <option value="ICT & Fiber Internet">ICT and Internet</option>
-                    <option value="Stationery & Exam Booklets">Stationery and Examination Booklets</option>
-                    <option value="Facility Maintenance & HVAC">Facility Repairs and Maintenance</option>
-                    <option value="Clinic & Health Supplies">Clinic and Health Supplies</option>
-                    <option value="Security & Sanitation">Security and Sanitation</option>
+                    <option value="">Select Category</option>
+                    {EXPENDITURE_CATEGORIES.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
+                    ))}
                   </select>
                 </div>
 

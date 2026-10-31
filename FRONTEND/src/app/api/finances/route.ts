@@ -1,20 +1,15 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
 import { getAuthenticatedActor, getCaller, getLinkedStudentIds, isAdminRole } from '@/lib/caller';
+import { computeStaffPay, isOnPayroll, resolveSalaryScales } from '@/lib/payroll';
+import { isExpenditureCategory, isPettyCashCategory } from '@/types/finance';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
 const STANDARD_CLASSES = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'] as const;
 
 function getAdminClient() {
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!serviceKey) {
-    throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY in environment variables');
-  }
-  return createClient(SUPABASE_URL, serviceKey, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return getSupabaseAdmin();
 }
 
 export async function GET() {
@@ -40,12 +35,7 @@ export async function GET() {
     const schoolId = school?.id || DEFAULT_SCHOOL_ID;
     const settings = school?.settings || {};
 
-    const salaryPrincipal = Number(settings.salaryPrincipal || 0);
-    const salaryBursar = Number(settings.salaryBursar || 0);
-    const salaryClassTeacher = Number(settings.salaryClassTeacher || 0);
-    const salarySubjectTeacher = Number(settings.salarySubjectTeacher || 0);
-    const salarySupportStaff = Number(settings.salarySupportStaff || 0);
-    const allowanceClassTeacher = Number(settings.allowanceClassTeacher || 0);
+    const salaryScales = resolveSalaryScales(settings);
 
     const tuitionJSS = Number(settings.tuitionJSS || 0);
     const tuitionSS12 = Number(settings.tuitionSS12 || 0);
@@ -256,37 +246,8 @@ export async function GET() {
     const staffBankMap = (settings.staffBankAccounts as Record<string, any>) || {};
     const staffDeductionsMap = (settings.staffDeductions as Record<string, any>) || {};
 
-    const payrollRecords = staffData.map((st: any, idx: number) => {
-      const isPrincipal = st.role === 'admin' || (st.role || '').toLowerCase().includes('principal');
-      const isBursar = st.role === 'bursar' || (st.role || '').toLowerCase().includes('bursar');
-      const isHomeroom = !!st.assigned_class;
-
-      let basicSalary = salarySubjectTeacher;
-      let roleName = st.role === 'teacher' ? 'Subject Teacher' : (st.role || 'Staff');
-      let dept: 'Academic' | 'Administration' | 'Accounts' | 'Operations & Support' | 'Medical' = 'Academic';
-
-      if (isPrincipal) {
-        basicSalary = salaryPrincipal;
-        roleName = 'Principal';
-        dept = 'Administration';
-      } else if (isBursar) {
-        basicSalary = salaryBursar;
-        roleName = 'School Bursar';
-        dept = 'Accounts';
-      } else if (isHomeroom) {
-        basicSalary = salaryClassTeacher;
-        roleName = `Class Teacher (${st.assigned_class})`;
-        dept = 'Academic';
-      }
-
-      const respAllowance = isHomeroom ? allowanceClassTeacher : 0;
-      const otherAllowances = 0;
-      const grossSalary = basicSalary + respAllowance + otherAllowances;
-
-      const staffDeduction = staffDeductionsMap[st.id] || null;
-      const tax = Number(staffDeduction?.taxDeduction || 0);
-      const cooperative = Number(staffDeduction?.cooperativeDeduction || 0);
-      const netSalary = Math.max(0, grossSalary - tax - cooperative);
+    const payrollRecords = staffData.filter(isOnPayroll).map((st: any, idx: number) => {
+      const pay = computeStaffPay(st, salaryScales, staffDeductionsMap[st.id]);
 
       const staffBank = staffBankMap[st.id] || null;
       const persistedRunItem = runItemsByStaffId.get(st.id);
@@ -296,14 +257,14 @@ export async function GET() {
         id: st.id || `st-pay-${idx}`,
         employeeId: st.employee_id || '—',
         name: `${st.first_name || ''} ${st.last_name || ''}`.trim(),
-        role: roleName,
-        department: dept,
-        basicSalary,
-        responsibilityAllowance: respAllowance,
-        otherAllowances,
-        taxDeduction: tax,
-        cooperativeDeduction: cooperative,
-        netSalary,
+        role: pay.roleName,
+        department: pay.department,
+        basicSalary: pay.basicSalary,
+        responsibilityAllowance: pay.responsibilityAllowance,
+        otherAllowances: pay.otherAllowances,
+        taxDeduction: pay.taxDeduction,
+        cooperativeDeduction: pay.cooperativeDeduction,
+        netSalary: pay.netSalary,
         status: (persistedRunItem?.status || (isDisbursed ? 'Approved & Disbursed' : 'Pending Approval')) as
           | 'Approved & Disbursed'
           | 'Pending Approval'
@@ -347,9 +308,9 @@ export async function GET() {
         category: e.category,
         description: e.description,
         amount: Number(e.amount) || 0,
-        beneficiary: e.vendor || 'Authorized Vendor',
+        beneficiary: e.vendor || '—',
         invoiceNo: `INV-${e.id.slice(0, 6).toUpperCase()}`,
-        approvedBy: e.approved_by || e.recorded_by || 'Office of the Proprietor',
+        approvedBy: e.approved_by || e.recorded_by || '—',
         paymentAccount: paymentAccountDisplay,
         date: new Date(e.date).toLocaleDateString('en-GB'),
         status: e.status === 'approved' ? ('Approved & Paid' as const) : ('Pending Approval' as const),
@@ -368,12 +329,12 @@ export async function GET() {
         receiptNo: p.receipt_number || `PC-${idx + 101}`,
         date: new Date(p.date).toLocaleDateString('en-GB'),
         item: p.description,
-        category: (p.category || 'Office Stationery') as any,
+        category: p.category,
         amount: amt,
         type: (p.type === 'replenishment' ? 'Inflow' : 'Outflow') as 'Inflow' | 'Outflow',
         balanceAfter: Math.max(0, runningFloat),
-        requestedBy: p.requested_by || 'Administrative Desk',
-        approvedBy: p.approved_by || 'School Bursar',
+        requestedBy: p.requested_by || '—',
+        approvedBy: p.approved_by || '—',
       };
     });
     const pettyCash = chronologicalPettyCash.reverse();
@@ -436,12 +397,12 @@ export async function GET() {
           displayName: `${b.bank_name} (${b.account_number}) - ${b.account_name}`,
         })),
         salaryRates: {
-          principal: salaryPrincipal,
-          bursar: salaryBursar,
-          classTeacher: salaryClassTeacher,
-          subjectTeacher: salarySubjectTeacher,
-          supportStaff: salarySupportStaff,
-          classTeacherAllowance: allowanceClassTeacher,
+          principal: salaryScales.salaryPrincipal,
+          bursar: salaryScales.salaryBursar,
+          classTeacher: salaryScales.salaryClassTeacher,
+          subjectTeacher: salaryScales.salarySubjectTeacher,
+          supportStaff: salaryScales.salarySupportStaff,
+          classTeacherAllowance: salaryScales.allowanceClassTeacher,
         },
       },
     });
@@ -475,25 +436,27 @@ export async function POST(request: NextRequest) {
       if (!description || !amount) {
         return NextResponse.json({ success: false, message: 'Description and amount required' }, { status: 400 });
       }
+      if (!isExpenditureCategory(category)) {
+        return NextResponse.json({ success: false, message: 'Choose an expenditure category' }, { status: 400 });
+      }
 
       const numAmount = Number(amount);
       if (isNaN(numAmount) || numAmount <= 0) {
         return NextResponse.json({ success: false, message: 'Valid expenditure amount required' }, { status: 400 });
       }
 
-      // Generate sequential voucher number per school per year (DEF-119)
+      // Sequential voucher number per school per year (DEF-119); never an improvised one
       const currentYear = new Date().getFullYear();
-      let voucherNumber = `VCH-${currentYear}-${Date.now().toString().slice(-4)}`;
-      const { data: seqNo } = await sb.rpc('next_school_document_number', {
+      const { data: voucherNumber, error: seqErr } = await sb.rpc('next_school_document_number', {
         p_school_id: schoolId,
         p_doc_type: 'VCH',
         p_year: currentYear,
       });
-      if (seqNo && typeof seqNo === 'string') {
-        voucherNumber = seqNo;
+      if (seqErr || typeof voucherNumber !== 'string') {
+        throw seqErr || new Error('Could not issue a voucher number');
       }
 
-      // Match institutional bank account if provided (DEF-121)
+      // Match institutional bank account by id or exact account number, never by bank name (DEF-121)
       let matchedBankId: string | null = null;
       if (paymentAccount) {
         const { data: bankAccounts } = await sb
@@ -501,11 +464,11 @@ export async function POST(request: NextRequest) {
           .select('id, bank_name, account_number, balance')
           .eq('school_id', schoolId);
 
+        const accountText = String(paymentAccount);
+        const containsAccountNumber = (accountNumber: string) =>
+          new RegExp(`(^|\\D)${accountNumber.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(\\D|$)`).test(accountText);
         const matched = (bankAccounts || []).find(
-          (b: any) =>
-            b.id === paymentAccount ||
-            String(paymentAccount).includes(b.account_number) ||
-            String(paymentAccount).toLowerCase().includes(String(b.bank_name).toLowerCase())
+          (b: any) => b.id === accountText || (Boolean(b.account_number) && containsAccountNumber(String(b.account_number)))
         );
         if (matched) {
           matchedBankId = matched.id;
@@ -524,13 +487,13 @@ export async function POST(request: NextRequest) {
         .insert({
           school_id: schoolId,
           voucher_number: voucherNumber,
-          category: category || 'Diesel & Power',
+          category,
           amount: numAmount,
           description: String(description).trim(),
-          vendor: vendor ? String(vendor).trim() : 'Authorized Vendor',
+          vendor: vendor ? String(vendor).trim() : null,
           payment_method: 'bank_transfer',
           bank_account_id: matchedBankId,
-          payment_account: paymentAccount ? String(paymentAccount).trim() : 'Institutional Account',
+          payment_account: paymentAccount ? String(paymentAccount).trim() : null,
           recorded_by: actor.actorName,
           recorded_by_id: actor.userId,
           recorded_by_role: actor.actorRoleLabel,
@@ -575,37 +538,39 @@ export async function POST(request: NextRequest) {
       if (!description || !amount) {
         return NextResponse.json({ success: false, message: 'Description and amount required' }, { status: 400 });
       }
+      if (!isPettyCashCategory(category)) {
+        return NextResponse.json({ success: false, message: 'Choose a petty cash category' }, { status: 400 });
+      }
 
       const numAmount = Number(amount);
       if (isNaN(numAmount) || numAmount <= 0) {
         return NextResponse.json({ success: false, message: 'Valid petty cash amount required' }, { status: 400 });
       }
 
-      // Generate sequential petty cash receipt number per school per year (DEF-119)
+      // Sequential petty cash receipt number per school per year (DEF-119); never an improvised one
       const currentYear = new Date().getFullYear();
-      let receiptNumber = `PC-${currentYear}-${Date.now().toString().slice(-4)}`;
-      const { data: seqNo } = await sb.rpc('next_school_document_number', {
+      const { data: receiptNumber, error: seqErr } = await sb.rpc('next_school_document_number', {
         p_school_id: schoolId,
         p_doc_type: 'PC',
         p_year: currentYear,
       });
-      if (seqNo && typeof seqNo === 'string') {
-        receiptNumber = seqNo;
+      if (seqErr || typeof receiptNumber !== 'string') {
+        throw seqErr || new Error('Could not issue a petty cash receipt number');
       }
 
-      const resolvedCategory = category || 'Office Stationery';
+      const requester = requestedBy ? String(requestedBy).trim() : null;
 
       const { data: inserted, error: pcErr } = await sb
         .from('petty_cash')
         .insert({
           school_id: schoolId,
           receipt_number: receiptNumber,
-          category: resolvedCategory,
+          category,
           amount: numAmount,
           type: type === 'Inflow' ? 'replenishment' : 'disbursement',
           description: String(description).trim(),
-          recipient: requestedBy || 'Cashier',
-          requested_by: requestedBy || 'Campus Staff',
+          recipient: requester,
+          requested_by: requester,
           approved_by: actor.actorName,
           recorded_by_id: actor.userId,
           recorded_by_role: actor.actorRoleLabel,
@@ -629,7 +594,7 @@ export async function POST(request: NextRequest) {
             actorName: actor.actorName,
             actorRole: actor.actorRoleLabel,
             receiptNumber,
-            category: resolvedCategory,
+            category,
             amount: numAmount,
             type,
             description,
@@ -649,11 +614,7 @@ export async function POST(request: NextRequest) {
       ]);
 
       const settings = schoolRes.data?.settings || {};
-      const salaryPrincipal = Number(settings.salaryPrincipal || 0);
-      const salaryBursar = Number(settings.salaryBursar || 0);
-      const salaryClassTeacher = Number(settings.salaryClassTeacher || 0);
-      const salarySubjectTeacher = Number(settings.salarySubjectTeacher || 0);
-      const allowanceClassTeacher = Number(settings.allowanceClassTeacher || 0);
+      const salaryScales = resolveSalaryScales(settings);
 
       const currentTermName = settings.currentTerm || 'First Term';
       const academicSessionName = settings.academicSession || '2026/2027';
@@ -668,37 +629,12 @@ export async function POST(request: NextRequest) {
       let totalDeductions = 0;
       let totalNet = 0;
 
-      const computedItems = (staffRes.data || []).map((st: any) => {
-        const isPrincipal = st.role === 'admin' || (st.role || '').toLowerCase().includes('principal');
-        const isBursar = st.role === 'bursar' || (st.role || '').toLowerCase().includes('bursar');
-        const isHomeroom = !!st.assigned_class;
+      const computedItems = (staffRes.data || []).filter(isOnPayroll).map((st: any) => {
+        const pay = computeStaffPay(st, salaryScales, staffDeductionsMap[st.id]);
 
-        let basicSalary = salarySubjectTeacher;
-        let roleName = st.role === 'teacher' ? 'Subject Teacher' : (st.role || 'Staff');
-
-        if (isPrincipal) {
-          basicSalary = salaryPrincipal;
-          roleName = 'Principal';
-        } else if (isBursar) {
-          basicSalary = salaryBursar;
-          roleName = 'School Bursar';
-        } else if (isHomeroom) {
-          basicSalary = salaryClassTeacher;
-          roleName = `Class Teacher (${st.assigned_class})`;
-        }
-
-        const respAllowance = isHomeroom ? allowanceClassTeacher : 0;
-        const otherAllowances = 0;
-        const gross = basicSalary + respAllowance + otherAllowances;
-
-        const staffDeduction = staffDeductionsMap[st.id] || null;
-        const tax = Number(staffDeduction?.taxDeduction || 0);
-        const cooperative = Number(staffDeduction?.cooperativeDeduction || 0);
-        const net = Math.max(0, gross - tax - cooperative);
-
-        totalGross += gross;
-        totalDeductions += tax + cooperative;
-        totalNet += net;
+        totalGross += pay.grossSalary;
+        totalDeductions += pay.taxDeduction + pay.cooperativeDeduction;
+        totalNet += pay.netSalary;
 
         const staffBank = staffBankMap[st.id] || null;
 
@@ -707,21 +643,28 @@ export async function POST(request: NextRequest) {
           staff_id: st.id,
           employee_id: st.employee_id || '—',
           staff_name: `${st.first_name || ''} ${st.last_name || ''}`.trim(),
-          role: roleName,
-          basic_salary: basicSalary,
-          responsibility_allowance: respAllowance,
-          other_allowances: otherAllowances,
-          tax_deduction: tax,
-          cooperative_deduction: cooperative,
-          net_salary: net,
+          role: pay.roleName,
+          basic_salary: pay.basicSalary,
+          responsibility_allowance: pay.responsibilityAllowance,
+          other_allowances: pay.otherAllowances,
+          tax_deduction: pay.taxDeduction,
+          cooperative_deduction: pay.cooperativeDeduction,
+          net_salary: pay.netSalary,
           bank_name: staffBank?.bankName || st.bank_name || '—',
           bank_account: staffBank?.accountNumber || st.bank_account || '—',
           status: 'Approved & Disbursed',
         };
       });
 
-      const finalTotalNet = computedItems.length > 0 ? totalNet : Number(body.totalAmount || 0);
-      const finalStaffCount = computedItems.length > 0 ? computedItems.length : Number(body.staffCount || 0);
+      // Totals come only from the server's own calculation, never from the request body
+      if (computedItems.length === 0) {
+        return NextResponse.json(
+          { success: false, message: 'No active staff on the payroll to approve.' },
+          { status: 422 }
+        );
+      }
+      const finalTotalNet = totalNet;
+      const finalStaffCount = computedItems.length;
 
       const { data: runRow, error: runErr } = await sb
         .from('payroll_runs')

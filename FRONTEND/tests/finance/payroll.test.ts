@@ -1,162 +1,70 @@
 import { describe, it, expect } from 'vitest';
+import { computeStaffPay, isOnPayroll, resolveSalaryScales } from '@/lib/payroll';
 
-export interface SchoolSalarySettings {
-  salaryPrincipal: number;
-  salaryBursar: number;
-  salaryClassTeacher: number;
-  salarySubjectTeacher: number;
-  salarySupportStaff: number;
-  allowanceClassTeacher: number;
-}
+// Distinct amounts so a staff member paid on the wrong scale is caught
+const scales = resolveSalaryScales({
+  salaryPrincipal: 450000,
+  salaryBursar: 350000,
+  salaryClassTeacher: 180000,
+  salarySubjectTeacher: 150000,
+  salarySupportStaff: 90000,
+  allowanceClassTeacher: 25000,
+});
 
-export interface StaffSalaryInput {
-  id: string;
-  role: 'Principal' | 'Bursar' | 'Class Teacher' | 'Subject Teacher' | 'Support Staff';
-  assignedClass?: string | null;
-  taxDeduction?: number;
-  cooperativeDeduction?: number;
-  otherAllowances?: number;
-}
+describe('Payroll from master salary scales (DEF-111, AGENTS.md 1.3 and 2.8)', () => {
+  it('pays the principal and bursar their own scales with no class teacher allowance', () => {
+    const principal = computeStaffPay({ role: 'admin' }, scales);
+    expect(principal).toMatchObject({ roleName: 'Principal', basicSalary: 450000, responsibilityAllowance: 0, grossSalary: 450000 });
 
-export function computeStaffPayroll(
-  staff: StaffSalaryInput,
-  settings: SchoolSalarySettings
-) {
-  let baseSalary = 0;
-  let classTeacherAllowance = 0;
-
-  switch (staff.role) {
-    case 'Principal':
-      baseSalary = Number(settings.salaryPrincipal || 0);
-      break;
-    case 'Bursar':
-      baseSalary = Number(settings.salaryBursar || 0);
-      break;
-    case 'Class Teacher':
-      baseSalary = Number(settings.salaryClassTeacher || 0);
-      classTeacherAllowance = Number(settings.allowanceClassTeacher || 0);
-      break;
-    case 'Subject Teacher':
-      baseSalary = Number(settings.salarySubjectTeacher || 0);
-      if (staff.assignedClass) {
-        classTeacherAllowance = Number(settings.allowanceClassTeacher || 0);
-      }
-      break;
-    case 'Support Staff':
-      baseSalary = Number(settings.salarySupportStaff || 0);
-      break;
-  }
-
-  const otherAllowances = staff.otherAllowances || 0;
-  const grossSalary = baseSalary + classTeacherAllowance + otherAllowances;
-  const tax = staff.taxDeduction || 0;
-  const cooperative = staff.cooperativeDeduction || 0;
-  const totalDeductions = tax + cooperative;
-  const netSalary = Math.max(0, grossSalary - totalDeductions);
-
-  return {
-    baseSalary,
-    classTeacherAllowance,
-    otherAllowances,
-    grossSalary,
-    tax,
-    cooperative,
-    totalDeductions,
-    netSalary,
-    // Model Phase Invariant: Absolute zero pension
-    pension: 0,
-  };
-}
-
-describe('Payroll Calculation Engine (DEF-111 & AGENTS.md Rule 2.8)', () => {
-  const masterSettings: SchoolSalarySettings = {
-    salaryPrincipal: 450000,
-    salaryBursar: 350000,
-    salaryClassTeacher: 180000,
-    salarySubjectTeacher: 150000,
-    salarySupportStaff: 90000,
-    allowanceClassTeacher: 25000,
-  };
-
-  it('resolves correct base salary for Principal and Bursar without class teacher allowance', () => {
-    const principalPay = computeStaffPayroll({ id: 'stf-1', role: 'Principal' }, masterSettings);
-    expect(principalPay.baseSalary).toBe(450000);
-    expect(principalPay.classTeacherAllowance).toBe(0);
-    expect(principalPay.grossSalary).toBe(450000);
-
-    const bursarPay = computeStaffPayroll({ id: 'stf-2', role: 'Bursar' }, masterSettings);
-    expect(bursarPay.baseSalary).toBe(350000);
-    expect(bursarPay.classTeacherAllowance).toBe(0);
-    expect(bursarPay.grossSalary).toBe(350000);
+    const bursar = computeStaffPay({ role: 'bursar' }, scales);
+    expect(bursar).toMatchObject({ roleName: 'Bursar', basicSalary: 350000, responsibilityAllowance: 0, grossSalary: 350000 });
   });
 
-  it('awards class teacher allowance strictly to Class Teachers', () => {
-    const classTeacherPay = computeStaffPayroll(
-      { id: 'stf-3', role: 'Class Teacher', assignedClass: 'JSS 1' },
-      masterSettings
-    );
-    expect(classTeacherPay.baseSalary).toBe(180000);
-    expect(classTeacherPay.classTeacherAllowance).toBe(25000);
-    expect(classTeacherPay.grossSalary).toBe(205000);
+  it('gives the class teacher allowance only to teachers with a homeroom', () => {
+    const classTeacher = computeStaffPay({ role: 'teacher', assigned_class: 'JSS 2' }, scales);
+    expect(classTeacher).toMatchObject({
+      roleName: 'Class Teacher (JSS 2)',
+      basicSalary: 180000,
+      responsibilityAllowance: 25000,
+      grossSalary: 205000,
+    });
 
-    const subjectTeacherPay = computeStaffPayroll(
-      { id: 'stf-4', role: 'Subject Teacher', assignedClass: null },
-      masterSettings
-    );
-    expect(subjectTeacherPay.baseSalary).toBe(150000);
-    expect(subjectTeacherPay.classTeacherAllowance).toBe(0);
-    expect(subjectTeacherPay.grossSalary).toBe(150000);
+    const subjectTeacher = computeStaffPay({ role: 'teacher', assigned_class: null }, scales);
+    expect(subjectTeacher).toMatchObject({ roleName: 'Subject Teacher', basicSalary: 150000, responsibilityAllowance: 0 });
   });
 
-  it('correctly calculates net salary after tax and cooperative deductions', () => {
-    const pay = computeStaffPayroll(
-      {
-        id: 'stf-3',
-        role: 'Class Teacher',
-        assignedClass: 'SS 2',
-        taxDeduction: 15000,
-        cooperativeDeduction: 10000,
-      },
-      masterSettings
-    );
+  it('pays security staff the support staff scale, not the subject teacher scale', () => {
+    const guard = computeStaffPay({ role: 'security' }, scales);
+    expect(guard).toMatchObject({ roleName: 'Support Staff', department: 'Support', basicSalary: 90000, grossSalary: 90000 });
+  });
 
-    // Gross: 180,000 + 25,000 = 205,000
+  it('keeps the proprietor off the payroll', () => {
+    expect(isOnPayroll({ role: 'proprietor' })).toBe(false);
+    expect(isOnPayroll({ role: 'teacher' })).toBe(true);
+    expect(isOnPayroll({ role: 'security' })).toBe(true);
+  });
+
+  it('subtracts tax and cooperative deductions and never goes below zero', () => {
+    const pay = computeStaffPay({ role: 'teacher', assigned_class: 'SS 1' }, scales, {
+      taxDeduction: 15000,
+      cooperativeDeduction: '10000',
+    });
     expect(pay.grossSalary).toBe(205000);
-    expect(pay.totalDeductions).toBe(25000);
-    // Net: 205,000 - 25,000 = 180,000
     expect(pay.netSalary).toBe(180000);
+
+    const overDeducted = computeStaffPay({ role: 'security' }, scales, { taxDeduction: 200000 });
+    expect(overDeducted.netSalary).toBe(0);
   });
 
-  it('enforces AGENTS.md Rule 2.8: Pension metric is strictly zero across all roles', () => {
-    const roles: Array<StaffSalaryInput['role']> = [
-      'Principal',
-      'Bursar',
-      'Class Teacher',
-      'Subject Teacher',
-      'Support Staff',
-    ];
-
-    for (const role of roles) {
-      const pay = computeStaffPayroll({ id: 'stf-x', role }, masterSettings);
-      expect(pay.pension).toBe(0);
-      expect((pay as any).pensionDeduction).toBeUndefined();
+  it('has no pension field (AGENTS.md 2.8)', () => {
+    for (const role of ['admin', 'bursar', 'teacher', 'security']) {
+      expect(Object.keys(computeStaffPay({ role }, scales)).some((k) => k.toLowerCase().includes('pension'))).toBe(false);
     }
   });
 
-  it('dynamically adapts when master school settings are updated', () => {
-    const updatedSettings: SchoolSalarySettings = {
-      ...masterSettings,
-      salaryClassTeacher: 220000,
-      allowanceClassTeacher: 35000,
-    };
-
-    const pay = computeStaffPayroll(
-      { id: 'stf-5', role: 'Class Teacher', assignedClass: 'JSS 3' },
-      updatedSettings
-    );
-    expect(pay.baseSalary).toBe(220000);
-    expect(pay.classTeacherAllowance).toBe(35000);
-    expect(pay.grossSalary).toBe(255000);
+  it('pays zero, never an invented amount, when a scale has not been set', () => {
+    const unset = resolveSalaryScales({});
+    expect(computeStaffPay({ role: 'admin' }, unset).grossSalary).toBe(0);
+    expect(computeStaffPay({ role: 'teacher', assigned_class: 'JSS 1' }, unset).grossSalary).toBe(0);
   });
 });
-
