@@ -38,10 +38,10 @@ const BASE_CLASSES: ClassData[] = [
     name: 'JSS 1',
     level: 'Junior Secondary 1',
     enrolled: 0,
-    capacity: 250,
+    capacity: 0,
     classTeacher: 'Unassigned',
     classTeacherId: '—',
-    subjectsCount: 12,
+    subjectsCount: 0,
     attendanceToday: '—',
   },
   {
@@ -49,21 +49,21 @@ const BASE_CLASSES: ClassData[] = [
     name: 'JSS 2',
     level: 'Junior Secondary 2',
     enrolled: 0,
-    capacity: 250,
+    capacity: 0,
     classTeacher: 'Unassigned',
     classTeacherId: '—',
-    subjectsCount: 12,
+    subjectsCount: 0,
     attendanceToday: '—',
   },
   {
     id: 'cls-3',
     name: 'JSS 3',
-    level: 'Junior Secondary 3 (National Examination Year)',
+    level: 'Junior Secondary 3',
     enrolled: 0,
-    capacity: 250,
+    capacity: 0,
     classTeacher: 'Unassigned',
     classTeacherId: '—',
-    subjectsCount: 12,
+    subjectsCount: 0,
     attendanceToday: '—',
   },
   {
@@ -71,10 +71,10 @@ const BASE_CLASSES: ClassData[] = [
     name: 'SS 1',
     level: 'Senior Secondary 1',
     enrolled: 0,
-    capacity: 250,
+    capacity: 0,
     classTeacher: 'Unassigned',
     classTeacherId: '—',
-    subjectsCount: 14,
+    subjectsCount: 0,
     attendanceToday: '—',
   },
   {
@@ -82,21 +82,21 @@ const BASE_CLASSES: ClassData[] = [
     name: 'SS 2',
     level: 'Senior Secondary 2',
     enrolled: 0,
-    capacity: 250,
+    capacity: 0,
     classTeacher: 'Unassigned',
     classTeacherId: '—',
-    subjectsCount: 14,
+    subjectsCount: 0,
     attendanceToday: '—',
   },
   {
     id: 'cls-6',
     name: 'SS 3',
-    level: 'Senior Secondary 3 (National Examination Year)',
+    level: 'Senior Secondary 3',
     enrolled: 0,
-    capacity: 250,
+    capacity: 0,
     classTeacher: 'Unassigned',
     classTeacherId: '—',
-    subjectsCount: 14,
+    subjectsCount: 0,
     attendanceToday: '—',
   },
 ];
@@ -114,18 +114,20 @@ export default function ProprietorClassesPage() {
     let isMounted = true;
     const loadState = async () => {
       try {
-        const [clsRes, stuRes, setRes, attRes, staffRes] = await Promise.all([
+        const [clsRes, stuRes, setRes, attRes, staffRes, subRes] = await Promise.all([
           fetch('/api/classes').then((r) => (r.ok ? r.json() : null)),
           fetch('/api/students').then((r) => (r.ok ? r.json() : null)),
           fetch('/api/schools/settings').then((r) => (r.ok ? r.json() : null)),
           fetch('/api/attendance').then((r) => (r.ok ? r.json() : null)),
           fetch('/api/staff').then((r) => (r.ok ? r.json() : null)),
+          fetch('/api/subjects').then((r) => (r.ok ? r.json() : null)),
         ]);
 
         const dbClasses = clsRes?.success && Array.isArray(clsRes.data) ? clsRes.data : [];
         const dbStudents = stuRes?.success && Array.isArray(stuRes.data) ? stuRes.data : [];
-        const defaultCapacity = setRes?.data?.classCapacity || 250;
+        const defaultCapacity = setRes?.data?.classCapacity || 0;
         const liveAttClasses = attRes?.data?.classes || [];
+        const dbSubjects = subRes?.success && Array.isArray(subRes.data) ? subRes.data : [];
 
         if (isMounted) {
           if (staffRes?.success && Array.isArray(staffRes.data)) {
@@ -148,6 +150,13 @@ export default function ProprietorClassesPage() {
                 ? `${attMatch.attendanceRate}%`
                 : '—';
 
+              const classSubjectsCount = dbSubjects.filter((s: any) => {
+                if (c.name.startsWith('JSS')) {
+                  return !s.category || s.category === 'Junior' || s.category === 'All' || s.category === 'General';
+                }
+                return !s.category || s.category === 'Senior' || s.category === 'All' || s.category === 'General';
+              }).length;
+
               return {
                 ...c,
                 id: dbMatch?.id || c.id,
@@ -155,6 +164,7 @@ export default function ProprietorClassesPage() {
                 enrolled: enrolledCount,
                 classTeacher: teacherName,
                 classTeacherId: dbMatch?.teacherId ? dbMatch.teacherId.slice(0, 8) : '—',
+                subjectsCount: classSubjectsCount,
                 attendanceToday: attToday,
               };
             })

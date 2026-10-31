@@ -3,7 +3,7 @@ export interface PayrollRecord {
   employeeId: string;
   name: string;
   role: string;
-  department: 'Academic' | 'Administration' | 'Accounts' | 'Operations & Support' | 'Medical';
+  department: 'Academic' | 'Administration' | 'Accounts' | 'Support' | 'Medical' | string;
   basicSalary: number;
   responsibilityAllowance: number; // e.g. ₦35,000 for Class Teachers
   otherAllowances: number; // Transport, housing, hazard
@@ -12,7 +12,7 @@ export interface PayrollRecord {
   netSalary: number;
   bankAccount: string;
   bankName: string;
-  status: 'Approved & Disbursed' | 'Pending Approval' | 'Processing';
+  status: 'Approved' | 'Pending' | 'Processing' | string;
   payPeriod: string; // e.g. "September 2026"
 }
 
@@ -20,13 +20,14 @@ export interface ExpenditureRecord {
   id: string;
   voucherNo: string;
   category:
-    | 'Diesel & Power'
-    | 'Science & Laboratories'
-    | 'ICT & Fiber Internet'
-    | 'Facility Maintenance & HVAC'
-    | 'Stationery & Exam Booklets'
-    | 'Clinic & Health Supplies'
-    | 'Security & Sanitation';
+    | 'Power'
+    | 'Laboratories'
+    | 'Technology'
+    | 'Maintenance'
+    | 'Stationery'
+    | 'Health'
+    | 'Security'
+    | string;
   description: string;
   amount: number;
   beneficiary: string;
@@ -34,7 +35,7 @@ export interface ExpenditureRecord {
   approvedBy: string;
   paymentAccount: string;
   date: string;
-  status: 'Approved & Paid' | 'Pending Approval' | 'Under Review';
+  status: 'Approved' | 'Pending' | 'Review' | string;
 }
 
 export interface PettyCashTransaction {
@@ -42,7 +43,7 @@ export interface PettyCashTransaction {
   receiptNo: string;
   date: string;
   item: string;
-  category: 'Office Stationery' | 'Emergency Repair' | 'Courier Dispatch' | 'Hospitality & PTA' | 'Consumables';
+  category: 'Stationery' | 'Repairs' | 'Dispatch' | 'Hospitality' | 'Consumables' | string;
   amount: number;
   type: 'Inflow' | 'Outflow';
   balanceAfter: number;

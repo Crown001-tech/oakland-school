@@ -25,17 +25,17 @@ export default function SchoolProfilePage() {
   const [saveToast, setSaveToast] = useState(false);
 
   // School Identity State
-  const [schoolName, setSchoolName] = useState('Oakland International College');
-  const [motto, setMotto] = useState('Excellence, Integrity, Leadership');
+  const [schoolName, setSchoolName] = useState('Oakland International School');
+  const [motto, setMotto] = useState('Knowledge, Integrity and Excellence');
   const [code, setCode] = useState('OAK-001');
-  const [rcNumber, setRcNumber] = useState('RC-1849204');
+  const [rcNumber, setRcNumber] = useState('');
   const [foundedYear, setFoundedYear] = useState('2014');
-  const [accreditation, setAccreditation] = useState('Approved National Examination Centre #LAG-8891');
+  const [accreditation, setAccreditation] = useState('');
 
   // Contact & Campus
   const [address, setAddress] = useState('14 Academic Crescent, Victoria Island, Lagos');
   const [primaryPhone, setPrimaryPhone] = useState('+234 800 625 5263');
-  const [secondaryPhone, setSecondaryPhone] = useState('+234 802 123 4567');
+  const [secondaryPhone, setSecondaryPhone] = useState('');
   const [primaryEmail, setPrimaryEmail] = useState('admin@oaklandschools.edu');
   const [admissionsEmail, setAdmissionsEmail] = useState('admissions@oaklandschools.edu');
   const [websiteUrl, setWebsiteUrl] = useState('https://oaklandschools.edu');
@@ -49,7 +49,7 @@ export default function SchoolProfilePage() {
 
   // Leadership
   const [principalName, setPrincipalName] = useState('Mr Seyi Bankole');
-  const [proprietorName, setProprietorName] = useState('School Proprietor');
+  const [proprietorName, setProprietorName] = useState('');
 
   useEffect(() => {
     let isMounted = true;
@@ -59,25 +59,25 @@ export default function SchoolProfilePage() {
         const json = await res.json();
         if (json.success && json.data && isMounted) {
           const d = json.data;
-          setSchoolName(d.name || 'Oakland International College');
-          setMotto(d.motto || 'Excellence, Integrity, Leadership');
+          setSchoolName(d.name || 'Oakland International School');
+          setMotto(d.motto || 'Knowledge, Integrity and Excellence');
           setCode(d.code || 'OAK-001');
-          setRcNumber(d.rcNumber || 'RC-1849204');
+          setRcNumber(d.rcNumber || '');
           setFoundedYear(d.foundedYear || '2014');
-          setAccreditation(d.accreditation || 'Approved National Examination Centre #LAG-8891');
+          setAccreditation(d.accreditation || '');
           setAddress(d.address || '14 Academic Crescent, Victoria Island, Lagos');
           setPrimaryPhone(d.phone || '+234 800 625 5263');
-          setSecondaryPhone(d.secondaryPhone || '+234 802 123 4567');
+          setSecondaryPhone(d.secondaryPhone || '');
           setPrimaryEmail(d.email || 'admin@oaklandschools.edu');
           setAdmissionsEmail(d.admissionsEmail || 'admissions@oaklandschools.edu');
           setWebsiteUrl(d.websiteUrl || 'https://oaklandschools.edu');
           setCurrentSession(d.currentSession || '2026/2027');
           setCurrentTerm(d.currentTerm || 'First Term');
-          setTermStartDate(d.termStartDate || '2026-09-01');
-          setTermEndDate(d.termEndDate || '2026-12-18');
-          setNextTermResumption(d.nextTermResumption || '2027-01-11');
+          setTermStartDate(d.termStartDate || '');
+          setTermEndDate(d.termEndDate || '');
+          setNextTermResumption(d.nextTermResumption || '');
           setPrincipalName(d.principalName || 'Mr Seyi Bankole');
-          setProprietorName(d.proprietorName || 'School Proprietor');
+          setProprietorName(d.proprietorName || '');
         }
       } catch (err) {
         console.error('Failed to load school profile:', err);

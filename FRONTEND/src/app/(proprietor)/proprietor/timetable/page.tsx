@@ -68,17 +68,11 @@ export default function ProprietorTimetablePage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#b3141f] text-white uppercase">
-              Executive Oversight
-            </span>
-            <span className="text-xs text-slate-500 font-medium">Principal Timetable Audit</span>
-          </div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight mt-1">
-            Master School Timetable
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+            Master Timetable
           </h1>
-          <p className="text-xs text-slate-500">
-            Institutional inspection of lesson periods, subjects, and classroom faculty allocation.
+          <p className="text-xs text-slate-500 mt-1">
+            Schedule of lesson periods, subjects, and assigned teachers across classes.
           </p>
         </div>
 

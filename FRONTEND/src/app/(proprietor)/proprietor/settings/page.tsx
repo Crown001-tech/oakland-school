@@ -100,10 +100,10 @@ const DEFAULT_SETTINGS: SchoolSettings = {
   motto: 'Knowledge, Integrity and Excellence',
   address: '14 Academic Crescent, Victoria Island, Lagos',
   academicSession: '2026/2027',
-  currentTerm: 'Term 1',
+  currentTerm: 'First Term',
   termStartDate: '2026-09-14',
   termEndDate: '2026-12-18',
-  classCapacity: 250,
+  classCapacity: 0,
 
   ca1Weight: 20,
   ca2Weight: 20,

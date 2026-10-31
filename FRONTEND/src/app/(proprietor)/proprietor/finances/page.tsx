@@ -74,11 +74,11 @@ export default function ProprietorFinancesPage() {
   const [isNewVoucherModalOpen, setIsNewVoucherModalOpen] = useState(false);
 
   // New Voucher Form
-  const [voucherCategory, setVoucherCategory] = useState<ExpenditureRecord['category']>('Diesel & Power');
+  const [voucherCategory, setVoucherCategory] = useState<string>('');
   const [voucherDesc, setVoucherDesc] = useState('');
   const [voucherAmount, setVoucherAmount] = useState('');
   const [voucherBeneficiary, setVoucherBeneficiary] = useState('');
-  const [voucherAccount, setVoucherAccount] = useState<ExpenditureRecord['paymentAccount']>('' as any);
+  const [voucherAccount, setVoucherAccount] = useState<string>('');
   const [bankAccounts, setBankAccounts] = useState<
     Array<{ id: string; name: string; bank: string; accountNumber: string }>
   >([]);
@@ -104,10 +104,6 @@ export default function ProprietorFinancesPage() {
         if (json.data.tuitionRates) setTuitionRates(json.data.tuitionRates);
         if (json.data.institutionalBankAccounts) {
           setBankAccounts(json.data.institutionalBankAccounts);
-          if (json.data.institutionalBankAccounts.length > 0) {
-            const first = json.data.institutionalBankAccounts[0];
-            setVoucherAccount(`${first.bank} (${first.accountNumber})` as any);
-          }
         }
       }
     } catch (err) {
@@ -1159,46 +1155,47 @@ export default function ProprietorFinancesPage() {
               <CardContent className="p-4 space-y-3.5 text-xs">
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">
-                    Expenditure Category
+                    Category
                   </label>
                   <select
                     value={voucherCategory}
-                    onChange={(e) => setVoucherCategory(e.target.value as ExpenditureRecord['category'])}
+                    onChange={(e) => setVoucherCategory(e.target.value)}
                     className="w-full h-9 px-3 rounded-lg border border-slate-300 bg-white text-slate-800 cursor-pointer"
                     required
                   >
-                    <option value="Diesel & Power">Diesel Fuel & Campus Generators</option>
-                    <option value="Science & Laboratories">Science Laboratory Reagents & Kits</option>
-                    <option value="ICT & Fiber Internet">ICT, Dedicated Fiber Link & Starlink</option>
-                    <option value="Stationery & Exam Booklets">Continuous Assessment & Exam Booklets</option>
-                    <option value="Facility Maintenance & HVAC">Facility Repairs, AC Servicing & Plumbing</option>
-                    <option value="Clinic & Health Supplies">Campus Clinic & First Aid Restocking</option>
-                    <option value="Security & Sanitation">Security Equipment & Campus Sanitation</option>
+                    <option value="">Select Category</option>
+                    <option value="Power">Power</option>
+                    <option value="Laboratories">Laboratories</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Stationery">Stationery</option>
+                    <option value="Maintenance">Maintenance</option>
+                    <option value="Health">Health Supplies</option>
+                    <option value="Security">Security</option>
                   </select>
                 </div>
 
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">
-                    Beneficiary Vendor
+                    Beneficiary
                   </label>
                   <Input
                     required
                     value={voucherBeneficiary}
                     onChange={(e) => setVoucherBeneficiary(e.target.value)}
-                    placeholder="e.g. TotalEnergies Nigeria, May & Baker Lab Supplies..."
+                    placeholder="Enter vendor or recipient name"
                     className="h-9 text-xs"
                   />
                 </div>
 
                 <div>
                   <label className="block font-bold text-slate-700 mb-1">
-                    Description & Operational Purpose
+                    Description
                   </label>
                   <Input
                     required
                     value={voucherDesc}
                     onChange={(e) => setVoucherDesc(e.target.value)}
-                    placeholder="e.g. Purchase of 2,000L AGO Diesel for campus generators"
+                    placeholder="Enter expenditure purpose"
                     className="h-9 text-xs"
                   />
                 </div>

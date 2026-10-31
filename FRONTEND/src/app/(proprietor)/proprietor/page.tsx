@@ -72,7 +72,7 @@ export default function ProprietorDashboardPage() {
   const [classes, setClasses] = useState<ClassItem[]>([]);
   const [principal, setPrincipal] = useState<ExecutiveOfficer | null>(null);
   const [bursar, setBursar] = useState<ExecutiveOfficer | null>(null);
-  const [defaultCapacity, setDefaultCapacity] = useState<number>(250);
+  const [defaultCapacity, setDefaultCapacity] = useState<number>(0);
   const [finances, setFinances] = useState<FinanceMetrics>({
     expectedRevenue: 0,
     collectedRevenue: 0,
@@ -122,7 +122,7 @@ export default function ProprietorDashboardPage() {
           setBursar(execRes.data.bursar || null);
         }
 
-        const resolvedCap = Number(settingsRes?.data?.classCapacity) || 250;
+        const resolvedCap = Number(settingsRes?.data?.classCapacity) || 0;
         setDefaultCapacity(resolvedCap);
 
         // Compute Finances
