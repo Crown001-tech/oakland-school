@@ -110,12 +110,12 @@ export default function TeacherTimetablePage() {
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Executive Hero Surface */}
       <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50/70 to-teal-50/30 p-6 sm:p-7 shadow-xs">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0f3a3e] via-teal-600 to-emerald-500" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-primary via-teal-600 to-emerald-500" />
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
           <div className="space-y-2">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#0f3a3e] text-white tracking-wide shadow-xs">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-primary text-white tracking-wide shadow-xs">
                 <Calendar className="w-3.5 h-3.5 text-teal-300" />
                 <span>Academic Timetable</span>
               </span>
@@ -162,7 +162,7 @@ export default function TeacherTimetablePage() {
                 onClick={() => setSelectedClass(cls)}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                   isSelected
-                    ? 'bg-[#0f3a3e] text-white shadow-xs'
+                    ? 'bg-brand-primary text-white shadow-xs'
                     : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200/70'
                 }`}
               >
@@ -198,7 +198,7 @@ export default function TeacherTimetablePage() {
       ) : !hasEntries ? (
         <Card className="border-dashed border-2 border-slate-200 bg-slate-50/50 p-12 text-center rounded-2xl">
           <div className="max-w-md mx-auto space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-teal-50 text-[#0f3a3e] flex items-center justify-center mx-auto border border-teal-100 shadow-2xs">
+            <div className="w-12 h-12 rounded-2xl bg-teal-50 text-brand-primary flex items-center justify-center mx-auto border border-teal-100 shadow-2xs">
               <Calendar className="w-6 h-6" />
             </div>
             <h3 className="text-base font-bold text-slate-900">
@@ -220,7 +220,7 @@ export default function TeacherTimetablePage() {
                 onClick={() => setMobileDay(d)}
                 className={`flex-1 py-1.5 px-2 text-center text-xs font-bold rounded-lg transition-all ${
                   mobileDay === d
-                    ? 'bg-[#0f3a3e] text-white shadow-xs'
+                    ? 'bg-brand-primary text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -289,7 +289,7 @@ export default function TeacherTimetablePage() {
           <Card className="hidden md:block border-slate-200/90 shadow-xs overflow-hidden rounded-2xl">
             <CardContent className="p-0 overflow-x-auto relative">
               <table className="w-full text-xs text-left">
-                <thead className="bg-[#0f3a3e] text-white font-bold">
+                <thead className="bg-brand-primary text-white font-bold">
                   <tr>
                     <th className="py-3.5 px-4 w-40">Period</th>
                     {DAYS.map((d) => (

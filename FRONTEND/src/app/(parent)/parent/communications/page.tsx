@@ -79,7 +79,7 @@ export default function ParentCommunicationsPage() {
             onClick={() => setFilter('all')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
               filter === 'all'
-                ? 'bg-[#0f3a3e] text-white shadow-xs'
+                ? 'bg-brand-primary text-white shadow-xs'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
@@ -90,7 +90,7 @@ export default function ParentCommunicationsPage() {
             onClick={() => setFilter('circulars')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
               filter === 'circulars'
-                ? 'bg-[#0f3a3e] text-white shadow-xs'
+                ? 'bg-brand-primary text-white shadow-xs'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
@@ -101,7 +101,7 @@ export default function ParentCommunicationsPage() {
             onClick={() => setFilter('urgent')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
               filter === 'urgent'
-                ? 'bg-[#0f3a3e] text-white shadow-xs'
+                ? 'bg-brand-primary text-white shadow-xs'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
@@ -117,7 +117,7 @@ export default function ParentCommunicationsPage() {
             placeholder="Search bulletins..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full text-xs h-10 min-h-[40px] pl-8 pr-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0f3a3e] font-medium text-slate-800"
+            className="w-full text-xs h-10 min-h-[40px] pl-8 pr-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary font-medium text-slate-800"
           />
         </div>
       </div>
@@ -151,7 +151,7 @@ export default function ParentCommunicationsPage() {
             >
               <div className="space-y-1 min-w-0 flex-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#b3141f] transition">
+                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-brand-accent transition">
                     {n.subject}
                   </h3>
                   {(n.subject || '').toLowerCase().includes('urgent') && (
@@ -169,7 +169,7 @@ export default function ParentCommunicationsPage() {
                 <span className="font-semibold text-[11px] text-slate-600">
                   {n.sentAt}
                 </span>
-                <span className="text-[10px] text-[#0f3a3e] font-bold group-hover:underline">
+                <span className="text-[10px] text-brand-primary font-bold group-hover:underline">
                   Read Bulletin &rarr;
                 </span>
               </div>

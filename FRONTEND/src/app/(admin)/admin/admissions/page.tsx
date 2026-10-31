@@ -153,7 +153,7 @@ export default function AdminAdmissionsPage() {
             onClick={() => setActiveStage('all')}
             className={`px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition-colors cursor-pointer ${
               activeStage === 'all'
-                ? 'bg-[#0f3a3e] text-white'
+                ? 'bg-brand-primary text-white'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
@@ -172,7 +172,7 @@ export default function AdminAdmissionsPage() {
                 onClick={() => setActiveStage(stg)}
                 className={`px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 whitespace-nowrap transition-colors cursor-pointer ${
                   isSelected
-                    ? 'bg-[#0f3a3e] text-white'
+                    ? 'bg-brand-primary text-white'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >

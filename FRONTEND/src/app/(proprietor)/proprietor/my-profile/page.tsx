@@ -219,12 +219,12 @@ export default function ProprietorMyProfilePage() {
       {/* Profile Details Form */}
       <Card className="p-6 border-slate-200 space-y-6">
         <div className="flex items-center gap-4 pb-4 border-b border-slate-100">
-          <div className="w-16 h-16 rounded-2xl bg-[#0f3a3e] text-white flex items-center justify-center font-bold text-xl border-2 border-teal-700 shadow-xs">
+          <div className="w-16 h-16 rounded-2xl bg-brand-primary text-white flex items-center justify-center font-bold text-xl border-2 border-teal-700 shadow-xs">
             {initials}
           </div>
           <div>
             <h2 className="text-lg font-bold text-slate-900">{fullName}</h2>
-            <p className="text-xs text-[#b3141f] font-semibold">{officialTitle}</p>
+            <p className="text-xs text-brand-accent font-semibold">{officialTitle}</p>
             <p className="text-[11px] text-slate-400 font-mono mt-0.5">Role: Proprietor</p>
           </div>
         </div>
@@ -238,7 +238,7 @@ export default function ProprietorMyProfilePage() {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
             </div>
 
@@ -249,7 +249,7 @@ export default function ProprietorMyProfilePage() {
                 value={officialTitle}
                 onChange={(e) => setOfficialTitle(e.target.value)}
                 required
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
             </div>
 
@@ -260,7 +260,7 @@ export default function ProprietorMyProfilePage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
             </div>
 
@@ -271,7 +271,7 @@ export default function ProprietorMyProfilePage() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 required
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
             </div>
 
@@ -282,7 +282,7 @@ export default function ProprietorMyProfilePage() {
                 value={officeLocation}
                 onChange={(e) => setOfficeLocation(e.target.value)}
                 required
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
             </div>
 
@@ -292,7 +292,7 @@ export default function ProprietorMyProfilePage() {
                 rows={3}
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs text-slate-800 leading-relaxed focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
             </div>
           </div>
@@ -314,7 +314,7 @@ export default function ProprietorMyProfilePage() {
       {/* Password Management */}
       <Card className="p-6 border-slate-200 space-y-4">
         <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-          <Lock className="w-4 h-4 text-[#0f3a3e]" />
+          <Lock className="w-4 h-4 text-brand-primary" />
           <h3 className="text-sm font-bold text-slate-900">Security Credentials</h3>
         </div>
 

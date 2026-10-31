@@ -203,7 +203,7 @@ export default function ClassStudentsPage() {
 
         <div className="flex items-center gap-3">
           <Link href="/teacher/report-cards">
-            <Button className="bg-[#0f3a3e] hover:bg-[#164e53] text-white shadow-xs text-xs font-semibold flex items-center gap-2 cursor-pointer">
+            <Button className="bg-brand-primary hover:bg-brand-primary-light text-white shadow-xs text-xs font-semibold flex items-center gap-2 cursor-pointer">
               <Award className="w-4 h-4" />
               <span>Class Report Cards</span>
             </Button>
@@ -228,7 +228,7 @@ export default function ClassStudentsPage() {
                   onClick={() => setSelectedClass(cls)}
                   className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                     isSelected
-                      ? 'bg-[#0f3a3e] text-white shadow-xs'
+                      ? 'bg-brand-primary text-white shadow-xs'
                       : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                   }`}
                 >
@@ -289,7 +289,7 @@ export default function ClassStudentsPage() {
                       type="button"
                       className={`w-full p-3.5 text-left transition-colors flex items-center justify-between cursor-pointer ${
                         isSelected
-                          ? 'bg-teal-50/70 border-l-4 border-[#0f3a3e]'
+                          ? 'bg-teal-50/70 border-l-4 border-brand-primary'
                           : 'hover:bg-slate-50'
                       }`}
                     >
@@ -297,7 +297,7 @@ export default function ClassStudentsPage() {
                         <div
                           className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
                             isSelected
-                              ? 'bg-[#0f3a3e] text-white'
+                              ? 'bg-brand-primary text-white'
                               : 'bg-slate-100 text-slate-700'
                           }`}
                         >
@@ -308,7 +308,7 @@ export default function ClassStudentsPage() {
                             .join('')}
                         </div>
                         <div className="min-w-0">
-                          <p className={`text-xs font-bold truncate ${isSelected ? 'text-[#0f3a3e]' : 'text-slate-900'}`}>
+                          <p className={`text-xs font-bold truncate ${isSelected ? 'text-brand-primary' : 'text-slate-900'}`}>
                             {student.fullName}
                           </p>
                           <p className="text-[10px] text-slate-500 font-mono truncate">
@@ -316,7 +316,7 @@ export default function ClassStudentsPage() {
                           </p>
                         </div>
                       </div>
-                      <ChevronRight className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-[#0f3a3e]' : 'text-slate-300'}`} />
+                      <ChevronRight className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-brand-primary' : 'text-slate-300'}`} />
                     </button>
                   );
                 })
@@ -332,13 +332,13 @@ export default function ClassStudentsPage() {
               {/* Executive Student Profile Header Hero */}
               <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-br from-white via-slate-50/70 to-teal-50/30 shadow-sm p-5 sm:p-6">
                 {/* Decorative Brand Top Accent */}
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0f3a3e] via-teal-600 to-emerald-500" />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-primary via-teal-600 to-emerald-500" />
 
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 sm:gap-6">
                   {/* Left: Avatar & Identity Details */}
                   <div className="flex items-start sm:items-center gap-4 min-w-0">
                     <div className="relative shrink-0">
-                      <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-[#0f3a3e] to-[#164e53] text-white flex items-center justify-center text-xl sm:text-2xl font-black shadow-md border-2 border-white ring-2 ring-teal-700/20">
+                      <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-primary-light text-white flex items-center justify-center text-xl sm:text-2xl font-black shadow-md border-2 border-white ring-2 ring-teal-700/20">
                         {selectedStudent.fullName
                           .split(' ')
                           .map((n) => n[0])
@@ -393,7 +393,7 @@ export default function ClassStudentsPage() {
                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                           Term Score
                         </span>
-                        <span className="text-sm font-black text-[#0f3a3e] mt-0.5 block">
+                        <span className="text-sm font-black text-brand-primary mt-0.5 block">
                           {selectedStudent.termAverage || '—'}
                         </span>
                       </div>
@@ -402,7 +402,7 @@ export default function ClassStudentsPage() {
                     <Link href={`/teacher/report-cards?studentId=${selectedStudent.id}`} className="shrink-0">
                       <Button
                         size="sm"
-                        className="bg-gradient-to-r from-[#0f3a3e] to-[#164e53] hover:from-[#13494e] hover:to-[#1c5f65] text-white text-xs font-bold h-10 px-4 rounded-xl cursor-pointer shadow-sm hover:shadow transition-all flex items-center gap-2"
+                        className="bg-gradient-to-r from-brand-primary to-brand-primary-light hover:from-[#13494e] hover:to-[#1c5f65] text-white text-xs font-bold h-10 px-4 rounded-xl cursor-pointer shadow-sm hover:shadow transition-all flex items-center gap-2"
                       >
                         <Award className="w-4 h-4 text-amber-300" />
                         <span>View Report Card</span>
@@ -416,7 +416,7 @@ export default function ClassStudentsPage() {
               <Card className="border-slate-200 shadow-xs bg-white">
                 <CardHeader className="pb-3 border-b border-slate-100">
                   <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                    <User className="w-3.5 h-3.5 text-[#0f3a3e]" />
+                    <User className="w-3.5 h-3.5 text-brand-primary" />
                     Personal Biodata
                   </CardTitle>
                 </CardHeader>
@@ -463,7 +463,7 @@ export default function ClassStudentsPage() {
               <Card className="border-slate-200 shadow-xs bg-white">
                 <CardHeader className="pb-3 border-b border-slate-100">
                   <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                    <Users className="w-3.5 h-3.5 text-[#0f3a3e]" />
+                    <Users className="w-3.5 h-3.5 text-brand-primary" />
                     Family Contacts
                   </CardTitle>
                 </CardHeader>
@@ -528,7 +528,7 @@ export default function ClassStudentsPage() {
               <Card className="border-slate-200 shadow-xs bg-white">
                 <CardHeader className="pb-3 border-b border-slate-100">
                   <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#0f3a3e]" />
+                    <ShieldCheck className="w-3.5 h-3.5 text-brand-primary" />
                     Pickup Authorization
                   </CardTitle>
                 </CardHeader>

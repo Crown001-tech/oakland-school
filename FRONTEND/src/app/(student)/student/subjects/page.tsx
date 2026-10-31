@@ -89,7 +89,7 @@ export default function StudentSubjectsPage() {
                 onClick={() => setFilter(tab.id)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
                   filter === tab.id
-                    ? 'bg-[#0f3a3e] text-white shadow-xs'
+                    ? 'bg-brand-primary text-white shadow-xs'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                 }`}
               >
@@ -117,7 +117,7 @@ export default function StudentSubjectsPage() {
             placeholder="Search subjects..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full text-xs h-10 min-h-[40px] pl-8 pr-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0f3a3e] font-medium text-slate-800"
+            className="w-full text-xs h-10 min-h-[40px] pl-8 pr-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary font-medium text-slate-800"
           />
         </div>
       </div>
@@ -154,7 +154,7 @@ export default function StudentSubjectsPage() {
               >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs font-bold text-[#0f3a3e] bg-[#0f3a3e]/10 border border-[#0f3a3e]/20 px-2 py-0.5 rounded-md">
+                    <span className="font-mono text-xs font-bold text-brand-primary bg-brand-primary/10 border border-brand-primary/20 px-2 py-0.5 rounded-md">
                       {sub.code || 'SUB'}
                     </span>
                     <span className="text-[11px] text-slate-400 font-semibold">
@@ -162,7 +162,7 @@ export default function StudentSubjectsPage() {
                     </span>
                   </div>
 
-                  <h3 className="text-base font-bold text-slate-900 group-hover:text-[#b3141f] transition">
+                  <h3 className="text-base font-bold text-slate-900 group-hover:text-brand-accent transition">
                     {sub.name}
                   </h3>
 
@@ -175,7 +175,7 @@ export default function StudentSubjectsPage() {
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                   <Link
                     href={`/student/materials?subject=${encodeURIComponent(sub.name)}`}
-                    className="text-xs text-[#0f3a3e] hover:text-[#b3141f] font-bold inline-flex items-center gap-1"
+                    className="text-xs text-brand-primary hover:text-brand-accent font-bold inline-flex items-center gap-1"
                   >
                     <FileText className="w-3.5 h-3.5" />
                     <span>Study Materials &rarr;</span>

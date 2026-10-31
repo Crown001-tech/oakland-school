@@ -319,11 +319,10 @@ export default function ProprietorSettingsPage() {
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-slate-200 text-xs scroll-smooth">
           <button
             onClick={() => setActiveTab('general')}
-            className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${
-              activeTab === 'general'
-                ? 'bg-[#0f3a3e] text-white shadow-xs'
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-            }`}
+            className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${activeTab === 'general'
+              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              }`}
           >
             <School className="w-3.5 h-3.5" />
             <span>School</span>
@@ -331,11 +330,10 @@ export default function ProprietorSettingsPage() {
 
           <button
             onClick={() => setActiveTab('academic')}
-            className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${
-              activeTab === 'academic'
-                ? 'bg-[#0f3a3e] text-white shadow-xs'
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-            }`}
+            className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${activeTab === 'academic'
+              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
             <span>Academics</span>
@@ -343,11 +341,10 @@ export default function ProprietorSettingsPage() {
 
           <button
             onClick={() => setActiveTab('attendance')}
-            className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${
-              activeTab === 'attendance'
-                ? 'bg-[#0f3a3e] text-white shadow-xs'
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-            }`}
+            className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${activeTab === 'attendance'
+              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              }`}
           >
             <CalendarCheck className="w-3.5 h-3.5" />
             <span>Attendance</span>
@@ -355,11 +352,10 @@ export default function ProprietorSettingsPage() {
 
           <button
             onClick={() => setActiveTab('fees')}
-            className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${
-              activeTab === 'fees'
-                ? 'bg-[#0f3a3e] text-white shadow-xs'
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-            }`}
+            className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${activeTab === 'fees'
+              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              }`}
           >
             <Wallet className="w-3.5 h-3.5" />
             <span>Tuition</span>
@@ -367,11 +363,10 @@ export default function ProprietorSettingsPage() {
 
           <button
             onClick={() => setActiveTab('exams')}
-            className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${
-              activeTab === 'exams'
-                ? 'bg-[#0f3a3e] text-white shadow-xs'
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-            }`}
+            className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${activeTab === 'exams'
+              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              }`}
           >
             <GraduationCap className="w-3.5 h-3.5" />
             <span>Entrance Exams</span>
@@ -379,11 +374,10 @@ export default function ProprietorSettingsPage() {
 
           <button
             onClick={() => setActiveTab('delegations')}
-            className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${
-              activeTab === 'delegations'
-                ? 'bg-[#0f3a3e] text-white shadow-xs'
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-            }`}
+            className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${activeTab === 'delegations'
+              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              }`}
           >
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Delegations</span>
@@ -391,11 +385,10 @@ export default function ProprietorSettingsPage() {
 
           <button
             onClick={() => setActiveTab('alerts')}
-            className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${
-              activeTab === 'alerts'
-                ? 'bg-[#0f3a3e] text-white shadow-xs'
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-            }`}
+            className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${activeTab === 'alerts'
+              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              }`}
           >
             <Bell className="w-3.5 h-3.5" />
             <span>Alerts</span>
@@ -403,11 +396,10 @@ export default function ProprietorSettingsPage() {
 
           <button
             onClick={() => setActiveTab('payroll')}
-            className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${
-              activeTab === 'payroll'
-                ? 'bg-[#0f3a3e] text-white shadow-xs'
-                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
-            }`}
+            className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${activeTab === 'payroll'
+              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+              }`}
           >
             <CreditCard className="w-3.5 h-3.5" />
             <span>Compensation</span>

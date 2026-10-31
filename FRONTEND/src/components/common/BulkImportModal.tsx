@@ -363,7 +363,7 @@ export function BulkImportModal({
         <div className="flex items-start justify-between pb-4 border-b border-slate-100">
           <div>
             <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#0f3a3e] text-white uppercase tracking-wider">
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-primary text-white uppercase tracking-wider">
                 Bulk Onboarding
               </span>
               <span className="text-xs text-slate-500 font-medium">
@@ -395,7 +395,7 @@ export function BulkImportModal({
               onClick={() => setActiveTab('upload')}
               className={`px-3 py-1.5 rounded-lg font-semibold transition ${
                 activeTab === 'upload'
-                  ? 'bg-[#0f3a3e] text-white shadow-xs'
+                  ? 'bg-brand-primary text-white shadow-xs'
                   : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
               }`}
             >
@@ -406,7 +406,7 @@ export function BulkImportModal({
               onClick={() => setActiveTab('paste')}
               className={`px-3 py-1.5 rounded-lg font-semibold transition ${
                 activeTab === 'paste'
-                  ? 'bg-[#0f3a3e] text-white shadow-xs'
+                  ? 'bg-brand-primary text-white shadow-xs'
                   : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
               }`}
             >
@@ -431,7 +431,7 @@ export function BulkImportModal({
           <div className="space-y-3">
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-slate-300 hover:border-[#0f3a3e] bg-slate-50/50 hover:bg-teal-50/20 rounded-xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center gap-2"
+              className="border-2 border-dashed border-slate-300 hover:border-brand-primary bg-slate-50/50 hover:bg-teal-50/20 rounded-xl p-8 text-center cursor-pointer transition flex flex-col items-center justify-center gap-2"
             >
               <div className="w-12 h-12 rounded-xl bg-teal-50 text-teal-800 flex items-center justify-center">
                 <FileSpreadsheet className="w-6 h-6" />
@@ -476,7 +476,7 @@ export function BulkImportModal({
               type="button"
               size="sm"
               onClick={handlePasteParse}
-              className="bg-[#0f3a3e] hover:bg-[#134b50] text-white text-xs font-semibold"
+              className="bg-brand-primary hover:bg-[#134b50] text-white text-xs font-semibold"
             >
               Parse Pasted Text
             </Button>
@@ -612,7 +612,7 @@ export function BulkImportModal({
             type="button"
             disabled={parsedRows.length === 0 || isProcessing}
             onClick={handleCommitImport}
-            className="bg-[#0f3a3e] hover:bg-[#134b50] text-white text-xs font-semibold flex items-center gap-1.5"
+            className="bg-brand-primary hover:bg-[#134b50] text-white text-xs font-semibold flex items-center gap-1.5"
           >
             <Sparkles className="w-3.5 h-3.5 text-teal-300" />
             <span>

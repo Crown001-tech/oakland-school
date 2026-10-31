@@ -110,7 +110,7 @@ export default function AdminCbtOversightPage() {
       {/* Top Banner & Title */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-200">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#0f3a3e]">
+          <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-brand-primary">
             <Laptop className="w-4 h-4" />
             <span>Academic Governance</span>
           </div>
@@ -125,7 +125,7 @@ export default function AdminCbtOversightPage() {
         <div className="flex items-center gap-2.5">
           <Link
             href="/teacher/cbt"
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold shadow-xs transition-colors min-h-[44px]"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold shadow-xs transition-colors min-h-[44px]"
           >
             <BookOpen className="w-4 h-4" />
             <span>Faculty Question Banks</span>
@@ -138,7 +138,7 @@ export default function AdminCbtOversightPage() {
         <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
             <span>Published Assessments</span>
-            <Laptop className="w-4 h-4 text-[#0f3a3e]" />
+            <Laptop className="w-4 h-4 text-brand-primary" />
           </div>
           <p className="text-2xl font-bold text-slate-900 mt-2 font-mono">
             {totalPublished}
@@ -177,7 +177,7 @@ export default function AdminCbtOversightPage() {
         <div className="bg-white p-5 rounded-2xl border border-slate-200/90 shadow-2xs">
           <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
             <span>Proctoring Integrity</span>
-            <ShieldCheck className="w-4 h-4 text-[#0f3a3e]" />
+            <ShieldCheck className="w-4 h-4 text-brand-primary" />
           </div>
           <p className="text-2xl font-bold text-emerald-700 mt-2 font-mono">
             100.0%
@@ -237,7 +237,7 @@ export default function AdminCbtOversightPage() {
                 placeholder="Search examination or subject..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-[#0f3a3e] min-h-[44px]"
+                className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:border-brand-primary min-h-[44px]"
               />
             </div>
           </div>
@@ -287,7 +287,7 @@ export default function AdminCbtOversightPage() {
                       <td className="py-3.5 px-4 text-slate-600">
                         {a.duration_minutes} mins
                       </td>
-                      <td className="py-3.5 px-4 font-mono font-bold text-[#0f3a3e]">
+                      <td className="py-3.5 px-4 font-mono font-bold text-brand-primary">
                         {a.pass_percentage}%
                       </td>
                       <td className="py-3.5 px-4 font-mono">
@@ -309,7 +309,7 @@ export default function AdminCbtOversightPage() {
                         <button
                           type="button"
                           onClick={() => setSelectedAssessment(a)}
-                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-slate-200 hover:border-[#0f3a3e] text-slate-700 hover:text-[#0f3a3e] text-xs font-semibold transition-colors min-h-[44px] cursor-pointer"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg border border-slate-200 hover:border-brand-primary text-slate-700 hover:text-brand-primary text-xs font-semibold transition-colors min-h-[44px] cursor-pointer"
                         >
                           <Eye className="w-3.5 h-3.5" />
                           <span>Inspect</span>
@@ -357,7 +357,7 @@ export default function AdminCbtOversightPage() {
                       <td className="py-3.5 px-4 text-slate-600">
                         {b.class_level}
                       </td>
-                      <td className="py-3.5 px-4 font-mono font-bold text-[#0f3a3e]">
+                      <td className="py-3.5 px-4 font-mono font-bold text-brand-primary">
                         {b.questions_count || 0} questions
                       </td>
                       <td className="py-3.5 px-4 text-slate-500">
@@ -445,7 +445,7 @@ export default function AdminCbtOversightPage() {
               </div>
               <div className="p-3 bg-slate-50 rounded-xl">
                 <span className="text-[10px] text-slate-400 uppercase font-semibold">Pass Threshold</span>
-                <p className="font-bold text-[#0f3a3e] mt-0.5">{selectedAssessment.pass_percentage}%</p>
+                <p className="font-bold text-brand-primary mt-0.5">{selectedAssessment.pass_percentage}%</p>
               </div>
             </div>
 
@@ -466,7 +466,7 @@ export default function AdminCbtOversightPage() {
               </button>
               <Link
                 href={`/admin/cbt/take/${selectedAssessment.id}`}
-                className="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold shadow-xs min-h-[44px] order-1 sm:order-2 cursor-pointer"
+                className="inline-flex items-center justify-center gap-1.5 px-5 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold shadow-xs min-h-[44px] order-1 sm:order-2 cursor-pointer"
               >
                 <Eye className="w-3.5 h-3.5" />
                 <span>Open Preview</span>

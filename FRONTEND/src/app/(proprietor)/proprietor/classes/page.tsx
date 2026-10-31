@@ -286,7 +286,7 @@ export default function ProprietorClassesPage() {
               {/* Class Header */}
               <div className="flex items-start justify-between pb-3 border-b border-slate-100">
                 <div>
-                  <span className="text-xs font-bold text-[#b3141f] tracking-wide uppercase">
+                  <span className="text-xs font-bold text-brand-accent tracking-wide uppercase">
                     {cls.level}
                   </span>
                   <h2 className="text-2xl font-black text-slate-900 tracking-tight">
@@ -314,7 +314,7 @@ export default function ProprietorClassesPage() {
                 <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all ${
-                      pct >= 95 ? 'bg-[#b3141f]' : pct >= 90 ? 'bg-amber-500' : 'bg-[#0f3a3e]'
+                      pct >= 95 ? 'bg-brand-accent' : pct >= 90 ? 'bg-amber-500' : 'bg-brand-primary'
                     }`}
                     style={{ width: `${Math.max(pct, cls.enrolled > 0 ? 5 : 0)}%` }}
                   />
@@ -342,7 +342,7 @@ export default function ProprietorClassesPage() {
                 </div>
 
                 <p className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                  <UserCheck className="w-3.5 h-3.5 text-[#0f3a3e]" />
+                  <UserCheck className="w-3.5 h-3.5 text-brand-primary" />
                   {cls.classTeacher}
                 </p>
                 <p className="text-[10px] text-slate-500">
@@ -359,9 +359,9 @@ export default function ProprietorClassesPage() {
                       const existing = teachers.find((t) => t.name === cls.classTeacher);
                       setSelectedTeacherId(existing ? existing.id : '');
                     }}
-                    className="h-6 text-[10px] px-2 font-bold text-[#0f3a3e] border-teal-200 hover:bg-teal-50 flex items-center gap-1 cursor-pointer"
+                    className="h-6 text-[10px] px-2 font-bold text-brand-primary border-teal-200 hover:bg-teal-50 flex items-center gap-1 cursor-pointer"
                   >
-                    <Edit3 className="w-3 h-3 text-[#0f3a3e]" />
+                    <Edit3 className="w-3 h-3 text-brand-primary" />
                     <span>{hasTeacher ? 'Reassign Teacher' : 'Assign Teacher'}</span>
                   </Button>
                 </div>
@@ -371,7 +371,7 @@ export default function ProprietorClassesPage() {
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
                 <Link
                   href={`/proprietor/students?class=${encodeURIComponent(cls.name)}`}
-                  className="font-semibold text-[#0f3a3e] hover:underline flex items-center gap-1"
+                  className="font-semibold text-brand-primary hover:underline flex items-center gap-1"
                 >
                   View Students ({cls.enrolled}) <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
@@ -394,7 +394,7 @@ export default function ProprietorClassesPage() {
           <div className="bg-white rounded-2xl border border-slate-200 shadow-xl max-w-md w-full p-5 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-teal-50 text-[#0f3a3e] flex items-center justify-center font-bold">
+                <div className="w-8 h-8 rounded-lg bg-teal-50 text-brand-primary flex items-center justify-center font-bold">
                   <UserCheck className="w-4 h-4" />
                 </div>
                 <div>
@@ -424,7 +424,7 @@ export default function ProprietorClassesPage() {
                   required
                   value={selectedTeacherId}
                   onChange={(e) => setSelectedTeacherId(e.target.value)}
-                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-[#0f3a3e]"
+                  className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:outline-hidden focus:ring-2 focus:ring-brand-primary"
                 >
                   <option value="">— Select Teacher —</option>
                   {teachers.map((t) => (
@@ -452,7 +452,7 @@ export default function ProprietorClassesPage() {
                   type="submit"
                   size="sm"
                   disabled={!selectedTeacherId || isSavingTeacher}
-                  className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold"
+                  className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-bold"
                 >
                   {isSavingTeacher ? 'Assigning...' : 'Confirm Appointment'}
                 </Button>

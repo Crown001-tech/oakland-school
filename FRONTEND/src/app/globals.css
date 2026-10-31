@@ -1,25 +1,61 @@
 @import "tailwindcss";
 
+/*
+ * Theme tokens. Every brand colour in the app is one of these semantic names, used as
+ * Tailwind classes such as bg-brand-primary and text-brand-accent, so a theme is only a
+ * set of values. The default theme is Oakland's. The Eductive theme is selected by
+ * data-brand="eductive" on <html> (see lib/brand.ts).
+ */
+@theme inline {
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-primary-light: var(--brand-primary-light);
+  --color-brand-primary-soft: var(--brand-primary-soft);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-accent-hover: var(--brand-accent-hover);
+  --color-brand-accent-soft: var(--brand-accent-soft);
+}
+
 @theme {
-  --color-brand-crimson: #b3141f;
-  --color-brand-crimson-hover: #961019;
-  --color-brand-crimson-soft: #fdf2f3;
-  --color-brand-teal: #0f3a3e;
-  --color-brand-teal-light: #164e53;
-  --color-brand-teal-soft: #eaf3f3;
   --color-brand-ink: #0f172a;
   --color-brand-ink-muted: #64748b;
-  --color-brand-coral: #b3141f;
-  --color-brand-coral-hover: #961019;
-  --color-brand-coral-soft: #fdf2f3;
   --color-brand-bg: #f8faf9;
   --color-brand-surface: #ffffff;
   --color-brand-border: #e2e8f0;
 }
 
 :root {
+  /* Oakland theme (default) */
+  --brand-primary: #0f3a3e;
+  --brand-primary-light: #164e53;
+  --brand-primary-soft: #eaf3f3;
+  --brand-accent: #b3141f;
+  --brand-accent-hover: #961019;
+  --brand-accent-soft: #fdf2f3;
+
   --background: #f8faf9;
   --foreground: #0f172a;
+}
+
+/* Eductive theme: verified palette from eductive-ruddy.vercel.app (Deep Forest Ink & Vibrant Tangerine) */
+:root[data-brand='eductive'] {
+  --brand-primary: #07332a;
+  --brand-primary-light: #0b4034;
+  --brand-primary-soft: #f4f7f5;
+  --brand-accent: #ff6a1a;
+  --brand-accent-hover: #ff7a33;
+  --brand-accent-soft: #fff7ed;
+
+  --background: #faf9f5;
+  --foreground: #07332a;
+}
+
+/* Eductive typefaces, loaded in app/layout.tsx. Falls back to system fonts if they cannot load. */
+:root[data-brand='eductive'] body {
+  font-family: var(--font-body), system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+:root[data-brand='eductive'] :is(h1, h2, h3) {
+  font-family: var(--font-display), var(--font-body), system-ui, sans-serif;
+  letter-spacing: -0.02em;
 }
 
 body {
@@ -92,7 +128,7 @@ button,
 
   /* Keep hero card readable in print */
   .bg-gradient-to-r {
-    border: 2px solid #0f3a3e !important;
+    border: 2px solid var(--brand-primary) !important;
     padding: 16px !important;
   }
   .bg-gradient-to-r * {

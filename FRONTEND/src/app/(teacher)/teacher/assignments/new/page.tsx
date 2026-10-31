@@ -390,7 +390,7 @@ export default function NewAssignmentPage() {
           <button
             type="submit"
             disabled={isSubmitting || isLoadingMeta}
-            className="px-6 py-2.5 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold transition shadow-xs disabled:opacity-50 inline-flex items-center gap-2 cursor-pointer"
+            className="px-6 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold transition shadow-xs disabled:opacity-50 inline-flex items-center gap-2 cursor-pointer"
           >
             {isSubmitting ? (
               <span>Saving Assignment...</span>

@@ -214,7 +214,7 @@ export default function AdminStudentProfilePage() {
       <Card className="p-6 border-slate-200/80 bg-white shadow-xs space-y-6 print:hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-[#0f3a3e] text-white flex items-center justify-center font-bold text-xl border-2 border-teal-700 shadow-xs shrink-0">
+            <div className="w-16 h-16 rounded-2xl bg-brand-primary text-white flex items-center justify-center font-bold text-xl border-2 border-teal-700 shadow-xs shrink-0">
               {initials}
             </div>
             <div className="space-y-1">
@@ -251,7 +251,7 @@ export default function AdminStudentProfilePage() {
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                 Average
               </span>
-              <span className="text-base font-black text-[#0f3a3e] mt-0.5 block">
+              <span className="text-base font-black text-brand-primary mt-0.5 block">
                 {academics.averageScore !== null ? `${academics.averageScore}%` : '—'}
               </span>
             </div>
@@ -277,7 +277,7 @@ export default function AdminStudentProfilePage() {
                 onClick={() => setActiveTab(tab.id as TabType)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold transition-all whitespace-nowrap cursor-pointer ${
                   isActive
-                    ? 'bg-[#0f3a3e] text-white shadow-xs'
+                    ? 'bg-brand-primary text-white shadow-xs'
                     : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'
                 }`}
               >
@@ -296,7 +296,7 @@ export default function AdminStudentProfilePage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:hidden">
           <Card className="p-6 border-slate-200/80 space-y-4">
             <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-              <User className="w-4 h-4 text-[#0f3a3e]" />
+              <User className="w-4 h-4 text-brand-primary" />
               <h2 className="text-sm font-bold text-slate-900">Student Details</h2>
             </div>
 
@@ -336,7 +336,7 @@ export default function AdminStudentProfilePage() {
 
           <Card className="p-6 border-slate-200/80 space-y-4">
             <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-              <Shield className="w-4 h-4 text-[#0f3a3e]" />
+              <Shield className="w-4 h-4 text-brand-primary" />
               <h2 className="text-sm font-bold text-slate-900">Primary Contact</h2>
             </div>
 
@@ -376,7 +376,7 @@ export default function AdminStudentProfilePage() {
       {activeTab === 'guardians' && (
         <div className="space-y-6 print:hidden">
           {/* Pickup Gate Security Hero */}
-          <div className="p-6 rounded-2xl bg-gradient-to-r from-[#0f3a3e] to-[#164e53] text-white shadow-xs">
+          <div className="p-6 rounded-2xl bg-gradient-to-r from-brand-primary to-brand-primary-light text-white shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
@@ -404,7 +404,7 @@ export default function AdminStudentProfilePage() {
                   <Button
                     size="sm"
                     variant="outline"
-                    className="bg-white text-[#0f3a3e] hover:bg-teal-50 border-white text-xs font-bold"
+                    className="bg-white text-brand-primary hover:bg-teal-50 border-white text-xs font-bold"
                     leftIcon={copiedPin ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                     onClick={() => copyToClipboard(primaryGuardian.pickupPin!)}
                   >
@@ -464,7 +464,7 @@ export default function AdminStudentProfilePage() {
           <Card className="p-6 border-slate-200/80 md:col-span-2 space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <h2 className="text-sm font-bold text-slate-900">Academic Standing</h2>
-              <span className="text-xs font-bold text-[#0f3a3e]">{currentClass}</span>
+              <span className="text-xs font-bold text-brand-primary">{currentClass}</span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
@@ -538,7 +538,7 @@ export default function AdminStudentProfilePage() {
             </div>
             <div className="p-4 rounded-xl bg-teal-50 border border-teal-100 text-center space-y-1">
               <span className="text-teal-700 text-[10px] font-bold uppercase">Attendance Rate</span>
-              <p className="text-2xl font-black text-[#0f3a3e]">
+              <p className="text-2xl font-black text-brand-primary">
                 {attendance.ratePercentage !== null ? `${attendance.ratePercentage}%` : '—'}
               </p>
             </div>

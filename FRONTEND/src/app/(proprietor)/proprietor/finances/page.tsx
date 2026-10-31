@@ -332,7 +332,7 @@ export default function ProprietorFinancesPage() {
             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               Expected Term Tuition
             </span>
-            <div className="w-8 h-8 rounded-lg bg-teal-50 text-[#0f3a3e] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-teal-50 text-brand-primary flex items-center justify-center">
               <BookOpen className="w-4 h-4" />
             </div>
           </div>
@@ -368,11 +368,11 @@ export default function ProprietorFinancesPage() {
             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
               Outstanding Fee Balance
             </span>
-            <div className="w-8 h-8 rounded-lg bg-rose-50 text-[#b3141f] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-rose-50 text-brand-accent flex items-center justify-center">
               <AlertCircle className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-black text-[#b3141f] tracking-tight mt-2">
+          <p className="text-2xl font-black text-brand-accent tracking-tight mt-2">
             {formatNaira(totalOutstandingTuition)}
           </p>
           <p className="text-[10px] text-slate-500 mt-1">
@@ -406,7 +406,7 @@ export default function ProprietorFinancesPage() {
           onClick={() => setActiveTab('tuition')}
           className={`px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all cursor-pointer ${
             activeTab === 'tuition'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'text-slate-700 hover:text-slate-900'
           }`}
         >
@@ -419,7 +419,7 @@ export default function ProprietorFinancesPage() {
           onClick={() => setActiveTab('payroll')}
           className={`px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all cursor-pointer ${
             activeTab === 'payroll'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'text-slate-700 hover:text-slate-900'
           }`}
         >
@@ -432,7 +432,7 @@ export default function ProprietorFinancesPage() {
           onClick={() => setActiveTab('expenditures')}
           className={`px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all cursor-pointer ${
             activeTab === 'expenditures'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'text-slate-700 hover:text-slate-900'
           }`}
         >
@@ -445,7 +445,7 @@ export default function ProprietorFinancesPage() {
           onClick={() => setActiveTab('pettycash')}
           className={`px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition-all cursor-pointer ${
             activeTab === 'pettycash'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'text-slate-700 hover:text-slate-900'
           }`}
         >
@@ -482,7 +482,7 @@ export default function ProprietorFinancesPage() {
             </CardHeader>
             <CardContent className="p-0 overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-[#0f3a3e] text-white font-bold">
+                <thead className="bg-brand-primary text-white font-bold">
                   <tr>
                     <th className="py-3 px-4">Class</th>
                     <th className="py-3 px-4 text-center">Fee per Student</th>
@@ -509,7 +509,7 @@ export default function ProprietorFinancesPage() {
                       <td className="py-3 px-4 text-right font-mono font-bold text-emerald-700">
                         {formatNaira(row.collected)}
                       </td>
-                      <td className="py-3 px-4 text-right font-mono font-bold text-[#b3141f]">
+                      <td className="py-3 px-4 text-right font-mono font-bold text-brand-accent">
                         {formatNaira(row.outstanding)}
                       </td>
                       <td className="py-3 px-4 text-center">
@@ -587,7 +587,7 @@ export default function ProprietorFinancesPage() {
                   </div>
                 ) : (
                   <table className="w-full text-xs text-left">
-                    <thead className="bg-[#0f3a3e] text-white font-bold">
+                    <thead className="bg-brand-primary text-white font-bold">
                       <tr>
                         <th className="py-2.5 px-4">Student</th>
                         <th className="py-2.5 px-3 text-center">Class</th>
@@ -622,7 +622,7 @@ export default function ProprietorFinancesPage() {
                             <td className="py-3 px-3 text-right font-mono font-bold text-emerald-700">
                               {formatNaira(stu.amountPaid)}
                             </td>
-                            <td className="py-3 px-3 text-right font-mono font-bold text-[#b3141f]">
+                            <td className="py-3 px-3 text-right font-mono font-bold text-brand-accent">
                               {formatNaira(stu.balance)}
                             </td>
                             <td className="py-3 px-3 text-center">
@@ -697,7 +697,7 @@ export default function ProprietorFinancesPage() {
                 type="button"
                 onClick={handleApprovePayroll}
                 disabled={payrollRecords.length === 0}
-                className="bg-[#0f3a3e] hover:bg-[#164e53] text-white shadow-xs text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                className="bg-brand-primary hover:bg-brand-primary-light text-white shadow-xs text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
               >
                 <Check className="w-4 h-4" />
                 <span>Authorize Monthly Payroll</span>
@@ -752,7 +752,7 @@ export default function ProprietorFinancesPage() {
                 </div>
               ) : (
                 <table className="w-full text-xs text-left">
-                  <thead className="bg-[#0f3a3e] text-white font-bold">
+                  <thead className="bg-brand-primary text-white font-bold">
                     <tr>
                       <th className="py-2.5 px-4">Staff Member</th>
                       <th className="py-2.5 px-3">Role</th>
@@ -848,7 +848,7 @@ export default function ProprietorFinancesPage() {
             <Button
               type="button"
               onClick={() => setIsNewVoucherModalOpen(true)}
-              className="bg-[#0f3a3e] hover:bg-[#164e53] text-white shadow-xs text-xs font-semibold flex items-center gap-2 cursor-pointer"
+              className="bg-brand-primary hover:bg-brand-primary-light text-white shadow-xs text-xs font-semibold flex items-center gap-2 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Record Expenditure Voucher</span>
@@ -925,7 +925,7 @@ export default function ProprietorFinancesPage() {
                 </div>
               ) : (
                 <table className="w-full text-xs text-left">
-                  <thead className="bg-[#0f3a3e] text-white font-bold">
+                  <thead className="bg-brand-primary text-white font-bold">
                     <tr>
                       <th className="py-2.5 px-4">Voucher No & Date</th>
                       <th className="py-2.5 px-3">Expense Category</th>
@@ -1006,7 +1006,7 @@ export default function ProprietorFinancesPage() {
             <Button
               type="button"
               onClick={() => setIsPettyCashModalOpen(true)}
-              className="bg-[#0f3a3e] hover:bg-[#164e53] text-white shadow-xs text-xs font-semibold flex items-center gap-2 cursor-pointer"
+              className="bg-brand-primary hover:bg-brand-primary-light text-white shadow-xs text-xs font-semibold flex items-center gap-2 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Record Cash Transaction</span>
@@ -1046,7 +1046,7 @@ export default function ProprietorFinancesPage() {
                 </div>
               ) : (
                 <table className="w-full text-xs text-left">
-                  <thead className="bg-[#0f3a3e] text-white font-bold">
+                  <thead className="bg-brand-primary text-white font-bold">
                     <tr>
                       <th className="py-2.5 px-4">Receipt No & Date</th>
                       <th className="py-2.5 px-3">Category</th>
@@ -1259,7 +1259,7 @@ export default function ProprietorFinancesPage() {
                   <Button
                     type="submit"
                     size="sm"
-                    className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold cursor-pointer"
+                    className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold cursor-pointer"
                   >
                     Authorize Voucher
                   </Button>

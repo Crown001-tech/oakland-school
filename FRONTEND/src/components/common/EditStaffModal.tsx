@@ -189,7 +189,7 @@ export function EditStaffModal({
         <div className="flex items-start justify-between pb-4 border-b border-slate-100">
           <div>
             <div className="flex items-center gap-2">
-              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#0f3a3e] text-white uppercase tracking-wider">
+              <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-primary text-white uppercase tracking-wider">
                 Staff Administration
               </span>
               <span className="text-xs text-slate-500 font-mono">
@@ -264,12 +264,12 @@ export function EditStaffModal({
                     }}
                     className={`py-3 px-3.5 rounded-xl border transition cursor-pointer flex items-center justify-center gap-2 ${
                       isSelected
-                        ? 'border-[#0f3a3e] bg-teal-50/60 ring-1 ring-[#0f3a3e]'
+                        ? 'border-brand-primary bg-teal-50/60 ring-1 ring-brand-primary'
                         : 'border-slate-200 bg-white hover:bg-slate-50'
                     }`}
                   >
-                    <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-[#0f3a3e]' : 'text-slate-400'}`} />
-                    <span className={`text-xs font-bold ${isSelected ? 'text-[#0f3a3e]' : 'text-slate-700'}`}>
+                    <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-brand-primary' : 'text-slate-400'}`} />
+                    <span className={`text-xs font-bold ${isSelected ? 'text-brand-primary' : 'text-slate-700'}`}>
                       {opt.title}
                     </span>
                   </button>
@@ -289,7 +289,7 @@ export function EditStaffModal({
               <select
                 value={homeroom}
                 onChange={(e) => setHomeroom(e.target.value)}
-                className="w-full text-xs font-semibold px-3 py-2 bg-white border border-slate-200 rounded-xl focus:outline-hidden focus:border-[#0f3a3e]"
+                className="w-full text-xs font-semibold px-3 py-2 bg-white border border-slate-200 rounded-xl focus:outline-hidden focus:border-brand-primary"
               >
                 <option value="">— Select Homeroom Class (Unassigned) —</option>
                 {CLASSES.map((c) => {
@@ -329,7 +329,7 @@ export function EditStaffModal({
                         onClick={() => handleToggleSubject(sub)}
                         className={`text-xs px-2.5 py-1 rounded-lg border font-semibold transition cursor-pointer flex items-center gap-1.5 ${
                           isSelected
-                            ? 'bg-[#0f3a3e] text-white border-[#0f3a3e]'
+                            ? 'bg-brand-primary text-white border-brand-primary'
                             : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
                         }`}
                       >
@@ -400,7 +400,7 @@ export function EditStaffModal({
                   value={department}
                   onChange={(e) => setDepartment(e.target.value)}
                   placeholder="e.g. Academics, Operations"
-                  className="w-full pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:outline-hidden focus:border-[#0f3a3e] bg-white"
+                  className="w-full pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:outline-hidden focus:border-brand-primary bg-white"
                 />
               </div>
             </div>
@@ -416,7 +416,7 @@ export function EditStaffModal({
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+234..."
-                  className="w-full pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:outline-hidden focus:border-[#0f3a3e] bg-white"
+                  className="w-full pl-8 pr-3 py-1.5 text-xs border border-slate-200 rounded-xl focus:outline-hidden focus:border-brand-primary bg-white"
                 />
               </div>
             </div>
@@ -437,7 +437,7 @@ export function EditStaffModal({
               type="submit"
               size="sm"
               disabled={isSaving}
-              className="bg-[#0f3a3e] hover:bg-[#164e53] text-white font-bold"
+              className="bg-brand-primary hover:bg-brand-primary-light text-white font-bold"
             >
               {isSaving ? 'Saving...' : 'Save Role'}
             </Button>

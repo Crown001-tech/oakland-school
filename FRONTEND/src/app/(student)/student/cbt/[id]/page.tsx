@@ -285,7 +285,7 @@ export default function StudentCBTExamRunnerPage() {
             <button
               type="button"
               onClick={handleStartExam}
-              className="px-6 py-2.5 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white font-semibold transition shadow-xs inline-flex items-center justify-center gap-2 min-h-[44px] cursor-pointer"
+              className="px-6 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white font-semibold transition shadow-xs inline-flex items-center justify-center gap-2 min-h-[44px] cursor-pointer"
             >
               <Laptop className="w-4 h-4" />
               <span>Start Examination</span>
@@ -309,7 +309,7 @@ export default function StudentCBTExamRunnerPage() {
         {/* Floating Timer & Status Banner */}
         <div className="sticky top-4 z-40 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-md p-4 flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-[#0f3a3e]/10 border border-[#0f3a3e]/20 text-[#0f3a3e]">
+            <div className="p-2.5 rounded-xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary">
               <Laptop className="w-5 h-5" />
             </div>
             <div>
@@ -392,14 +392,14 @@ export default function StudentCBTExamRunnerPage() {
                           onClick={() => handleSelectOption(opt.key)}
                           className={`p-4 rounded-xl border text-xs flex items-center gap-3 transition cursor-pointer ${
                             isSelected
-                              ? 'bg-[#0f3a3e]/10 border-[#0f3a3e] text-[#0f3a3e] font-bold shadow-xs'
+                              ? 'bg-brand-primary/10 border-brand-primary text-brand-primary font-bold shadow-xs'
                               : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                           }`}
                         >
                           <span
                             className={`w-6 h-6 rounded-lg font-bold text-xs flex items-center justify-center border ${
                               isSelected
-                                ? 'bg-[#0f3a3e] text-white border-[#0f3a3e]'
+                                ? 'bg-brand-primary text-white border-brand-primary'
                                 : 'bg-slate-100 text-slate-600 border-slate-200'
                             }`}
                           >
@@ -423,7 +423,7 @@ export default function StudentCBTExamRunnerPage() {
                           onClick={() => handleSelectOption(val)}
                           className={`py-4 rounded-xl border text-sm font-bold transition cursor-pointer ${
                             isSelected
-                              ? 'bg-[#0f3a3e]/10 border-[#0f3a3e] text-[#0f3a3e] font-bold shadow-xs'
+                              ? 'bg-brand-primary/10 border-brand-primary text-brand-primary font-bold shadow-xs'
                               : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                           }`}
                         >
@@ -444,7 +444,7 @@ export default function StudentCBTExamRunnerPage() {
                       value={answers[currentQ.id] || ''}
                       onChange={(e) => handleSelectOption(e.target.value)}
                       placeholder="Enter answer..."
-                      className="w-full px-4 py-3 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]/20 focus:border-[#0f3a3e]"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
                     />
                   </div>
                 )}
@@ -466,7 +466,7 @@ export default function StudentCBTExamRunnerPage() {
                   type="button"
                   disabled={currentIndex === questions.length - 1}
                   onClick={() => setCurrentIndex((prev) => Math.min(questions.length - 1, prev + 1))}
-                  className="px-5 py-2.5 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white font-semibold transition disabled:opacity-30 inline-flex items-center justify-center gap-1.5 min-h-[44px] cursor-pointer"
+                  className="px-5 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white font-semibold transition disabled:opacity-30 inline-flex items-center justify-center gap-1.5 min-h-[44px] cursor-pointer"
                 >
                   <span>Next</span>
                   <ChevronRight className="w-4 h-4" />
@@ -495,11 +495,11 @@ export default function StudentCBTExamRunnerPage() {
                       onClick={() => setCurrentIndex(idx)}
                       className={`h-11 min-h-[44px] rounded-xl font-bold text-xs transition border flex items-center justify-center cursor-pointer ${
                         isCurrent
-                          ? 'ring-2 ring-[#0f3a3e] border-[#0f3a3e] bg-[#0f3a3e]/15 text-[#0f3a3e] font-extrabold'
+                          ? 'ring-2 ring-brand-primary border-brand-primary bg-brand-primary/15 text-brand-primary font-extrabold'
                           : isFlagged
                           ? 'bg-amber-100 text-amber-900 border-amber-300'
                           : isAnswered
-                          ? 'bg-[#0f3a3e] text-white border-[#0f3a3e]'
+                          ? 'bg-brand-primary text-white border-brand-primary'
                           : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
                       }`}
                     >
@@ -512,7 +512,7 @@ export default function StudentCBTExamRunnerPage() {
               {/* Legend */}
               <div className="pt-2 border-t border-slate-100 space-y-1.5 text-[11px] text-slate-600">
                 <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-md bg-[#0f3a3e] shrink-0" />
+                  <span className="w-3 h-3 rounded-md bg-brand-primary shrink-0" />
                   <span>Answered ({answeredCount})</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -532,7 +532,7 @@ export default function StudentCBTExamRunnerPage() {
         {showConfirmModal && (
           <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
             <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-md w-full p-6 space-y-4 text-xs text-center">
-              <div className="w-12 h-12 rounded-2xl bg-[#0f3a3e]/10 border border-[#0f3a3e]/20 text-[#0f3a3e] flex items-center justify-center mx-auto">
+              <div className="w-12 h-12 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary flex items-center justify-center mx-auto">
                 <Laptop className="w-6 h-6" />
               </div>
 
@@ -696,7 +696,7 @@ export default function StudentCBTExamRunnerPage() {
       <div className="text-center pt-4">
         <Link
           href="/student/cbt"
-          className="px-6 py-2.5 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold transition shadow-xs min-h-[44px] inline-flex items-center justify-center cursor-pointer"
+          className="px-6 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold transition shadow-xs min-h-[44px] inline-flex items-center justify-center cursor-pointer"
         >
           Return to Examinations
         </Link>

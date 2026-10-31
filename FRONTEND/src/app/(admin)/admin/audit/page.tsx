@@ -113,7 +113,7 @@ export default function AdminAuditPage() {
               onClick={() => setFilterCategory(cat)}
               className={`px-3 py-1.5 rounded-lg font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                 filterCategory === cat
-                  ? 'bg-[#0f3a3e] text-white'
+                  ? 'bg-brand-primary text-white'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >

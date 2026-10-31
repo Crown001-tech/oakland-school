@@ -136,7 +136,7 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
             {!parent ? (
               <Link
                 href="/login?redirect=/parent"
-                className="block w-full py-2.5 px-4 rounded-xl bg-[#b3141f] hover:bg-[#961019] text-white text-xs font-bold transition text-center shadow-md cursor-pointer min-h-[44px] flex items-center justify-center"
+                className="block w-full py-2.5 px-4 rounded-xl bg-brand-accent hover:bg-brand-accent-hover text-white text-xs font-bold transition text-center shadow-md cursor-pointer min-h-[44px] flex items-center justify-center"
               >
                 Sign In to Parent Portal &rarr;
               </Link>
@@ -144,7 +144,7 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="block w-full py-2.5 px-4 rounded-xl bg-[#b3141f] hover:bg-[#961019] text-white text-xs font-bold transition text-center shadow-md cursor-pointer min-h-[44px] flex items-center justify-center"
+                className="block w-full py-2.5 px-4 rounded-xl bg-brand-accent hover:bg-brand-accent-hover text-white text-xs font-bold transition text-center shadow-md cursor-pointer min-h-[44px] flex items-center justify-center"
               >
                 Sign Out &rarr;
               </button>
@@ -235,7 +235,7 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
                         }}
                         className={`w-full flex items-center justify-between p-2 rounded-lg text-left text-xs transition cursor-pointer ${
                           isSelected
-                            ? 'bg-[#b3141f]/30 border border-[#b3141f]/40 text-white font-bold'
+                            ? 'bg-brand-accent/30 border border-brand-accent/40 text-white font-bold'
                             : 'text-slate-300 hover:bg-white/10 hover:text-white'
                         }`}
                       >
@@ -274,7 +274,7 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
                     onClick={() => setIsSidebarOpen(false)}
                     className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
                       active
-                        ? 'bg-[#b3141f]/30 border border-[#b3141f]/40 text-white shadow-xs'
+                        ? 'bg-brand-accent/30 border border-brand-accent/40 text-white shadow-xs'
                         : 'text-slate-400 hover:bg-white/5 hover:text-white'
                     }`}
                   >
@@ -317,7 +317,7 @@ function ParentLayoutContent({ children }: { children: React.ReactNode }) {
         <div className="p-3 border-t border-white/10 shrink-0">
           <div className="flex items-center justify-between p-2 rounded-xl bg-white/5 hover:bg-white/10 transition">
             <Link href="/parent/profile" className="flex items-center gap-2.5 flex-1 min-w-0">
-              <div className="w-8 h-8 rounded-lg bg-[#0f3a3e] text-amber-300 border border-amber-500/20 flex items-center justify-center font-bold text-xs shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-brand-primary text-amber-300 border border-amber-500/20 flex items-center justify-center font-bold text-xs shrink-0">
                 {parent.name.charAt(0).toUpperCase()}
               </div>
               <div className="min-w-0">

@@ -52,7 +52,7 @@ export function VoucherModal({ voucher, onClose }: VoucherModalProps) {
               type="button"
               size="sm"
               onClick={handlePrint}
-              className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold gap-1.5 min-h-[44px] sm:h-9 px-3"
+              className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-bold gap-1.5 min-h-[44px] sm:h-9 px-3"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Print Payment Voucher</span>
@@ -71,7 +71,7 @@ export function VoucherModal({ voucher, onClose }: VoucherModalProps) {
         {/* Printable Official Voucher */}
         <div className="p-6 sm:p-8 bg-white text-slate-900 print:p-0 print:m-0">
           {/* Header */}
-          <div className="flex items-start justify-between border-b-2 border-[#0f3a3e] pb-5">
+          <div className="flex items-start justify-between border-b-2 border-brand-primary pb-5">
             <div className="flex items-center gap-3">
               <Logo size="md" />
               <div>
@@ -163,7 +163,7 @@ export function VoucherModal({ voucher, onClose }: VoucherModalProps) {
             </div>
 
             <div className="text-right">
-              <div className="h-8 border-b border-dashed border-slate-300 flex items-end justify-end pb-1 font-serif italic text-[#0f3a3e] text-sm">
+              <div className="h-8 border-b border-dashed border-slate-300 flex items-end justify-end pb-1 font-serif italic text-brand-primary text-sm">
                 Proprietor
               </div>
               <p className="font-extrabold text-slate-900 mt-1">Proprietor Approval</p>

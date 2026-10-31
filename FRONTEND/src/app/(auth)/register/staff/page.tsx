@@ -207,7 +207,7 @@ export default function StaffRegistrationPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                    Passport Photograph <span className="text-[#b3141f]">*</span>
+                    Passport Photograph <span className="text-brand-accent">*</span>
                   </p>
                   <p className="text-[11px] text-slate-500">
                     Upload a clear, front-facing official passport photograph (Max 3MB).
@@ -222,7 +222,7 @@ export default function StaffRegistrationPage() {
 
               <div className="flex items-center gap-4 pt-1">
                 {photoPreview ? (
-                  <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-[#b3141f] shrink-0 shadow-xs">
+                  <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-brand-accent shrink-0 shadow-xs">
                     <img
                       src={photoPreview}
                       alt="Passport Preview"
@@ -318,7 +318,7 @@ export default function StaffRegistrationPage() {
                     Highest Qualification
                   </label>
                   <select
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-primary"
                     value={formData.qualification}
                     onChange={(e) => setFormData({ ...formData, qualification: e.target.value })}
                   >
@@ -336,7 +336,7 @@ export default function StaffRegistrationPage() {
                     Department
                   </label>
                   <select
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-primary"
                     value={formData.department}
                     onChange={(e) => setFormData({ ...formData, department: e.target.value })}
                   >
@@ -355,7 +355,7 @@ export default function StaffRegistrationPage() {
                     Role Applying For
                   </label>
                   <select
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-primary"
                     value={formData.desiredRole}
                     onChange={(e) => setFormData({ ...formData, desiredRole: e.target.value })}
                   >
@@ -370,7 +370,7 @@ export default function StaffRegistrationPage() {
                     Teaching Experience
                   </label>
                   <select
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-primary"
                     value={formData.yearsExperience}
                     onChange={(e) => setFormData({ ...formData, yearsExperience: e.target.value })}
                   >
@@ -420,7 +420,7 @@ export default function StaffRegistrationPage() {
                 type="submit"
                 size="lg"
                 isLoading={isSubmitting}
-                className="w-full sm:w-auto bg-[#0f3a3e] hover:bg-[#164e53] text-white px-6 shadow-sm font-semibold"
+                className="w-full sm:w-auto bg-brand-primary hover:bg-brand-primary-light text-white px-6 shadow-sm font-semibold"
                 rightIcon={<ArrowRight className="w-4 h-4" />}
               >
                 Submit Application to Proprietor

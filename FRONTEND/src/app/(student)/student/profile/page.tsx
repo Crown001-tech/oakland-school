@@ -85,7 +85,7 @@ export default function StudentProfilePage() {
       {/* Main Student Identification Hero */}
       <div className="p-6 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-2xl bg-[#0f3a3e] text-amber-300 border border-amber-500/20 font-bold flex items-center justify-center text-2xl shadow-xs shrink-0">
+          <div className="w-16 h-16 rounded-2xl bg-brand-primary text-amber-300 border border-amber-500/20 font-bold flex items-center justify-center text-2xl shadow-xs shrink-0">
             {student?.name?.charAt(0) || 'S'}
           </div>
           <div className="space-y-1">
@@ -97,7 +97,7 @@ export default function StudentProfilePage() {
               <span className="px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
                 Enrolled Student
               </span>
-              <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-[#0f3a3e]/10 text-[#0f3a3e] border border-[#0f3a3e]/20">
+              <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
                 Class: {student?.currentClass || '—'}
               </span>
               {student?.department && (
@@ -124,7 +124,7 @@ export default function StudentProfilePage() {
           {/* Personal Demographics */}
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-200 flex items-center gap-2.5 bg-slate-50/50">
-              <User className="w-4 h-4 text-[#0f3a3e]" />
+              <User className="w-4 h-4 text-brand-primary" />
               <h3 className="font-bold text-sm text-slate-900">Personal Details</h3>
             </div>
 
@@ -197,7 +197,7 @@ export default function StudentProfilePage() {
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
               <div className="flex items-center gap-2.5">
-                <HeartHandshake className="w-4 h-4 text-[#0f3a3e]" />
+                <HeartHandshake className="w-4 h-4 text-brand-primary" />
                 <h3 className="font-bold text-sm text-slate-900">Linked Guardians</h3>
               </div>
               <span className="text-xs text-slate-500 font-medium">Authorized emergency contacts</span>
@@ -212,7 +212,7 @@ export default function StudentProfilePage() {
                         <div className="flex items-center gap-2">
                           <p className="font-bold text-slate-900 text-sm">{guardian.name}</p>
                           {guardian.isPrimary && (
-                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-[#0f3a3e]/10 text-[#0f3a3e] border border-[#0f3a3e]/20">
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
                               Primary Guardian
                             </span>
                           )}
@@ -250,7 +250,7 @@ export default function StudentProfilePage() {
         <div className="space-y-6">
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-200 flex items-center gap-2.5 bg-slate-50/50">
-              <KeyRound className="w-4 h-4 text-[#0f3a3e]" />
+              <KeyRound className="w-4 h-4 text-brand-primary" />
               <h3 className="font-bold text-sm text-slate-900">Change Password</h3>
             </div>
 
@@ -282,7 +282,7 @@ export default function StudentProfilePage() {
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
                   placeholder="Enter current password"
-                  className="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-300 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]/20 focus:border-[#0f3a3e]"
+                  className="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-300 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
                 />
               </div>
 
@@ -297,7 +297,7 @@ export default function StudentProfilePage() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Enter new password"
-                    className="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-300 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]/20 focus:border-[#0f3a3e]"
+                    className="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-300 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
                   />
                   <button
                     type="button"
@@ -322,14 +322,14 @@ export default function StudentProfilePage() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Re-enter new password"
-                  className="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-300 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]/20 focus:border-[#0f3a3e]"
+                  className="w-full px-3.5 py-2.5 min-h-[44px] rounded-xl border border-slate-300 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="w-full py-2.5 min-h-[44px] rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white font-semibold text-xs transition shadow-xs disabled:opacity-50 cursor-pointer"
+                className="w-full py-2.5 min-h-[44px] rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white font-semibold text-xs transition shadow-xs disabled:opacity-50 cursor-pointer"
               >
                 {isSubmitting ? 'Updating Password...' : 'Update Password'}
               </button>
@@ -337,9 +337,9 @@ export default function StudentProfilePage() {
           </div>
 
           {/* Quick Notice Card */}
-          <div className="p-5 rounded-2xl bg-[#0f3a3e]/5 border border-[#0f3a3e]/15 text-xs space-y-2">
-            <div className="flex items-center gap-2 text-[#0f3a3e] font-bold">
-              <Shield className="w-4 h-4 text-[#0f3a3e] shrink-0" />
+          <div className="p-5 rounded-2xl bg-brand-primary/5 border border-brand-primary/15 text-xs space-y-2">
+            <div className="flex items-center gap-2 text-brand-primary font-bold">
+              <Shield className="w-4 h-4 text-brand-primary shrink-0" />
               <span>Account Security</span>
             </div>
             <p className="text-slate-600 leading-relaxed text-[11px]">

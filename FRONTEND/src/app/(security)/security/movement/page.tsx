@@ -328,13 +328,13 @@ export default function SecurityMovementPage() {
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold transition cursor-pointer disabled:opacity-50 min-h-[44px]"
             title="Refresh passes"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#0f3a3e]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-brand-primary' : ''}`} />
             <span>Refresh</span>
           </button>
 
           <button
             onClick={() => setIsPassModalOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#b3141f] hover:bg-[#961019] text-white text-xs font-bold transition shadow-xs cursor-pointer min-h-[44px]"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-accent hover:bg-brand-accent-hover text-white text-xs font-bold transition shadow-xs cursor-pointer min-h-[44px]"
           >
             <Plus className="w-4 h-4" />
             <span>Issue Gate Pass</span>
@@ -376,7 +376,7 @@ export default function SecurityMovementPage() {
             placeholder="Search by student, pass, class, escort..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0f3a3e]"
+            className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-primary"
           />
         </div>
       </div>
@@ -437,7 +437,7 @@ export default function SecurityMovementPage() {
                       {/* Student Details */}
                       <td className="px-4 py-3.5">
                         <span className="font-bold text-slate-900 block">{m.studentName}</span>
-                        <span className="text-[11px] text-[#0f3a3e] font-bold">{m.studentClass}</span>
+                        <span className="text-[11px] text-brand-primary font-bold">{m.studentClass}</span>
                       </td>
 
                       {/* Reason & Authorizer */}
@@ -583,7 +583,7 @@ export default function SecurityMovementPage() {
                       studentClass: stud ? stud.className : '',
                     });
                   }}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none bg-white"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none bg-white"
                 >
                   <option value="">Select Student from Roster...</option>
                   {students.map((s) => (
@@ -603,7 +603,7 @@ export default function SecurityMovementPage() {
                   required
                   value={formData.reason}
                   onChange={(e) => setFormData({ ...formData, reason: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none bg-white"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none bg-white"
                 >
                   <option value="">Select Reason...</option>
                   <option value="medical">Medical</option>
@@ -621,7 +621,7 @@ export default function SecurityMovementPage() {
                     placeholder="Specify exit reason"
                     value={formData.customReason}
                     onChange={(e) => setFormData({ ...formData, customReason: e.target.value })}
-                    className="w-full mt-2 px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none"
+                    className="w-full mt-2 px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none"
                   />
                 )}
               </div>
@@ -643,7 +643,7 @@ export default function SecurityMovementPage() {
                         authorizedByName: staffObj ? `${staffObj.name} (${staffObj.department})` : formData.authorizedByName,
                       });
                     }}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none bg-white"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none bg-white"
                   >
                     <option value="">Select Authorizing Faculty Member...</option>
                     {staffList.map((s) => (
@@ -659,7 +659,7 @@ export default function SecurityMovementPage() {
                     placeholder="Or enter authorizing staff name directly"
                     value={formData.authorizedByName}
                     onChange={(e) => setFormData({ ...formData, authorizedByName: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none text-xs"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none text-xs"
                   />
                 </div>
               </div>
@@ -673,7 +673,7 @@ export default function SecurityMovementPage() {
                   <select
                     value={formData.escortType}
                     onChange={(e) => setFormData({ ...formData, escortType: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none bg-white"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none bg-white"
                   >
                     <option value="guardian">Guardian</option>
                     <option value="staff">Staff Member</option>
@@ -692,7 +692,7 @@ export default function SecurityMovementPage() {
                     placeholder="Full name of escort"
                     value={formData.escortName}
                     onChange={(e) => setFormData({ ...formData, escortName: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none"
                   />
                 </div>
 
@@ -705,7 +705,7 @@ export default function SecurityMovementPage() {
                     placeholder="e.g. 08023334455"
                     value={formData.escortPhone}
                     onChange={(e) => setFormData({ ...formData, escortPhone: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none"
                   />
                 </div>
               </div>
@@ -719,7 +719,7 @@ export default function SecurityMovementPage() {
                   type="datetime-local"
                   value={formData.expectedReturnTime}
                   onChange={(e) => setFormData({ ...formData, expectedReturnTime: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none bg-white"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none bg-white"
                 />
               </div>
 
@@ -733,7 +733,7 @@ export default function SecurityMovementPage() {
                   placeholder="Clinic pass attached, destination clinic, etc."
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none resize-none"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none resize-none"
                 />
               </div>
 
@@ -749,7 +749,7 @@ export default function SecurityMovementPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 rounded-lg bg-[#b3141f] hover:bg-[#961019] text-white font-bold transition shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 rounded-lg bg-brand-accent hover:bg-brand-accent-hover text-white font-bold transition shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Issuing Pass...' : 'Confirm Gate Pass'}
                 </button>
@@ -775,7 +775,7 @@ export default function SecurityMovementPage() {
 
             <div className="border-2 border-dashed border-amber-500/40 rounded-xl p-4 bg-amber-50/20 space-y-3 text-center">
               <div>
-                <p className="text-[10px] font-bold text-[#b3141f] uppercase tracking-widest">
+                <p className="text-[10px] font-bold text-brand-accent uppercase tracking-widest">
                   Oakland International School
                 </p>
                 <p className="text-xs font-semibold text-slate-700">Official Student Gate Pass</p>

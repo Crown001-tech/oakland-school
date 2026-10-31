@@ -134,7 +134,7 @@ export default function TeacherDashboard() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
       {/* Teacher Profile Banner */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#0c282b] via-[#0f3a3e] to-[#14474d] text-white shadow-sm relative overflow-hidden">
+      <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#0c282b] via-brand-primary to-[#14474d] text-white shadow-sm relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
@@ -168,7 +168,7 @@ export default function TeacherDashboard() {
 
           <div className="flex flex-wrap items-center gap-3">
             <Link href="/teacher/scores">
-              <Button className="bg-white text-[#0f3a3e] hover:bg-slate-100 font-bold text-xs shadow-sm flex items-center gap-2 cursor-pointer">
+              <Button className="bg-white text-brand-primary hover:bg-slate-100 font-bold text-xs shadow-sm flex items-center gap-2 cursor-pointer">
                 <FileSpreadsheet className="w-4 h-4" />
                 <span>Score Entry</span>
               </Button>
@@ -189,12 +189,12 @@ export default function TeacherDashboard() {
       {isClassTeacher && assignedClass && (
         <div className="p-4 sm:p-5 rounded-2xl bg-teal-50/80 border border-teal-200/90 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
           <div className="flex items-center gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-[#0f3a3e] text-teal-300 flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-brand-primary text-teal-300 flex items-center justify-center font-bold text-lg shadow-sm shrink-0">
               <School className="w-6 h-6" />
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-[#0f3a3e] text-white">
+                <span className="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase tracking-wider bg-brand-primary text-white">
                   Homeroom Custody
                 </span>
                 <span className="text-sm font-extrabold text-teal-950 bg-white px-2.5 py-0.5 rounded-lg border border-teal-200 shadow-2xs">
@@ -211,7 +211,7 @@ export default function TeacherDashboard() {
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <Link href="/teacher/attendance">
-              <Button size="sm" className="bg-[#0f3a3e] hover:bg-[#14474d] text-white text-xs font-bold shadow-xs cursor-pointer">
+              <Button size="sm" className="bg-brand-primary hover:bg-[#14474d] text-white text-xs font-bold shadow-xs cursor-pointer">
                 Daily Roll Call &rarr;
               </Button>
             </Link>
@@ -331,7 +331,7 @@ export default function TeacherDashboard() {
                 </CardDescription>
               </div>
               <Link href="/teacher/scores">
-                <Button variant="ghost" size="sm" className="text-xs text-[#0f3a3e] font-bold cursor-pointer">
+                <Button variant="ghost" size="sm" className="text-xs text-brand-primary font-bold cursor-pointer">
                   Enter Scores &rarr;
                 </Button>
               </Link>
@@ -407,7 +407,7 @@ export default function TeacherDashboard() {
               <Link href="/teacher/assignments" className="block">
                 <div className="p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/40 transition-colors flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2.5">
-                    <BookOpenCheck className="w-4 h-4 text-[#0f3a3e]" />
+                    <BookOpenCheck className="w-4 h-4 text-brand-primary" />
                     <span className="font-semibold text-slate-800">Assignments</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -417,7 +417,7 @@ export default function TeacherDashboard() {
               <Link href="/teacher/cbt" className="block">
                 <div className="p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/40 transition-colors flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2.5">
-                    <Laptop className="w-4 h-4 text-[#0f3a3e]" />
+                    <Laptop className="w-4 h-4 text-brand-primary" />
                     <span className="font-semibold text-slate-800">Examinations</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -427,7 +427,7 @@ export default function TeacherDashboard() {
               <Link href="/teacher/materials" className="block">
                 <div className="p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/40 transition-colors flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2.5">
-                    <FileText className="w-4 h-4 text-[#0f3a3e]" />
+                    <FileText className="w-4 h-4 text-brand-primary" />
                     <span className="font-semibold text-slate-800">Learning Materials</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -437,7 +437,7 @@ export default function TeacherDashboard() {
               <Link href="/teacher/scores" className="block">
                 <div className="p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/40 transition-colors flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2.5">
-                    <FileSpreadsheet className="w-4 h-4 text-[#0f3a3e]" />
+                    <FileSpreadsheet className="w-4 h-4 text-brand-primary" />
                     <span className="font-semibold text-slate-800">Scores</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -447,7 +447,7 @@ export default function TeacherDashboard() {
               <Link href="/teacher/students" className="block">
                 <div className="p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/40 transition-colors flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2.5">
-                    <GraduationCap className="w-4 h-4 text-[#0f3a3e]" />
+                    <GraduationCap className="w-4 h-4 text-brand-primary" />
                     <span className="font-semibold text-slate-800">Students</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -458,7 +458,7 @@ export default function TeacherDashboard() {
                 <Link href="/teacher/attendance" className="block">
                   <div className="p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/40 transition-colors flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2.5">
-                      <CalendarCheck className="w-4 h-4 text-[#0f3a3e]" />
+                      <CalendarCheck className="w-4 h-4 text-brand-primary" />
                       <span className="font-semibold text-slate-800">Attendance</span>
                     </div>
                     <ChevronRight className="w-4 h-4 text-slate-400" />
@@ -469,7 +469,7 @@ export default function TeacherDashboard() {
               <Link href="/teacher/timetable" className="block">
                 <div className="p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/40 transition-colors flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2.5">
-                    <Clock className="w-4 h-4 text-[#0f3a3e]" />
+                    <Clock className="w-4 h-4 text-brand-primary" />
                     <span className="font-semibold text-slate-800">Timetable</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-400" />

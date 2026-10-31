@@ -169,7 +169,7 @@ export default function ParentFeesPage() {
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden space-y-4 p-5 sm:p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <FileText className="w-4 h-4 text-[#0f3a3e]" />
+            <FileText className="w-4 h-4 text-brand-primary" />
             <h2 className="text-sm font-bold text-slate-900">
               Official Payment Receipts
             </h2>
@@ -220,7 +220,7 @@ export default function ParentFeesPage() {
                       <button
                         type="button"
                         onClick={() => setSelectedReceipt(t)}
-                        className="min-h-[44px] sm:min-h-[32px] px-3.5 py-1.5 rounded-lg bg-[#0f3a3e]/10 hover:bg-[#0f3a3e]/20 text-[#0f3a3e] text-xs font-bold transition border border-[#0f3a3e]/20 cursor-pointer"
+                        className="min-h-[44px] sm:min-h-[32px] px-3.5 py-1.5 rounded-lg bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary text-xs font-bold transition border border-brand-primary/20 cursor-pointer"
                       >
                         View Receipt
                       </button>
@@ -234,7 +234,7 @@ export default function ParentFeesPage() {
 
         {/* Footnote on Non-Online Payments */}
         <div className="pt-4 border-t border-slate-100 flex items-start gap-2.5 text-[11px] text-slate-500 leading-relaxed">
-          <Info className="w-4 h-4 text-[#0f3a3e] shrink-0 mt-0.5" />
+          <Info className="w-4 h-4 text-brand-primary shrink-0 mt-0.5" />
           <span>
             <strong>Bursary Notice:</strong> In line with institutional financial policies, all school tuition and levies are collected strictly via official school bank accounts and reconciled directly by the Bursar. Online credit card payments are not processed through this portal.
           </span>
@@ -333,7 +333,7 @@ export default function ParentFeesPage() {
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="min-h-[44px] px-4 py-2 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5"
+                className="min-h-[44px] px-4 py-2 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5"
               >
                 <Printer className="w-3.5 h-3.5" />
                 <span>Print Receipt</span>

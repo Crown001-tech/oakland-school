@@ -168,7 +168,7 @@ export default function TeacherCBTOverviewPage() {
 
           <Link
             href="/teacher/cbt/assessments/new"
-            className="px-4 py-2.5 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold transition shadow-xs inline-flex items-center gap-2 min-h-[44px] cursor-pointer"
+            className="px-4 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold transition shadow-xs inline-flex items-center gap-2 min-h-[44px] cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Schedule Exam</span>
@@ -182,7 +182,7 @@ export default function TeacherCBTOverviewPage() {
           onClick={() => setActiveTab('assessments')}
           className={`flex-1 py-2.5 px-3 rounded-xl font-semibold transition text-center min-h-[44px] flex items-center justify-center cursor-pointer ${
             activeTab === 'assessments'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
@@ -192,7 +192,7 @@ export default function TeacherCBTOverviewPage() {
           onClick={() => setActiveTab('banks')}
           className={`flex-1 py-2.5 px-3 rounded-xl font-semibold transition text-center min-h-[44px] flex items-center justify-center cursor-pointer ${
             activeTab === 'banks'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
@@ -294,7 +294,7 @@ export default function TeacherCBTOverviewPage() {
             <div className="pt-2">
               <Link
                 href="/teacher/cbt/assessments/new"
-                className="px-4 py-2.5 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold transition shadow-xs inline-flex items-center gap-2 cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold transition shadow-xs inline-flex items-center gap-2 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Schedule Exam</span>
@@ -360,7 +360,7 @@ export default function TeacherCBTOverviewPage() {
               <button
                 type="button"
                 onClick={() => setIsBankModalOpen(true)}
-                className="px-4 py-2.5 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold transition shadow-xs inline-flex items-center gap-2 cursor-pointer"
+                className="px-4 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold transition shadow-xs inline-flex items-center gap-2 cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>Create Question Bank</span>
@@ -452,7 +452,7 @@ export default function TeacherCBTOverviewPage() {
                 <button
                   type="submit"
                   disabled={isCreatingBank}
-                  className="px-5 py-2.5 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white font-semibold transition shadow-xs min-h-[44px] cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white font-semibold transition shadow-xs min-h-[44px] cursor-pointer disabled:opacity-50"
                 >
                   {isCreatingBank ? 'Creating...' : 'Create Bank'}
                 </button>

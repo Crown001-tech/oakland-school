@@ -59,7 +59,7 @@ export function ReceiptModal({ payment, studentItem, onClose }: ReceiptModalProp
               type="button"
               size="sm"
               onClick={handlePrint}
-              className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold gap-1.5 min-h-[44px] sm:h-9 px-3"
+              className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-bold gap-1.5 min-h-[44px] sm:h-9 px-3"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Print Official Receipt</span>
@@ -85,7 +85,7 @@ export function ReceiptModal({ payment, studentItem, onClose }: ReceiptModalProp
           </div>
 
           {/* School Header */}
-          <div className="text-center pb-5 border-b-2 border-[#0f3a3e]">
+          <div className="text-center pb-5 border-b-2 border-brand-primary">
             <div className="flex justify-center mb-2">
               <Logo size="lg" />
             </div>
@@ -143,7 +143,7 @@ export function ReceiptModal({ payment, studentItem, onClose }: ReceiptModalProp
           {/* Fee Itemization Table */}
           <div className="border border-slate-200 rounded-xl overflow-hidden mt-4">
             <table className="w-full text-xs text-left">
-              <thead className="bg-[#0f3a3e] text-white font-bold">
+              <thead className="bg-brand-primary text-white font-bold">
                 <tr>
                   <th className="py-2.5 px-3">Description of Fee</th>
                   <th className="py-2.5 px-3">Payment Ref</th>

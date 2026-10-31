@@ -120,27 +120,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 2. Update map with new scores & lock metadata
-    const updatedScoresMap = {
-      ...existingScoresMap,
-      [scoreKey]: {
-        scores,
-        isLocked,
-        submittedBy: submittedBy || (!Array.isArray(currentEntry) ? currentEntry?.submittedBy : null),
-        submittedAt: submittedAt || (!Array.isArray(currentEntry) ? currentEntry?.submittedAt : null),
-      },
-    };
-
-    // 3. Persist back to schools.settings in PostgreSQL
-    const { error: updateErr } = await sb
-      .from('schools')
-      .update({
-        settings: {
-          ...existingSettings,
-          subject_scores: updatedScoresMap,
+    // 2. Save only this class and subject. merge_school_settings changes the one key inside the
+    // database in a single statement, so two teachers submitting at once cannot erase each other (DEF-113).
+    const { error: updateErr } = await sb.rpc('merge_school_settings', {
+      p_school_id: school.id,
+      p_patch: {
+        subject_scores: {
+          [scoreKey]: {
+            scores,
+            isLocked,
+            submittedBy: submittedBy || (!Array.isArray(currentEntry) ? currentEntry?.submittedBy : null),
+            submittedAt: submittedAt || (!Array.isArray(currentEntry) ? currentEntry?.submittedAt : null),
+          },
         },
-      })
-      .eq('id', school.id);
+      },
+    });
 
     if (updateErr) throw updateErr;
 

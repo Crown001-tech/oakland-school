@@ -291,7 +291,7 @@ export default function SecurityEmergencyPage() {
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-medium transition cursor-pointer disabled:opacity-50 min-h-[44px]"
             title="Refresh records"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#0f3a3e]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-brand-primary' : ''}`} />
             <span>Refresh</span>
           </button>
 
@@ -311,7 +311,7 @@ export default function SecurityEmergencyPage() {
               setFormError(null);
               setIsBroadcastModalOpen(true);
             }}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#b3141f] hover:bg-[#961019] text-white text-xs font-bold transition shadow-xs cursor-pointer min-h-[44px]"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-accent hover:bg-brand-accent-hover text-white text-xs font-bold transition shadow-xs cursor-pointer min-h-[44px]"
           >
             <Radio className="w-4 h-4" />
             <span>Broadcast Alert</span>
@@ -406,7 +406,7 @@ export default function SecurityEmergencyPage() {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] min-h-[36px]"
+              className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-primary min-h-[36px]"
             >
               <option value="all">All Categories</option>
               <option value="police">Police</option>
@@ -424,7 +424,7 @@ export default function SecurityEmergencyPage() {
                 placeholder="Search service, contact, phone..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] min-h-[36px]"
+                className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-primary min-h-[36px]"
               />
             </div>
           </div>
@@ -475,7 +475,7 @@ export default function SecurityEmergencyPage() {
               <div className="pt-2 border-t border-slate-100 flex items-center gap-2">
                 <a
                   href={`tel:${c.primaryPhone.replace(/\s+/g, '')}`}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-[#0f3a3e] hover:bg-[#164e53] text-white font-bold text-xs shadow-xs transition min-h-[44px]"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg bg-brand-primary hover:bg-brand-primary-light text-white font-bold text-xs shadow-xs transition min-h-[44px]"
                 >
                   <Phone className="w-3.5 h-3.5" />
                   <span>Call: {c.primaryPhone}</span>
@@ -583,7 +583,7 @@ export default function SecurityEmergencyPage() {
                   placeholder="e.g. Area Commander Rapid Response Unit"
                   value={formData.serviceName}
                   onChange={(e) => setFormData({ ...formData, serviceName: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none min-h-[44px]"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none min-h-[44px]"
                 />
               </div>
 
@@ -595,7 +595,7 @@ export default function SecurityEmergencyPage() {
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none bg-white min-h-[44px]"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none bg-white min-h-[44px]"
                   >
                     <option value="police">Police</option>
                     <option value="fire">Fire & Rescue</option>
@@ -615,7 +615,7 @@ export default function SecurityEmergencyPage() {
                     placeholder="e.g. Officer in Charge"
                     value={formData.contactPerson}
                     onChange={(e) => setFormData({ ...formData, contactPerson: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none min-h-[44px]"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none min-h-[44px]"
                   />
                 </div>
               </div>
@@ -631,7 +631,7 @@ export default function SecurityEmergencyPage() {
                     placeholder="e.g. 08031234567 or 112"
                     value={formData.primaryPhone}
                     onChange={(e) => setFormData({ ...formData, primaryPhone: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none min-h-[44px]"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none min-h-[44px]"
                   />
                 </div>
 
@@ -644,7 +644,7 @@ export default function SecurityEmergencyPage() {
                     placeholder="e.g. 08029876543"
                     value={formData.secondaryPhone}
                     onChange={(e) => setFormData({ ...formData, secondaryPhone: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none min-h-[44px]"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none min-h-[44px]"
                   />
                 </div>
               </div>
@@ -658,7 +658,7 @@ export default function SecurityEmergencyPage() {
                   placeholder="e.g. Victoria Island Division, Lagos"
                   value={formData.address}
                   onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none min-h-[44px]"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none min-h-[44px]"
                 />
               </div>
 
@@ -673,7 +673,7 @@ export default function SecurityEmergencyPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 rounded-lg bg-[#0f3a3e] hover:bg-[#164e53] text-white font-bold transition shadow-xs cursor-pointer disabled:opacity-50 min-h-[44px]"
+                  className="px-5 py-2 rounded-lg bg-brand-primary hover:bg-brand-primary-light text-white font-bold transition shadow-xs cursor-pointer disabled:opacity-50 min-h-[44px]"
                 >
                   {isSubmitting ? 'Saving...' : 'Save Emergency Contact'}
                 </button>

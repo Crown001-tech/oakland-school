@@ -1237,7 +1237,7 @@ export default function PublicAdmissionsPage() {
           line-height: 1.5;
         }
         .adm-desk-icon {
-          color: #0f3a3e;
+          color: var(--brand-primary);
           flex-shrink: 0;
           margin-top: 2px;
         }
@@ -2094,7 +2094,7 @@ function SuccessScreen({
             <button
               type="button"
               onClick={() => window.print()}
-              className="w-full sm:w-auto flex-1 px-5 py-3 rounded-xl bg-[#0f3a3e] hover:bg-[#134b50] text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition active:scale-98"
+              className="w-full sm:w-auto flex-1 px-5 py-3 rounded-xl bg-brand-primary hover:bg-[#134b50] text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition active:scale-98"
             >
               <Printer className="w-4 h-4" />
               <span>Print Application Slip</span>

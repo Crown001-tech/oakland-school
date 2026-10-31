@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { PRODUCT_NAME, isEductiveBrand } from '@/lib/brand';
 
 interface LogoProps {
   variant?: 'full' | 'mark' | 'image';
@@ -26,8 +27,8 @@ export function Logo({
 
   const { img, mark, title, sub } = sizeMap[size];
 
-  // Official Oakland Crimson / Wine Red
-  const brandCrimson = '#B3141F';
+  // Follows the active theme's accent colour
+  const brandCrimson = 'var(--brand-accent)';
 
   const markSvg = (
     <svg
@@ -112,7 +113,41 @@ export function Logo({
 
   let content: React.ReactNode;
 
-  if (variant === 'image') {
+  if (isEductiveBrand()) {
+    const emeraldDot = <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500" />;
+
+    const eductiveBadgeMark = (
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#07332a] border border-[#0b4034] shadow-xs">
+        <span className="h-2.5 w-2.5 rounded-full bg-[#3ddc97]" />
+      </div>
+    );
+
+    if (variant === 'mark') {
+      content = (
+        <div className={`inline-flex items-center select-none group ${className}`}>
+          {eductiveBadgeMark}
+        </div>
+      );
+    } else {
+      content = (
+        <div className={`inline-flex items-center gap-2.5 select-none group ${className}`}>
+          {emeraldDot}
+          <div className="flex items-center gap-2">
+            <span
+              className={`font-black tracking-wider uppercase font-sans ${title} ${
+                theme === 'dark' ? 'text-white' : 'text-brand-primary'
+              }`}
+            >
+              {PRODUCT_NAME}
+            </span>
+            <span className="rounded-full bg-brand-accent px-2 py-0.5 text-[10px] font-bold tracking-wider text-brand-primary uppercase">
+              Demo
+            </span>
+          </div>
+        </div>
+      );
+    }
+  } else if (variant === 'image') {
     content = (
       <div className={`inline-flex items-center select-none group ${className}`}>
         <Image

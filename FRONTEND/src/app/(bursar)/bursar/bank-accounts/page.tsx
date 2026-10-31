@@ -271,7 +271,7 @@ export default function BursarBankAccountsPage() {
             className="w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-5 py-4 bg-[#0f3a3e] text-white flex items-center justify-between">
+            <div className="px-5 py-4 bg-brand-primary text-white flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold">Register Institutional Bank Account</h3>
                 <p className="text-[11px] text-teal-200/80">

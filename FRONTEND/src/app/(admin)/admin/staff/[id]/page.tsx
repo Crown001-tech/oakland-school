@@ -297,7 +297,7 @@ export default function AdminStaffProfilePage() {
               size="sm"
               leftIcon={<Edit3 className="w-3.5 h-3.5" />}
               onClick={() => setIsEditModalOpen(true)}
-              className="bg-[#0f3a3e] hover:bg-[#164e53] text-white font-bold cursor-pointer"
+              className="bg-brand-primary hover:bg-brand-primary-light text-white font-bold cursor-pointer"
             >
               Edit Role
             </Button>
@@ -309,7 +309,7 @@ export default function AdminStaffProfilePage() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
             {/* Avatar & Identification */}
             <div className="flex items-start sm:items-center gap-4 sm:gap-5 min-w-0">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-[#0f3a3e] to-[#164e53] text-white flex items-center justify-center font-black text-2xl sm:text-3xl border-2 border-teal-600/40 shadow-sm shrink-0">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-primary-light text-white flex items-center justify-center font-black text-2xl sm:text-3xl border-2 border-teal-600/40 shadow-sm shrink-0">
                 {initials}
               </div>
               <div className="space-y-1.5 min-w-0 flex-1">
@@ -350,7 +350,7 @@ export default function AdminStaffProfilePage() {
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                       Responsibility
                     </span>
-                    <span className="text-xs sm:text-sm font-bold text-[#0f3a3e] mt-0.5 block">
+                    <span className="text-xs sm:text-sm font-bold text-brand-primary mt-0.5 block">
                       Operations
                     </span>
                   </div>
@@ -410,7 +410,7 @@ export default function AdminStaffProfilePage() {
                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
                       Department
                     </span>
-                    <span className="text-xs sm:text-sm font-bold text-[#0f3a3e] mt-0.5 block">
+                    <span className="text-xs sm:text-sm font-bold text-brand-primary mt-0.5 block">
                       {staff.department}
                     </span>
                   </div>
@@ -431,7 +431,7 @@ export default function AdminStaffProfilePage() {
                   onClick={() => setActiveTab(tab.id as TabType)}
                   className={`flex items-center gap-2 px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer ${
                     isActive
-                      ? 'bg-[#0f3a3e] text-white shadow-xs'
+                      ? 'bg-brand-primary text-white shadow-xs'
                       : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                   }`}
                 >
@@ -452,7 +452,7 @@ export default function AdminStaffProfilePage() {
               {/* Personal & Contact Details */}
               <Card className="p-6 border-slate-200/80 space-y-4">
                 <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-                  <User className="w-4 h-4 text-[#0f3a3e]" />
+                  <User className="w-4 h-4 text-brand-primary" />
                   <h2 className="text-sm font-bold text-slate-900">Personal Details</h2>
                 </div>
 
@@ -485,7 +485,7 @@ export default function AdminStaffProfilePage() {
               {/* Professional Designation */}
               <Card className="p-6 border-slate-200/80 space-y-4">
                 <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-                  <Briefcase className="w-4 h-4 text-[#0f3a3e]" />
+                  <Briefcase className="w-4 h-4 text-brand-primary" />
                   <h2 className="text-sm font-bold text-slate-900">Professional Designation</h2>
                 </div>
 
@@ -518,7 +518,7 @@ export default function AdminStaffProfilePage() {
             {staff.role === 'Principal' && (
               <Card className="p-6 border-slate-200/80 bg-gradient-to-r from-teal-50/50 via-white to-slate-50 space-y-4">
                 <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-                  <ShieldCheck className="w-4 h-4 text-[#0f3a3e]" />
+                  <ShieldCheck className="w-4 h-4 text-brand-primary" />
                   <h2 className="text-sm font-bold text-slate-900">Executive Administrative Scope</h2>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
@@ -548,7 +548,7 @@ export default function AdminStaffProfilePage() {
               <Card className="p-6 border-slate-200/80 space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                   <div className="flex items-center gap-2">
-                    <GraduationCap className="w-4 h-4 text-[#0f3a3e]" />
+                    <GraduationCap className="w-4 h-4 text-brand-primary" />
                     <h2 className="text-sm font-bold text-slate-900">Homeroom Responsibility</h2>
                   </div>
                   <Button
@@ -591,7 +591,7 @@ export default function AdminStaffProfilePage() {
               {/* Subject Areas */}
               <Card className="p-6 border-slate-200/80 space-y-4">
                 <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-                  <BookOpen className="w-4 h-4 text-[#0f3a3e]" />
+                  <BookOpen className="w-4 h-4 text-brand-primary" />
                   <h2 className="text-sm font-bold text-slate-900">Curriculum Subjects</h2>
                 </div>
 
@@ -601,7 +601,7 @@ export default function AdminStaffProfilePage() {
                       {staff.subjects.map((sub) => (
                         <span
                           key={sub}
-                          className="px-3 py-1.5 rounded-lg bg-teal-50 border border-teal-200 text-[#0f3a3e] font-semibold text-xs"
+                          className="px-3 py-1.5 rounded-lg bg-teal-50 border border-teal-200 text-brand-primary font-semibold text-xs"
                         >
                           {sub}
                         </span>
@@ -646,7 +646,7 @@ export default function AdminStaffProfilePage() {
         {activeTab === 'payroll_security' && (
           <div className="space-y-6">
             {/* Security Credentials Card */}
-            <div className="p-6 rounded-2xl bg-gradient-to-r from-[#0f3a3e] to-[#164e53] text-white shadow-xs">
+            <div className="p-6 rounded-2xl bg-gradient-to-r from-brand-primary to-brand-primary-light text-white shadow-xs">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2">
@@ -683,7 +683,7 @@ export default function AdminStaffProfilePage() {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="bg-white text-[#0f3a3e] hover:bg-teal-50 border-white text-xs font-bold"
+                      className="bg-white text-brand-primary hover:bg-teal-50 border-white text-xs font-bold"
                       leftIcon={copiedPassword ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                       onClick={handleCopyPassword}
                     >
@@ -709,7 +709,7 @@ export default function AdminStaffProfilePage() {
             <Card className="p-6 border-slate-200/80 space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-[#0f3a3e]" />
+                  <CreditCard className="w-4 h-4 text-brand-primary" />
                   <h2 className="text-sm font-bold text-slate-900">
                     Salary Structure and Bank Details
                   </h2>
@@ -792,7 +792,7 @@ export default function AdminStaffProfilePage() {
             <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 relative space-y-4">
               <div className="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div className="flex items-center gap-2">
-                  <Building className="w-5 h-5 text-[#0f3a3e]" />
+                  <Building className="w-5 h-5 text-brand-primary" />
                   <h3 className="text-base font-bold text-slate-900">Update Bank Disbursement Account</h3>
                 </div>
                 <button
@@ -851,7 +851,7 @@ export default function AdminStaffProfilePage() {
                   <Button
                     type="submit"
                     disabled={isSavingBank}
-                    className="bg-[#0f3a3e] hover:bg-[#164e53] text-white"
+                    className="bg-brand-primary hover:bg-brand-primary-light text-white"
                   >
                     {isSavingBank ? 'Saving...' : 'Save Bank Details'}
                   </Button>

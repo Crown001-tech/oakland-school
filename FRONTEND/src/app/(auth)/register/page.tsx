@@ -44,15 +44,15 @@ export default function RegisterIndexPage() {
           {/* Pathway 1: Staff & Faculty Appointment */}
           <Link
             href="/register/staff"
-            className="group block p-4 rounded-xl border border-slate-200 hover:border-[#0f3a3e] bg-slate-50/50 hover:bg-[#0f3a3e]/5 transition-all shadow-2xs min-h-[44px]"
+            className="group block p-4 rounded-xl border border-slate-200 hover:border-brand-primary bg-slate-50/50 hover:bg-brand-primary/5 transition-all shadow-2xs min-h-[44px]"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3.5">
-                <div className="w-10 h-10 rounded-xl bg-[#0f3a3e]/10 text-[#0f3a3e] flex items-center justify-center shrink-0 group-hover:bg-[#0f3a3e] group-hover:text-white transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-brand-primary/10 text-brand-primary flex items-center justify-center shrink-0 group-hover:bg-brand-primary group-hover:text-white transition-colors">
                   <Briefcase className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-xs font-bold text-slate-900 group-hover:text-[#0f3a3e] transition-colors">
+                  <h3 className="text-xs font-bold text-slate-900 group-hover:text-brand-primary transition-colors">
                     Staff Appointment
                   </h3>
                   <p className="text-[11px] text-slate-500">
@@ -60,14 +60,14 @@ export default function RegisterIndexPage() {
                   </p>
                 </div>
               </div>
-              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#0f3a3e] group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
+              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-brand-primary group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
             </div>
           </Link>
 
           {/* Pathway 2: Prospective Student Admission */}
           <Link
             href="/admissions"
-            className="group block p-4 rounded-xl border border-slate-200 hover:border-[#0f3a3e] bg-slate-50/50 hover:bg-[#0f3a3e]/5 transition-all shadow-2xs min-h-[44px]"
+            className="group block p-4 rounded-xl border border-slate-200 hover:border-brand-primary bg-slate-50/50 hover:bg-brand-primary/5 transition-all shadow-2xs min-h-[44px]"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3.5">
@@ -83,14 +83,14 @@ export default function RegisterIndexPage() {
                   </p>
                 </div>
               </div>
-              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#0f3a3e] group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
+              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-brand-primary group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
             </div>
           </Link>
 
           {/* Pathway 3: Student Account Activation */}
           <Link
             href="/activate"
-            className="group block p-4 rounded-xl border border-slate-200 hover:border-[#0f3a3e] bg-slate-50/50 hover:bg-[#0f3a3e]/5 transition-all shadow-2xs min-h-[44px]"
+            className="group block p-4 rounded-xl border border-slate-200 hover:border-brand-primary bg-slate-50/50 hover:bg-brand-primary/5 transition-all shadow-2xs min-h-[44px]"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3.5">
@@ -106,7 +106,7 @@ export default function RegisterIndexPage() {
                   </p>
                 </div>
               </div>
-              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#0f3a3e] group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
+              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-brand-primary group-hover:translate-x-0.5 transition-all shrink-0 ml-2" />
             </div>
           </Link>
         </div>

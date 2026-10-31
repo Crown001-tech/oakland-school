@@ -340,7 +340,7 @@ Oakland International School
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#0f3a3e] text-white uppercase tracking-wider">
+            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-brand-primary text-white uppercase tracking-wider">
               Principal Directorate
             </span>
             <span className="text-xs text-slate-500 font-medium">
@@ -364,7 +364,7 @@ Oakland International School
             }
             setIsEditorOpen(true);
           }}
-          className="bg-[#0f3a3e] hover:bg-[#164e53] text-white shadow-xs text-xs font-semibold flex items-center gap-2 cursor-pointer"
+          className="bg-brand-primary hover:bg-brand-primary-light text-white shadow-xs text-xs font-semibold flex items-center gap-2 cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Draft New Letter</span>
@@ -391,14 +391,14 @@ Oakland International School
               }
               setIsEditorOpen(true);
             }}
-            className="p-3 rounded-xl border border-slate-200 bg-white hover:border-[#0f3a3e] hover:shadow-xs text-left transition-all group cursor-pointer"
+            className="p-3 rounded-xl border border-slate-200 bg-white hover:border-brand-primary hover:shadow-xs text-left transition-all group cursor-pointer"
           >
             <div className="flex items-center justify-between mb-1.5">
               <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded border ${getTypeBadgeColor(type)}`}>
                 Template
               </span>
             </div>
-            <p className="font-bold text-slate-800 text-xs line-clamp-2 group-hover:text-[#0f3a3e]">
+            <p className="font-bold text-slate-800 text-xs line-clamp-2 group-hover:text-brand-primary">
               {type}
             </p>
           </button>
@@ -430,7 +430,7 @@ Oakland International School
             </div>
           ) : (
             <table className="w-full text-xs text-left">
-              <thead className="bg-[#0f3a3e] text-white font-bold">
+              <thead className="bg-brand-primary text-white font-bold">
                 <tr>
                   <th className="py-2.5 px-4">Ref Number</th>
                   <th className="py-2.5 px-3">Date</th>
@@ -524,7 +524,7 @@ Oakland International School
             </button>
 
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#0f3a3e] flex items-center justify-center font-bold">
+              <div className="w-10 h-10 rounded-xl bg-teal-50 text-brand-primary flex items-center justify-center font-bold">
                 <FileText className="w-5 h-5" />
               </div>
               <div>
@@ -688,7 +688,7 @@ Oakland International School
                   <Button
                     type="submit"
                     size="sm"
-                    className="bg-[#0f3a3e] hover:bg-[#164e53] text-white cursor-pointer"
+                    className="bg-brand-primary hover:bg-brand-primary-light text-white cursor-pointer"
                   >
                     Issue Letter
                   </Button>
@@ -723,7 +723,7 @@ Oakland International School
                   type="button"
                   size="sm"
                   onClick={handlePrint}
-                  className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs flex items-center gap-1.5 cursor-pointer"
+                  className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs flex items-center gap-1.5 cursor-pointer"
                 >
                   <Printer className="w-3.5 h-3.5" />
                   <span>Print Letter</span>
@@ -741,14 +741,14 @@ Oakland International School
             {/* Formal Institutional Letterhead Sheet */}
             <div className="border border-slate-300 p-8 sm:p-12 rounded-xl shadow-xs bg-white text-slate-900 space-y-6 print:border-none print:shadow-none print:p-0">
               {/* Header Crest & Titles */}
-              <div className="text-center pb-6 border-b-2 border-[#0f3a3e] space-y-1">
-                <div className="w-12 h-12 rounded-xl bg-[#0f3a3e] text-[#d4af37] border-2 border-[#d4af37] mx-auto flex items-center justify-center font-serif text-2xl font-bold mb-2">
+              <div className="text-center pb-6 border-b-2 border-brand-primary space-y-1">
+                <div className="w-12 h-12 rounded-xl bg-brand-primary text-[#d4af37] border-2 border-[#d4af37] mx-auto flex items-center justify-center font-serif text-2xl font-bold mb-2">
                   O
                 </div>
-                <h1 className="text-xl sm:text-2xl font-black uppercase tracking-[0.18em] text-[#0f3a3e] font-serif">
+                <h1 className="text-xl sm:text-2xl font-black uppercase tracking-[0.18em] text-brand-primary font-serif">
                   Oakland International School
                 </h1>
-                <p className="text-[11px] font-bold text-[#b3141f] tracking-widest uppercase">
+                <p className="text-[11px] font-bold text-brand-accent tracking-widest uppercase">
                   Per Ardua Ad Astra &bull; Excellence &bull; Integrity &bull; Leadership
                 </p>
                 <p className="text-[10px] text-slate-500">
@@ -758,7 +758,7 @@ Oakland International School
 
               {/* Reference & Date Bar */}
               <div className="flex items-center justify-between text-xs font-bold text-slate-700 pt-2 border-b border-slate-100 pb-3">
-                <p>REF: <span className="font-mono text-[#0f3a3e]">{selectedLetter.refNo}</span></p>
+                <p>REF: <span className="font-mono text-brand-primary">{selectedLetter.refNo}</span></p>
                 <p>DATE: <span className="font-mono">{selectedLetter.date}</span></p>
               </div>
 
@@ -789,7 +789,7 @@ Oakland International School
               <div className="pt-8 flex items-end justify-between border-t border-slate-200">
                 <div className="space-y-1">
                   <p className="text-[11px] italic text-slate-500">Yours faithfully,</p>
-                  <div className="font-serif italic font-bold text-[#0f3a3e] text-base pt-2">
+                  <div className="font-serif italic font-bold text-brand-primary text-base pt-2">
                     {selectedLetter.issuedBy}
                   </div>
                   <p className="font-bold text-xs text-slate-900">{selectedLetter.issuedBy}</p>
@@ -800,7 +800,7 @@ Oakland International School
                 {selectedLetter.includeSeal && (
                   <div className="border-2 border-dashed border-teal-800/40 rounded-xl p-3 text-center bg-teal-50/30">
                     <p className="text-[9px] font-black uppercase text-teal-900 tracking-widest">Office of the Principal</p>
-                    <p className="text-[11px] font-bold text-[#0f3a3e] font-serif">VERIFIED DIGITAL SEAL</p>
+                    <p className="text-[11px] font-bold text-brand-primary font-serif">VERIFIED DIGITAL SEAL</p>
                     <p className="text-[8px] font-mono text-teal-700">Digital Directorate Seal</p>
                   </div>
                 )}

@@ -138,7 +138,7 @@ export default function TeacherPoliciesPage() {
                 <button
                   type="button"
                   onClick={() => setInspectDoc(doc)}
-                  className="px-3 py-1.5 bg-[#0f3a3e] hover:bg-[#14484d] text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
+                  className="px-3 py-1.5 bg-brand-primary hover:bg-[#14484d] text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer"
                 >
                   <Eye className="w-3.5 h-3.5" />
                   <span>Inspect</span>
@@ -195,7 +195,7 @@ export default function TeacherPoliciesPage() {
                   href={inspectDoc.fileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-4 py-2 bg-[#0f3a3e] hover:bg-[#14484d] text-white rounded-lg text-xs font-bold flex items-center gap-1.5"
+                  className="px-4 py-2 bg-brand-primary hover:bg-[#14484d] text-white rounded-lg text-xs font-bold flex items-center gap-1.5"
                 >
                   <ExternalLink className="w-3.5 h-3.5" />
                   <span>Open Full Document</span>

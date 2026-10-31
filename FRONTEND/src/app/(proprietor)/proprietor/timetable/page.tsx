@@ -97,7 +97,7 @@ export default function ProprietorTimetablePage() {
             onClick={() => setSelectedClass(cls)}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
               selectedClass === cls
-                ? 'bg-[#0f3a3e] text-white shadow-xs'
+                ? 'bg-brand-primary text-white shadow-xs'
                 : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
             }`}
           >
@@ -110,7 +110,7 @@ export default function ProprietorTimetablePage() {
       {!hasEntries ? (
         <Card className="border-dashed border-2 border-slate-200 bg-slate-50/50 p-12 text-center">
           <div className="max-w-md mx-auto space-y-3">
-            <div className="w-12 h-12 rounded-2xl bg-teal-50 text-[#0f3a3e] flex items-center justify-center mx-auto border border-teal-100">
+            <div className="w-12 h-12 rounded-2xl bg-teal-50 text-brand-primary flex items-center justify-center mx-auto border border-teal-100">
               <Calendar className="w-6 h-6" />
             </div>
             <h3 className="text-base font-bold text-slate-900">
@@ -132,7 +132,7 @@ export default function ProprietorTimetablePage() {
                 onClick={() => setMobileDay(d)}
                 className={`flex-1 py-1.5 px-2 text-center text-xs font-bold rounded-lg transition-all ${
                   mobileDay === d
-                    ? 'bg-[#0f3a3e] text-white shadow-xs'
+                    ? 'bg-brand-primary text-white shadow-xs'
                     : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -188,7 +188,7 @@ export default function ProprietorTimetablePage() {
           <Card className="hidden md:block border-slate-200 shadow-xs overflow-hidden">
             <CardContent className="p-0 overflow-x-auto relative">
               <table className="w-full text-xs text-left">
-                <thead className="bg-[#0f3a3e] text-white font-bold">
+                <thead className="bg-brand-primary text-white font-bold">
                   <tr>
                     <th className="py-3 px-4 w-36">Period</th>
                     {DAYS.map((d) => (

@@ -287,7 +287,7 @@ export default function SecurityLayout({ children }: { children: React.ReactNode
                     onClick={() => setIsSidebarOpen(false)}
                     className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                       active
-                        ? 'bg-[#b3141f] text-white shadow-sm'
+                        ? 'bg-brand-accent text-white shadow-sm'
                         : 'text-slate-400 hover:bg-white/5 hover:text-white'
                     }`}
                   >
@@ -330,7 +330,7 @@ export default function SecurityLayout({ children }: { children: React.ReactNode
         <div className="p-3 border-t border-white/10">
           <div className="flex items-center justify-between px-2 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition group">
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              <div className="w-8 h-8 rounded-full bg-[#0f3a3e] text-amber-300 flex items-center justify-center font-bold text-xs shrink-0 border border-amber-500/20">
+              <div className="w-8 h-8 rounded-full bg-brand-primary text-amber-300 flex items-center justify-center font-bold text-xs shrink-0 border border-amber-500/20">
                 {officerProfile?.name
                   ? officerProfile.name
                       .split(' ')

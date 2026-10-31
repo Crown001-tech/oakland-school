@@ -387,13 +387,13 @@ export default function DocumentCentrePage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#0f3a3e] text-white uppercase tracking-wider">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-brand-primary text-white uppercase tracking-wider">
               Records Archive
             </span>
             <span className="text-xs text-slate-500 font-medium">Official Repository</span>
           </div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight mt-1 flex items-center gap-2">
-            <FolderArchive className="w-6 h-6 text-[#0f3a3e]" />
+            <FolderArchive className="w-6 h-6 text-brand-primary" />
             <span>Document Centre</span>
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -405,7 +405,7 @@ export default function DocumentCentrePage() {
           <Button
             type="button"
             onClick={() => setIsUploadOpen(true)}
-            className="bg-[#0f3a3e] hover:bg-[#134b50] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer"
+            className="bg-brand-primary hover:bg-[#134b50] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer"
           >
             <Upload className="w-3.5 h-3.5" />
             <span>Upload Document</span>
@@ -456,7 +456,7 @@ export default function DocumentCentrePage() {
               onClick={() => setSelectedType(type)}
               className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition whitespace-nowrap cursor-pointer ${
                 selectedType === type
-                  ? 'bg-[#0f3a3e] text-white shadow-2xs'
+                  ? 'bg-brand-primary text-white shadow-2xs'
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/60'
               }`}
             >
@@ -619,7 +619,7 @@ export default function DocumentCentrePage() {
                   type="button"
                   size="sm"
                   onClick={() => handleDownload(selectedDoc)}
-                  className="bg-[#0f3a3e] hover:bg-[#134b50] text-white text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                  className="bg-brand-primary hover:bg-[#134b50] text-white text-xs font-semibold flex items-center gap-1 cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Download</span>
@@ -664,13 +664,13 @@ export default function DocumentCentrePage() {
                 /* Institutional Certificate / Summary Viewer Sheet */
                 <div className="bg-white p-6 sm:p-8 rounded-xl border border-slate-200 shadow-xs max-w-lg w-full text-slate-800 space-y-4">
                   <div className="text-center pb-4 border-b border-slate-200 space-y-1">
-                    <div className="w-10 h-10 rounded-xl bg-[#0f3a3e] text-[#d4af37] border-2 border-[#d4af37] mx-auto flex items-center justify-center font-serif text-lg font-bold mb-1">
+                    <div className="w-10 h-10 rounded-xl bg-brand-primary text-[#d4af37] border-2 border-[#d4af37] mx-auto flex items-center justify-center font-serif text-lg font-bold mb-1">
                       O
                     </div>
-                    <h4 className="text-sm font-black uppercase tracking-wider text-[#0f3a3e] font-serif">
+                    <h4 className="text-sm font-black uppercase tracking-wider text-brand-primary font-serif">
                       Oakland International School
                     </h4>
-                    <p className="text-[9px] font-bold text-[#b3141f] tracking-widest uppercase">
+                    <p className="text-[9px] font-bold text-brand-accent tracking-widest uppercase">
                       Official Document Registry Entry
                     </p>
                   </div>
@@ -712,7 +712,7 @@ export default function DocumentCentrePage() {
                       type="button"
                       size="sm"
                       onClick={() => handleDownload(selectedDoc)}
-                      className="bg-[#0f3a3e] hover:bg-[#134b50] text-white text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                      className="bg-brand-primary hover:bg-[#134b50] text-white text-xs font-semibold flex items-center gap-1 cursor-pointer"
                     >
                       <Download className="w-3.5 h-3.5" />
                       <span>Download File</span>
@@ -805,7 +805,7 @@ export default function DocumentCentrePage() {
                   />
                   <label
                     htmlFor="doc-file-input"
-                    className="inline-block mt-3 px-4 py-1.5 bg-[#0f3a3e] hover:bg-[#134b50] text-white font-bold rounded-xl text-xs cursor-pointer transition shadow-xs"
+                    className="inline-block mt-3 px-4 py-1.5 bg-brand-primary hover:bg-[#134b50] text-white font-bold rounded-xl text-xs cursor-pointer transition shadow-xs"
                   >
                     Choose Local File
                   </label>
@@ -834,7 +834,7 @@ export default function DocumentCentrePage() {
                   type="submit"
                   size="sm"
                   disabled={!newDocFileName || isSubmitting}
-                  className="bg-[#0f3a3e] hover:bg-[#134b50] text-white text-xs font-semibold cursor-pointer disabled:opacity-50"
+                  className="bg-brand-primary hover:bg-[#134b50] text-white text-xs font-semibold cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Saving...' : 'Save Document'}
                 </Button>

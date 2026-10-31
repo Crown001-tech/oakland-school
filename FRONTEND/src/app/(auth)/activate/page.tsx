@@ -132,14 +132,14 @@ function ActivateStudentForm() {
               <p className="text-xs text-slate-600 mt-1">
                 Welcome, <strong>{successData?.studentName || 'Student'}</strong> ({successData?.admissionNumber}).
               </p>
-              <p className="text-[11px] text-[#0f3a3e] font-medium mt-3 inline-flex items-center gap-1.5">
+              <p className="text-[11px] text-brand-primary font-medium mt-3 inline-flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-amber-500" /> Directing you to your student portal...
               </p>
             </div>
           </div>
         ) : (
           <form onSubmit={handleActivate} className="space-y-4">
-            <div className="p-3.5 rounded-xl bg-[#0f3a3e]/5 border border-[#0f3a3e]/15 text-[11px] text-slate-700 leading-relaxed">
+            <div className="p-3.5 rounded-xl bg-brand-primary/5 border border-brand-primary/15 text-[11px] text-slate-700 leading-relaxed">
               Enter the activation code issued by the school administration and create your secure personal password.
             </div>
 
@@ -187,7 +187,7 @@ function ActivateStudentForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="text-[11px] text-[#0f3a3e] hover:text-[#b3141f] font-semibold inline-flex items-center gap-1 cursor-pointer"
+                  className="text-[11px] text-brand-primary hover:text-brand-accent font-semibold inline-flex items-center gap-1 cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                   <span>{showPassword ? 'Hide' : 'Show'}</span>
@@ -224,7 +224,7 @@ function ActivateStudentForm() {
                 type="submit"
                 size="lg"
                 isLoading={isLoading}
-                className="w-full bg-[#0f3a3e] hover:bg-[#164e53] text-white shadow-md font-bold text-xs py-2.5 h-11"
+                className="w-full bg-brand-primary hover:bg-brand-primary-light text-white shadow-md font-bold text-xs py-2.5 h-11"
               >
                 Activate Student Account
               </Button>

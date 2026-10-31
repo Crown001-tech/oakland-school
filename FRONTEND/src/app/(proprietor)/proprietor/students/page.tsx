@@ -325,7 +325,7 @@ export default function ProprietorStudentsPage() {
             onClick={() => setSelectedClass(cls)}
             className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${
               selectedClass === cls
-                ? 'bg-[#0f3a3e] text-white shadow-xs'
+                ? 'bg-brand-primary text-white shadow-xs'
                 : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
             }`}
           >
@@ -333,7 +333,7 @@ export default function ProprietorStudentsPage() {
             <span
               className={`text-[10px] px-1.5 py-0.2 rounded-full ${
                 selectedClass === cls
-                  ? 'bg-[#b3141f] text-white'
+                  ? 'bg-brand-accent text-white'
                   : 'bg-slate-200 text-slate-700'
               }`}
             >
@@ -352,7 +352,7 @@ export default function ProprietorStudentsPage() {
             placeholder="Search by student name, admission number, or guardian..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+            className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary"
           />
         </div>
 
@@ -489,7 +489,7 @@ export default function ProprietorStudentsPage() {
           <Card className="w-full max-w-lg p-6 bg-white shadow-xl border-slate-200 space-y-5 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-[#0f3a3e]" />
+                <UserPlus className="w-5 h-5 text-brand-primary" />
                 <h3 className="text-base font-bold text-slate-900">Direct Student Enrollment</h3>
               </div>
               <button

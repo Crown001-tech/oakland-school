@@ -64,8 +64,8 @@ export function Toggle({
         }
       }}
       style={trackStyle}
-      className={`relative inline-block shrink-0 cursor-pointer rounded-full p-0 border-0 transition-colors duration-200 ease-in-out focus:outline-hidden focus-visible:ring-2 focus-visible:ring-[#0f3a3e] focus-visible:ring-offset-2 ${
-        checked ? 'bg-[#0f3a3e]' : 'bg-slate-300 hover:bg-slate-400/80'
+      className={`relative inline-block shrink-0 cursor-pointer rounded-full p-0 border-0 transition-colors duration-200 ease-in-out focus:outline-hidden focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 ${
+        checked ? 'bg-brand-primary' : 'bg-slate-300 hover:bg-slate-400/80'
       } ${disabled ? 'opacity-40 cursor-not-allowed' : ''} ${className}`}
     >
       <span className="sr-only">{label || 'Toggle switch'}</span>

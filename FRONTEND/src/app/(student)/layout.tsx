@@ -112,7 +112,7 @@ function StudentLayoutContent({ children }: { children: React.ReactNode }) {
     return (
       <div className="min-h-screen bg-[#0a1b1d] flex items-center justify-center p-6 text-white">
         <div className="max-w-sm w-full bg-[#0d2224] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl text-center space-y-5">
-          <div className="w-12 h-12 rounded-xl bg-[#0f3a3e]/30 border border-[#d4af37]/30 text-amber-300 flex items-center justify-center mx-auto">
+          <div className="w-12 h-12 rounded-xl bg-brand-primary/30 border border-[#d4af37]/30 text-amber-300 flex items-center justify-center mx-auto">
             <GraduationCap className="w-6 h-6" />
           </div>
           <div className="space-y-1.5">
@@ -124,7 +124,7 @@ function StudentLayoutContent({ children }: { children: React.ReactNode }) {
           <div className="pt-2">
             <Link
               href="/login?redirect=/student"
-              className="inline-flex items-center justify-center w-full min-h-[44px] py-2.5 px-4 rounded-xl bg-[#b3141f] hover:bg-[#961019] text-white text-xs font-bold transition text-center shadow-md cursor-pointer"
+              className="inline-flex items-center justify-center w-full min-h-[44px] py-2.5 px-4 rounded-xl bg-brand-accent hover:bg-brand-accent-hover text-white text-xs font-bold transition text-center shadow-md cursor-pointer"
             >
               Sign In &rarr;
             </Link>
@@ -177,7 +177,7 @@ function StudentLayoutContent({ children }: { children: React.ReactNode }) {
         {/* Student Active Identity Card in Sidebar */}
         <div className="p-3.5 border-b border-white/10">
           <div className="flex items-center gap-3 p-2.5 rounded-xl bg-white/8 border border-white/10">
-            <div className="w-9 h-9 rounded-lg bg-[#0f3a3e] text-amber-300 border border-amber-500/20 flex items-center justify-center font-bold text-sm shrink-0">
+            <div className="w-9 h-9 rounded-lg bg-brand-primary text-amber-300 border border-amber-500/20 flex items-center justify-center font-bold text-sm shrink-0">
               {student.name.charAt(0)}
             </div>
             <div className="min-w-0 flex-1">
@@ -216,7 +216,7 @@ function StudentLayoutContent({ children }: { children: React.ReactNode }) {
                     onClick={() => setIsSidebarOpen(false)}
                     className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
                       active
-                        ? 'bg-[#b3141f]/30 border border-[#b3141f]/40 text-white shadow-xs'
+                        ? 'bg-brand-accent/30 border border-brand-accent/40 text-white shadow-xs'
                         : 'text-slate-400 hover:bg-white/5 hover:text-white'
                     }`}
                   >

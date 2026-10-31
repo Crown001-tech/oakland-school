@@ -215,13 +215,13 @@ export default function AdminCommunicationsPage() {
       {/* Screen Title */}
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#0f3a3e] text-white uppercase tracking-wider">
+          <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-brand-primary text-white uppercase tracking-wider">
             Broadcast System
           </span>
           <span className="text-xs text-slate-500 font-medium">Official Dispatch Hub</span>
         </div>
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-          <Send className="w-6 h-6 text-[#0f3a3e]" />
+          <Send className="w-6 h-6 text-brand-primary" />
           <span>School Communications</span>
         </h1>
         <p className="text-xs text-slate-500 mt-0.5">
@@ -236,7 +236,7 @@ export default function AdminCommunicationsPage() {
           onClick={() => setActiveTab('compose')}
           className={`pb-3 px-4 text-xs font-bold border-b-2 transition-all flex items-center gap-2 cursor-pointer ${
             activeTab === 'compose'
-              ? 'border-[#0f3a3e] text-[#0f3a3e]'
+              ? 'border-brand-primary text-brand-primary'
               : 'border-transparent text-slate-400 hover:text-slate-700'
           }`}
         >
@@ -249,7 +249,7 @@ export default function AdminCommunicationsPage() {
           onClick={() => setActiveTab('history')}
           className={`pb-3 px-4 text-xs font-bold border-b-2 transition-all flex items-center gap-2 cursor-pointer ${
             activeTab === 'history'
-              ? 'border-[#0f3a3e] text-[#0f3a3e]'
+              ? 'border-brand-primary text-brand-primary'
               : 'border-transparent text-slate-400 hover:text-slate-700'
           }`}
         >
@@ -268,7 +268,7 @@ export default function AdminCommunicationsPage() {
           <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-6 h-6 rounded-lg bg-[#0f3a3e] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                <div className="w-6 h-6 rounded-lg bg-brand-primary text-white flex items-center justify-center font-bold text-xs shrink-0">
                   1
                 </div>
                 <div>
@@ -278,7 +278,7 @@ export default function AdminCommunicationsPage() {
                   <p className="text-[11px] text-slate-500">Choose which directory recipients receive this notification</p>
                 </div>
               </div>
-              <span className="text-xs font-mono font-bold text-[#0f3a3e] bg-teal-50 px-3 py-1 rounded-full border border-teal-200 shrink-0 self-start sm:self-auto">
+              <span className="text-xs font-mono font-bold text-brand-primary bg-teal-50 px-3 py-1 rounded-full border border-teal-200 shrink-0 self-start sm:self-auto">
                 {currentRecipientCount} recipients targeted
               </span>
             </div>
@@ -290,7 +290,7 @@ export default function AdminCommunicationsPage() {
                 onClick={() => setRecipientType('all_parents')}
                 className={`w-full flex flex-col items-start justify-start p-4 rounded-xl border text-left transition-all cursor-pointer relative ${
                   recipientType === 'all_parents'
-                    ? 'border-[#0f3a3e] bg-[#0f3a3e] text-white shadow-md ring-2 ring-[#0f3a3e]/20'
+                    ? 'border-brand-primary bg-brand-primary text-white shadow-md ring-2 ring-brand-primary/20'
                     : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/80 text-slate-900'
                 }`}
               >
@@ -300,7 +300,7 @@ export default function AdminCommunicationsPage() {
                   </div>
                   <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
                     recipientType === 'all_parents'
-                      ? 'border-white bg-white text-[#0f3a3e]'
+                      ? 'border-white bg-white text-brand-primary'
                       : 'border-slate-300 bg-transparent'
                   }`}>
                     {recipientType === 'all_parents' && <Check className="w-3 h-3 stroke-[3]" />}
@@ -318,7 +318,7 @@ export default function AdminCommunicationsPage() {
                 onClick={() => setRecipientType('all_staff')}
                 className={`w-full flex flex-col items-start justify-start p-4 rounded-xl border text-left transition-all cursor-pointer relative ${
                   recipientType === 'all_staff'
-                    ? 'border-[#0f3a3e] bg-[#0f3a3e] text-white shadow-md ring-2 ring-[#0f3a3e]/20'
+                    ? 'border-brand-primary bg-brand-primary text-white shadow-md ring-2 ring-brand-primary/20'
                     : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/80 text-slate-900'
                 }`}
               >
@@ -328,7 +328,7 @@ export default function AdminCommunicationsPage() {
                   </div>
                   <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
                     recipientType === 'all_staff'
-                      ? 'border-white bg-white text-[#0f3a3e]'
+                      ? 'border-white bg-white text-brand-primary'
                       : 'border-slate-300 bg-transparent'
                   }`}>
                     {recipientType === 'all_staff' && <Check className="w-3 h-3 stroke-[3]" />}
@@ -346,7 +346,7 @@ export default function AdminCommunicationsPage() {
                 onClick={() => setRecipientType('class')}
                 className={`w-full flex flex-col items-start justify-start p-4 rounded-xl border text-left transition-all cursor-pointer relative ${
                   recipientType === 'class'
-                    ? 'border-[#0f3a3e] bg-[#0f3a3e] text-white shadow-md ring-2 ring-[#0f3a3e]/20'
+                    ? 'border-brand-primary bg-brand-primary text-white shadow-md ring-2 ring-brand-primary/20'
                     : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/80 text-slate-900'
                 }`}
               >
@@ -356,7 +356,7 @@ export default function AdminCommunicationsPage() {
                   </div>
                   <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
                     recipientType === 'class'
-                      ? 'border-white bg-white text-[#0f3a3e]'
+                      ? 'border-white bg-white text-brand-primary'
                       : 'border-slate-300 bg-transparent'
                   }`}>
                     {recipientType === 'class' && <Check className="w-3 h-3 stroke-[3]" />}
@@ -391,7 +391,7 @@ export default function AdminCommunicationsPage() {
                         onClick={() => setSelectedClass(c)}
                         className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer flex items-center gap-1.5 ${
                           isSelected
-                            ? 'bg-[#0f3a3e] text-white border-[#0f3a3e] shadow-xs'
+                            ? 'bg-brand-primary text-white border-brand-primary shadow-xs'
                             : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                         }`}
                       >
@@ -413,7 +413,7 @@ export default function AdminCommunicationsPage() {
           <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-6 h-6 rounded-lg bg-[#0f3a3e] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                <div className="w-6 h-6 rounded-lg bg-brand-primary text-white flex items-center justify-center font-bold text-xs shrink-0">
                   2
                 </div>
                 <div>
@@ -430,7 +430,7 @@ export default function AdminCommunicationsPage() {
                 <select
                   value={selectedTemplate}
                   onChange={(e) => handleTemplateChange(e.target.value)}
-                  className="border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-hidden focus:border-[#0f3a3e] bg-white font-semibold text-slate-800 cursor-pointer shadow-2xs"
+                  className="border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-hidden focus:border-brand-primary bg-white font-semibold text-slate-800 cursor-pointer shadow-2xs"
                 >
                   <option value="none">Blank Notice</option>
                   <option value="resumption">Term Resumption</option>
@@ -451,7 +451,7 @@ export default function AdminCommunicationsPage() {
                   placeholder="e.g. End of Term Resumption Notice"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-hidden focus:border-[#0f3a3e] focus:ring-1 focus:ring-[#0f3a3e] font-semibold text-slate-900 text-xs shadow-2xs"
+                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-hidden focus:border-brand-primary focus:ring-1 focus:ring-brand-primary font-semibold text-slate-900 text-xs shadow-2xs"
                 />
               </div>
 
@@ -470,7 +470,7 @@ export default function AdminCommunicationsPage() {
                   placeholder="Type official notification message here..."
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-hidden focus:border-[#0f3a3e] focus:ring-1 focus:ring-[#0f3a3e] text-slate-900 text-xs shadow-2xs leading-relaxed"
+                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-hidden focus:border-brand-primary focus:ring-1 focus:ring-brand-primary text-slate-900 text-xs shadow-2xs leading-relaxed"
                 />
               </div>
             </div>
@@ -479,7 +479,7 @@ export default function AdminCommunicationsPage() {
           {/* Step 3: Delivery Channels */}
           <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs space-y-4">
             <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
-              <div className="w-6 h-6 rounded-lg bg-[#0f3a3e] text-white flex items-center justify-center font-bold text-xs shrink-0">
+              <div className="w-6 h-6 rounded-lg bg-brand-primary text-white flex items-center justify-center font-bold text-xs shrink-0">
                 3
               </div>
               <div>
@@ -568,7 +568,7 @@ export default function AdminCommunicationsPage() {
             <Button
               type="submit"
               disabled={isSending}
-              className="bg-[#0f3a3e] hover:bg-[#134b50] text-white text-xs font-bold px-6 py-3 rounded-xl flex items-center justify-center gap-2 shadow-md transition cursor-pointer disabled:opacity-50"
+              className="bg-brand-primary hover:bg-[#134b50] text-white text-xs font-bold px-6 py-3 rounded-xl flex items-center justify-center gap-2 shadow-md transition cursor-pointer disabled:opacity-50"
             >
               <Send className="w-4 h-4" />
               <span>{isSending ? 'Dispatching...' : 'Dispatch Notice'}</span>

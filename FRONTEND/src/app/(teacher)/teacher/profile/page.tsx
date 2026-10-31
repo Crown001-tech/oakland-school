@@ -656,7 +656,7 @@ export default function TeacherProfilePage() {
               <Button
                 type="button"
                 size="sm"
-                className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer"
+                className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs cursor-pointer"
               >
                 <Clock className="w-3.5 h-3.5" />
                 <span>Teaching Timetable</span>
@@ -751,7 +751,7 @@ export default function TeacherProfilePage() {
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`flex items-center gap-2 py-3 px-4 text-xs font-semibold border-b-2 transition whitespace-nowrap cursor-pointer ${
                   isActive
-                    ? 'border-[#0f3a3e] text-[#0f3a3e]'
+                    ? 'border-brand-primary text-brand-primary'
                     : 'border-transparent text-slate-500 hover:text-slate-800'
                 }`}
               >
@@ -771,7 +771,7 @@ export default function TeacherProfilePage() {
             <Card className="border-slate-200 shadow-xs">
               <CardHeader className="pb-3 border-b border-slate-100 flex flex-row items-center justify-between">
                 <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                  <GraduationCap className="w-4 h-4 text-[#0f3a3e]" />
+                  <GraduationCap className="w-4 h-4 text-brand-primary" />
                   Academic Qualification
                 </CardTitle>
                 {!isEditing && (
@@ -841,7 +841,7 @@ export default function TeacherProfilePage() {
             <Card className="border-slate-200 shadow-xs">
               <CardHeader className="pb-3 border-b border-slate-100 flex flex-row items-center justify-between">
                 <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-[#0f3a3e]" />
+                  <Phone className="w-4 h-4 text-brand-primary" />
                   Contact and Next of Kin
                 </CardTitle>
               </CardHeader>
@@ -887,7 +887,7 @@ export default function TeacherProfilePage() {
                         size="sm"
                         onClick={handleSaveProfile}
                         disabled={isSaving}
-                        className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold h-7 px-3 flex items-center gap-1 cursor-pointer"
+                        className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold h-7 px-3 flex items-center gap-1 cursor-pointer"
                       >
                         <Save className="w-3 h-3" />
                         <span>{isSaving ? 'Saving...' : 'Save Changes'}</span>
@@ -943,7 +943,7 @@ export default function TeacherProfilePage() {
             <Card className="border-slate-200 shadow-xs">
               <CardHeader className="pb-3 border-b border-slate-100">
                 <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                  <Key className="w-4 h-4 text-[#0f3a3e]" />
+                  <Key className="w-4 h-4 text-brand-primary" />
                   Change Staff Password
                 </CardTitle>
                 <CardDescription className="text-xs">
@@ -1030,7 +1030,7 @@ export default function TeacherProfilePage() {
                     <Button
                       type="submit"
                       disabled={passwordState.loading}
-                      className="w-full bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold py-2.5 cursor-pointer shadow-xs"
+                      className="w-full bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold py-2.5 cursor-pointer shadow-xs"
                     >
                       {passwordState.loading ? 'Updating Password...' : 'Save New Password'}
                     </Button>
@@ -1048,7 +1048,7 @@ export default function TeacherProfilePage() {
           <Card className="border-slate-200 shadow-xs">
             <CardHeader className="pb-3 border-b border-slate-100">
               <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                <School className="w-4 h-4 text-[#0f3a3e]" />
+                <School className="w-4 h-4 text-brand-primary" />
                 Instructional Remit
               </CardTitle>
               <CardDescription className="text-xs">
@@ -1101,7 +1101,7 @@ export default function TeacherProfilePage() {
           <Card className="border-slate-200 shadow-xs">
             <CardHeader className="pb-3 border-b border-slate-100">
               <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-[#0f3a3e]" />
+                <CreditCard className="w-4 h-4 text-brand-primary" />
                 Compensation Details
               </CardTitle>
             </CardHeader>
@@ -1255,7 +1255,7 @@ export default function TeacherProfilePage() {
                 <Button
                   type="submit"
                   disabled={setupState.loading}
-                  className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold px-4 py-2 cursor-pointer shadow-xs"
+                  className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold px-4 py-2 cursor-pointer shadow-xs"
                 >
                   {setupState.loading ? 'Saving Setup...' : 'Save and Secure Account'}
                 </Button>

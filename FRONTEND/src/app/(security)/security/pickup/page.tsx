@@ -302,7 +302,7 @@ export default function SecurityPickupPage() {
           disabled={isRefreshing}
           className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold transition cursor-pointer self-start sm:self-auto disabled:opacity-50 min-h-[44px]"
         >
-          <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#0f3a3e]' : ''}`} />
+          <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-brand-primary' : ''}`} />
           <span>Refresh</span>
         </button>
       </div>
@@ -313,7 +313,7 @@ export default function SecurityPickupPage() {
         <div className="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-rose-50 text-[#b3141f] flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-rose-50 text-brand-accent flex items-center justify-center">
                 <KeyRound className="w-4 h-4" />
               </div>
               <div>
@@ -340,7 +340,7 @@ export default function SecurityPickupPage() {
                   key={idx}
                   className={`w-14 h-14 rounded-xl border-2 flex items-center justify-center text-2xl font-bold font-mono transition-all ${
                     val
-                      ? 'border-[#b3141f] bg-rose-50/50 text-slate-900 shadow-xs'
+                      ? 'border-brand-accent bg-rose-50/50 text-slate-900 shadow-xs'
                       : 'border-slate-200 bg-slate-50 text-slate-300'
                   }`}
                 >
@@ -353,7 +353,7 @@ export default function SecurityPickupPage() {
           {/* Search Spinner / Error */}
           {isSearching && (
             <div className="text-center text-xs text-slate-500 py-1 flex items-center justify-center gap-2">
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#0f3a3e]" />
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-brand-primary" />
               <span>Verifying credentials in database...</span>
             </div>
           )}
@@ -417,13 +417,13 @@ export default function SecurityPickupPage() {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') performLookup(searchInput);
                   }}
-                  className="w-full pl-8 pr-3 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] focus:border-[#0f3a3e] min-h-[38px]"
+                  className="w-full pl-8 pr-3 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary min-h-[38px]"
                 />
               </div>
               <button
                 type="button"
                 onClick={() => performLookup(searchInput)}
-                className="px-3.5 py-2 rounded-lg bg-[#0f3a3e] text-white text-xs font-bold hover:bg-[#164e53] cursor-pointer min-h-[38px] transition-colors"
+                className="px-3.5 py-2 rounded-lg bg-brand-primary text-white text-xs font-bold hover:bg-brand-primary-light cursor-pointer min-h-[38px] transition-colors"
               >
                 Find
               </button>
@@ -459,7 +459,7 @@ export default function SecurityPickupPage() {
                     Student Details
                   </span>
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-[#0f3a3e] text-amber-300 border border-amber-500/20 flex items-center justify-center font-bold text-sm shrink-0">
+                    <div className="w-12 h-12 rounded-xl bg-brand-primary text-amber-300 border border-amber-500/20 flex items-center justify-center font-bold text-sm shrink-0">
                       {matchResult.student.name
                         .split(' ')
                         .map((n) => n[0])
@@ -474,7 +474,7 @@ export default function SecurityPickupPage() {
                       <p className="text-xs text-slate-500 font-mono">
                         {matchResult.student.admissionNo}
                       </p>
-                      <p className="text-[11px] font-bold text-[#0f3a3e] mt-0.5">
+                      <p className="text-[11px] font-bold text-brand-primary mt-0.5">
                         Class: {matchResult.student.class}
                       </p>
                     </div>

@@ -113,7 +113,7 @@ export default function SecurityDashboardPage() {
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
               Security & Reception Operations
             </h1>
-            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#0f3a3e]/10 text-[#0f3a3e] border border-[#0f3a3e]/20">
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
               Perimeter Active
             </span>
           </div>
@@ -132,7 +132,7 @@ export default function SecurityDashboardPage() {
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold transition cursor-pointer disabled:opacity-50 min-h-[44px]"
             title="Refresh live metrics"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#0f3a3e]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-brand-primary' : ''}`} />
             <span>Refresh</span>
           </button>
         </div>
@@ -324,9 +324,9 @@ export default function SecurityDashboardPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           <Link
             href="/security/pickup"
-            className="flex flex-col items-center justify-center p-4 rounded-xl bg-white border border-slate-200 hover:border-[#b3141f]/30 hover:bg-rose-50/30 transition text-center group min-h-[96px]"
+            className="flex flex-col items-center justify-center p-4 rounded-xl bg-white border border-slate-200 hover:border-brand-accent/30 hover:bg-rose-50/30 transition text-center group min-h-[96px]"
           >
-            <div className="w-10 h-10 rounded-xl bg-[#b3141f]/10 text-[#b3141f] flex items-center justify-center mb-2 group-hover:scale-110 transition">
+            <div className="w-10 h-10 rounded-xl bg-brand-accent/10 text-brand-accent flex items-center justify-center mb-2 group-hover:scale-110 transition">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <span className="text-xs font-bold text-slate-800 leading-tight">Verify Pickup</span>
@@ -335,9 +335,9 @@ export default function SecurityDashboardPage() {
 
           <Link
             href="/security/visitors"
-            className="flex flex-col items-center justify-center p-4 rounded-xl bg-white border border-slate-200 hover:border-[#0f3a3e]/30 hover:bg-[#0f3a3e]/5 transition text-center group min-h-[96px]"
+            className="flex flex-col items-center justify-center p-4 rounded-xl bg-white border border-slate-200 hover:border-brand-primary/30 hover:bg-brand-primary/5 transition text-center group min-h-[96px]"
           >
-            <div className="w-10 h-10 rounded-xl bg-[#0f3a3e]/10 text-[#0f3a3e] flex items-center justify-center mb-2 group-hover:scale-110 transition">
+            <div className="w-10 h-10 rounded-xl bg-brand-primary/10 text-brand-primary flex items-center justify-center mb-2 group-hover:scale-110 transition">
               <Users className="w-5 h-5" />
             </div>
             <span className="text-xs font-bold text-slate-800 leading-tight">Visitor Pass</span>
@@ -401,7 +401,7 @@ export default function SecurityDashboardPage() {
           </div>
           <Link
             href="/security/logs"
-            className="text-xs font-semibold text-[#b3141f] hover:underline flex items-center gap-1"
+            className="text-xs font-semibold text-brand-accent hover:underline flex items-center gap-1"
           >
             <span>Full Activity Log</span>
             <ExternalLink className="w-3 h-3" />

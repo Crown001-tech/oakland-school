@@ -244,7 +244,7 @@ export default function AdminAttendanceAuditPage() {
               onClick={() => setSelectedClass(cls)}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 selectedClass === cls
-                  ? 'bg-[#0f3a3e] text-white shadow-xs'
+                  ? 'bg-brand-primary text-white shadow-xs'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >

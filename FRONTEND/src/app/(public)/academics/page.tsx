@@ -34,7 +34,7 @@ export default function AcademicsPage() {
           --obsidian: #07181a;
           --gold: #d4a85a;
           --gold-hover: #c4943e;
-          --crimson: #b3141f;
+          --crimson: var(--brand-accent);
           --cream: #f5f2ed;
           --border-gold: rgba(212, 168, 90, 0.25);
           --text-dark: #07181a;

@@ -195,7 +195,7 @@ export default function AcademicCurriculumPage() {
             type="button"
             size="sm"
             onClick={() => setIsAddOpen(true)}
-            className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold flex items-center gap-1.5 self-start sm:self-auto shadow-xs min-h-[44px]"
+            className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold flex items-center gap-1.5 self-start sm:self-auto shadow-xs min-h-[44px]"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Subject to {selectedClass}</span>
@@ -234,7 +234,7 @@ export default function AcademicCurriculumPage() {
                 }}
                 className={`px-3 py-2 min-h-[44px] rounded-xl text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
                   isSelected
-                    ? 'bg-[#0f3a3e] text-white shadow-xs'
+                    ? 'bg-brand-primary text-white shadow-xs'
                     : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200/60'
                 }`}
               >
@@ -505,7 +505,7 @@ export default function AcademicCurriculumPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 min-h-[44px] bg-[#0f3a3e] hover:bg-[#164e53] text-white font-semibold rounded-xl shadow-xs transition cursor-pointer"
+                  className="px-5 py-2 min-h-[44px] bg-brand-primary hover:bg-brand-primary-light text-white font-semibold rounded-xl shadow-xs transition cursor-pointer"
                 >
                   Save Subject
                 </button>

@@ -96,7 +96,7 @@ export default function TeacherAssignmentsPage() {
 
         <Link
           href="/teacher/assignments/new"
-          className="px-4 py-2.5 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold transition shadow-xs inline-flex items-center gap-2 self-start cursor-pointer"
+          className="px-4 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold transition shadow-xs inline-flex items-center gap-2 self-start cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Create Assignment</span>
@@ -269,7 +269,7 @@ export default function TeacherAssignmentsPage() {
           <div className="pt-2">
             <Link
               href="/teacher/assignments/new"
-              className="px-4 py-2.5 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold transition shadow-xs inline-flex items-center gap-2 cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold transition shadow-xs inline-flex items-center gap-2 cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Create Assignment</span>

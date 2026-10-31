@@ -253,7 +253,7 @@ export default function ProprietorLayout({ children }: { children: React.ReactNo
             href="/proprietor/my-profile"
             className="flex items-center gap-2.5 px-2 py-2 rounded-lg hover:bg-white/5 transition-colors group mb-2"
           >
-            <div className="w-7 h-7 rounded-full bg-[#0f3a3e] border border-teal-700 flex items-center justify-center shrink-0">
+            <div className="w-7 h-7 rounded-full bg-brand-primary border border-teal-700 flex items-center justify-center shrink-0">
               <Shield className="w-3.5 h-3.5 text-teal-300" />
             </div>
             <div className="flex-1 min-w-0">

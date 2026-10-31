@@ -218,7 +218,7 @@ export default function ProprietorCalendarPage() {
             size="sm"
             onClick={() => setIsAddOpen(true)}
             leftIcon={<Plus className="w-3.5 h-3.5" />}
-            className="bg-[#0f3a3e] hover:bg-[#164e53] text-white shadow-xs text-xs font-semibold"
+            className="bg-brand-primary hover:bg-brand-primary-light text-white shadow-xs text-xs font-semibold"
           >
             Schedule Event
           </Button>
@@ -234,7 +234,7 @@ export default function ProprietorCalendarPage() {
           onClick={() => setSelectedType('all')}
           className={`px-3 py-1 rounded-full font-semibold transition cursor-pointer ${
             selectedType === 'all'
-              ? 'bg-[#0f3a3e] text-white'
+              ? 'bg-brand-primary text-white'
               : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
           }`}
         >
@@ -248,7 +248,7 @@ export default function ProprietorCalendarPage() {
               onClick={() => setSelectedType(key)}
               className={`px-3 py-1 rounded-full font-semibold transition cursor-pointer ${
                 selectedType === key
-                  ? 'bg-[#0f3a3e] text-white'
+                  ? 'bg-brand-primary text-white'
                   : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
               }`}
             >
@@ -370,7 +370,7 @@ export default function ProprietorCalendarPage() {
                     {dayEvents.slice(0, 2).map((ev) => (
                       <div
                         key={ev.id}
-                        className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-teal-50 text-[#0f3a3e] border border-teal-200 truncate"
+                        className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-teal-50 text-brand-primary border border-teal-200 truncate"
                         title={ev.title}
                       >
                         {ev.title}
@@ -505,7 +505,7 @@ export default function ProprietorCalendarPage() {
                   type="submit"
                   size="sm"
                   disabled={saving}
-                  className="bg-[#0f3a3e] hover:bg-[#164e53] text-white"
+                  className="bg-brand-primary hover:bg-brand-primary-light text-white"
                 >
                   {saving ? 'Saving...' : 'Save Event'}
                 </Button>

@@ -15,7 +15,7 @@ export default function AuthLayout({
         <Logo size="sm" href="/" />
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#0f3a3e] transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-brand-primary transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           Back to Public Website
@@ -28,7 +28,7 @@ export default function AuthLayout({
       {/* Footer */}
       <div className="py-4 text-center text-xs text-slate-400 border-t border-slate-200/60 bg-white/50">
         <span className="inline-flex items-center gap-1">
-          <ShieldCheck className="w-3.5 h-3.5 text-[#0f3a3e]" />
+          <ShieldCheck className="w-3.5 h-3.5 text-brand-primary" />
           Authorized School Personnel Only &bull; Monitored Access
         </span>
       </div>

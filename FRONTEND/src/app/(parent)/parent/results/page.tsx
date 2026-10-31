@@ -76,7 +76,7 @@ export default function ParentResultsPage() {
           <button
             type="button"
             onClick={() => window.print()}
-            className="px-4 py-2 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold transition shadow-xs inline-flex items-center gap-1.5 self-start print:hidden"
+            className="px-4 py-2 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-bold transition shadow-xs inline-flex items-center gap-1.5 self-start print:hidden"
           >
             <Printer className="w-4 h-4" />
             <span>Print Report Card</span>
@@ -88,7 +88,7 @@ export default function ParentResultsPage() {
       {activeChild && (
         <div className="p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex flex-wrap items-center justify-between gap-4 text-xs">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#0f3a3e] text-amber-300 border border-amber-500/20 font-bold flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-brand-primary text-amber-300 border border-amber-500/20 font-bold flex items-center justify-center shrink-0">
               {activeChild.name.charAt(0)}
             </div>
             <div>
@@ -145,7 +145,7 @@ export default function ParentResultsPage() {
                     <td className="py-3 px-3 text-center font-bold">
                       <span className={`px-2 py-0.5 rounded-md text-[10px] ${
                         sub.grade === 'A' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' :
-                        sub.grade === 'B' ? 'bg-[#0f3a3e]/10 text-[#0f3a3e] border border-[#0f3a3e]/20' :
+                        sub.grade === 'B' ? 'bg-brand-primary/10 text-brand-primary border border-brand-primary/20' :
                         sub.grade === 'C' ? 'bg-amber-50 text-amber-800 border border-amber-200' :
                         'bg-slate-100 text-slate-700'
                       }`}>

@@ -163,7 +163,7 @@ export default function StudentAssignmentDetailsPage() {
         <p className="text-xs text-slate-500">The requested assignment does not exist or has been removed.</p>
         <Link
           href="/student/assignments"
-          className="inline-block px-4 py-2 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold cursor-pointer"
+          className="inline-block px-4 py-2 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold cursor-pointer"
         >
           Return to Assignments
         </Link>
@@ -202,7 +202,7 @@ export default function StudentAssignmentDetailsPage() {
       {/* Overview Identity Banner */}
       <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex flex-wrap items-center justify-between gap-4 text-xs">
         <div className="flex items-center gap-4">
-          <div className="p-3 rounded-xl bg-[#0f3a3e]/10 border border-[#0f3a3e]/20 text-[#0f3a3e]">
+          <div className="p-3 rounded-xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary">
             <Clock className="w-5 h-5" />
           </div>
           <div>
@@ -283,7 +283,7 @@ export default function StudentAssignmentDetailsPage() {
       {/* Instructions Card */}
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-4 text-xs">
         <h2 className="font-bold text-sm text-slate-900 flex items-center gap-2 border-b pb-3">
-          <BookOpenCheck className="w-4 h-4 text-[#0f3a3e]" />
+          <BookOpenCheck className="w-4 h-4 text-brand-primary" />
           <span>Task Instructions</span>
         </h2>
 
@@ -295,7 +295,7 @@ export default function StudentAssignmentDetailsPage() {
       {/* Submission Section */}
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-5 text-xs">
         <h2 className="font-bold text-sm text-slate-900 flex items-center gap-2 border-b pb-3">
-          <FileText className="w-4 h-4 text-[#0f3a3e]" />
+          <FileText className="w-4 h-4 text-brand-primary" />
           <span>Your Submission</span>
         </h2>
 
@@ -356,11 +356,11 @@ export default function StudentAssignmentDetailsPage() {
                   href={assignment.submission.file_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="p-3 rounded-xl border border-[#0f3a3e]/20 bg-[#0f3a3e]/5 hover:bg-[#0f3a3e]/10 text-[#0f3a3e] font-semibold inline-flex items-center gap-2 transition"
+                  className="p-3 rounded-xl border border-brand-primary/20 bg-brand-primary/5 hover:bg-brand-primary/10 text-brand-primary font-semibold inline-flex items-center gap-2 transition"
                 >
-                  <Download className="w-4 h-4 text-[#0f3a3e]" />
+                  <Download className="w-4 h-4 text-brand-primary" />
                   <span>{assignment.submission.file_name || 'Download Submitted Document'}</span>
-                  <ExternalLink className="w-3.5 h-3.5 text-[#0f3a3e] ml-1" />
+                  <ExternalLink className="w-3.5 h-3.5 text-brand-primary ml-1" />
                 </a>
               </div>
             )}
@@ -385,7 +385,7 @@ export default function StudentAssignmentDetailsPage() {
                   value={writtenText}
                   onChange={(e) => setWrittenText(e.target.value)}
                   placeholder="Type your answer here..."
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]/20 focus:border-[#0f3a3e] leading-relaxed text-xs"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary leading-relaxed text-xs"
                 />
               </div>
             )}
@@ -417,7 +417,7 @@ export default function StudentAssignmentDetailsPage() {
                   </div>
                   <p className="text-[11px] text-slate-500">
                     {selectedFile ? (
-                      <strong className="text-[#0f3a3e]">{selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)</strong>
+                      <strong className="text-brand-primary">{selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)</strong>
                     ) : (
                       `Supported formats: ${(assignment.allowed_formats || ['pdf', 'docx']).join(', ').toUpperCase()} (Max: ${assignment.max_file_size_mb || 10}MB)`
                     )}
@@ -429,7 +429,7 @@ export default function StudentAssignmentDetailsPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white font-semibold text-xs transition shadow-xs disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full py-3 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white font-semibold text-xs transition shadow-xs disabled:opacity-50 inline-flex items-center justify-center gap-2 cursor-pointer"
             >
               {isSubmitting ? (
                 <span>Submitting Assignment...</span>

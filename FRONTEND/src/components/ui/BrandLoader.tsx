@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import { PRODUCT_NAME, isEductiveBrand } from '@/lib/brand';
 
 interface BrandLoaderProps {
   fullScreen?: boolean;
@@ -25,20 +26,28 @@ export function BrandLoader({
 
   const content = (
     <div className={`relative flex items-center justify-center ${container} ${className}`}>
-      {/* Subtle pulsing background glow */}
-      <div className="absolute inset-0 rounded-2xl bg-teal-500/10 animate-ping opacity-25" />
-      <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-tr from-teal-500/15 via-[#B3141F]/10 to-transparent blur-sm animate-pulse" />
-      
-      {/* School Logo with smooth breathing effect */}
-      <div className="relative z-10 flex items-center justify-center p-2.5 rounded-2xl bg-white shadow-sm border border-slate-100 transition-transform duration-700 hover:scale-105">
-        <Image
-          src="/logo.jpg"
-          alt="Oakland School"
-          width={dimension}
-          height={dimension}
-          className="rounded-xl object-contain animate-pulse"
-          priority
-        />
+      {/* School logo with a gentle breathing effect */}
+      <div className="relative z-10 flex items-center justify-center p-2.5 rounded-2xl bg-white shadow-sm border border-slate-100">
+        {isEductiveBrand() ? (
+          <div className="flex items-center gap-2 px-3 py-1.5 animate-pulse">
+            <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-emerald-500" />
+            <span
+              className="font-black tracking-wider uppercase text-brand-primary"
+              style={{ fontSize: Math.max(14, dimension * 0.3) }}
+            >
+              {PRODUCT_NAME}
+            </span>
+          </div>
+        ) : (
+          <Image
+            src="/logo.jpg"
+            alt="Oakland School"
+            width={dimension}
+            height={dimension}
+            className="rounded-xl object-contain animate-pulse"
+            priority
+          />
+        )}
       </div>
     </div>
   );

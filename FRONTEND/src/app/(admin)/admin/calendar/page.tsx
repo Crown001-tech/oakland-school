@@ -211,7 +211,7 @@ export default function AdminCalendarPage() {
             type="button"
             size="sm"
             onClick={() => setIsAddOpen(true)}
-            className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold flex items-center gap-1.5 self-start sm:self-auto shadow-xs cursor-pointer"
+            className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold flex items-center gap-1.5 self-start sm:self-auto shadow-xs cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Schedule Event</span>
@@ -251,7 +251,7 @@ export default function AdminCalendarPage() {
               onClick={() => setSelectedType(cat.id)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer ${
                 selectedType === cat.id
-                  ? 'bg-[#0f3a3e] text-white shadow-xs'
+                  ? 'bg-brand-primary text-white shadow-xs'
                   : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
               }`}
             >
@@ -445,7 +445,7 @@ export default function AdminCalendarPage() {
                     {dayEvents.map((evt) => (
                       <span
                         key={evt.id}
-                        className="block text-[8.5px] font-bold px-1 py-0.5 rounded truncate bg-[#0f3a3e] text-white"
+                        className="block text-[8.5px] font-bold px-1 py-0.5 rounded truncate bg-brand-primary text-white"
                         title={evt.title}
                       >
                         {evt.title}
@@ -575,7 +575,7 @@ export default function AdminCalendarPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-[#0f3a3e] hover:bg-[#164e53] text-white font-semibold rounded-xl transition cursor-pointer"
+                  className="px-4 py-1.5 bg-brand-primary hover:bg-brand-primary-light text-white font-semibold rounded-xl transition cursor-pointer"
                 >
                   Save Event
                 </button>

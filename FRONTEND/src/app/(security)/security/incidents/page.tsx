@@ -327,7 +327,7 @@ export default function SecurityIncidentsPage() {
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold transition cursor-pointer disabled:opacity-50 min-h-[44px]"
             title="Refresh records"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#0f3a3e]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-brand-primary' : ''}`} />
             <span>Refresh</span>
           </button>
 
@@ -336,7 +336,7 @@ export default function SecurityIncidentsPage() {
               setFormError(null);
               setIsReportModalOpen(true);
             }}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#b3141f] hover:bg-[#961019] text-white text-xs font-bold transition shadow-xs cursor-pointer min-h-[44px]"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-accent hover:bg-brand-accent-hover text-white text-xs font-bold transition shadow-xs cursor-pointer min-h-[44px]"
           >
             <Plus className="w-4 h-4" />
             <span>Report Incident</span>
@@ -455,7 +455,7 @@ export default function SecurityIncidentsPage() {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] min-h-[36px]"
+            className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-primary min-h-[36px]"
           >
             <option value="all">All Categories</option>
             <option value="unauthorized_access">Unauthorized Access</option>
@@ -476,7 +476,7 @@ export default function SecurityIncidentsPage() {
               placeholder="Search code, title, location..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] min-h-[36px]"
+              className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-primary min-h-[36px]"
             />
           </div>
         </div>
@@ -524,7 +524,7 @@ export default function SecurityIncidentsPage() {
                             setSelectedIncident(inc);
                             setIsDetailsModalOpen(true);
                           }}
-                          className="font-mono font-bold text-slate-900 hover:text-[#0f3a3e] block cursor-pointer"
+                          className="font-mono font-bold text-slate-900 hover:text-brand-primary block cursor-pointer"
                         >
                           {inc.incidentNumber}
                         </button>
@@ -700,7 +700,7 @@ export default function SecurityIncidentsPage() {
                   placeholder="e.g. Unauthorized individual attempted gate entry, Broken window at Lab"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none min-h-[44px]"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none min-h-[44px]"
                 />
               </div>
 
@@ -713,7 +713,7 @@ export default function SecurityIncidentsPage() {
                   <select
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none bg-white min-h-[44px]"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none bg-white min-h-[44px]"
                   >
                     <option value="unauthorized_access">Unauthorized Access</option>
                     <option value="suspicious_activity">Suspicious Activity</option>
@@ -736,7 +736,7 @@ export default function SecurityIncidentsPage() {
                     placeholder="e.g. Main Gate, Science Lab, Senior Quadrangle"
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none min-h-[44px]"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none min-h-[44px]"
                   />
                 </div>
               </div>
@@ -784,7 +784,7 @@ export default function SecurityIncidentsPage() {
                   placeholder="Detailed narrative of what happened, time of occurrence, observations..."
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none resize-none"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none resize-none"
                 />
               </div>
 
@@ -799,7 +799,7 @@ export default function SecurityIncidentsPage() {
                     placeholder="Names, IDs, Vehicle Plate, Guard on Duty"
                     value={formData.involvedParties}
                     onChange={(e) => setFormData({ ...formData, involvedParties: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none min-h-[44px]"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none min-h-[44px]"
                   />
                 </div>
 
@@ -812,7 +812,7 @@ export default function SecurityIncidentsPage() {
                     placeholder="e.g. Denied entry, First aid administered, Perimeter secured"
                     value={formData.actionTaken}
                     onChange={(e) => setFormData({ ...formData, actionTaken: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none min-h-[44px]"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none min-h-[44px]"
                   />
                 </div>
               </div>
@@ -824,7 +824,7 @@ export default function SecurityIncidentsPage() {
                   id="escalateToggle"
                   checked={formData.escalateImmediately}
                   onChange={(e) => setFormData({ ...formData, escalateImmediately: e.target.checked })}
-                  className="mt-0.5 w-4 h-4 rounded text-[#b3141f] focus:ring-rose-500 border-slate-300 cursor-pointer"
+                  className="mt-0.5 w-4 h-4 rounded text-brand-accent focus:ring-rose-500 border-slate-300 cursor-pointer"
                 />
                 <label htmlFor="escalateToggle" className="cursor-pointer">
                   <span className="font-bold text-amber-900 block">
@@ -848,7 +848,7 @@ export default function SecurityIncidentsPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 rounded-lg bg-[#b3141f] hover:bg-[#961019] text-white font-bold transition shadow-xs cursor-pointer disabled:opacity-50 min-h-[44px]"
+                  className="px-5 py-2 rounded-lg bg-brand-accent hover:bg-brand-accent-hover text-white font-bold transition shadow-xs cursor-pointer disabled:opacity-50 min-h-[44px]"
                 >
                   {isSubmitting ? 'Submitting...' : 'File Incident Report'}
                 </button>
@@ -889,7 +889,7 @@ export default function SecurityIncidentsPage() {
                   placeholder="Actions taken, perpetrator reprimanded, perimeter secured, or false alarm verified..."
                   value={resolutionNotes}
                   onChange={(e) => setResolutionNotes(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none resize-none"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none resize-none"
                 />
               </div>
 
@@ -945,7 +945,7 @@ export default function SecurityIncidentsPage() {
             <div className="space-y-3 text-xs">
               <div>
                 <h4 className="text-base font-bold text-slate-900">{selectedIncident.title}</h4>
-                <p className="text-[11px] text-[#0f3a3e] font-bold mt-0.5">
+                <p className="text-[11px] text-brand-primary font-bold mt-0.5">
                   {formatCategory(selectedIncident.category)}
                 </p>
               </div>

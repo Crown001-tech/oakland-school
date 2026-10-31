@@ -386,12 +386,12 @@ export default function HomePage() {
           font-family: 'Inter', sans-serif;
           font-size: 10px; font-weight: 700;
           letter-spacing: 0.3em; text-transform: uppercase;
-          color: #b3141f; margin-bottom: 24px;
+          color: var(--brand-accent); margin-bottom: 24px;
           display: flex; align-items: center; gap: 12px;
         }
         .ok-section-label::after {
           content: ''; display: block; flex: 1; max-width: 60px;
-          height: 1px; background: #b3141f;
+          height: 1px; background: var(--brand-accent);
         }
         .ok-h2 {
           font-family: 'Playfair Display', Georgia, serif;
@@ -399,7 +399,7 @@ export default function HomePage() {
           font-weight: 700; line-height: 1.12;
           letter-spacing: -0.02em; color: #07181a; margin-bottom: 28px;
         }
-        .ok-h2 em { font-style: italic; color: #b3141f; }
+        .ok-h2 em { font-style: italic; color: var(--brand-accent); }
         .ok-body-text {
           font-family: 'Inter', sans-serif;
           font-size: 15px; font-weight: 300;
@@ -598,7 +598,7 @@ export default function HomePage() {
           font-weight: 700; line-height: 1.12;
           letter-spacing: -0.02em; color: #07181a;
         }
-        .ok-h2-dark em { font-style: italic; color: #b3141f; }
+        .ok-h2-dark em { font-style: italic; color: var(--brand-accent); }
         .ok-gallery-grid {
           display: grid;
           grid-template-columns: 2fr 1fr 1fr;

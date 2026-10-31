@@ -137,7 +137,7 @@ export default function ParentDashboard() {
                     onClick={() => setActiveChildId(kid.id)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                       isSelected
-                        ? 'bg-[#0f3a3e] text-white shadow-xs'
+                        ? 'bg-brand-primary text-white shadow-xs'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                     }`}
                   >
@@ -152,7 +152,7 @@ export default function ParentDashboard() {
 
       {/* Active Student Highlight Card */}
       {activeChild ? (
-        <div className="bg-linear-to-r from-[#0f3a3e] to-[#164e53] rounded-2xl p-5 sm:p-6 text-white shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="bg-linear-to-r from-brand-primary to-brand-primary-light rounded-2xl p-5 sm:p-6 text-white shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="text-[11px] font-bold text-amber-300 tracking-wider uppercase">
               Current Active Student
@@ -169,7 +169,7 @@ export default function ParentDashboard() {
           <div className="flex items-center gap-2">
             <Link
               href="/parent/results"
-              className="px-3.5 py-2.5 rounded-xl bg-white text-[#0f3a3e] text-xs font-bold hover:bg-slate-100 transition shadow-xs text-center min-h-[44px] flex items-center justify-center"
+              className="px-3.5 py-2.5 rounded-xl bg-white text-brand-primary text-xs font-bold hover:bg-slate-100 transition shadow-xs text-center min-h-[44px] flex items-center justify-center"
             >
               Terminal Results
             </Link>
@@ -193,7 +193,7 @@ export default function ParentDashboard() {
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-500">Attendance</span>
-            <div className="w-8 h-8 rounded-lg bg-[#0f3a3e]/10 text-[#0f3a3e] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-brand-primary/10 text-brand-primary flex items-center justify-center">
               <CalendarCheck className="w-4 h-4" />
             </div>
           </div>
@@ -268,14 +268,14 @@ export default function ParentDashboard() {
         <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Bell className="w-4 h-4 text-[#0f3a3e]" />
+              <Bell className="w-4 h-4 text-brand-primary" />
               <h3 className="text-sm font-bold text-slate-900">
                 School Notices
               </h3>
             </div>
             <Link
               href="/parent/communications"
-              className="text-xs text-[#0f3a3e] hover:text-[#b3141f] font-bold inline-flex items-center gap-1 transition-colors"
+              className="text-xs text-brand-primary hover:text-brand-accent font-bold inline-flex items-center gap-1 transition-colors"
             >
               View All &rarr;
             </Link>
@@ -314,14 +314,14 @@ export default function ParentDashboard() {
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#0f3a3e]" />
+              <Calendar className="w-4 h-4 text-brand-primary" />
               <h3 className="text-sm font-bold text-slate-900">
                 School Calendar
               </h3>
             </div>
             <Link
               href="/parent/calendar"
-              className="text-xs text-[#0f3a3e] hover:text-[#b3141f] font-bold transition-colors"
+              className="text-xs text-brand-primary hover:text-brand-accent font-bold transition-colors"
             >
               Full Calendar &rarr;
             </Link>
@@ -338,7 +338,7 @@ export default function ParentDashboard() {
                   key={ev.id}
                   className="p-3 rounded-xl bg-slate-50 border border-slate-100 space-y-1"
                 >
-                  <div className="flex items-center justify-between text-[11px] text-[#0f3a3e] font-bold">
+                  <div className="flex items-center justify-between text-[11px] text-brand-primary font-bold">
                     <span>{ev.startDate || ev.date || 'Upcoming'}</span>
                     <span className="text-slate-400 font-normal">{ev.type || 'Academic'}</span>
                   </div>

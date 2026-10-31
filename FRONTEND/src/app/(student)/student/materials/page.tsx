@@ -82,7 +82,7 @@ export default function StudentMaterialsPage() {
             onClick={() => setSelectedSubject('all')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
               selectedSubject === 'all'
-                ? 'bg-[#0f3a3e] text-white shadow-xs'
+                ? 'bg-brand-primary text-white shadow-xs'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
@@ -95,7 +95,7 @@ export default function StudentMaterialsPage() {
               onClick={() => setSelectedSubject(sub)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
                 selectedSubject === sub
-                  ? 'bg-[#0f3a3e] text-white shadow-xs'
+                  ? 'bg-brand-primary text-white shadow-xs'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
@@ -112,7 +112,7 @@ export default function StudentMaterialsPage() {
             placeholder="Search notes..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full text-xs h-10 min-h-[40px] pl-8 pr-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#0f3a3e] font-medium text-slate-800"
+            className="w-full text-xs h-10 min-h-[40px] pl-8 pr-3 rounded-xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary font-medium text-slate-800"
           />
         </div>
       </div>
@@ -143,7 +143,7 @@ export default function StudentMaterialsPage() {
             >
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-[#0f3a3e] bg-[#0f3a3e]/10 border border-[#0f3a3e]/20 px-2 py-0.5 rounded-md text-[10px]">
+                  <span className="font-bold text-brand-primary bg-brand-primary/10 border border-brand-primary/20 px-2 py-0.5 rounded-md text-[10px]">
                     {m.subjectName}
                   </span>
                   <span className="text-[10px] font-mono font-semibold text-slate-500 uppercase">
@@ -177,7 +177,7 @@ export default function StudentMaterialsPage() {
                     href={m.fileUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3 py-1.5 rounded-lg bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs"
+                    className="px-3 py-1.5 rounded-lg bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs"
                   >
                     <Download className="w-3.5 h-3.5" />
                     <span>Download File</span>
@@ -187,7 +187,7 @@ export default function StudentMaterialsPage() {
                     href={m.externalLink}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-3 py-1.5 rounded-lg bg-[#0f3a3e]/10 hover:bg-[#0f3a3e]/20 text-[#0f3a3e] text-xs font-bold transition border border-[#0f3a3e]/20 flex items-center gap-1.5"
+                    className="px-3 py-1.5 rounded-lg bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary text-xs font-bold transition border border-brand-primary/20 flex items-center gap-1.5"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                     <span>Open Resource</span>

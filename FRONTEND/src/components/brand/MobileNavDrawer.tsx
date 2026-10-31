@@ -231,7 +231,7 @@ export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
             justify-content: center;
             gap: 10px;
             padding: 15px 20px;
-            background: #b3141f;
+            background: var(--brand-accent);
             color: #ffffff;
             font-family: 'Inter', sans-serif;
             font-size: 12px;

@@ -140,7 +140,7 @@ export default function ProprietorAttendancePage() {
           <span className="text-[11px] font-bold text-teal-700 uppercase tracking-wide">
             Overall Rate
           </span>
-          <p className="text-2xl font-black text-[#0f3a3e] mt-1">
+          <p className="text-2xl font-black text-brand-primary mt-1">
             {overallRate !== null && overallRate !== undefined ? `${overallRate}%` : '—'}
           </p>
         </Card>
@@ -159,7 +159,7 @@ export default function ProprietorAttendancePage() {
           onClick={() => setActiveTab('students')}
           className={`flex items-center gap-2 px-4 py-2 font-bold rounded-lg transition-all cursor-pointer ${
             activeTab === 'students'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
@@ -171,7 +171,7 @@ export default function ProprietorAttendancePage() {
           onClick={() => setActiveTab('staff')}
           className={`flex items-center gap-2 px-4 py-2 font-bold rounded-lg transition-all cursor-pointer ${
             activeTab === 'staff'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100'
           }`}
         >

@@ -56,7 +56,7 @@ export function PayslipModal({ record, onClose }: PayslipModalProps) {
               type="button"
               size="sm"
               onClick={handlePrint}
-              className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold gap-1.5 min-h-[44px] sm:h-9 px-3"
+              className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-bold gap-1.5 min-h-[44px] sm:h-9 px-3"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Print Payslip</span>
@@ -75,7 +75,7 @@ export function PayslipModal({ record, onClose }: PayslipModalProps) {
         {/* Printable Payslip Body */}
         <div className="p-6 sm:p-8 bg-white text-slate-900 print:p-0 print:m-0">
           {/* Header */}
-          <div className="flex items-start justify-between border-b-2 border-[#0f3a3e] pb-5">
+          <div className="flex items-start justify-between border-b-2 border-brand-primary pb-5">
             <div className="flex items-center gap-3">
               <Logo size="md" />
               <div>
@@ -92,7 +92,7 @@ export function PayslipModal({ record, onClose }: PayslipModalProps) {
             </div>
 
             <div className="text-right">
-              <span className="inline-block px-2.5 py-1 rounded bg-[#0f3a3e] text-white font-mono font-bold text-xs">
+              <span className="inline-block px-2.5 py-1 rounded bg-brand-primary text-white font-mono font-bold text-xs">
                 {record.payPeriod.toUpperCase()}
               </span>
               <p className="text-[10px] text-slate-400 mt-1 font-mono">Doc: PAY-{record.employeeId}</p>
@@ -147,7 +147,7 @@ export function PayslipModal({ record, onClose }: PayslipModalProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-5">
             {/* EARNINGS */}
             <div className="border border-slate-200 rounded-xl overflow-hidden">
-              <div className="bg-[#0f3a3e] text-white px-3.5 py-2 font-bold text-xs uppercase tracking-wider flex justify-between">
+              <div className="bg-brand-primary text-white px-3.5 py-2 font-bold text-xs uppercase tracking-wider flex justify-between">
                 <span>Gross Earnings</span>
                 <span>Amount (₦)</span>
               </div>
@@ -218,9 +218,9 @@ export function PayslipModal({ record, onClose }: PayslipModalProps) {
           </div>
 
           {/* Net Pay Callout */}
-          <div className="mt-5 p-4 rounded-xl bg-[#0f3a3e]/5 border-2 border-[#0f3a3e] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="mt-5 p-4 rounded-xl bg-brand-primary/5 border-2 border-brand-primary flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <span className="text-[10px] font-extrabold text-[#0f3a3e] uppercase tracking-wider block">
+              <span className="text-[10px] font-extrabold text-brand-primary uppercase tracking-wider block">
                 Net Disbursed Take-Home Pay
               </span>
               <p className="text-xs text-slate-600 italic mt-0.5">
@@ -228,7 +228,7 @@ export function PayslipModal({ record, onClose }: PayslipModalProps) {
               </p>
             </div>
             <div className="text-right sm:text-right">
-              <span className="text-2xl sm:text-3xl font-black text-[#0f3a3e] font-mono tracking-tight">
+              <span className="text-2xl sm:text-3xl font-black text-brand-primary font-mono tracking-tight">
                 {formatNaira(record.netSalary)}
               </span>
             </div>
@@ -245,7 +245,7 @@ export function PayslipModal({ record, onClose }: PayslipModalProps) {
             </div>
 
             <div className="text-right">
-              <div className="h-10 border-b border-dashed border-slate-300 flex items-end justify-end pb-1 font-serif italic text-[#b3141f]">
+              <div className="h-10 border-b border-dashed border-slate-300 flex items-end justify-end pb-1 font-serif italic text-brand-accent">
                 Proprietor
               </div>
               <p className="font-extrabold text-slate-900 mt-1">Office of the Proprietor</p>

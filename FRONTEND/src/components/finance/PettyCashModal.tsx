@@ -106,7 +106,7 @@ export function PettyCashModal({ currentBalance, initialType, onRecord, onClose 
       <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
         <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
           <div className="flex items-center gap-2">
-            <span className="w-8 h-8 rounded-lg bg-[#0f3a3e] text-teal-300 flex items-center justify-center">
+            <span className="w-8 h-8 rounded-lg bg-brand-primary text-teal-300 flex items-center justify-center">
               <Wallet className="w-4 h-4" />
             </span>
             <div>
@@ -228,7 +228,7 @@ export function PettyCashModal({ currentBalance, initialType, onRecord, onClose 
               size="sm"
               isLoading={isSubmitting}
               disabled={isSubmitting}
-              className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold gap-1.5 min-h-[44px]"
+              className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-bold gap-1.5 min-h-[44px]"
             >
               <Check className="w-3.5 h-3.5" />
               <span>Record to Cash Book</span>

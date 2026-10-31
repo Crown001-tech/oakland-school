@@ -89,7 +89,7 @@ export default function ProprietorDashboardPage() {
       .then((d) => {
         if (d?.success) setSecurityStats(d.stats);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   useEffect(() => {
@@ -359,13 +359,12 @@ export default function ProprietorDashboardPage() {
                         {item.enrolled} / {item.capacity} ({item.pct}%)
                       </span>
                       <span
-                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                          item.pct >= 95
-                            ? 'bg-rose-50 text-rose-700'
-                            : item.pct >= 90
+                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${item.pct >= 95
+                          ? 'bg-rose-50 text-rose-700'
+                          : item.pct >= 90
                             ? 'bg-amber-50 text-amber-700'
                             : 'bg-emerald-50 text-emerald-700'
-                        }`}
+                          }`}
                       >
                         {item.status}
                       </span>
@@ -374,13 +373,12 @@ export default function ProprietorDashboardPage() {
 
                   <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
                     <div
-                      className={`h-full rounded-full transition-all ${
-                        item.pct >= 95
-                          ? 'bg-rose-500'
-                          : item.pct >= 90
+                      className={`h-full rounded-full transition-all ${item.pct >= 95
+                        ? 'bg-rose-500'
+                        : item.pct >= 90
                           ? 'bg-[#b3141f]'
                           : 'bg-[#0f3a3e]'
-                      }`}
+                        }`}
                       style={{ width: `${Math.max(item.pct, item.enrolled > 0 ? 4 : 0)}%` }}
                     />
                   </div>
@@ -469,11 +467,10 @@ export default function ProprietorDashboardPage() {
                   {principal && <p className="text-[10px] text-slate-500 font-mono">{principal.email}</p>}
                 </div>
                 <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    principal
-                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                      : 'bg-rose-100 text-rose-800 border border-rose-200'
-                  }`}
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${principal
+                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                    : 'bg-rose-100 text-rose-800 border border-rose-200'
+                    }`}
                 >
                   {principal ? 'Appointed' : 'Not Appointed'}
                 </span>
@@ -489,11 +486,10 @@ export default function ProprietorDashboardPage() {
                   {bursar && <p className="text-[10px] text-slate-500 font-mono">{bursar.email}</p>}
                 </div>
                 <span
-                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                    bursar
-                      ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
-                      : 'bg-rose-100 text-rose-800 border border-rose-200'
-                  }`}
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${bursar
+                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                    : 'bg-rose-100 text-rose-800 border border-rose-200'
+                    }`}
                 >
                   {bursar ? 'Appointed' : 'Not Appointed'}
                 </span>

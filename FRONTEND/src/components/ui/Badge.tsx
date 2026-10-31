@@ -14,9 +14,9 @@ export function Badge({
   ...props
 }: BadgeProps) {
   const variants = {
-    crimson: 'bg-[#fdf2f3] text-[#b3141f] border border-[#b3141f]/20',
-    teal: 'bg-[#eaf3f3] text-[#0f3a3e] border border-[#0f3a3e]/10',
-    coral: 'bg-[#fdf2f3] text-[#b3141f] border border-[#b3141f]/20',
+    crimson: 'bg-brand-accent-soft text-brand-accent border border-brand-accent/20',
+    teal: 'bg-brand-primary-soft text-brand-primary border border-brand-primary/10',
+    coral: 'bg-brand-accent-soft text-brand-accent border border-brand-accent/20',
     slate: 'bg-slate-100 text-slate-700 border border-slate-200',
     emerald: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
     amber: 'bg-amber-50 text-amber-700 border border-amber-200',

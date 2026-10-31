@@ -160,7 +160,7 @@ export default function AdminSettingsPage() {
     <div className="space-y-6 max-w-5xl mx-auto">
       {/* Toast Notification */}
       {isSaved && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-[#0f3a3e] text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-brand-primary text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold">
           <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           <span>Settings saved successfully.</span>
         </div>
@@ -176,7 +176,7 @@ export default function AdminSettingsPage() {
         <Button
           type="button"
           onClick={handleSave}
-          className="bg-[#0f3a3e] hover:bg-[#134b50] text-white text-xs font-semibold flex items-center gap-1.5 px-3 py-2 rounded-lg self-start sm:self-auto"
+          className="bg-brand-primary hover:bg-[#134b50] text-white text-xs font-semibold flex items-center gap-1.5 px-3 py-2 rounded-lg self-start sm:self-auto"
         >
           <Save className="w-3.5 h-3.5" />
           <span>Save Changes</span>
@@ -196,7 +196,7 @@ export default function AdminSettingsPage() {
                 onClick={() => setActiveCategory(item.id)}
                 className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-semibold text-left transition-colors cursor-pointer ${
                   isSelected
-                    ? 'bg-[#0f3a3e] text-white'
+                    ? 'bg-brand-primary text-white'
                     : 'text-slate-600 hover:bg-slate-100'
                 }`}
               >

@@ -92,7 +92,7 @@ export default function ParentProfilePage() {
       {/* Main Profile Details Card */}
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-6">
         <div className="flex items-center gap-4 pb-6 border-b border-slate-100">
-          <div className="w-14 h-14 rounded-2xl bg-[#0f3a3e] text-amber-300 font-bold text-xl flex items-center justify-center shrink-0 border border-amber-500/20">
+          <div className="w-14 h-14 rounded-2xl bg-brand-primary text-amber-300 font-bold text-xl flex items-center justify-center shrink-0 border border-amber-500/20">
             {parent?.name?.charAt(0) || 'G'}
           </div>
           <div>
@@ -162,7 +162,7 @@ export default function ParentProfilePage() {
       {/* Enrolled Dependents Card */}
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-4">
         <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-          <Users className="w-4 h-4 text-[#0f3a3e]" />
+          <Users className="w-4 h-4 text-brand-primary" />
           <h2 className="text-sm font-bold text-slate-900">
             Linked Students ({childrenList.length})
           </h2>
@@ -180,7 +180,7 @@ export default function ParentProfilePage() {
                   Class: <strong>{kid.currentClass}</strong> &bull; No: <span className="font-mono">{kid.admissionNumber}</span>
                 </p>
               </div>
-              <span className="px-2.5 py-1 rounded-md bg-[#0f3a3e]/10 border border-[#0f3a3e]/20 text-[#0f3a3e] text-[10px] font-bold">
+              <span className="px-2.5 py-1 rounded-md bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-[10px] font-bold">
                 Enrolled
               </span>
             </div>
@@ -191,7 +191,7 @@ export default function ParentProfilePage() {
       {/* Security & Password Change */}
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-6 space-y-5">
         <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
-          <Lock className="w-4 h-4 text-[#0f3a3e]" />
+          <Lock className="w-4 h-4 text-brand-primary" />
           <h2 className="text-sm font-bold text-slate-900">
             Account Password
           </h2>
@@ -225,7 +225,7 @@ export default function ParentProfilePage() {
               placeholder="Your current password"
               value={currentPassword}
               onChange={(e) => setCurrentPassword(e.target.value)}
-              className="w-full text-xs h-11 min-h-[44px] px-3.5 rounded-xl border border-slate-200 font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+              className="w-full text-xs h-11 min-h-[44px] px-3.5 rounded-xl border border-slate-200 font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
           </div>
 
@@ -237,7 +237,7 @@ export default function ParentProfilePage() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="text-[11px] text-[#0f3a3e] hover:text-[#b3141f] font-semibold inline-flex items-center gap-1 cursor-pointer py-1"
+                className="text-[11px] text-brand-primary hover:text-brand-accent font-semibold inline-flex items-center gap-1 cursor-pointer py-1"
               >
                 {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                 <span>{showPassword ? 'Hide' : 'Show'}</span>
@@ -249,7 +249,7 @@ export default function ParentProfilePage() {
               placeholder="Minimum 6 characters"
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              className="w-full text-xs h-11 min-h-[44px] px-3.5 rounded-xl border border-slate-200 font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+              className="w-full text-xs h-11 min-h-[44px] px-3.5 rounded-xl border border-slate-200 font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
           </div>
 
@@ -263,7 +263,7 @@ export default function ParentProfilePage() {
               placeholder="Re-enter new password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full text-xs h-11 min-h-[44px] px-3.5 rounded-xl border border-slate-200 font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+              className="w-full text-xs h-11 min-h-[44px] px-3.5 rounded-xl border border-slate-200 font-mono text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary"
             />
           </div>
 
@@ -271,7 +271,7 @@ export default function ParentProfilePage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2.5 min-h-[44px] rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold transition shadow-xs cursor-pointer disabled:opacity-50"
+              className="px-5 py-2.5 min-h-[44px] rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-bold transition shadow-xs cursor-pointer disabled:opacity-50"
             >
               {isSubmitting ? 'Updating...' : 'Update Password'}
             </button>

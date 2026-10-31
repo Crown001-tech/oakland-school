@@ -211,7 +211,7 @@ export default function ProprietorBroadcastPage() {
                       onClick={() => setAudience(aud)}
                       className={`p-2.5 rounded-xl border text-center font-semibold transition cursor-pointer ${
                         audience === aud
-                          ? 'border-[#0f3a3e] bg-[#0f3a3e] text-white shadow-xs'
+                          ? 'border-brand-primary bg-brand-primary text-white shadow-xs'
                           : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                       }`}
                     >
@@ -235,7 +235,7 @@ export default function ProprietorBroadcastPage() {
                         priority === p
                           ? p === 'Important Notice'
                             ? 'border-amber-600 bg-amber-500 text-white'
-                            : 'border-[#0f3a3e] bg-[#0f3a3e] text-white'
+                            : 'border-brand-primary bg-brand-primary text-white'
                           : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                       }`}
                     >
@@ -279,7 +279,7 @@ export default function ProprietorBroadcastPage() {
                   size="sm"
                   disabled={isSending}
                   leftIcon={<Send className="w-3.5 h-3.5" />}
-                  className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold px-5"
+                  className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold px-5"
                 >
                   {isSending ? 'Dispatching Notice...' : 'Dispatch Announcement'}
                 </Button>
@@ -291,7 +291,7 @@ export default function ProprietorBroadcastPage() {
           <div className="space-y-4">
             <Card className="p-5 border-slate-200/80 space-y-4 bg-slate-50/50">
               <div className="flex items-center gap-2 pb-2 border-b border-slate-200">
-                <Users className="w-4 h-4 text-[#0f3a3e]" />
+                <Users className="w-4 h-4 text-brand-primary" />
                 <h3 className="text-xs font-bold text-slate-900">Delivery Overview</h3>
               </div>
 
@@ -302,7 +302,7 @@ export default function ProprietorBroadcastPage() {
                 </div>
                 <div className="flex justify-between py-1 border-b border-slate-200/60">
                   <span className="text-slate-500">Estimated Recipients</span>
-                  <span className="font-bold text-[#0f3a3e]">
+                  <span className="font-bold text-brand-primary">
                     {getRecipientEstimate(audience)} Staff
                   </span>
                 </div>

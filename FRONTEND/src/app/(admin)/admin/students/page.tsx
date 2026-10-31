@@ -100,7 +100,7 @@ export default function AdminStudentsPage() {
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Toast */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-[#0f3a3e] text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold animate-in fade-in">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 bg-brand-primary text-white px-4 py-2.5 rounded-xl shadow-lg text-xs font-semibold animate-in fade-in">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>{toastMessage}</span>
         </div>

@@ -22,7 +22,7 @@ export default function OurValuesPage() {
   const houses = {
     moremi: {
       name: 'House Moremi',
-      color: '#b3141f',
+      color: 'var(--brand-accent)',
       accent: '#d4a85a',
       motto: 'Virtus et Sapientia (Valor and Wisdom)',
       namesake: 'Queen Moremi of Ile-Ife — Paragon of self-sacrifice, civic courage, and visionary fortitude.',
@@ -76,7 +76,7 @@ export default function OurValuesPage() {
           --obsidian: #07181a;
           --gold: #d4a85a;
           --gold-hover: #c4943e;
-          --crimson: #b3141f;
+          --crimson: var(--brand-accent);
           --cream: #f5f2ed;
           --border-gold: rgba(212, 168, 90, 0.25);
           --text-dark: #07181a;

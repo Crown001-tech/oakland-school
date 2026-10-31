@@ -1,10 +1,24 @@
 import type { PayrollDepartment } from '@/lib/payroll';
 
 // One list per ledger, shared by every form, filter and dashboard total so they never drift apart
-export const EXPENDITURE_CATEGORIES = ['Power', 'Laboratories', 'Technology', 'Stationery', 'Maintenance', 'Health', 'Security'] as const;
+export const EXPENDITURE_CATEGORIES = [
+  'Power',
+  'Laboratories',
+  'Technology',
+  'Stationery',
+  'Maintenance',
+  'Health',
+  'Security',
+] as const;
 export type ExpenditureCategory = (typeof EXPENDITURE_CATEGORIES)[number];
 
-export const PETTY_CASH_CATEGORIES = ['Stationery', 'Repairs', 'Dispatch', 'Hospitality', 'Consumables'] as const;
+export const PETTY_CASH_CATEGORIES = [
+  'Stationery',
+  'Repairs',
+  'Dispatch',
+  'Hospitality',
+  'Consumables',
+] as const;
 export type PettyCashCategory = (typeof PETTY_CASH_CATEGORIES)[number];
 
 export const isExpenditureCategory = (value: unknown): value is ExpenditureCategory =>

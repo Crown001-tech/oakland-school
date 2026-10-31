@@ -339,7 +339,7 @@ export default function BursarDashboardPage() {
       <Card className="border-teal-200/80 bg-teal-50/15 shadow-xs overflow-hidden">
         <CardHeader className="pb-3 border-b border-teal-100/80 flex flex-row items-center justify-between">
           <div className="flex items-center gap-2">
-            <Megaphone className="w-4 h-4 text-[#0f3a3e]" />
+            <Megaphone className="w-4 h-4 text-brand-primary" />
             <div>
               <CardTitle className="text-sm font-bold text-slate-900">
                 Official Staff Notices

@@ -389,12 +389,12 @@ export default function SubjectScoresPage() {
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Executive Hero Surface */}
       <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50/70 to-teal-50/30 p-6 sm:p-7 shadow-xs">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0f3a3e] via-teal-600 to-emerald-500" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-primary via-teal-600 to-emerald-500" />
         
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
           <div className="space-y-2">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#0f3a3e] text-white tracking-wide shadow-xs">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-brand-primary text-white tracking-wide shadow-xs">
                 <BookOpen className="w-3.5 h-3.5 text-teal-300" />
                 <span>{isHomeroom ? 'Homeroom Gradebook' : 'Subject Teacher Gradebook'}</span>
               </span>
@@ -436,7 +436,7 @@ export default function SubjectScoresPage() {
                 className={`text-xs font-bold h-10 px-5 rounded-xl flex items-center gap-2 transition-all cursor-pointer ${
                   scores.length === 0
                     ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
-                    : 'bg-gradient-to-r from-[#0f3a3e] to-[#164e53] hover:from-[#13484d] hover:to-[#1b5e64] text-white shadow-xs hover:shadow'
+                    : 'bg-gradient-to-r from-brand-primary to-brand-primary-light hover:from-[#13484d] hover:to-[#1b5e64] text-white shadow-xs hover:shadow'
                 }`}
               >
                 <Send className="w-3.5 h-3.5 text-teal-300" />
@@ -505,7 +505,7 @@ export default function SubjectScoresPage() {
                   onClick={() => setSelectedClass(cls)}
                   className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                     isSelected
-                      ? 'bg-[#0f3a3e] text-white shadow-xs'
+                      ? 'bg-brand-primary text-white shadow-xs'
                       : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200/70'
                   }`}
                 >
@@ -798,7 +798,7 @@ export default function SubjectScoresPage() {
                 className={`font-semibold text-xs h-9 px-4 rounded-xl cursor-pointer ${
                   scores.length === 0
                     ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none'
-                    : 'bg-[#0f3a3e] hover:bg-[#164e53] text-white shadow-xs'
+                    : 'bg-brand-primary hover:bg-brand-primary-light text-white shadow-xs'
                 }`}
               >
                 <Send className="w-3.5 h-3.5 mr-1.5 text-teal-300" />
@@ -816,7 +816,7 @@ export default function SubjectScoresPage() {
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
           <div className="relative max-w-lg w-full bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden p-6 space-y-5 animate-in zoom-in-95 duration-150">
             {/* Top brand accent bar */}
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#0f3a3e] via-amber-500 to-teal-500" />
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brand-primary via-amber-500 to-teal-500" />
 
             {/* Header with Close */}
             <div className="flex items-start justify-between gap-3 pt-1">
@@ -901,7 +901,7 @@ export default function SubjectScoresPage() {
                 type="button"
                 onClick={handleConfirmSynchronization}
                 disabled={isSubmitting}
-                className="w-full sm:w-auto text-xs font-bold bg-gradient-to-r from-[#0f3a3e] to-[#164e53] hover:from-[#13484d] hover:to-[#1b5e64] text-white h-10 px-5 rounded-xl shadow-xs hover:shadow flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto text-xs font-bold bg-gradient-to-r from-brand-primary to-brand-primary-light hover:from-[#13484d] hover:to-[#1b5e64] text-white h-10 px-5 rounded-xl shadow-xs hover:shadow flex items-center justify-center gap-2 cursor-pointer"
               >
                 <ShieldCheck className="w-4 h-4 text-teal-300" />
                 <span>{isSubmitting ? 'Synchronizing...' : 'Confirm and Synchronize'}</span>

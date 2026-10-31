@@ -233,7 +233,7 @@ export default function DailyAttendancePage() {
               type="button"
               onClick={handleSaveRegister}
               disabled={isSaving}
-              className="bg-[#0f3a3e] hover:bg-[#164e53] text-white shadow-xs text-xs font-semibold flex items-center gap-2"
+              className="bg-brand-primary hover:bg-brand-primary-light text-white shadow-xs text-xs font-semibold flex items-center gap-2"
             >
               <Save className="w-4 h-4" />
               <span>{isSaving ? 'Submitting...' : 'Submit Register'}</span>
@@ -261,7 +261,7 @@ export default function DailyAttendancePage() {
           </p>
           <div className="flex items-center justify-center gap-3">
             <Link href="/teacher/scores">
-              <Button className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold px-6 h-10 flex items-center gap-2">
+              <Button className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold px-6 h-10 flex items-center gap-2">
                 <BookOpen className="w-4 h-4" />
                 <span>Go to Subject Scores Roster</span>
               </Button>
@@ -458,7 +458,7 @@ export default function DailyAttendancePage() {
                   type="button"
                   onClick={handleSaveRegister}
                   disabled={isSaving}
-                  className="bg-[#0f3a3e] hover:bg-[#164e53] text-white font-semibold text-xs h-8 px-4"
+                  className="bg-brand-primary hover:bg-brand-primary-light text-white font-semibold text-xs h-8 px-4"
                 >
                   <Save className="w-3.5 h-3.5 mr-1.5" />
                   {isSaving ? 'Submitting...' : 'Submit Register'}

@@ -81,7 +81,7 @@ export default function StudentTimetablePage() {
         <button
           type="button"
           onClick={() => window.print()}
-          className="px-4 py-2 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold transition shadow-xs inline-flex items-center gap-1.5 self-start print:hidden"
+          className="px-4 py-2 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-bold transition shadow-xs inline-flex items-center gap-1.5 self-start print:hidden"
         >
           <Printer className="w-4 h-4" />
           <span>Print Schedule</span>
@@ -99,7 +99,7 @@ export default function StudentTimetablePage() {
               onClick={() => setActiveDay(day)}
               className={`px-4 py-2.5 min-h-[44px] rounded-xl text-xs font-bold transition cursor-pointer ${
                 isSelected
-                  ? 'bg-[#0f3a3e] text-white shadow-xs'
+                  ? 'bg-brand-primary text-white shadow-xs'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
@@ -130,7 +130,7 @@ export default function StudentTimetablePage() {
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden space-y-4 p-5 sm:p-6">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div className="flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#0f3a3e]" />
+              <Calendar className="w-4 h-4 text-brand-primary" />
               <h2 className="text-sm font-bold text-slate-900">
                 {activeDay} Schedule ({currentPeriods.length} Periods)
               </h2>
@@ -168,7 +168,7 @@ export default function StudentTimetablePage() {
                 </div>
 
                 <div className="self-start sm:self-center shrink-0">
-                  <span className="px-3 py-1 rounded-lg bg-[#0f3a3e]/10 border border-[#0f3a3e]/20 text-[#0f3a3e] text-xs font-mono font-bold">
+                  <span className="px-3 py-1 rounded-lg bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-xs font-mono font-bold">
                     {period.time || `0${8 + idx}:00 - 0${8 + idx}:45`}
                   </span>
                 </div>

@@ -270,7 +270,7 @@ export default function ProprietorResultsPage() {
             className={`text-xs font-semibold gap-1.5 whitespace-nowrap shrink-0 ${
               pendingSignoffCount === 0
                 ? 'bg-slate-200 text-slate-400 cursor-not-allowed border-slate-300'
-                : 'bg-[#0f3a3e] hover:bg-[#134b50] text-white cursor-pointer'
+                : 'bg-brand-primary hover:bg-[#134b50] text-white cursor-pointer'
             }`}
           >
             <Shield className="w-3.5 h-3.5" />
@@ -402,7 +402,7 @@ export default function ProprietorResultsPage() {
                           <Button
                             size="sm"
                             onClick={() => handleApproveClass(cls.class)}
-                            className="bg-[#0f3a3e] hover:bg-[#134b50] text-white text-[11px] font-semibold h-7 px-3 inline-flex items-center gap-1 cursor-pointer"
+                            className="bg-brand-primary hover:bg-[#134b50] text-white text-[11px] font-semibold h-7 px-3 inline-flex items-center gap-1 cursor-pointer"
                           >
                             <Check className="w-3 h-3" />
                             <span>Endorse</span>
@@ -512,7 +512,7 @@ export default function ProprietorResultsPage() {
       {showSampleModal && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
           <div className="bg-white rounded-2xl max-w-3xl w-full p-6 space-y-5 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95">
-            <div className="flex items-start justify-between pb-3 border-b-2 border-[#0f3a3e]">
+            <div className="flex items-start justify-between pb-3 border-b-2 border-brand-primary">
               <div>
                 <h3 className="text-lg font-black text-slate-900 uppercase">
                   Oakland International School &bull; Terminal Examination Broadsheet
@@ -593,7 +593,7 @@ export default function ProprietorResultsPage() {
                     </div>
                     <div>
                       <span className="text-[10px] text-slate-400 font-bold uppercase block">Class Average</span>
-                      <span className="font-black text-[#b3141f]">{inspectClassData?.averageScore}%</span>
+                      <span className="font-black text-brand-accent">{inspectClassData?.averageScore}%</span>
                     </div>
                     <div>
                       <span className="text-[10px] text-slate-400 font-bold uppercase block">Submission State</span>
@@ -611,7 +611,7 @@ export default function ProprietorResultsPage() {
                       <strong className="text-blue-900">Principal Vetting Remark:</strong>{' '}
                       <span className="italic text-blue-950">Vetted and verified by Mr Seyi Bankole (Head of School). Recommended for executive endorsement.</span>
                     </p>
-                    <p className="pt-2 border-t border-slate-200 text-[#0f3a3e]">
+                    <p className="pt-2 border-t border-slate-200 text-brand-primary">
                       <strong>Proprietor Endorsement:</strong>{' '}
                       <span className="font-semibold">{inspectClassData?.status === 'Dispatched to Parents' ? 'OFFICIALLY RATIFIED AND DISPATCHED TO PARENTS.' : 'AWAITING PROPRIETOR RATIFICATION.'}</span>
                     </p>
@@ -663,7 +663,7 @@ export default function ProprietorResultsPage() {
               {/* Body */}
               <div className="p-5 bg-white space-y-3.5 text-slate-800 leading-relaxed">
                 <div className="text-center pb-3 border-b border-slate-100">
-                  <span className="font-extrabold text-sm text-[#0f3a3e] tracking-tight uppercase block">
+                  <span className="font-extrabold text-sm text-brand-primary tracking-tight uppercase block">
                     Oakland International School
                   </span>
                   <span className="text-[10px] text-slate-400 font-mono">
@@ -714,7 +714,7 @@ export default function ProprietorResultsPage() {
                       setShowEmailPreviewModal(false);
                       setShowSampleModal(true);
                     }}
-                    className="text-xs font-bold text-[#0f3a3e] border-[#0f3a3e] hover:bg-[#0f3a3e]/5"
+                    className="text-xs font-bold text-brand-primary border-brand-primary hover:bg-brand-primary/5"
                   >
                     <Download className="w-3.5 h-3.5 mr-1" />
                     Inspect Report

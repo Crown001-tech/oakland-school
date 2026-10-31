@@ -152,7 +152,7 @@ export default function TeacherAssessmentResultsPage() {
               type="button"
               onClick={handleSyncGradebook}
               disabled={isSyncing}
-              className="px-4 py-2.5 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold transition shadow-xs inline-flex items-center gap-1.5 min-h-[44px] cursor-pointer disabled:opacity-50"
+              className="px-4 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold transition shadow-xs inline-flex items-center gap-1.5 min-h-[44px] cursor-pointer disabled:opacity-50"
             >
               <FileSpreadsheet className="w-3.5 h-3.5" />
               <span>{isSyncing ? 'Syncing...' : 'Sync to Gradebook'}</span>

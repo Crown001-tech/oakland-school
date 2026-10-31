@@ -471,7 +471,7 @@ export default function NewAssessmentPage() {
           <button
             type="submit"
             disabled={isSubmitting || selectedQuestions.length === 0}
-            className="px-6 py-2.5 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold transition shadow-xs min-h-[44px] inline-flex items-center justify-center disabled:opacity-50 cursor-pointer"
+            className="px-6 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold transition shadow-xs min-h-[44px] inline-flex items-center justify-center disabled:opacity-50 cursor-pointer"
           >
             {isSubmitting ? 'Publishing Examination...' : 'Publish Examination'}
           </button>

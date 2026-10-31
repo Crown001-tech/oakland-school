@@ -154,7 +154,7 @@ export default function BursarFeesPage() {
 
         <CardContent className="p-0 overflow-x-auto">
           <table className="w-full text-xs text-left">
-            <thead className="bg-[#0f3a3e] text-white font-bold">
+            <thead className="bg-brand-primary text-white font-bold">
               <tr>
                 <th className="py-2.5 px-4">Class</th>
                 <th className="py-2.5 px-3 text-center">Fee per Student</th>
@@ -247,7 +247,7 @@ export default function BursarFeesPage() {
 
         <CardContent className="p-0 overflow-x-auto">
           <table className="w-full text-xs text-left">
-            <thead className="bg-[#0f3a3e] text-white font-bold">
+            <thead className="bg-brand-primary text-white font-bold">
               <tr>
                 <th className="py-2.5 px-4">Student</th>
                 <th className="py-2.5 px-3 text-center">Class</th>

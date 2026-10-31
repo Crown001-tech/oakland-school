@@ -319,13 +319,13 @@ export default function ProprietorDocumentsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#0f3a3e] text-white uppercase tracking-wider">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-brand-primary text-white uppercase tracking-wider">
               Executive Vault
             </span>
             <span className="text-xs text-slate-500 font-medium">Proprietor Records Oversight</span>
           </div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight mt-1 flex items-center gap-2">
-            <FolderArchive className="w-6 h-6 text-[#0f3a3e]" />
+            <FolderArchive className="w-6 h-6 text-brand-primary" />
             <span>Institutional Document Repository</span>
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
@@ -337,7 +337,7 @@ export default function ProprietorDocumentsPage() {
           <Button
             type="button"
             onClick={() => setIsUploadOpen(true)}
-            className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs"
+            className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold flex items-center gap-1.5 shadow-xs"
           >
             <Upload className="w-3.5 h-3.5" />
             <span>Upload Document</span>
@@ -508,7 +508,7 @@ export default function ProprietorDocumentsPage() {
                             type="button"
                             size="sm"
                             onClick={() => handleDownload(doc)}
-                            className="h-7 px-2.5 text-xs bg-[#0f3a3e] hover:bg-[#164e53] text-white font-semibold flex items-center gap-1 cursor-pointer"
+                            className="h-7 px-2.5 text-xs bg-brand-primary hover:bg-brand-primary-light text-white font-semibold flex items-center gap-1 cursor-pointer"
                           >
                             <Download className="w-3.5 h-3.5" />
                             <span>Download</span>
@@ -540,7 +540,7 @@ export default function ProprietorDocumentsPage() {
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-200 shrink-0">
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-800 flex items-center justify-center shrink-0">
-                  <FileBadge className="w-5 h-5 text-[#0f3a3e]" />
+                  <FileBadge className="w-5 h-5 text-brand-primary" />
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-sm font-bold text-slate-900 truncate">{inspectDoc.title}</h3>
@@ -565,7 +565,7 @@ export default function ProprietorDocumentsPage() {
                   type="button"
                   size="sm"
                   onClick={() => handleDownload(inspectDoc)}
-                  className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                  className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold flex items-center gap-1 cursor-pointer"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Download</span>
@@ -604,13 +604,13 @@ export default function ProprietorDocumentsPage() {
               ) : (
                 <div className="bg-white p-6 sm:p-8 rounded-xl border border-slate-200 shadow-xs max-w-lg w-full text-slate-800 space-y-4">
                   <div className="text-center pb-4 border-b border-slate-200 space-y-1">
-                    <div className="w-10 h-10 rounded-xl bg-[#0f3a3e] text-[#d4af37] border-2 border-[#d4af37] mx-auto flex items-center justify-center font-serif text-lg font-bold mb-1">
+                    <div className="w-10 h-10 rounded-xl bg-brand-primary text-[#d4af37] border-2 border-[#d4af37] mx-auto flex items-center justify-center font-serif text-lg font-bold mb-1">
                       O
                     </div>
-                    <h4 className="text-sm font-black uppercase tracking-wider text-[#0f3a3e] font-serif">
+                    <h4 className="text-sm font-black uppercase tracking-wider text-brand-primary font-serif">
                       Oakland International School
                     </h4>
-                    <p className="text-[9px] font-bold text-[#b3141f] tracking-widest uppercase">
+                    <p className="text-[9px] font-bold text-brand-accent tracking-widest uppercase">
                       Official Document Record
                     </p>
                   </div>
@@ -648,7 +648,7 @@ export default function ProprietorDocumentsPage() {
                       type="button"
                       size="sm"
                       onClick={() => handleDownload(inspectDoc)}
-                      className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                      className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold flex items-center gap-1 cursor-pointer"
                     >
                       <Download className="w-3.5 h-3.5" />
                       <span>Download File</span>
@@ -729,7 +729,7 @@ export default function ProprietorDocumentsPage() {
                   />
                   <label
                     htmlFor="proprietor-doc-file-input"
-                    className="inline-block mt-3 px-4 py-1.5 bg-[#0f3a3e] hover:bg-[#134b50] text-white font-bold rounded-xl text-xs cursor-pointer transition shadow-xs"
+                    className="inline-block mt-3 px-4 py-1.5 bg-brand-primary hover:bg-[#134b50] text-white font-bold rounded-xl text-xs cursor-pointer transition shadow-xs"
                   >
                     Choose Local File
                   </label>
@@ -758,7 +758,7 @@ export default function ProprietorDocumentsPage() {
                   type="submit"
                   size="sm"
                   disabled={!newDocFileName || isSubmitting}
-                  className="bg-[#0f3a3e] hover:bg-[#134b50] text-white text-xs font-semibold cursor-pointer disabled:opacity-50"
+                  className="bg-brand-primary hover:bg-[#134b50] text-white text-xs font-semibold cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Saving...' : 'Save Document'}
                 </Button>

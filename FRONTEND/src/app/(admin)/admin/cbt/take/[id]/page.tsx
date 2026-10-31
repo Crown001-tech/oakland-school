@@ -59,7 +59,7 @@ export default function AdminTakeCbtAssessmentPage() {
       <div className="flex items-center justify-between pb-2 border-b border-slate-200">
         <Link
           href="/admin/cbt"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-[#0f3a3e] transition-colors min-h-[44px]"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-brand-primary transition-colors min-h-[44px]"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to CBT Dashboard</span>
@@ -77,7 +77,7 @@ export default function AdminTakeCbtAssessmentPage() {
           <p className="text-sm font-semibold text-slate-800">{errorMessage}</p>
           <Link
             href="/admin/cbt"
-            className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-[#0f3a3e] text-white text-xs font-semibold min-h-[44px]"
+            className="inline-flex items-center justify-center px-4 py-2 rounded-xl bg-brand-primary text-white text-xs font-semibold min-h-[44px]"
           >
             Return to Examinations
           </Link>
@@ -114,7 +114,7 @@ export default function AdminTakeCbtAssessmentPage() {
               </div>
               <div className="p-3 bg-slate-50 rounded-xl text-xs">
                 <span className="text-[10px] text-slate-400 font-semibold uppercase">Pass Threshold</span>
-                <p className="font-bold text-[#0f3a3e] mt-0.5">{assessment?.pass_percentage}%</p>
+                <p className="font-bold text-brand-primary mt-0.5">{assessment?.pass_percentage}%</p>
               </div>
               <div className="p-3 bg-slate-50 rounded-xl text-xs">
                 <span className="text-[10px] text-slate-400 font-semibold uppercase">Total Questions</span>

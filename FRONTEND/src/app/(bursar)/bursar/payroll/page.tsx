@@ -364,7 +364,7 @@ export default function BursarPayrollPage() {
 
         <CardContent className="p-0 overflow-x-auto">
           <table className="w-full text-xs text-left">
-            <thead className="bg-[#0f3a3e] text-white font-bold">
+            <thead className="bg-brand-primary text-white font-bold">
               <tr>
                 <th className="py-2.5 px-4">Staff Member</th>
                 <th className="py-2.5 px-3">Role</th>
@@ -523,7 +523,7 @@ export default function BursarPayrollPage() {
             className="bg-white rounded-2xl max-w-md w-full border border-slate-200 shadow-xl overflow-hidden animate-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-5 py-4 bg-[#0f3a3e] text-white flex items-center justify-between">
+            <div className="px-5 py-4 bg-brand-primary text-white flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold">Staff Bank Account</h3>
                 <p className="text-[11px] text-teal-200/80">

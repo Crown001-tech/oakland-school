@@ -528,7 +528,7 @@ export default function AdminTimetablePage() {
       <div className="no-print flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-[#0f3a3e] text-white">
+            <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-brand-primary text-white">
               2026/2027 Session &bull; First Term
             </span>
           </div>
@@ -589,7 +589,7 @@ export default function AdminTimetablePage() {
               <Button
                 type="button"
                 onClick={handlePublish}
-                className="bg-[#0f3a3e] hover:bg-[#134b50] text-white shadow-xs text-xs font-semibold flex items-center gap-2 cursor-pointer min-h-[44px]"
+                className="bg-brand-primary hover:bg-[#134b50] text-white shadow-xs text-xs font-semibold flex items-center gap-2 cursor-pointer min-h-[44px]"
               >
                 <CheckCheck className="w-4 h-4 text-teal-400" />
                 <span>Publish</span>
@@ -633,7 +633,7 @@ export default function AdminTimetablePage() {
               }}
               className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer min-h-[44px] flex items-center justify-center ${
                 selectedClass === cls
-                  ? 'bg-[#0f3a3e] text-white shadow-xs'
+                  ? 'bg-brand-primary text-white shadow-xs'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
@@ -670,7 +670,7 @@ export default function AdminTimetablePage() {
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-xs">
             <thead>
-              <tr className="bg-[#0f3a3e] text-white font-bold print:bg-slate-800">
+              <tr className="bg-brand-primary text-white font-bold print:bg-slate-800">
                 <th className="text-left px-4 py-3 w-40">Period</th>
                 {DAYS.map((day) => (
                   <th key={day} className="text-center px-2 py-3 font-semibold">{day}</th>
@@ -751,7 +751,7 @@ export default function AdminTimetablePage() {
                               <button
                                 type="button"
                                 onClick={saveCell}
-                                className="flex-1 bg-[#0f3a3e] hover:bg-[#164e53] text-white text-[9px] font-bold py-1 rounded-md cursor-pointer"
+                                className="flex-1 bg-brand-primary hover:bg-brand-primary-light text-white text-[9px] font-bold py-1 rounded-md cursor-pointer"
                               >
                                 Set
                               </button>
@@ -782,7 +782,7 @@ export default function AdminTimetablePage() {
                                   ? 'border-slate-200/90 bg-white cursor-default print:border-none print:p-0'
                                   : 'border-dashed border-slate-200 bg-slate-50/50 cursor-default opacity-60'
                                 : cell
-                                ? 'border-slate-200/90 bg-white hover:border-[#0f3a3e] hover:shadow-xs cursor-pointer print:border-none print:p-0'
+                                ? 'border-slate-200/90 bg-white hover:border-brand-primary hover:shadow-xs cursor-pointer print:border-none print:p-0'
                                 : 'border-dashed border-slate-200 bg-slate-50/50 hover:border-teal-300 hover:bg-teal-50/20 cursor-pointer'
                             }`}
                           >
@@ -902,7 +902,7 @@ export default function AdminTimetablePage() {
                           id={`edit-break-${p.id}`}
                           checked={editPeriodIsBreak}
                           onChange={(e) => setEditPeriodIsBreak(e.target.checked)}
-                          className="rounded border-slate-300 text-[#0f3a3e]"
+                          className="rounded border-slate-300 text-brand-primary"
                         />
                         <label htmlFor={`edit-break-${p.id}`} className="text-slate-700 text-[11px]">
                           Non-instructional interval (Break or Roll Call)
@@ -920,7 +920,7 @@ export default function AdminTimetablePage() {
                           type="button"
                           size="sm"
                           onClick={() => handleSaveEditedPeriod(p.id)}
-                          className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs px-3 font-semibold min-h-[44px] flex items-center justify-center cursor-pointer"
+                          className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs px-3 font-semibold min-h-[44px] flex items-center justify-center cursor-pointer"
                         >
                           Save Changes
                         </Button>
@@ -1011,7 +1011,7 @@ export default function AdminTimetablePage() {
                   id="isBreakCheck"
                   checked={newPeriodIsBreak}
                   onChange={(e) => setNewPeriodIsBreak(e.target.checked)}
-                  className="rounded border-slate-300 text-[#0f3a3e] w-4 h-4 cursor-pointer"
+                  className="rounded border-slate-300 text-brand-primary w-4 h-4 cursor-pointer"
                 />
                 <label htmlFor="isBreakCheck" className="text-slate-700 font-medium cursor-pointer">
                   This is a non-instructional interval (Break, Assembly, or Games)
@@ -1022,7 +1022,7 @@ export default function AdminTimetablePage() {
                 <Button
                   type="submit"
                   size="sm"
-                  className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold min-h-[44px] px-4 cursor-pointer"
+                  className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold min-h-[44px] px-4 cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5 mr-1" /> Add Interval
                 </Button>

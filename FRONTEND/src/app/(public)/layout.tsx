@@ -12,7 +12,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 
         /* ── ANNOUNCEMENT BAR ── */
         .ok-bar {
-          background: #b3141f;
+          background: var(--brand-accent);
           color: rgba(255,255,255,0.92);
           font-family: 'Inter', sans-serif;
           font-size: 11px;
@@ -290,7 +290,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           justify-content: center;
           gap: 10px;
           padding: 15px 20px;
-          background: #b3141f;
+          background: var(--brand-accent);
           color: #ffffff;
           font-family: 'Inter', sans-serif;
           font-size: 12px;

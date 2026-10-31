@@ -328,7 +328,7 @@ export default function SecurityStaffGatePage() {
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
               Staff Gate Transit
             </h1>
-            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-[#0f3a3e]/10 text-[#0f3a3e] border border-[#0f3a3e]/20">
+            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
               Perimeter Security
             </span>
           </div>
@@ -347,7 +347,7 @@ export default function SecurityStaffGatePage() {
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold transition cursor-pointer disabled:opacity-50 min-h-[44px]"
             title="Refresh records"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#0f3a3e]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-brand-primary' : ''}`} />
             <span>Refresh</span>
           </button>
 
@@ -367,7 +367,7 @@ export default function SecurityStaffGatePage() {
               setFormError(null);
               setIsModalOpen(true);
             }}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#b3141f] hover:bg-[#961019] text-white text-xs font-bold transition shadow-xs cursor-pointer min-h-[44px]"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-accent hover:bg-brand-accent-hover text-white text-xs font-bold transition shadow-xs cursor-pointer min-h-[44px]"
           >
             <Plus className="w-4 h-4" />
             <span>Log Staff Transit</span>
@@ -383,10 +383,10 @@ export default function SecurityStaffGatePage() {
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Currently On Campus</p>
             <div className="flex items-baseline gap-2 mt-1">
               <span className="text-2xl font-bold font-mono text-slate-900">{stats.currentlyOnSite}</span>
-              <span className="text-[10px] text-[#0f3a3e] font-bold">Active inside</span>
+              <span className="text-[10px] text-brand-primary font-bold">Active inside</span>
             </div>
           </div>
-          <div className="w-10 h-10 rounded-xl bg-[#0f3a3e]/10 text-[#0f3a3e] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-brand-primary/10 text-brand-primary flex items-center justify-center">
             <UserCheck className="w-5 h-5" />
           </div>
         </div>
@@ -476,7 +476,7 @@ export default function SecurityStaffGatePage() {
             <select
               value={directionFilter}
               onChange={(e) => setDirectionFilter(e.target.value as any)}
-              className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] min-h-[36px]"
+              className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-primary min-h-[36px]"
             >
               <option value="all">All Directions</option>
               <option value="entry">Entries Only</option>
@@ -486,7 +486,7 @@ export default function SecurityStaffGatePage() {
             <select
               value={modeFilter}
               onChange={(e) => setModeFilter(e.target.value as any)}
-              className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] min-h-[36px]"
+              className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-primary min-h-[36px]"
             >
               <option value="all">All Modes</option>
               <option value="pedestrian">Pedestrian</option>
@@ -503,7 +503,7 @@ export default function SecurityStaffGatePage() {
             placeholder="Search staff, ID, plate..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] min-h-[36px]"
+            className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-primary min-h-[36px]"
           />
         </div>
       </div>
@@ -560,7 +560,7 @@ export default function SecurityStaffGatePage() {
                         {/* Staff Member */}
                         <td className="px-4 py-3.5">
                           <span className="font-bold text-slate-900 block">{log.staffName}</span>
-                          <span className="text-[11px] text-[#0f3a3e] font-bold block">
+                          <span className="text-[11px] text-brand-primary font-bold block">
                             {log.department} ({log.employeeId})
                           </span>
                         </td>
@@ -774,7 +774,7 @@ export default function SecurityStaffGatePage() {
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[#0f3a3e]/10 text-[#0f3a3e] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-brand-primary/10 text-brand-primary flex items-center justify-center">
                   <Shield className="w-4 h-4" />
                 </div>
                 <div>
@@ -822,7 +822,7 @@ export default function SecurityStaffGatePage() {
                       });
                     }
                   }}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none bg-white min-h-[44px]"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none bg-white min-h-[44px]"
                 >
                   <option value="">Select Staff from Directory...</option>
                   {staffList.map((s) => (
@@ -839,7 +839,7 @@ export default function SecurityStaffGatePage() {
                     placeholder="Or enter staff name directly"
                     value={formData.staffName}
                     onChange={(e) => setFormData({ ...formData, staffName: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none min-h-[44px]"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none min-h-[44px]"
                   />
                 </div>
               </div>
@@ -922,7 +922,7 @@ export default function SecurityStaffGatePage() {
                     placeholder="e.g. KSF-124-AA"
                     value={formData.vehicleRegistration}
                     onChange={(e) => setFormData({ ...formData, vehicleRegistration: e.target.value.toUpperCase() })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none uppercase font-mono min-h-[44px]"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none uppercase font-mono min-h-[44px]"
                   />
                 </div>
               )}
@@ -937,7 +937,7 @@ export default function SecurityStaffGatePage() {
                   placeholder="Official errands, special equipment, parking bay, etc."
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none resize-none"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none resize-none"
                 />
               </div>
 
@@ -953,7 +953,7 @@ export default function SecurityStaffGatePage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 rounded-lg bg-[#b3141f] hover:bg-[#961019] text-white font-bold transition shadow-xs cursor-pointer disabled:opacity-50 min-h-[44px]"
+                  className="px-5 py-2 rounded-lg bg-brand-accent hover:bg-brand-accent-hover text-white font-bold transition shadow-xs cursor-pointer disabled:opacity-50 min-h-[44px]"
                 >
                   {isSubmitting ? 'Recording...' : 'Confirm Transit'}
                 </button>

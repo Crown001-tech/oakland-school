@@ -256,7 +256,7 @@ export default function QuestionBankDetailPage() {
               setIsManualOpen(true);
               setManualError(null);
             }}
-            className="px-4 py-2.5 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold transition shadow-xs inline-flex items-center gap-1.5 min-h-[44px] cursor-pointer"
+            className="px-4 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold transition shadow-xs inline-flex items-center gap-1.5 min-h-[44px] cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Add Question</span>
@@ -361,7 +361,7 @@ export default function QuestionBankDetailPage() {
             <button
               type="button"
               onClick={() => setIsManualOpen(true)}
-              className="px-4 py-2.5 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold transition cursor-pointer"
+              className="px-4 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold transition cursor-pointer"
             >
               Add Manually
             </button>
@@ -466,7 +466,7 @@ export default function QuestionBankDetailPage() {
                 <button
                   type="submit"
                   disabled={!selectedFile || isUploading}
-                  className="px-5 py-2 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white font-semibold transition shadow-xs disabled:opacity-50"
+                  className="px-5 py-2 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white font-semibold transition shadow-xs disabled:opacity-50"
                 >
                   {isUploading ? 'Importing...' : 'Import Questions'}
                 </button>
@@ -646,7 +646,7 @@ export default function QuestionBankDetailPage() {
                 <button
                   type="submit"
                   disabled={isSavingQuestion}
-                  className="px-5 py-2.5 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white font-semibold transition shadow-xs min-h-[44px] cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white font-semibold transition shadow-xs min-h-[44px] cursor-pointer disabled:opacity-50"
                 >
                   {isSavingQuestion ? 'Saving...' : 'Save Question'}
                 </button>

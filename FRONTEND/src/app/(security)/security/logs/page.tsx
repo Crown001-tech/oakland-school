@@ -170,7 +170,7 @@ export default function SecurityLogsPage() {
         );
       case 'staff_gate':
         return (
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#0f3a3e]/10 text-[#0f3a3e] border border-[#0f3a3e]/20">
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
             <LogIn className="w-3 h-3" />
             <span>{label}</span>
           </span>
@@ -236,7 +236,7 @@ export default function SecurityLogsPage() {
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
               Activity Logs
             </h1>
-            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-[#0f3a3e]/10 text-[#0f3a3e] border border-[#0f3a3e]/20">
+            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
               Audit Trail
             </span>
           </div>
@@ -252,14 +252,14 @@ export default function SecurityLogsPage() {
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold transition cursor-pointer disabled:opacity-50 min-h-[44px]"
             title="Refresh logs"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#0f3a3e]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-brand-primary' : ''}`} />
             <span>Refresh</span>
           </button>
 
           <button
             onClick={handleExportCsv}
             disabled={isExporting}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#b3141f] hover:bg-[#961019] text-white text-xs font-bold transition shadow-xs cursor-pointer disabled:opacity-50 min-h-[44px]"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-accent hover:bg-brand-accent-hover text-white text-xs font-bold transition shadow-xs cursor-pointer disabled:opacity-50 min-h-[44px]"
           >
             <Download className="w-4 h-4" />
             <span>{isExporting ? 'Exporting...' : 'Export CSV'}</span>
@@ -290,8 +290,8 @@ export default function SecurityLogsPage() {
         </div>
 
         <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
-          <p className="text-[10px] font-bold text-[#0f3a3e] uppercase tracking-wider">Staff Gate</p>
-          <p className="text-xl font-bold font-mono text-[#0f3a3e] mt-0.5">{categoryCounts.staff_gate || 0}</p>
+          <p className="text-[10px] font-bold text-brand-primary uppercase tracking-wider">Staff Gate</p>
+          <p className="text-xl font-bold font-mono text-brand-primary mt-0.5">{categoryCounts.staff_gate || 0}</p>
         </div>
 
         <div className="bg-white p-3 rounded-xl border border-slate-200 shadow-xs">
@@ -332,7 +332,7 @@ export default function SecurityLogsPage() {
           <select
             value={dateRange}
             onChange={(e) => setDateRange(e.target.value)}
-            className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] min-h-[36px]"
+            className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-primary min-h-[36px]"
           >
             <option value="all">All Time</option>
             <option value="today">Today</option>
@@ -348,7 +348,7 @@ export default function SecurityLogsPage() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && fetchLogs()}
-              className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] min-h-[36px]"
+              className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-primary min-h-[36px]"
             />
           </div>
         </div>

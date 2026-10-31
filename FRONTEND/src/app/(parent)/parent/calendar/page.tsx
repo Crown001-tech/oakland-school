@@ -64,7 +64,7 @@ export default function ParentCalendarPage() {
           onClick={() => setFilter('all')}
           className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold transition ${
             filter === 'all'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
         >
@@ -75,7 +75,7 @@ export default function ParentCalendarPage() {
           onClick={() => setFilter('academic')}
           className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold transition ${
             filter === 'academic'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
         >
@@ -86,7 +86,7 @@ export default function ParentCalendarPage() {
           onClick={() => setFilter('holiday')}
           className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold transition ${
             filter === 'holiday'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
         >
@@ -97,7 +97,7 @@ export default function ParentCalendarPage() {
           onClick={() => setFilter('meeting')}
           className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold transition ${
             filter === 'meeting'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
         >
@@ -108,7 +108,7 @@ export default function ParentCalendarPage() {
           onClick={() => setFilter('sports')}
           className={`min-h-[44px] px-3.5 py-2 rounded-lg text-xs font-semibold transition ${
             filter === 'sports'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
           }`}
         >
@@ -156,19 +156,19 @@ export default function ParentCalendarPage() {
                 )}
                 <div className="flex flex-wrap items-center gap-4 text-[11px] text-slate-500 pt-1">
                   <span className="inline-flex items-center gap-1 font-medium">
-                    <CalendarIcon className="w-3.5 h-3.5 text-[#0f3a3e]" />
+                    <CalendarIcon className="w-3.5 h-3.5 text-brand-primary" />
                     <span>{ev.startDate || ev.date || 'TBD'}</span>
                     {ev.endDate && ev.endDate !== ev.startDate && <span> &ndash; {ev.endDate}</span>}
                   </span>
                   {ev.time && (
                     <span className="inline-flex items-center gap-1 font-medium">
-                      <Clock className="w-3.5 h-3.5 text-[#0f3a3e]" />
+                      <Clock className="w-3.5 h-3.5 text-brand-primary" />
                       <span>{ev.time}</span>
                     </span>
                   )}
                   {ev.location && (
                     <span className="inline-flex items-center gap-1 font-medium">
-                      <MapPin className="w-3.5 h-3.5 text-[#0f3a3e]" />
+                      <MapPin className="w-3.5 h-3.5 text-brand-primary" />
                       <span>{ev.location}</span>
                     </span>
                   )}
@@ -176,7 +176,7 @@ export default function ParentCalendarPage() {
               </div>
 
               <div className="shrink-0 self-start sm:self-center">
-                <span className="px-3 py-1 rounded-lg bg-[#0f3a3e]/10 border border-[#0f3a3e]/20 text-[#0f3a3e] text-[11px] font-bold">
+                <span className="px-3 py-1 rounded-lg bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-[11px] font-bold">
                   Confirmed
                 </span>
               </div>

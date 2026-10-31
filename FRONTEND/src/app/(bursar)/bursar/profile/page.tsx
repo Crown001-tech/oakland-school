@@ -292,7 +292,7 @@ export default function BursarProfilePage() {
     <div className="space-y-6">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 bg-[#0f3a3e] text-white px-4 py-3 rounded-xl shadow-lg border border-teal-500/30 flex items-center gap-2.5 text-xs animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-6 right-6 z-50 bg-brand-primary text-white px-4 py-3 rounded-xl shadow-lg border border-teal-500/30 flex items-center gap-2.5 text-xs animate-in fade-in slide-in-from-bottom-3 duration-200">
           <CheckCircle2 className="w-4 h-4 text-teal-300 shrink-0" />
           <span>{toastMessage}</span>
         </div>
@@ -334,7 +334,7 @@ export default function BursarProfilePage() {
                   className="w-16 h-16 rounded-2xl object-cover shadow-md border-2 border-teal-500/30"
                 />
               ) : (
-                <div className="w-16 h-16 rounded-2xl bg-[#0f3a3e] text-white flex items-center justify-center font-bold text-xl shadow-md border-2 border-teal-500/30">
+                <div className="w-16 h-16 rounded-2xl bg-brand-primary text-white flex items-center justify-center font-bold text-xl shadow-md border-2 border-teal-500/30">
                   {profile.name
                     .split(' ')
                     .filter(Boolean)
@@ -377,7 +377,7 @@ export default function BursarProfilePage() {
               onClick={() => setActiveTab('details')}
               className={`px-4 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
                 activeTab === 'details'
-                  ? 'bg-[#0f3a3e] text-white shadow-xs'
+                  ? 'bg-brand-primary text-white shadow-xs'
                   : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
             >
@@ -387,7 +387,7 @@ export default function BursarProfilePage() {
               onClick={() => setActiveTab('security')}
               className={`px-4 py-2 rounded-lg text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 ${
                 activeTab === 'security'
-                  ? 'bg-[#0f3a3e] text-white shadow-xs'
+                  ? 'bg-brand-primary text-white shadow-xs'
                   : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
             >
@@ -614,7 +614,7 @@ export default function BursarProfilePage() {
                       setPasswordState({ ...passwordState, currentPassword: e.target.value })
                     }
                     placeholder="Your current password"
-                    className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 min-h-[44px] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 min-h-[44px] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-primary"
                   />
                 </div>
 
@@ -634,7 +634,7 @@ export default function BursarProfilePage() {
                         setPasswordState({ ...passwordState, newPassword: e.target.value })
                       }
                       placeholder="At least 6 characters"
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-primary"
                       required
                     />
                     <button
@@ -669,7 +669,7 @@ export default function BursarProfilePage() {
                         setPasswordState({ ...passwordState, confirmPassword: e.target.value })
                       }
                       placeholder="Re-type new password"
-                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                      className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 pr-10 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-primary"
                       required
                     />
                     <button

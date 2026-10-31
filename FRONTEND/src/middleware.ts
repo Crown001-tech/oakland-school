@@ -1,7 +1,12 @@
-import { type NextRequest } from 'next/server';
+import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
+import { DEMO_ENTRY_PATH, isDemoModeEnabled, shouldRedirectToDemoEntry } from '@/lib/demo-mode';
 
 export async function middleware(request: NextRequest) {
+  // The demo deployment has one way in: the one-tap role page
+  if (isDemoModeEnabled() && shouldRedirectToDemoEntry(request.nextUrl.pathname)) {
+    return NextResponse.redirect(new URL(DEMO_ENTRY_PATH, request.url));
+  }
   return await updateSession(request);
 }
 

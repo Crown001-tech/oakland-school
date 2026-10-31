@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Logo } from '@/components/brand/Logo';
+import { PRODUCT_NAME, isEductiveBrand } from '@/lib/brand';
 import { MapPin, Phone, Mail, Clock } from 'lucide-react';
 
 interface SchoolProfile {
   name: string;
-  motto: string;
   address: string;
   phone: string;
   email: string;
@@ -15,32 +15,31 @@ interface SchoolProfile {
   currentTerm: string;
 }
 
-const DEFAULT_PROFILE: SchoolProfile = {
-  name: 'Oakland International College',
-  motto: 'Excellence, Integrity, Leadership',
-  address: '14 Academic Crescent, Victoria Island, Lagos',
-  phone: '+234 800 625 5263',
-  email: 'info@oaklandschools.edu',
-  currentSession: '2026/2027',
-  currentTerm: 'First Term',
+const EMPTY_PROFILE: SchoolProfile = {
+  name: '',
+  address: '',
+  phone: '',
+  email: '',
+  currentSession: '',
+  currentTerm: '',
 };
 
 export function PublicFooter() {
-  const [profile, setProfile] = useState<SchoolProfile>(DEFAULT_PROFILE);
+  const [profile, setProfile] = useState<SchoolProfile>(EMPTY_PROFILE);
 
+  // Everything shown here comes from the school's record; a missing field is left out
   useEffect(() => {
     fetch('/api/schools/profile')
       .then((res) => (res.ok ? res.json() : null))
       .then((json) => {
         if (json?.success && json.data) {
           setProfile({
-            name: json.data.name || DEFAULT_PROFILE.name,
-            motto: json.data.motto || DEFAULT_PROFILE.motto,
-            address: json.data.address || DEFAULT_PROFILE.address,
-            phone: json.data.phone || DEFAULT_PROFILE.phone,
-            email: json.data.email || DEFAULT_PROFILE.email,
-            currentSession: json.data.currentSession || DEFAULT_PROFILE.currentSession,
-            currentTerm: json.data.currentTerm || DEFAULT_PROFILE.currentTerm,
+            name: json.data.name || '',
+            address: json.data.address || '',
+            phone: json.data.phone || '',
+            email: json.data.email || '',
+            currentSession: json.data.currentSession || '',
+            currentTerm: json.data.currentTerm || '',
           });
         }
       })
@@ -75,40 +74,49 @@ export function PublicFooter() {
             <ul>
               <li><span>Mon – Thu: 7:45am – 3:30pm</span></li>
               <li><span>Friday: 7:45am – 1:00pm</span></li>
-              <li><span>Current Session: {profile.currentSession}</span></li>
-              <li><span>{profile.currentTerm} in Progress</span></li>
+              {profile.currentSession && <li><span>Current Session: {profile.currentSession}</span></li>}
+              {profile.currentTerm && <li><span>{profile.currentTerm} in Progress</span></li>}
             </ul>
           </div>
 
           <div className="ok-footer-col">
             <h5>Contact</h5>
             <ul>
-              <li>
-                <span>
-                  <MapPin size={13} style={{ color: '#b3141f', marginTop: 2, flexShrink: 0 }} />
-                  {profile.address}
-                </span>
-              </li>
-              <li>
-                <span>
-                  <Phone size={13} style={{ color: '#b3141f', marginTop: 2, flexShrink: 0 }} />
-                  {profile.phone}
-                </span>
-              </li>
-              <li>
-                <span>
-                  <Mail size={13} style={{ color: '#b3141f', marginTop: 2, flexShrink: 0 }} />
-                  {profile.email}
-                </span>
-              </li>
+              {profile.address && (
+                <li>
+                  <span>
+                    <MapPin size={13} style={{ color: 'var(--brand-accent)', marginTop: 2, flexShrink: 0 }} />
+                    {profile.address}
+                  </span>
+                </li>
+              )}
+              {profile.phone && (
+                <li>
+                  <span>
+                    <Phone size={13} style={{ color: 'var(--brand-accent)', marginTop: 2, flexShrink: 0 }} />
+                    {profile.phone}
+                  </span>
+                </li>
+              )}
+              {profile.email && (
+                <li>
+                  <span>
+                    <Mail size={13} style={{ color: 'var(--brand-accent)', marginTop: 2, flexShrink: 0 }} />
+                    {profile.email}
+                  </span>
+                </li>
+              )}
             </ul>
           </div>
         </div>
 
         <div className="ok-footer-bottom">
-          <p className="ok-footer-copy">
-            © {new Date().getFullYear()} {profile.name}. All rights reserved.
-          </p>
+          {profile.name && (
+            <p className="ok-footer-copy">
+              © {new Date().getFullYear()} {profile.name}. All rights reserved.
+            </p>
+          )}
+          {!isEductiveBrand() && <p className="ok-footer-copy">Powered by {PRODUCT_NAME}</p>}
         </div>
       </div>
     </footer>

@@ -286,13 +286,13 @@ export default function VisitorsPage() {
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold transition cursor-pointer disabled:opacity-50 min-h-[44px]"
             title="Refresh visitor list"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#0f3a3e]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-brand-primary' : ''}`} />
             <span>Refresh</span>
           </button>
 
           <button
             onClick={() => setIsCheckInOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#b3141f] hover:bg-[#961019] text-white text-xs font-bold transition shadow-xs cursor-pointer min-h-[44px]"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-accent hover:bg-brand-accent-hover text-white text-xs font-bold transition shadow-xs cursor-pointer min-h-[44px]"
           >
             <UserPlus className="w-4 h-4" />
             <span>Check-in Visitor</span>
@@ -334,7 +334,7 @@ export default function VisitorsPage() {
             placeholder="Search by name, pass, phone, host..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-8 pr-3 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] focus:border-[#0f3a3e] transition min-h-[38px]"
+            className="w-full pl-8 pr-3 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary transition min-h-[38px]"
           />
         </div>
       </div>
@@ -391,7 +391,7 @@ export default function VisitorsPage() {
                           {v.passNumber}
                         </div>
                         {v.badgeNumber !== '—' && (
-                          <span className="inline-flex items-center gap-1 text-[10px] text-[#0f3a3e] bg-[#0f3a3e]/10 border border-[#0f3a3e]/20 px-1.5 py-0.5 rounded font-mono font-bold mt-1">
+                          <span className="inline-flex items-center gap-1 text-[10px] text-brand-primary bg-brand-primary/10 border border-brand-primary/20 px-1.5 py-0.5 rounded font-mono font-bold mt-1">
                             <Tag className="w-2.5 h-2.5" />
                             {v.badgeNumber}
                           </span>
@@ -514,7 +514,7 @@ export default function VisitorsPage() {
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-rose-50 text-[#b3141f] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-rose-50 text-brand-accent flex items-center justify-center">
                   <UserPlus className="w-4 h-4" />
                 </div>
                 <div>
@@ -549,7 +549,7 @@ export default function VisitorsPage() {
                     placeholder="e.g. Adebayo Ogunlesi"
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none"
                   />
                 </div>
 
@@ -563,7 +563,7 @@ export default function VisitorsPage() {
                     placeholder="e.g. 08031234567"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none"
                   />
                 </div>
               </div>
@@ -579,7 +579,7 @@ export default function VisitorsPage() {
                     placeholder="Company, Ministry, or Agency"
                     value={formData.organization}
                     onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none"
                   />
                 </div>
 
@@ -592,7 +592,7 @@ export default function VisitorsPage() {
                     placeholder="e.g. KSF-123-AA"
                     value={formData.vehicleRegistration}
                     onChange={(e) => setFormData({ ...formData, vehicleRegistration: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none uppercase"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none uppercase"
                   />
                 </div>
               </div>
@@ -606,7 +606,7 @@ export default function VisitorsPage() {
                   required
                   value={formData.purpose}
                   onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none bg-white"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none bg-white"
                 >
                   <option value="">Select Purpose...</option>
                   <option value="Official Meeting">Official Meeting</option>
@@ -625,7 +625,7 @@ export default function VisitorsPage() {
                     placeholder="Specify visit purpose"
                     value={formData.customPurpose}
                     onChange={(e) => setFormData({ ...formData, customPurpose: e.target.value })}
-                    className="w-full mt-2 px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none"
+                    className="w-full mt-2 px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none"
                   />
                 )}
               </div>
@@ -647,7 +647,7 @@ export default function VisitorsPage() {
                         hostName: hostObj ? `${hostObj.name} (${hostObj.department})` : formData.hostName,
                       });
                     }}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none bg-white"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none bg-white"
                   >
                     <option value="">Select Staff Member from Directory...</option>
                     {hosts.map((h) => (
@@ -663,7 +663,7 @@ export default function VisitorsPage() {
                     placeholder="Or type host name / department directly"
                     value={formData.hostName}
                     onChange={(e) => setFormData({ ...formData, hostName: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none text-xs"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none text-xs"
                   />
                 </div>
               </div>
@@ -678,7 +678,7 @@ export default function VisitorsPage() {
                   placeholder="e.g. VIS-01, BADGE-14"
                   value={formData.badgeNumber}
                   onChange={(e) => setFormData({ ...formData, badgeNumber: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none"
                 />
               </div>
 
@@ -692,7 +692,7 @@ export default function VisitorsPage() {
                   placeholder="Items in possession, special clearance, etc."
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none resize-none"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none resize-none"
                 />
               </div>
 
@@ -708,7 +708,7 @@ export default function VisitorsPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 rounded-lg bg-[#b3141f] hover:bg-[#961019] text-white font-bold transition shadow-xs cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 rounded-lg bg-brand-accent hover:bg-brand-accent-hover text-white font-bold transition shadow-xs cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? 'Checking In...' : 'Confirm Check-in'}
                 </button>
@@ -733,9 +733,9 @@ export default function VisitorsPage() {
             </div>
 
             {/* Pass Card Component (Printable) */}
-            <div className="border-2 border-dashed border-[#b3141f]/30 rounded-xl p-4 bg-slate-50/50 space-y-3 text-center">
+            <div className="border-2 border-dashed border-brand-accent/30 rounded-xl p-4 bg-slate-50/50 space-y-3 text-center">
               <div>
-                <p className="text-[10px] font-bold text-[#b3141f] uppercase tracking-widest">
+                <p className="text-[10px] font-bold text-brand-accent uppercase tracking-widest">
                   Oakland International School
                 </p>
                 <p className="text-xs font-semibold text-slate-700">Visitor Clearance Pass</p>
@@ -747,7 +747,7 @@ export default function VisitorsPage() {
                   {selectedVisitorForPass.passNumber}
                 </p>
                 {selectedVisitorForPass.badgeNumber !== '—' && (
-                  <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-[#0f3a3e]/10 text-[#0f3a3e] border border-[#0f3a3e]/20 font-mono mt-1">
+                  <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-brand-primary/10 text-brand-primary border border-brand-primary/20 font-mono mt-1">
                     Badge #{selectedVisitorForPass.badgeNumber}
                   </span>
                 )}

@@ -88,13 +88,13 @@ export default function MyChildrenPage() {
                 key={kid.id}
                 className={`bg-white rounded-2xl border p-5 sm:p-6 transition-all shadow-xs ${
                   isActive
-                    ? 'border-[#0f3a3e] ring-1 ring-[#0f3a3e]/30'
+                    ? 'border-brand-primary ring-1 ring-brand-primary/30'
                     : 'border-slate-200/90 hover:border-slate-300'
                 }`}
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
                   <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-xl bg-[#0f3a3e] text-amber-300 font-bold text-base flex items-center justify-center shrink-0 border border-amber-500/20">
+                    <div className="w-12 h-12 rounded-xl bg-brand-primary text-amber-300 font-bold text-base flex items-center justify-center shrink-0 border border-amber-500/20">
                       {kid.name.charAt(0)}
                     </div>
                     <div>
@@ -103,14 +103,14 @@ export default function MyChildrenPage() {
                           {kid.name}
                         </h2>
                         {isActive && (
-                          <span className="px-2 py-0.5 rounded-md bg-[#0f3a3e]/10 border border-[#0f3a3e]/20 text-[#0f3a3e] text-[10px] font-bold">
+                          <span className="px-2 py-0.5 rounded-md bg-brand-primary/10 border border-brand-primary/20 text-brand-primary text-[10px] font-bold">
                             Active Context
                           </span>
                         )}
                       </div>
                       <p className="text-xs text-slate-500 mt-0.5">
                         Class: <strong className="text-slate-800">{kid.currentClass}</strong>
-                        {kid.department ? <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-[#0f3a3e]/10 border border-[#0f3a3e]/20 text-[#0f3a3e]">{kid.department}</span> : null} &bull; Admission No:{' '}
+                        {kid.department ? <span className="ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-brand-primary/10 border border-brand-primary/20 text-brand-primary">{kid.department}</span> : null} &bull; Admission No:{' '}
                         <span className="font-mono text-slate-700 font-semibold">{kid.admissionNumber}</span>
                       </p>
                     </div>
@@ -121,12 +121,12 @@ export default function MyChildrenPage() {
                       <button
                         type="button"
                         onClick={() => setActiveChildId(kid.id)}
-                        className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-[#0f3a3e]/5 text-slate-700 hover:text-[#0f3a3e] text-xs font-bold transition border border-slate-200 min-h-[40px] cursor-pointer"
+                        className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-brand-primary/5 text-slate-700 hover:text-brand-primary text-xs font-bold transition border border-slate-200 min-h-[40px] cursor-pointer"
                       >
                         Set as Active
                       </button>
                     ) : (
-                      <span className="inline-flex items-center gap-1 text-xs font-bold text-[#0f3a3e]">
+                      <span className="inline-flex items-center gap-1 text-xs font-bold text-brand-primary">
                         <Check className="w-4 h-4 text-emerald-600" /> Selected
                       </span>
                     )}
@@ -177,7 +177,7 @@ export default function MyChildrenPage() {
                     </span>
                     {/* DEF-072: Dynamically evaluate dismissal clearance status */}
                     {kid.pickupAuthorized !== false ? (
-                      <span className="font-bold text-[#0f3a3e] inline-flex items-center gap-1">
+                      <span className="font-bold text-brand-primary inline-flex items-center gap-1">
                         <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Authorized
                       </span>
                     ) : (
@@ -235,7 +235,7 @@ export default function MyChildrenPage() {
                   <select
                     value={fieldToCorrect}
                     onChange={(e) => setFieldToCorrect(e.target.value)}
-                    className="w-full text-xs h-10 px-3 rounded-xl border border-slate-200 bg-white font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                    className="w-full text-xs h-10 px-3 rounded-xl border border-slate-200 bg-white font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary"
                   >
                     <option value="address">Residential Address</option>
                     <option value="phone">Emergency Telephone</option>
@@ -255,7 +255,7 @@ export default function MyChildrenPage() {
                     placeholder="Enter the updated details"
                     value={proposedValue}
                     onChange={(e) => setProposedValue(e.target.value)}
-                    className="w-full text-xs h-10 px-3 rounded-xl border border-slate-200 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                    className="w-full text-xs h-10 px-3 rounded-xl border border-slate-200 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary"
                   />
                 </div>
 
@@ -268,7 +268,7 @@ export default function MyChildrenPage() {
                     placeholder="e.g. Relocated residence last week"
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    className="w-full text-xs h-10 px-3 rounded-xl border border-slate-200 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                    className="w-full text-xs h-10 px-3 rounded-xl border border-slate-200 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary"
                   />
                 </div>
 
@@ -283,7 +283,7 @@ export default function MyChildrenPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-4 py-2 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5"
+                    className="px-4 py-2 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5"
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>{isSubmitting ? 'Sending...' : 'Submit Request'}</span>

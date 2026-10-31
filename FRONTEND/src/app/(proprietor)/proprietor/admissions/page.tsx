@@ -177,7 +177,7 @@ export default function ProprietorAdmissionsPage() {
               onClick={() => setSelectedStatus(st)}
               className={`px-3 py-1.5 font-bold rounded-lg transition-all shrink-0 cursor-pointer ${
                 selectedStatus === st
-                  ? 'bg-[#0f3a3e] text-white shadow-xs'
+                  ? 'bg-brand-primary text-white shadow-xs'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
               }`}
             >
@@ -384,7 +384,7 @@ export default function ProprietorAdmissionsPage() {
                 <Button
                   size="sm"
                   variant="primary"
-                  className="bg-[#0f3a3e] hover:bg-[#164e53]"
+                  className="bg-brand-primary hover:bg-brand-primary-light"
                   isLoading={isProcessing}
                   leftIcon={<CheckCircle2 className="w-4 h-4" />}
                   onClick={() => handleDecision(activeApp.id, 'accept')}

@@ -195,7 +195,7 @@ export default function TeacherLeavePage() {
         </div>
         <Button
           onClick={() => setIsModalOpen(true)}
-          className="bg-[#0f3a3e] hover:bg-[#14484d] text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm"
+          className="bg-brand-primary hover:bg-[#14484d] text-white text-xs font-semibold px-4 py-2 rounded-lg flex items-center gap-2 shadow-sm"
         >
           <Plus className="w-4 h-4" />
           <span>New Leave Request</span>
@@ -402,7 +402,7 @@ export default function TeacherLeavePage() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-[#0f3a3e] hover:bg-[#14484d] text-white text-xs font-bold px-4 py-2"
+                  className="bg-brand-primary hover:bg-[#14484d] text-white text-xs font-bold px-4 py-2"
                 >
                   {isSubmitting ? 'Submitting...' : 'Submit Application'}
                 </Button>

@@ -99,7 +99,7 @@ export default function StudentAssignmentsPage() {
             onClick={() => setActiveTab(tab.key as any)}
             className={`px-4 py-2 rounded-xl font-semibold transition inline-flex items-center gap-2 cursor-pointer ${
               activeTab === tab.key
-                ? 'bg-[#0f3a3e] text-white shadow-xs'
+                ? 'bg-brand-primary text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
             }`}
           >
@@ -135,7 +135,7 @@ export default function StudentAssignmentsPage() {
               >
                 <div className="space-y-2 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-[#0f3a3e]/10 text-[#0f3a3e] border border-[#0f3a3e]/20">
+                    <span className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-brand-primary/10 text-brand-primary border border-brand-primary/20">
                       {assignment.subject?.name || 'Subject'}
                     </span>
 
@@ -202,7 +202,7 @@ export default function StudentAssignmentsPage() {
 
                   <Link
                     href={`/student/assignments/${assignment.id}`}
-                    className="px-4 py-2 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold transition shadow-xs inline-flex items-center gap-1.5 cursor-pointer"
+                    className="px-4 py-2 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold transition shadow-xs inline-flex items-center gap-1.5 cursor-pointer"
                   >
                     <span>{assignment.isSubmitted ? 'View Submission' : 'Open Task'}</span>
                     <ChevronRight className="w-3.5 h-3.5" />
@@ -215,7 +215,7 @@ export default function StudentAssignmentsPage() {
       ) : (
         /* Pristine Zero-Mock Empty State */
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-12 text-center max-w-xl mx-auto space-y-3">
-          <div className="w-14 h-14 rounded-2xl bg-[#0f3a3e]/10 border border-[#0f3a3e]/20 text-[#0f3a3e] flex items-center justify-center mx-auto">
+          <div className="w-14 h-14 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary flex items-center justify-center mx-auto">
             <CheckSquare className="w-7 h-7" />
           </div>
           <h2 className="text-base font-bold text-slate-900">

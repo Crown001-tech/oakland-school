@@ -69,7 +69,7 @@ export default function StudentResultsPage() {
           <button
             type="button"
             onClick={() => window.print()}
-            className="px-4 py-2.5 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold transition shadow-xs inline-flex items-center gap-2 self-start print:hidden cursor-pointer"
+            className="px-4 py-2.5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-semibold transition shadow-xs inline-flex items-center gap-2 self-start print:hidden cursor-pointer"
           >
             <Printer className="w-4 h-4" />
             <span>Print Report Card</span>
@@ -80,7 +80,7 @@ export default function StudentResultsPage() {
       {/* Student Academic Identity Card */}
       <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3.5">
-          <div className="w-12 h-12 rounded-xl bg-[#0f3a3e] text-amber-300 border border-amber-500/20 font-bold flex items-center justify-center text-base shrink-0 shadow-xs">
+          <div className="w-12 h-12 rounded-xl bg-brand-primary text-amber-300 border border-amber-500/20 font-bold flex items-center justify-center text-base shrink-0 shadow-xs">
             {student?.name?.charAt(0) || 'S'}
           </div>
           <div>
@@ -191,7 +191,7 @@ export default function StudentResultsPage() {
           <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden">
             <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <FileSpreadsheet className="w-4 h-4 text-[#0f3a3e]" />
+                <FileSpreadsheet className="w-4 h-4 text-brand-primary" />
                 <h3 className="font-bold text-sm text-slate-900">Terminal Subject Breakdown</h3>
               </div>
               <span className="text-xs text-slate-500 font-medium">Grading Standard: WAEC Standard Scale</span>
@@ -267,7 +267,7 @@ export default function StudentResultsPage() {
       ) : (
         /* Clean Zero-Mock Empty State */
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-12 text-center max-w-2xl mx-auto space-y-4">
-          <div className="w-14 h-14 rounded-2xl bg-[#0f3a3e]/10 border border-[#0f3a3e]/20 text-[#0f3a3e] flex items-center justify-center mx-auto">
+          <div className="w-14 h-14 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 text-brand-primary flex items-center justify-center mx-auto">
             <Clock className="w-7 h-7" />
           </div>
           <div>

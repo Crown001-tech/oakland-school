@@ -97,7 +97,7 @@ export default function AboutPage() {
           --obsidian: #07181a;
           --gold: #d4a85a;
           --gold-hover: #c4943e;
-          --crimson: #b3141f;
+          --crimson: var(--brand-accent);
           --cream: #f5f2ed;
           --cream-card: #ffffff;
           --border-gold: rgba(212, 168, 90, 0.25);
@@ -913,7 +913,7 @@ export default function AboutPage() {
                   <p className="campus-text">{f.text}</p>
                   <ul className="campus-feature-list">
                     {f.features.map((item) => (
-                      <li key={item}><CheckCircle2 size={13} style={{ color: '#b3141f' }} /> {item}</li>
+                      <li key={item}><CheckCircle2 size={13} style={{ color: 'var(--brand-accent)' }} /> {item}</li>
                     ))}
                   </ul>
                 </div>

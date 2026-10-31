@@ -119,7 +119,7 @@ export function NotificationBell() {
       case 'fee':
         return <CreditCard className="w-4 h-4 text-emerald-700" />;
       default:
-        return <Bell className="w-4 h-4 text-[#0f3a3e]" />;
+        return <Bell className="w-4 h-4 text-brand-primary" />;
     }
   };
 

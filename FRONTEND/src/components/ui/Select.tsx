@@ -31,7 +31,7 @@ export const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
             ref={ref}
             className={cn(
               'w-full appearance-none rounded-lg border bg-white px-3.5 py-2 pr-9 text-sm text-slate-800 transition-colors cursor-pointer',
-              'focus:outline-none focus:ring-2 focus:ring-[#0f3a3e] focus:border-transparent',
+              'focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent',
               'disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed',
               leftIcon ? 'pl-9' : '',
               error

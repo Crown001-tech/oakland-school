@@ -526,11 +526,11 @@ export default function ClassReportCardsPage() {
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Top Header */}
       <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-slate-50/70 to-teal-50/30 p-6 sm:p-7 shadow-xs">
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0f3a3e] via-teal-600 to-emerald-500" />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-primary via-teal-600 to-emerald-500" />
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#0f3a3e] text-white tracking-wide shadow-xs">
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-brand-primary text-white tracking-wide shadow-xs">
                 Class: {selectedClass} &bull; 2026/2027 Session
               </span>
             </div>
@@ -558,7 +558,7 @@ export default function ClassReportCardsPage() {
                   type="button"
                   onClick={handleOpenForwardModal}
                   disabled={reports.length === 0}
-                  className="bg-gradient-to-r from-[#0f3a3e] to-[#164e53] hover:from-[#13484d] hover:to-[#1b5e64] text-white shadow-xs text-xs font-bold flex items-center gap-2 h-10 px-5 rounded-xl transition-all cursor-pointer"
+                  className="bg-gradient-to-r from-brand-primary to-brand-primary-light hover:from-[#13484d] hover:to-[#1b5e64] text-white shadow-xs text-xs font-bold flex items-center gap-2 h-10 px-5 rounded-xl transition-all cursor-pointer"
                 >
                   <Send className="w-3.5 h-3.5 text-teal-300" />
                   <span>Forward {selectedClass} Report Cards to Principal</span>
@@ -582,7 +582,7 @@ export default function ClassReportCardsPage() {
                 type="button"
                 onClick={() => setSelectedClass(cls)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${isSelected
-                    ? 'bg-[#0f3a3e] text-white shadow-xs'
+                    ? 'bg-brand-primary text-white shadow-xs'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                   }`}
               >
@@ -646,7 +646,7 @@ export default function ClassReportCardsPage() {
             type="button"
             onClick={() => setViewMode('edit')}
             className={`px-3.5 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-all cursor-pointer ${viewMode === 'edit'
-                ? 'bg-[#0f3a3e] text-white shadow-xs'
+                ? 'bg-brand-primary text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
               }`}
           >
@@ -658,7 +658,7 @@ export default function ClassReportCardsPage() {
             type="button"
             onClick={() => setViewMode('preview')}
             className={`px-3.5 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-all cursor-pointer ${viewMode === 'preview'
-                ? 'bg-[#0f3a3e] text-white shadow-xs'
+                ? 'bg-brand-primary text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
               }`}
           >
@@ -699,7 +699,7 @@ export default function ClassReportCardsPage() {
                     type="button"
                     onClick={() => setFilterMode(mode)}
                     className={`px-2.5 py-1 rounded-md font-bold transition-all ${filterMode === mode
-                        ? 'bg-[#0f3a3e] text-white'
+                        ? 'bg-brand-primary text-white'
                         : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
                       }`}
                   >
@@ -725,16 +725,16 @@ export default function ClassReportCardsPage() {
                       type="button"
                       onClick={() => setSelectedReport(student)}
                       className={`w-full p-3 text-left transition-colors flex items-center justify-between cursor-pointer ${isSelected
-                          ? 'bg-teal-50/90 border-l-4 border-[#0f3a3e]'
+                          ? 'bg-teal-50/90 border-l-4 border-brand-primary'
                           : 'hover:bg-slate-50'
                         }`}
                     >
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-md bg-[#0f3a3e] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                        <div className="w-7 h-7 rounded-md bg-brand-primary text-white flex items-center justify-center font-bold text-xs shrink-0">
                           {student.position}
                         </div>
                         <div className="overflow-hidden">
-                          <p className={`text-xs font-bold truncate ${isSelected ? 'text-[#0f3a3e]' : 'text-slate-900'}`}>
+                          <p className={`text-xs font-bold truncate ${isSelected ? 'text-brand-primary' : 'text-slate-900'}`}>
                             {student.name}
                           </p>
                           <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-mono">
@@ -778,13 +778,13 @@ export default function ClassReportCardsPage() {
               {/* Active Student Header Hero - Executive Visual Hierarchy */}
               <div className="relative overflow-hidden rounded-2xl border border-slate-200/90 bg-gradient-to-br from-white via-slate-50/70 to-teal-50/30 shadow-sm p-5 sm:p-6">
                 {/* Decorative Brand Top Accent Line */}
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0f3a3e] via-teal-600 to-emerald-500" />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brand-primary via-teal-600 to-emerald-500" />
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5 sm:gap-6">
                   {/* Left: Avatar & Identity Details */}
                   <div className="flex items-start sm:items-center gap-4 min-w-0">
                     <div className="relative shrink-0">
-                      <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-[#0f3a3e] to-[#164e53] text-white flex items-center justify-center text-xl sm:text-2xl font-black shadow-md border-2 border-white ring-2 ring-teal-700/20">
+                      <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-br from-brand-primary to-brand-primary-light text-white flex items-center justify-center text-xl sm:text-2xl font-black shadow-md border-2 border-white ring-2 ring-teal-700/20">
                         {selectedReport.name
                           .split(' ')
                           .map((n) => n[0])
@@ -969,7 +969,7 @@ export default function ClassReportCardsPage() {
                                   disabled={!isHomeroom || isBatchLocked}
                                   onClick={() => handleAffectiveChange(key, num)}
                                   className={`w-9 h-8 rounded-lg font-extrabold text-xs transition-all flex items-center justify-center ${isActive
-                                      ? 'bg-[#0f3a3e] text-white shadow-xs scale-105 ring-2 ring-teal-400'
+                                      ? 'bg-brand-primary text-white shadow-xs scale-105 ring-2 ring-teal-400'
                                       : 'bg-white border border-slate-300 text-slate-700 hover:bg-teal-50'
                                     } ${!isHomeroom || isBatchLocked ? 'cursor-not-allowed opacity-80' : 'cursor-pointer'}`}
                                 >
@@ -1112,7 +1112,7 @@ export default function ClassReportCardsPage() {
               <div className="p-4 bg-white border border-slate-200 rounded-xl shadow-xs flex items-center justify-between">
                 <div>
                   <span className="text-xs font-bold text-slate-800">Report Card for:</span>
-                  <p className="text-sm font-extrabold text-[#0f3a3e]">{selectedReport.name} ({selectedClass})</p>
+                  <p className="text-sm font-extrabold text-brand-primary">{selectedReport.name} ({selectedClass})</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
@@ -1164,21 +1164,21 @@ export default function ClassReportCardsPage() {
               `}} />
               <Card className="border-slate-300 shadow-md bg-white p-6 sm:p-8 space-y-6 print:shadow-none print:border-none printable-report-card print:p-2 print:space-y-2">
                 {/* 1. Official School Header */}
-                <div className="text-center pb-3 border-b-2 border-[#0f3a3e] space-y-1 print:pb-1.5 print:space-y-0.5">
+                <div className="text-center pb-3 border-b-2 border-brand-primary space-y-1 print:pb-1.5 print:space-y-0.5">
                   <div className="flex items-center justify-center gap-3 mb-2 print:mb-1">
                     <Logo theme="light" size="sm" />
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-black text-[#0f3a3e] tracking-tight uppercase">
+                  <h2 className="text-xl sm:text-2xl font-black text-brand-primary tracking-tight uppercase">
                     Oakland International Schools
                   </h2>
-                  <p className="text-[11px] font-bold text-[#b3141f] tracking-widest uppercase">
+                  <p className="text-[11px] font-bold text-brand-accent tracking-widest uppercase">
                     Excellence, Integrity, Leadership
                   </p>
                   <p className="text-[11px] text-slate-500">
                     14 Academic Crescent, Victoria Island, Lagos &bull; admin@oaklandschools.edu
                   </p>
                   <div className="pt-2">
-                    <span className="px-4 py-1 rounded-full bg-[#0f3a3e] text-white text-xs font-extrabold uppercase tracking-wide">
+                    <span className="px-4 py-1 rounded-full bg-brand-primary text-white text-xs font-extrabold uppercase tracking-wide">
                       Terminal Continuous Assessment and Examination Report Sheet
                     </span>
                   </div>
@@ -1200,7 +1200,7 @@ export default function ClassReportCardsPage() {
                   </div>
                   <div>
                     <span className="text-slate-400 text-[10px] uppercase font-bold">Class Position</span>
-                    <p className="font-extrabold text-[#b3141f] text-sm mt-0.5">{selectedReport.position}</p>
+                    <p className="font-extrabold text-brand-accent text-sm mt-0.5">{selectedReport.position}</p>
                   </div>
 
                   <div className="sm:col-span-4 pt-2 border-t border-slate-200 grid grid-cols-4 gap-2 text-center text-[11px]">
@@ -1241,7 +1241,7 @@ export default function ClassReportCardsPage() {
                   ) : (
                     <div className="border border-slate-300 rounded-lg overflow-x-auto">
                       <table className="w-full text-xs text-left">
-                        <thead className="bg-[#0f3a3e] text-white font-bold">
+                        <thead className="bg-brand-primary text-white font-bold">
                           <tr>
                             <th className="py-2.5 px-3">Subject Name</th>
                             <th className="py-2.5 px-2 text-center">CA 1 (20)</th>
@@ -1271,7 +1271,7 @@ export default function ClassReportCardsPage() {
                                 <td className="py-2 px-2 text-center font-extrabold text-slate-900 bg-slate-50">
                                   {total}
                                 </td>
-                                <td className="py-2 px-2 text-center font-extrabold text-[#0f3a3e]">
+                                <td className="py-2 px-2 text-center font-extrabold text-brand-primary">
                                   {grade}
                                 </td>
                                 <td className="py-2 px-2 text-center text-slate-500">{sub.classHighest}</td>
@@ -1294,7 +1294,7 @@ export default function ClassReportCardsPage() {
                   const { totalMarks, maxMarks, percentage, hasScores } = calculateTotals(selectedReport);
                   const { remark } = getGradeInfo(hasScores ? parseFloat(percentage) : '—');
                   return (
-                    <div className="p-4 rounded-xl bg-[#0f3a3e] text-white grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                    <div className="p-4 rounded-xl bg-brand-primary text-white grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
                       <div>
                         <p className="text-[10px] text-teal-200 font-bold uppercase">Grand Total</p>
                         <p className="text-xl font-black mt-0.5">{hasScores ? `${totalMarks} / ${maxMarks}` : '—'}</p>
@@ -1406,14 +1406,14 @@ export default function ClassReportCardsPage() {
                         <span className="font-bold text-rose-950 uppercase text-[11px]">
                           Proprietor Executive Seal:
                         </span>
-                        <span className="text-[10px] font-bold text-[#b3141f]">Proprietor</span>
+                        <span className="text-[10px] font-bold text-brand-accent">Proprietor</span>
                       </div>
                       <p className="text-slate-700 italic text-[11px]">
                         &ldquo;{selectedReport.proprietorRemark}&rdquo;
                       </p>
                       <div className="pt-2 flex items-center justify-between text-[10px]">
                         <span className="text-slate-500 font-medium">Resumption: 11 Jan 2027</span>
-                        <span className="inline-block px-2 py-0.5 rounded bg-rose-100 text-[#b3141f] font-bold text-[9px]">
+                        <span className="inline-block px-2 py-0.5 rounded bg-rose-100 text-brand-accent font-bold text-[9px]">
                           Executive Seal Affixed
                         </span>
                       </div>
@@ -1430,7 +1430,7 @@ export default function ClassReportCardsPage() {
       {showForwardModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-150">
           <div className="relative max-w-lg w-full bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden p-6 space-y-5 animate-in zoom-in-95 duration-150">
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#0f3a3e] via-amber-500 to-teal-500" />
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brand-primary via-amber-500 to-teal-500" />
 
             <div className="flex items-start justify-between gap-3 pt-1">
               <div className="flex items-center gap-3">
@@ -1494,7 +1494,7 @@ export default function ClassReportCardsPage() {
               <Button
                 type="button"
                 onClick={handleConfirmForwardToPrincipal}
-                className="w-full sm:w-auto text-xs font-bold bg-gradient-to-r from-[#0f3a3e] to-[#164e53] hover:from-[#13484d] hover:to-[#1b5e64] text-white h-10 px-5 rounded-xl shadow-xs hover:shadow flex items-center justify-center gap-2 cursor-pointer"
+                className="w-full sm:w-auto text-xs font-bold bg-gradient-to-r from-brand-primary to-brand-primary-light hover:from-[#13484d] hover:to-[#1b5e64] text-white h-10 px-5 rounded-xl shadow-xs hover:shadow flex items-center justify-center gap-2 cursor-pointer"
               >
                 <ShieldCheck className="w-4 h-4 text-teal-300" />
                 <span>Confirm and Forward</span>

@@ -304,7 +304,7 @@ export default function SecurityDeliveriesPage() {
       case 'confidential':
         return <Lock className="w-3.5 h-3.5 text-rose-600" />;
       default:
-        return <Package className="w-3.5 h-3.5 text-[#0f3a3e]" />;
+        return <Package className="w-3.5 h-3.5 text-brand-primary" />;
     }
   };
 
@@ -315,7 +315,7 @@ export default function SecurityDeliveriesPage() {
       case 'school':
         return <School className="w-3 h-3 text-indigo-600" />;
       default:
-        return <User className="w-3 h-3 text-[#0f3a3e]" />;
+        return <User className="w-3 h-3 text-brand-primary" />;
     }
   };
 
@@ -373,7 +373,7 @@ export default function SecurityDeliveriesPage() {
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 text-xs font-semibold transition cursor-pointer disabled:opacity-50 min-h-[44px]"
             title="Refresh records"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-[#0f3a3e]' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin text-brand-primary' : ''}`} />
             <span>Refresh</span>
           </button>
 
@@ -382,7 +382,7 @@ export default function SecurityDeliveriesPage() {
               setFormError(null);
               setIsLogModalOpen(true);
             }}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#b3141f] hover:bg-[#961019] text-white text-xs font-bold transition shadow-xs cursor-pointer min-h-[44px]"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-brand-accent hover:bg-brand-accent-hover text-white text-xs font-bold transition shadow-xs cursor-pointer min-h-[44px]"
           >
             <Plus className="w-4 h-4" />
             <span>Log Delivery</span>
@@ -491,7 +491,7 @@ export default function SecurityDeliveriesPage() {
           <select
             value={packageTypeFilter}
             onChange={(e) => setPackageTypeFilter(e.target.value)}
-            className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] min-h-[36px]"
+            className="px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs font-medium text-slate-700 bg-white focus:outline-none focus:ring-1 focus:ring-brand-primary min-h-[36px]"
           >
             <option value="all">All Package Types</option>
             <option value="document">Document</option>
@@ -509,7 +509,7 @@ export default function SecurityDeliveriesPage() {
               placeholder="Search code, courier, recipient..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] min-h-[36px]"
+              className="w-full pl-9 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs focus:bg-white focus:outline-none focus:ring-1 focus:ring-brand-primary min-h-[36px]"
             />
           </div>
         </div>
@@ -554,7 +554,7 @@ export default function SecurityDeliveriesPage() {
                       <td className="px-4 py-3.5 whitespace-nowrap">
                         <button
                           onClick={() => setSelectedTicket(item)}
-                          className="font-mono font-bold text-slate-900 hover:text-[#0f3a3e] flex items-center gap-1 cursor-pointer"
+                          className="font-mono font-bold text-slate-900 hover:text-brand-primary flex items-center gap-1 cursor-pointer"
                         >
                           <span>{item.trackingCode}</span>
                           <ExternalLink className="w-3 h-3 text-slate-400" />
@@ -730,7 +730,7 @@ export default function SecurityDeliveriesPage() {
                     placeholder="e.g. DHL, FedEx, GIG Logistics"
                     value={formData.courierService}
                     onChange={(e) => setFormData({ ...formData, courierService: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none min-h-[44px]"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none min-h-[44px]"
                   />
                   <datalist id="couriers-list">
                     <option value="DHL Express" />
@@ -752,7 +752,7 @@ export default function SecurityDeliveriesPage() {
                     placeholder="e.g. WAEC Office, Evans Publishers"
                     value={formData.senderName}
                     onChange={(e) => setFormData({ ...formData, senderName: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none min-h-[44px]"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none min-h-[44px]"
                   />
                 </div>
               </div>
@@ -768,7 +768,7 @@ export default function SecurityDeliveriesPage() {
                     onClick={() => setFormData({ ...formData, recipientType: 'staff' })}
                     className={`flex items-center justify-center gap-1.5 py-2 rounded-lg border font-bold text-xs transition cursor-pointer min-h-[44px] ${
                       formData.recipientType === 'staff'
-                        ? 'bg-[#0f3a3e] text-white border-[#0f3a3e] shadow-xs'
+                        ? 'bg-brand-primary text-white border-brand-primary shadow-xs'
                         : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                     }`}
                   >
@@ -780,7 +780,7 @@ export default function SecurityDeliveriesPage() {
                     onClick={() => setFormData({ ...formData, recipientType: 'department' })}
                     className={`flex items-center justify-center gap-1.5 py-2 rounded-lg border font-bold text-xs transition cursor-pointer min-h-[44px] ${
                       formData.recipientType === 'department'
-                        ? 'bg-[#0f3a3e] text-white border-[#0f3a3e] shadow-xs'
+                        ? 'bg-brand-primary text-white border-brand-primary shadow-xs'
                         : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                     }`}
                   >
@@ -792,7 +792,7 @@ export default function SecurityDeliveriesPage() {
                     onClick={() => setFormData({ ...formData, recipientType: 'school' })}
                     className={`flex items-center justify-center gap-1.5 py-2 rounded-lg border font-bold text-xs transition cursor-pointer min-h-[44px] ${
                       formData.recipientType === 'school'
-                        ? 'bg-[#0f3a3e] text-white border-[#0f3a3e] shadow-xs'
+                        ? 'bg-brand-primary text-white border-brand-primary shadow-xs'
                         : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                     }`}
                   >
@@ -820,7 +820,7 @@ export default function SecurityDeliveriesPage() {
                         department: staff ? staff.department : formData.department,
                       });
                     }}
-                    className="w-full mb-2 px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none bg-white min-h-[44px]"
+                    className="w-full mb-2 px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none bg-white min-h-[44px]"
                   >
                     <option value="">Select Staff from Directory...</option>
                     {staffList.map((s) => (
@@ -837,7 +837,7 @@ export default function SecurityDeliveriesPage() {
                   placeholder="Enter recipient name or office title"
                   value={formData.recipientName}
                   onChange={(e) => setFormData({ ...formData, recipientName: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none min-h-[44px]"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none min-h-[44px]"
                 />
               </div>
 
@@ -850,7 +850,7 @@ export default function SecurityDeliveriesPage() {
                   <select
                     value={formData.packageType}
                     onChange={(e) => setFormData({ ...formData, packageType: e.target.value as any })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none bg-white min-h-[44px]"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none bg-white min-h-[44px]"
                   >
                     <option value="parcel">Parcel</option>
                     <option value="document">Document / Letter</option>
@@ -869,7 +869,7 @@ export default function SecurityDeliveriesPage() {
                     placeholder="Leave blank for auto-generated code"
                     value={formData.customTrackingCode}
                     onChange={(e) => setFormData({ ...formData, customTrackingCode: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none uppercase font-mono min-h-[44px]"
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none uppercase font-mono min-h-[44px]"
                   />
                 </div>
               </div>
@@ -885,7 +885,7 @@ export default function SecurityDeliveriesPage() {
                   placeholder="e.g. Science reagents sealed carton, WAEC registration certificates envelope"
                   value={formData.packageDescription}
                   onChange={(e) => setFormData({ ...formData, packageDescription: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none resize-none"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none resize-none"
                 />
               </div>
 
@@ -899,7 +899,7 @@ export default function SecurityDeliveriesPage() {
                   placeholder="Stored at Security Desk Shelf B, Reception Counter, etc."
                   value={formData.notes}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none min-h-[44px]"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none min-h-[44px]"
                 />
               </div>
 
@@ -915,7 +915,7 @@ export default function SecurityDeliveriesPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 rounded-lg bg-[#b3141f] hover:bg-[#961019] text-white font-bold transition shadow-xs cursor-pointer disabled:opacity-50 min-h-[44px]"
+                  className="px-5 py-2 rounded-lg bg-brand-accent hover:bg-brand-accent-hover text-white font-bold transition shadow-xs cursor-pointer disabled:opacity-50 min-h-[44px]"
                 >
                   {isSubmitting ? 'Logging...' : 'Confirm Delivery Intake'}
                 </button>
@@ -950,7 +950,7 @@ export default function SecurityDeliveriesPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-slate-400">Recipient:</span>
-                <span className="font-bold text-[#0f3a3e]">{selectedForCollect.recipientName}</span>
+                <span className="font-bold text-brand-primary">{selectedForCollect.recipientName}</span>
               </div>
             </div>
 
@@ -965,7 +965,7 @@ export default function SecurityDeliveriesPage() {
                   placeholder="Person picking up the package"
                   value={collectorName}
                   onChange={(e) => setCollectorName(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none min-h-[44px]"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none min-h-[44px]"
                 />
               </div>
 
@@ -978,7 +978,7 @@ export default function SecurityDeliveriesPage() {
                   placeholder="ID verified, signature on physical register, etc."
                   value={collectNotes}
                   onChange={(e) => setCollectNotes(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-[#0f3a3e] focus:outline-none min-h-[44px]"
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-brand-primary focus:outline-none min-h-[44px]"
                 />
               </div>
 
@@ -1019,7 +1019,7 @@ export default function SecurityDeliveriesPage() {
 
             <div className="border-2 border-dashed border-indigo-400/50 rounded-xl p-4 bg-indigo-50/20 space-y-3 text-center">
               <div>
-                <p className="text-[10px] font-bold text-[#b3141f] uppercase tracking-widest">
+                <p className="text-[10px] font-bold text-brand-accent uppercase tracking-widest">
                   Oakland International School
                 </p>
                 <p className="text-xs font-semibold text-slate-700">Reception Parcel Intake</p>

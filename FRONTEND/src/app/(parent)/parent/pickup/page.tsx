@@ -163,7 +163,7 @@ export default function ParentPickupPage() {
             setIsAddModalOpen(true);
             setAddMessage(null);
           }}
-          className="px-4 py-2 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold transition shadow-xs inline-flex items-center gap-1.5 self-start"
+          className="px-4 py-2 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-bold transition shadow-xs inline-flex items-center gap-1.5 self-start"
         >
           <UserPlus className="w-4 h-4" />
           <span>Add Authorized Escort</span>
@@ -171,7 +171,7 @@ export default function ParentPickupPage() {
       </div>
 
       {/* Security PIN Hero Card */}
-      <div className="bg-linear-to-br from-[#0f3a3e] via-[#144449] to-[#0a272a] rounded-2xl p-6 sm:p-8 text-white shadow-lg space-y-4">
+      <div className="bg-linear-to-br from-brand-primary via-[#144449] to-[#0a272a] rounded-2xl p-6 sm:p-8 text-white shadow-lg space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <span className="text-[11px] font-bold text-amber-300 uppercase tracking-widest flex items-center gap-1.5">
@@ -223,7 +223,7 @@ export default function ParentPickupPage() {
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <UserCheck className="w-4 h-4 text-[#0f3a3e]" />
+            <UserCheck className="w-4 h-4 text-brand-primary" />
             <h2 className="text-sm font-bold text-slate-900">
               Registered Authorized Escorts
             </h2>
@@ -260,7 +260,7 @@ export default function ParentPickupPage() {
 
                 <div className="pt-1 border-t border-slate-200/60 flex items-center justify-between text-[11px] text-slate-600">
                   <span>Phone: <strong className="text-slate-800">{escort.phone}</strong></span>
-                  <span className="font-mono text-[#0f3a3e] font-bold">PIN: {escort.pickupPin}</span>
+                  <span className="font-mono text-brand-primary font-bold">PIN: {escort.pickupPin}</span>
                 </div>
               </div>
             ))}
@@ -272,7 +272,7 @@ export default function ParentPickupPage() {
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-[#0f3a3e]" />
+            <Clock className="w-4 h-4 text-brand-primary" />
             <h2 className="text-sm font-bold text-slate-900">
               Recent Gate Dismissal Logs
             </h2>
@@ -330,7 +330,7 @@ export default function ParentPickupPage() {
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-6 space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Clock className="w-4 h-4 text-[#0f3a3e]" />
+            <Clock className="w-4 h-4 text-brand-primary" />
             <h2 className="text-sm font-bold text-slate-900">Daytime Movement Passes</h2>
           </div>
           <span className="text-[11px] font-semibold text-slate-500">{activeMovements.length} Pass(es)</span>
@@ -410,7 +410,7 @@ export default function ParentPickupPage() {
                     placeholder="e.g. John Okafor"
                     value={escortName}
                     onChange={(e) => setEscortName(e.target.value)}
-                    className="w-full text-xs h-10 px-3 rounded-xl border border-slate-200 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                    className="w-full text-xs h-10 px-3 rounded-xl border border-slate-200 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary"
                   />
                 </div>
 
@@ -421,7 +421,7 @@ export default function ParentPickupPage() {
                   <select
                     value={escortRelation}
                     onChange={(e) => setEscortRelation(e.target.value)}
-                    className="w-full text-xs h-10 px-3 rounded-xl border border-slate-200 bg-white font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                    className="w-full text-xs h-10 px-3 rounded-xl border border-slate-200 bg-white font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary"
                   >
                     <option value="Relative">Relative</option>
                     <option value="Driver">Family Driver</option>
@@ -440,7 +440,7 @@ export default function ParentPickupPage() {
                     placeholder="e.g. +234 803 123 4567"
                     value={escortPhone}
                     onChange={(e) => setEscortPhone(e.target.value)}
-                    className="w-full text-xs h-10 px-3 rounded-xl border border-slate-200 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                    className="w-full text-xs h-10 px-3 rounded-xl border border-slate-200 font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-primary"
                   />
                 </div>
 
@@ -455,7 +455,7 @@ export default function ParentPickupPage() {
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-4 py-2 rounded-xl bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5"
+                    className="px-4 py-2 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-bold transition shadow-xs flex items-center gap-1.5"
                   >
                     <ShieldCheck className="w-3.5 h-3.5" />
                     <span>{isSubmitting ? 'Registering...' : 'Authorize Escort'}</span>

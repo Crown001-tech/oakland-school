@@ -252,7 +252,7 @@ export default function AdminResultsVettingPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-[#0f3a3e] text-white">
+            <span className="px-2.5 py-0.5 rounded text-[10px] font-bold bg-brand-primary text-white">
               2026/2027 Session &bull; First Term
             </span>
           </div>
@@ -272,7 +272,7 @@ export default function AdminResultsVettingPage() {
               disabled={!canForward}
               className={`shadow-xs text-xs font-semibold flex items-center gap-2 transition ${
                 canForward
-                  ? 'bg-[#0f3a3e] hover:bg-[#164e53] text-white cursor-pointer'
+                  ? 'bg-brand-primary hover:bg-brand-primary-light text-white cursor-pointer'
                   : 'bg-slate-200 text-slate-500 cursor-not-allowed'
               }`}
             >
@@ -341,7 +341,7 @@ export default function AdminResultsVettingPage() {
                 onClick={() => setSelectedClass(cls)}
                 className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
                   isSelected
-                    ? 'bg-[#0f3a3e] text-white shadow-xs'
+                    ? 'bg-brand-primary text-white shadow-xs'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
@@ -400,16 +400,16 @@ export default function AdminResultsVettingPage() {
                     onClick={() => setSelectedStudent(student)}
                     className={`w-full p-3.5 text-left transition-colors flex items-center justify-between cursor-pointer ${
                       isSelected
-                        ? 'bg-teal-50/90 border-l-4 border-[#0f3a3e]'
+                        ? 'bg-teal-50/90 border-l-4 border-brand-primary'
                         : 'hover:bg-slate-50'
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
-                      <div className="w-7 h-7 rounded-md bg-[#0f3a3e] text-white flex items-center justify-center font-bold text-xs shrink-0">
+                      <div className="w-7 h-7 rounded-md bg-brand-primary text-white flex items-center justify-center font-bold text-xs shrink-0">
                         {student.position || '—'}
                       </div>
                       <div className="overflow-hidden">
-                        <p className={`text-xs font-bold truncate ${isSelected ? 'text-[#0f3a3e]' : 'text-slate-900'}`}>
+                        <p className={`text-xs font-bold truncate ${isSelected ? 'text-brand-primary' : 'text-slate-900'}`}>
                           {student.name}
                         </p>
                         <p className="text-[10px] text-slate-500 font-mono truncate">
@@ -603,7 +603,7 @@ export default function AdminResultsVettingPage() {
                     <Button
                       type="button"
                       onClick={handleSaveStudentVetting}
-                      className="bg-[#0f3a3e] hover:bg-[#164e53] text-white font-bold text-xs h-8 px-4"
+                      className="bg-brand-primary hover:bg-brand-primary-light text-white font-bold text-xs h-8 px-4"
                     >
                       <Save className="w-3.5 h-3.5 mr-1" />
                       Save Endorsement

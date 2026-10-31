@@ -44,6 +44,12 @@ The user has established an absolute, non-negotiable rule across all development
 10. **Ban on Credential and Code Fallbacks**:
    - NEVER invent fallback codes or PINs (e.g. `pin || '4821'`, `token || '1234'`).
    - If an escort, guardian, or user lacks an assigned PIN or token in PostgreSQL, the field must strictly resolve to `—` or `null`.
+11. **Single Exception: the Eductive Demo School (approved by the founder, M1)**:
+   - Sample records are allowed ONLY in the Eductive Demo School, which lives in its own separate database and is clearly labelled as a demo.
+   - Sample data lives only in `FRONTEND/demo/`. Nothing in `FRONTEND/src` may import from it, and the pre-completion sweep for rule 1.5 still covers all of `FRONTEND/src`.
+   - Every demo seed and reset script must refuse to run unless the connected database holds the demo school marker (`schools.code = 'EDUCTIVE-DEMO'`). It must never run against Oakland's database.
+   - Demo mode (one-tap sign-in) is enabled only when `DEMO_MODE=true` in a separate deployment, and is never enabled for Oakland.
+   - Every other rule in this section applies to the demo school exactly as it does to a real school.
 
 ---
 

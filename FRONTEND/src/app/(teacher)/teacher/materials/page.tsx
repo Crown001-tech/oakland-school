@@ -198,7 +198,7 @@ export default function TeacherMaterialsPage() {
     <div className="space-y-6 max-w-7xl mx-auto pb-16">
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 bg-[#0f3a3e] text-white px-4 py-3 rounded-2xl shadow-xl text-xs font-semibold animate-in slide-in-from-bottom-2 duration-200">
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2.5 bg-brand-primary text-white px-4 py-3 rounded-2xl shadow-xl text-xs font-semibold animate-in slide-in-from-bottom-2 duration-200">
           <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
           <span>{toastMessage}</span>
         </div>
@@ -219,7 +219,7 @@ export default function TeacherMaterialsPage() {
             if (subjects.length > 0 && !formSubjectId) setFormSubjectId(subjects[0].id);
             setShowUploadModal(true);
           }}
-          className="bg-[#0f3a3e] hover:bg-[#14474d] text-white text-xs font-bold shadow-xs flex items-center gap-2 self-start sm:self-auto cursor-pointer"
+          className="bg-brand-primary hover:bg-[#14474d] text-white text-xs font-bold shadow-xs flex items-center gap-2 self-start sm:self-auto cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Upload Material</span>
@@ -547,7 +547,7 @@ export default function TeacherMaterialsPage() {
                   type="submit"
                   size="sm"
                   isLoading={isSubmitting}
-                  className="bg-[#0f3a3e] hover:bg-[#14474d] text-white text-xs font-bold shadow-xs cursor-pointer"
+                  className="bg-brand-primary hover:bg-[#14474d] text-white text-xs font-bold shadow-xs cursor-pointer"
                 >
                   Publish Material
                 </Button>

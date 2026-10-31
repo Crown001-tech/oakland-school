@@ -307,7 +307,7 @@ export default function BursarExpendituresPage() {
 
         <CardContent className="p-0 overflow-x-auto">
           <table className="w-full text-xs text-left">
-            <thead className="bg-[#0f3a3e] text-white font-bold">
+            <thead className="bg-brand-primary text-white font-bold">
               <tr>
                 <th className="py-2.5 px-4">Voucher Number</th>
                 <th className="py-2.5 px-3">Category</th>
@@ -525,7 +525,7 @@ export default function BursarExpendituresPage() {
                   type="submit"
                   size="sm"
                   isLoading={isSubmitting}
-                  className="min-h-[44px] bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold gap-1"
+                  className="min-h-[44px] bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-bold gap-1"
                 >
                   <Check className="w-3.5 h-3.5" />
                   <span>Authorize Voucher</span>

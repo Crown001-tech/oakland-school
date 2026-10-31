@@ -170,7 +170,7 @@ function LoginForm() {
             onClick={() => { setAuthMethod('magic'); setErrorMessage(null); }}
             className={`py-2 px-3 rounded-lg transition-all text-center inline-flex items-center justify-center gap-1.5 ${
               authMethod === 'magic'
-                ? 'bg-white text-[#0f3a3e] shadow-xs font-bold'
+                ? 'bg-white text-brand-primary shadow-xs font-bold'
                 : 'text-slate-500 hover:text-slate-900'
             }`}
           >
@@ -222,7 +222,7 @@ function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="text-[11px] text-[#0f3a3e] hover:text-[#b3141f] font-semibold inline-flex items-center gap-1 cursor-pointer transition-colors"
+                  className="text-[11px] text-brand-primary hover:text-brand-accent font-semibold inline-flex items-center gap-1 cursor-pointer transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                   <span>{showPassword ? 'Hide' : 'Show'}</span>
@@ -244,7 +244,7 @@ function LoginForm() {
                 type="submit"
                 size="lg"
                 isLoading={isLoading}
-                className="w-full bg-[#0f3a3e] hover:bg-[#164e53] text-white shadow-md font-bold text-xs py-2.5 h-11 min-h-[44px]"
+                className="w-full bg-brand-primary hover:bg-brand-primary-light text-white shadow-md font-bold text-xs py-2.5 h-11 min-h-[44px]"
               >
                 Sign In to Portal
               </Button>
@@ -276,7 +276,7 @@ function LoginForm() {
                 size="lg"
                 isLoading={isLoading}
                 leftIcon={<Sparkles className="w-4 h-4" />}
-                className="w-full bg-[#0f3a3e] hover:bg-[#164e53] text-white shadow-md font-bold text-xs py-2.5 h-11 min-h-[44px]"
+                className="w-full bg-brand-primary hover:bg-brand-primary-light text-white shadow-md font-bold text-xs py-2.5 h-11 min-h-[44px]"
               >
                 Send Magic Sign-In Link
               </Button>
@@ -288,10 +288,10 @@ function LoginForm() {
         <div className="pt-4 pb-1 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-center gap-2.5">
           <Link
             href="/parent"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-[#0f3a3e]/5 text-[#0f3a3e] text-xs font-bold border border-slate-200/90 hover:border-[#0f3a3e]/30 transition-all shadow-2xs min-h-[44px]"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-brand-primary/5 text-brand-primary text-xs font-bold border border-slate-200/90 hover:border-brand-primary/30 transition-all shadow-2xs min-h-[44px]"
           >
             <span>Parent Portal</span>
-            <span aria-hidden="true" className="text-[#0f3a3e] font-bold">&rarr;</span>
+            <span aria-hidden="true" className="text-brand-primary font-bold">&rarr;</span>
           </Link>
           <Link
             href="/activate"

@@ -62,7 +62,7 @@ export default function AdminDashboardPage() {
       value: totalEnrolled.toString(),
       change: '6 Classes (JSS 1 – SS 3)',
       icon: GraduationCap,
-      color: 'text-[#0f3a3e]',
+      color: 'text-brand-primary',
       bg: 'bg-slate-100',
       href: '/admin/students',
     },
@@ -71,7 +71,7 @@ export default function AdminDashboardPage() {
       value: attendanceRate,
       change: attendanceBreakdown,
       icon: CalendarCheck,
-      color: 'text-[#0f3a3e]',
+      color: 'text-brand-primary',
       bg: 'bg-slate-100',
       href: '/admin/attendance',
     },
@@ -80,7 +80,7 @@ export default function AdminDashboardPage() {
       value: `${pendingReportCount} Batches`,
       change: 'Terminal Scores Pending',
       icon: Award,
-      color: 'text-[#0f3a3e]',
+      color: 'text-brand-primary',
       bg: 'bg-slate-100',
       href: '/admin/results',
     },
@@ -89,7 +89,7 @@ export default function AdminDashboardPage() {
       value: `${pendingLeaveCount} Requests`,
       change: pendingLeaveCount === 0 ? 'Queue Clear' : `${pendingLeaveCount} Pending Review`,
       icon: FileText,
-      color: 'text-[#0f3a3e]',
+      color: 'text-brand-primary',
       bg: 'bg-slate-100',
       href: '/admin/leave',
     },
@@ -257,7 +257,7 @@ export default function AdminDashboardPage() {
 
           <div className="flex flex-wrap items-center gap-3">
             <Link href="/admin/staff">
-              <Button className="bg-white text-[#0f3a3e] hover:bg-slate-100 font-bold text-xs shadow-sm flex items-center gap-2">
+              <Button className="bg-white text-brand-primary hover:bg-slate-100 font-bold text-xs shadow-sm flex items-center gap-2">
                 <Users className="w-4 h-4" />
                 <span>Onboard Staff</span>
               </Button>
@@ -278,9 +278,9 @@ export default function AdminDashboardPage() {
           const Icon = stat.icon;
           return (
             <Link key={i} href={stat.href} className="block group focus:outline-hidden">
-              <Card className="p-5 flex items-start justify-between border-slate-200/90 shadow-xs bg-white hover:border-[#0f3a3e] hover:shadow-md transition-all duration-200 cursor-pointer h-full">
+              <Card className="p-5 flex items-start justify-between border-slate-200/90 shadow-xs bg-white hover:border-brand-primary hover:shadow-md transition-all duration-200 cursor-pointer h-full">
                 <div className="space-y-1">
-                  <div className="flex items-center gap-1 text-slate-500 group-hover:text-[#0f3a3e] transition-colors">
+                  <div className="flex items-center gap-1 text-slate-500 group-hover:text-brand-primary transition-colors">
                     <p className="text-xs font-semibold uppercase tracking-wide">
                       {stat.title}
                     </p>
@@ -315,7 +315,7 @@ export default function AdminDashboardPage() {
                 </CardDescription>
               </div>
 
-              <Link href="/admin/attendance" className="text-xs font-semibold text-[#0f3a3e] hover:underline flex items-center gap-1">
+              <Link href="/admin/attendance" className="text-xs font-semibold text-brand-primary hover:underline flex items-center gap-1">
                 Full Register <ArrowUpRight className="w-3.5 h-3.5" />
               </Link>
             </div>
@@ -342,7 +342,7 @@ export default function AdminDashboardPage() {
                         window.location.href = `/admin/attendance`;
                       }}
                     >
-                      <td className="py-3.5 px-4 font-bold text-slate-900 group-hover:text-[#0f3a3e]">
+                      <td className="py-3.5 px-4 font-bold text-slate-900 group-hover:text-brand-primary">
                         {item.class}
                       </td>
                       <td className="py-3.5 px-4 text-slate-700">{item.teacher}</td>
@@ -372,11 +372,11 @@ export default function AdminDashboardPage() {
           {/* Campus Security Card */}
           <Card className="p-5 border-rose-200/80 shadow-xs">
             <CardTitle className="text-sm font-bold text-slate-900 mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-[#0f3a3e]">
-                <ShieldAlert className="w-4 h-4 text-[#b3141f]" />
+              <span className="flex items-center gap-1.5 text-brand-primary">
+                <ShieldAlert className="w-4 h-4 text-brand-accent" />
                 Campus Security
               </span>
-              <Link href="/admin/pickup" className="text-[11px] font-semibold text-[#0f3a3e] hover:underline">
+              <Link href="/admin/pickup" className="text-[11px] font-semibold text-brand-primary hover:underline">
                 Gate Pickup
               </Link>
             </CardTitle>
@@ -419,8 +419,8 @@ export default function AdminDashboardPage() {
           {/* Executive Notices from Proprietor */}
           <Card className="p-5 border-teal-200/80 bg-teal-50/20 shadow-xs">
             <CardTitle className="text-sm font-bold text-slate-900 mb-3 pb-2 border-b border-teal-100 flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-[#0f3a3e]">
-                <Megaphone className="w-4 h-4 text-[#b3141f]" />
+              <span className="flex items-center gap-1.5 text-brand-primary">
+                <Megaphone className="w-4 h-4 text-brand-accent" />
                 Proprietor Notices
               </span>
               <Badge variant="teal" size="sm">
@@ -471,7 +471,7 @@ export default function AdminDashboardPage() {
               ) : (
                 recentAuditEvents.map((event, idx) => (
                   <div key={idx} className="flex items-start gap-3 text-xs pb-3 border-b border-slate-100 last:border-none last:pb-0">
-                    <div className="w-2 h-2 rounded-full bg-[#0f3a3e] mt-1.5 shrink-0" />
+                    <div className="w-2 h-2 rounded-full bg-brand-primary mt-1.5 shrink-0" />
                     <div className="space-y-0.5 flex-1">
                       <p className="font-bold text-slate-900">{event.action}</p>
                       <p className="text-slate-600 text-[11px] leading-relaxed">{event.detail}</p>

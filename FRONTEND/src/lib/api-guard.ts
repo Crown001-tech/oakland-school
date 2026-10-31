@@ -34,6 +34,8 @@ const PUBLIC_ENDPOINTS: PublicRule[] = [
   { path: '/api/auth/login', methods: ['POST'] },
   { path: '/api/auth/activate-student', methods: ['POST'] },
   { path: '/api/auth/logout', methods: ['POST'] },
+  // Answers 404 unless this is the separate demo deployment on the demo database.
+  { path: '/api/demo/sign-in', methods: ['POST'] },
   // Reports `authenticated: false` for visitors, so the sign-in page can call it safely.
   { path: '/api/auth/me', methods: ['GET'] },
   // The public application forms and the school contact details in the site footer.

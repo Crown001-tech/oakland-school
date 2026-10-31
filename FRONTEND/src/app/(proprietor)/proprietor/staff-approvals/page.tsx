@@ -309,7 +309,7 @@ export default function StaffApprovalsPage() {
             placeholder="Search by name, department..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+            className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-primary"
           />
         </div>
       </div>
@@ -341,7 +341,7 @@ export default function StaffApprovalsPage() {
               <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
                 {/* Staff Info & Photo */}
                 <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-[#0f3a3e] text-white flex items-center justify-center font-bold text-base shrink-0 overflow-hidden border border-teal-800">
+                  <div className="w-14 h-14 rounded-xl bg-brand-primary text-white flex items-center justify-center font-bold text-base shrink-0 overflow-hidden border border-teal-800">
                     {staff.photoUrl ? (
                       <img src={staff.photoUrl} alt={staff.name} className="w-full h-full object-cover" />
                     ) : (
@@ -371,7 +371,7 @@ export default function StaffApprovalsPage() {
 
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-600">
                       <span className="flex items-center gap-1 font-medium text-slate-800">
-                        <GraduationCap className="w-3.5 h-3.5 text-[#0f3a3e]" />
+                        <GraduationCap className="w-3.5 h-3.5 text-brand-primary" />
                         {staff.qualification}
                       </span>
                       <span>&bull;</span>
@@ -383,13 +383,13 @@ export default function StaffApprovalsPage() {
 
                     {/* Assigned Courses and Class Teacher role */}
                     {staff.assignedSubject && staff.assignedClasses && (
-                      <div className="p-2 rounded-lg bg-teal-50/70 border border-teal-100 text-[11px] text-[#0f3a3e] mt-1 space-y-0.5">
+                      <div className="p-2 rounded-lg bg-teal-50/70 border border-teal-100 text-[11px] text-brand-primary mt-1 space-y-0.5">
                         <p className="font-bold flex items-center gap-1.5">
-                          <BookOpen className="w-3.5 h-3.5 text-[#b3141f]" />
+                          <BookOpen className="w-3.5 h-3.5 text-brand-accent" />
                           Subject: {staff.assignedSubject} &bull; Teaching Classes: {staff.assignedClasses.join(', ')}
                         </p>
                         {staff.isClassTeacher && (
-                          <p className="text-[#b3141f] font-bold">
+                          <p className="text-brand-accent font-bold">
                             &bull; Appointed Class Teacher for {staff.classTeacherOf} (Daily Roll Call and Student Oversight)
                           </p>
                         )}
@@ -427,7 +427,7 @@ export default function StaffApprovalsPage() {
                     <Button
                       size="sm"
                       variant="primary"
-                      className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs px-4"
+                      className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs px-4"
                       leftIcon={<Check className="w-3.5 h-3.5" />}
                       onClick={() => handleOpenApproveModal(staff)}
                     >
@@ -452,8 +452,8 @@ export default function StaffApprovalsPage() {
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
           <Card className="w-full max-w-xl bg-white shadow-2xl border-slate-200 p-6 space-y-5 my-8">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div className="flex items-center gap-2 text-[#0f3a3e]">
-                <Shield className="w-5 h-5 text-[#b3141f]" />
+              <div className="flex items-center gap-2 text-brand-primary">
+                <Shield className="w-5 h-5 text-brand-accent" />
                 <CardTitle className="text-base font-bold text-slate-900">
                   Staff Appointment
                 </CardTitle>
@@ -491,7 +491,7 @@ export default function StaffApprovalsPage() {
                       onClick={() => setAssignedRole(role.id as any)}
                       className={`p-2.5 rounded-lg border text-left transition-all cursor-pointer ${
                         assignedRole === role.id
-                          ? 'border-[#0f3a3e] bg-teal-50 text-[#0f3a3e] font-semibold'
+                          ? 'border-brand-primary bg-teal-50 text-brand-primary font-semibold'
                           : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                       }`}
                     >
@@ -512,7 +512,7 @@ export default function StaffApprovalsPage() {
                     <select
                       value={assignedSubject}
                       onChange={(e) => setAssignedSubject(e.target.value)}
-                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-primary"
                     >
                       {availableSubjects.map((sub) => (
                         <option key={sub} value={sub}>
@@ -539,7 +539,7 @@ export default function StaffApprovalsPage() {
                             onClick={() => toggleTeachingClass(cls)}
                             className={`p-2 rounded-lg border text-xs font-medium text-left transition-all cursor-pointer flex items-center justify-between ${
                               isSelected
-                                ? 'border-[#0f3a3e] bg-[#0f3a3e] text-white font-bold'
+                                ? 'border-brand-primary bg-brand-primary text-white font-bold'
                                 : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                             }`}
                           >
@@ -594,7 +594,7 @@ export default function StaffApprovalsPage() {
                 variant="primary"
                 isLoading={isApproving}
                 onClick={handleConfirmApproval}
-                className="bg-[#0f3a3e] hover:bg-[#164e53] text-white px-5 shadow-sm font-semibold"
+                className="bg-brand-primary hover:bg-brand-primary-light text-white px-5 shadow-sm font-semibold"
               >
                 Confirm Appointment
               </Button>
