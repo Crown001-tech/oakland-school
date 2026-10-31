@@ -53,8 +53,8 @@ export default function StaffApprovalsPage() {
 
   // Modal configuration states
   const [assignedRole, setAssignedRole] = useState<'teacher' | 'admin' | 'bursar'>('teacher');
-  const [assignedSubject, setAssignedSubject] = useState('Basic Science');
-  const [selectedTeachingClasses, setSelectedTeachingClasses] = useState<string[]>(['SS 1', 'SS 2', 'SS 3']);
+  const [assignedSubject, setAssignedSubject] = useState('');
+  const [selectedTeachingClasses, setSelectedTeachingClasses] = useState<string[]>([]);
   const [generatedEmployeeId, setGeneratedEmployeeId] = useState('');
   const [isApproving, setIsApproving] = useState(false);
   const [successToast, setSuccessToast] = useState<string | null>(null);
@@ -91,6 +91,17 @@ export default function StaffApprovalsPage() {
   useEffect(() => {
     fetchApplicants();
   }, []);
+
+  // Modal Escape key listener (DEF-010)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && selectedStaff) {
+        setSelectedStaff(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedStaff]);
 
   // Generate role-originated Employee ID whenever role changes
   useEffect(() => {
@@ -155,14 +166,19 @@ export default function StaffApprovalsPage() {
 
       const json = await res.json();
       if (json.success) {
+        const tempPass = json.temporaryPassword || json.data?.temporaryPassword || 'Issued';
         let summary = '';
         if (assignedRole === 'teacher') {
-          summary = `${selectedStaff.name} appointed as ${generatedEmployeeId}. Default password: Oakland@2026.`;
+          summary = `${selectedStaff.name} appointed as ${generatedEmployeeId}. One-time password: ${tempPass}.`;
         } else {
-          summary = `${selectedStaff.name} appointed as ${assignedRole.toUpperCase()} (${generatedEmployeeId}). Default password: Oakland@2026.`;
+          summary = `${selectedStaff.name} appointed as ${assignedRole.toUpperCase()} (${generatedEmployeeId}). One-time password: ${tempPass}.`;
         }
         setSuccessToast(summary);
         setSelectedStaff(null);
+        // Optimistic state update (DEF-007)
+        setApplicants((prev) =>
+          prev.map((a) => (a.id === selectedStaff.id ? { ...a, status: 'approved' } : a))
+        );
         fetchApplicants();
         setTimeout(() => setSuccessToast(null), 6000);
       } else {
@@ -185,6 +201,10 @@ export default function StaffApprovalsPage() {
       const json = await res.json();
       if (json.success) {
         setSuccessToast(`Application for ${name} was declined.`);
+        // Optimistic state update (DEF-007)
+        setApplicants((prev) =>
+          prev.map((a) => (a.id === id ? { ...a, status: 'declined' } : a))
+        );
         fetchApplicants();
         setTimeout(() => setSuccessToast(null), 4000);
       }
@@ -207,6 +227,7 @@ export default function StaffApprovalsPage() {
   });
 
   const pendingCount = applicants.filter((a) => a.status === 'pending').length;
+  const approvedCount = applicants.filter((a) => a.status === 'approved').length;
 
   if (loading) {
     return <BrandLoader size="lg" />;
@@ -246,8 +267,6 @@ export default function StaffApprovalsPage() {
         </div>
       )}
 
-
-
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="inline-flex p-1 rounded-xl bg-slate-200/70 text-xs font-semibold">
@@ -269,7 +288,7 @@ export default function StaffApprovalsPage() {
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Approved Staff
+            Approved Staff ({approvedCount})
           </button>
           <button
             onClick={() => setFilterTab('all')}
@@ -279,7 +298,7 @@ export default function StaffApprovalsPage() {
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            All Submissions
+            All Submissions ({applicants.length})
           </button>
         </div>
 
@@ -371,7 +390,7 @@ export default function StaffApprovalsPage() {
                         </p>
                         {staff.isClassTeacher && (
                           <p className="text-[#b3141f] font-bold">
-                            &bull; Appointed Class Teacher for {staff.classTeacherOf} (Daily Roll Call & Student Oversight)
+                            &bull; Appointed Class Teacher for {staff.classTeacherOf} (Daily Roll Call and Student Oversight)
                           </p>
                         )}
                       </div>
@@ -412,7 +431,7 @@ export default function StaffApprovalsPage() {
                       leftIcon={<Check className="w-3.5 h-3.5" />}
                       onClick={() => handleOpenApproveModal(staff)}
                     >
-                      Approve & Configure Classes
+                      Approve Staff
                     </Button>
                   </div>
                 ) : (
@@ -463,8 +482,8 @@ export default function StaffApprovalsPage() {
                 <div className="grid grid-cols-3 gap-2">
                   {[
                     { id: 'teacher', label: 'Teacher', desc: 'Class or Subject Teacher' },
-                    { id: 'admin', label: 'Principal', desc: 'Academics & Administration' },
-                    { id: 'bursar', label: 'Bursar', desc: 'Accounts & Tuition' },
+                    { id: 'admin', label: 'Principal', desc: 'Academic Leadership' },
+                    { id: 'bursar', label: 'Bursar', desc: 'School Treasury' },
                   ].map((role) => (
                     <button
                       key={role.id}
@@ -476,8 +495,8 @@ export default function StaffApprovalsPage() {
                           : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                       }`}
                     >
-                      <p className="text-xs font-bold">{role.label}</p>
-                      <p className="text-[10px] text-slate-500 mt-0.5">{role.desc}</p>
+                      <p className="text-xs font-bold mb-1">{role.label}</p>
+                      <p className="text-[10px] text-slate-500 leading-tight">{role.desc}</p>
                     </button>
                   ))}
                 </div>
@@ -577,7 +596,7 @@ export default function StaffApprovalsPage() {
                 onClick={handleConfirmApproval}
                 className="bg-[#0f3a3e] hover:bg-[#164e53] text-white px-5 shadow-sm font-semibold"
               >
-                Confirm Appointment & Configure Dashboard
+                Confirm Appointment
               </Button>
             </div>
           </Card>

@@ -27,19 +27,19 @@ export default function AdminSettingsPage() {
   const [ca1Weight, setCa1Weight] = useState(20);
   const [ca2Weight, setCa2Weight] = useState(20);
   const [examWeight, setExamWeight] = useState(60);
-  const [resumptionDate, setResumptionDate] = useState('2027-01-11');
-  const [activeSession, setActiveSession] = useState('2026/2027');
-  const [activeTerm, setActiveTerm] = useState('First Term');
-  const [classCapacity, setClassCapacity] = useState(50);
+  const [resumptionDate, setResumptionDate] = useState('');
+  const [activeSession, setActiveSession] = useState('');
+  const [activeTerm, setActiveTerm] = useState('');
+  const [classCapacity, setClassCapacity] = useState(0);
   const [passMark, setPassMark] = useState(50);
   const [minAttendanceRate, setMinAttendanceRate] = useState(75);
 
   // School Information
-  const [schoolName, setSchoolName] = useState('Oakland International College');
-  const [schoolAddress, setSchoolAddress] = useState('Plot 12, Admiralty Way, Lekki Phase 1, Lagos, Nigeria');
-  const [schoolMotto, setSchoolMotto] = useState('Knowledge, Integrity and Excellence');
-  const [schoolEmail, setSchoolEmail] = useState('info@oaklandschools.ng');
-  const [schoolPhone, setSchoolPhone] = useState('+234 1 234 5678');
+  const [schoolName, setSchoolName] = useState('');
+  const [schoolAddress, setSchoolAddress] = useState('');
+  const [schoolMotto, setSchoolMotto] = useState('');
+  const [schoolEmail, setSchoolEmail] = useState('');
+  const [schoolPhone, setSchoolPhone] = useState('');
 
   // Attendance Settings
   const [schoolStartTime, setSchoolStartTime] = useState('08:00');
@@ -65,9 +65,9 @@ export default function AdminSettingsPage() {
           setCa1Weight(d.ca1Weight ?? 20);
           setCa2Weight(d.ca2Weight ?? 20);
           setExamWeight(d.examWeight ?? 60);
-          setActiveSession(d.academicSession || '2026/2027');
-          setActiveTerm(d.currentTerm || 'First Term');
-          setClassCapacity(d.classCapacity || 50);
+          if (d.academicSession) setActiveSession(d.academicSession);
+          if (d.currentTerm) setActiveTerm(d.currentTerm);
+          if (typeof d.classCapacity === 'number') setClassCapacity(d.classCapacity);
           setPassMark(d.passMark ?? 50);
           setMinAttendanceRate(d.minAttendanceRate ?? 75);
           if (d.termEndDate) setResumptionDate(d.termEndDate);
@@ -75,6 +75,8 @@ export default function AdminSettingsPage() {
           if (d.schoolName) setSchoolName(d.schoolName);
           if (d.address) setSchoolAddress(d.address);
           if (d.motto) setSchoolMotto(d.motto);
+          if (d.email) setSchoolEmail(d.email);
+          if (d.phone) setSchoolPhone(d.phone);
 
           if (d.schoolStartTime) setSchoolStartTime(d.schoolStartTime);
           if (d.lateThreshold) setLateThreshold(d.lateThreshold);

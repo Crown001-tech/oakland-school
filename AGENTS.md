@@ -74,11 +74,32 @@ The user has established an absolute, non-negotiable rule across all development
    - **Zero attached text**: Never include text spinners (e.g., "Loading student profile...", "Fetching data...").
 5. **Gate Security Standard**:
    - Simple 4-digit **Pickup PIN** assigned to authorized guardians. Zero over-engineered biometric complexity.
-6. **Universal Staff Default Password**:
-   - Staff accounts default to **`Oakland@2026`** with unmasked copy, eye toggle, and a 1-click **Reset Password** button.
+6. **Per-Person One-Time Staff Passwords**:
+   - Each newly appointed or reset staff account receives a unique, cryptographically random one-time password (`Oak-XXXXXX`) with unmasked copy, eye toggle, and a 1-click **Reset Password** button that issues a fresh per-person code (`must_change_password = true`). Shared default passwords are prohibited.
 7. **Simplified Admissions Workflow**:
    - Public Application -> Status: **Pending Review**.
    - Proprietor reviews -> **Accept** (enrolls student directly into DB) or **Decline**.
    - Zero bureaucratic intermediate pipeline stages.
-8. **No Pension Deductions**:
-   - Pension deductions are completely eliminated from staff payroll, financial ledgers, and staff profiles.
+8. **No Pension Metric in Model Phase**:
+   - The pension metric does not exist in the current model phase of this project. It is completely purged from all types, schemas, payroll, financial ledgers, UI components, and profiles. Zero mention or display of pension anywhere in the system.
+
+---
+
+## 3. MANDATORY DUAL-VIEWPORT UI/UX & STALE UI DIRECTIVES
+1. **Mandatory Desktop & Mobile Viewport Audit on Every Batch**:
+   - For every portal route, batch, and screen inspected, the agent MUST explicitly test and capture BOTH:
+     - **Desktop Viewport** (1280×800)
+     - **Mobile Viewport** (375×812, iPhone standard)
+   - Auditing ONLY desktop is strictly forbidden.
+2. **Mobile Ergonomics & Touch Target Standard (WCAG 2.5.8)**:
+   - All interactive touch targets (navigation links, buttons, inputs, dropdown toggles, modal close icons) MUST satisfy a minimum height/width of **44×44px** on mobile viewports (`min-h-[44px]`).
+   - Ensure zero horizontal viewport overflow (`scrollWidth === clientWidth`).
+   - Test mobile drawer/hamburger slide-over, backdrop click-dismiss, and keyboard traps.
+3. **Active Scrutiny & Purge of Stale and Generic UI Elements**:
+   - The agent MUST actively inspect and catalog/purge outdated, tacky, and generic UI artifacts:
+     - Generic green badges / pill components (e.g. `bg-emerald-50 text-emerald-800 border border-emerald-200` or redundant `Enrolment Status: Enrolled`).
+     - Tacky status cards squandering primary dashboard real estate.
+     - Sibling button height misalignments (e.g. 32px button adjacent to 40px button).
+     - Temporal inversion bugs (displaying past dates under upcoming schedule/calendar widgets).
+     - DOM string concatenation errors (e.g., `SS 3Sciences` lacking whitespace/separators).
+

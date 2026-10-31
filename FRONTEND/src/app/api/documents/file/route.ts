@@ -1,13 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+import { getCaller, getLinkedStudentIds, getOwnStudentId, isAdminRole } from '@/lib/caller';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
 function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return getSupabaseAdmin();
 }
 
 export async function GET(request: NextRequest) {
@@ -28,6 +24,23 @@ export async function GET(request: NextRequest) {
       .maybeSingle();
 
     if (error || !doc) {
+      return new NextResponse('Document not found', { status: 404 });
+    }
+
+    // Institutional documents are open to any signed-in user; a student's own documents only to that
+    // student and their guardians; staff documents and unpublished drafts to administrators.
+    const caller = await getCaller();
+    let allowed = isAdminRole(caller.role);
+    if (!allowed && !doc.associated_staff_id && (!doc.status || doc.status === 'published')) {
+      if (!doc.associated_student_id) {
+        allowed = true;
+      } else if (caller.role === 'parent') {
+        allowed = (await getLinkedStudentIds(caller.email)).includes(doc.associated_student_id);
+      } else if (caller.role === 'student') {
+        allowed = (await getOwnStudentId(caller.userId ?? undefined)) === doc.associated_student_id;
+      }
+    }
+    if (!allowed) {
       return new NextResponse('Document not found', { status: 404 });
     }
 
@@ -54,7 +67,7 @@ export async function GET(request: NextRequest) {
             'Content-Type': mimeType,
             'Content-Disposition': contentDisposition,
             'Content-Length': String(buffer.length),
-            'Cache-Control': 'public, max-age=3600',
+            'Cache-Control': 'private, max-age=3600',
           },
         });
       }
@@ -70,7 +83,7 @@ export async function GET(request: NextRequest) {
             'Content-Type': mimeType,
             'Content-Disposition': contentDisposition,
             'Content-Length': String(buffer.length),
-            'Cache-Control': 'public, max-age=3600',
+            'Cache-Control': 'private, max-age=3600',
           },
         });
       } catch {}
@@ -87,7 +100,7 @@ export async function GET(request: NextRequest) {
             'Content-Type': mimeType,
             'Content-Disposition': contentDisposition,
             'Content-Length': String(buffer.length),
-            'Cache-Control': 'public, max-age=3600',
+            'Cache-Control': 'private, max-age=3600',
           },
         });
       }
@@ -106,7 +119,7 @@ export async function GET(request: NextRequest) {
               'Content-Type': mimeType,
               'Content-Disposition': contentDisposition,
               'Content-Length': String(buffer.length),
-              'Cache-Control': 'public, max-age=3600',
+              'Cache-Control': 'private, max-age=3600',
             },
           });
         }

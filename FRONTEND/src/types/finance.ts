@@ -7,8 +7,7 @@ export interface PayrollRecord {
   basicSalary: number;
   responsibilityAllowance: number; // e.g. ₦35,000 for Class Teachers
   otherAllowances: number; // Transport, housing, hazard
-  taxDeduction: number; // PAYE (LIRS ~10%)
-  pensionDeduction: number; // PENCOM (8%)
+  taxDeduction: number; // PAYE statutory
   cooperativeDeduction: number; // Voluntary cooperative / loan
   netSalary: number;
   bankAccount: string;
@@ -75,6 +74,7 @@ export interface StudentFeeLedgerItem {
   totalBilled: number;
   amountPaid: number;
   balance: number;
+  creditBalance?: number;
   status: 'Fully Paid' | 'Partial Payment' | 'Defaulter';
   parentName: string;
   parentPhone: string;
@@ -84,6 +84,7 @@ export interface StudentFeeLedgerItem {
 
 export interface PaymentTransaction {
   id: string;
+  studentId?: string;
   receiptNo: string;
   admissionNo: string;
   studentName: string;
@@ -92,6 +93,7 @@ export interface PaymentTransaction {
   method: 'Bank Transfer' | 'Bank Teller' | 'POS' | 'Cash';
   bankRef: string;
   receivingAccount: string;
+  recordedBy?: string;
   timestamp: string;
   status: 'Confirmed' | 'Reconciled';
 }

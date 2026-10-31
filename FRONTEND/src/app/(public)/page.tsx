@@ -86,6 +86,24 @@ const PILLARS = [
 export default function HomePage() {
   const statsRef = useRef<HTMLDivElement>(null);
   const [statsVisible, setStatsVisible] = useState(false);
+  const [studentCount, setStudentCount] = useState<number | null>(null);
+  const [teacherCount, setTeacherCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch('/api/students')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success && Array.isArray(d.data)) setStudentCount(d.data.length);
+      })
+      .catch(() => {});
+
+    fetch('/api/staff')
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success && Array.isArray(d.data)) setTeacherCount(d.data.length);
+      })
+      .catch(() => {});
+  }, []);
 
   /* Pillars reveal state */
   const pillarsRef = useRef<HTMLElement>(null);
@@ -733,7 +751,7 @@ export default function HomePage() {
 
         {/* Content */}
         <div className="ok-hero-content">
-          <p className="ok-eyebrow">Victoria Island, Lagos &nbsp;·&nbsp; Est. 2008 &nbsp;·&nbsp; 2026/2027 Session</p>
+          <p className="ok-eyebrow">Victoria Island, Lagos &nbsp;·&nbsp; Est. 2014 &nbsp;·&nbsp; 2026/2027 Session</p>
           <h1 className="ok-hero-title">
             Where{' '}
             <span
@@ -794,9 +812,9 @@ export default function HomePage() {
       {/* ══ STATS STRIP ══ */}
       <section className="ok-stats-strip" ref={statsRef}>
         <div className="ok-stats-inner">
-          <StatCounter value={1250} suffix="+" label="Enrolled Students" trigger={statsVisible} />
+          <StatCounter value={studentCount ?? 25} suffix="" label="Enrolled Students" trigger={statsVisible} />
           <StatCounter value={98} suffix="%" label="WAEC Pass Rate" trigger={statsVisible} />
-          <StatCounter value={24} suffix="" label="Teaching Staff" trigger={statsVisible} />
+          <StatCounter value={teacherCount ?? 19} suffix="" label="Teaching Staff" trigger={statsVisible} />
           <StatCounter value={100} suffix="%" label="Verified Results" trigger={statsVisible} />
         </div>
       </section>

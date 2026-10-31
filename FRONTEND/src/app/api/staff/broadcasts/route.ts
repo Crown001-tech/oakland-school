@@ -1,14 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
 function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return getSupabaseAdmin();
 }
 
 export async function GET() {
@@ -87,6 +83,41 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) throw error;
+
+    // Simultaneous delivery to notifications table (DEF-002)
+    try {
+      await sb.from('notifications').insert({
+        school_id: DEFAULT_SCHOOL_ID,
+        recipient_email: 'broadcast@oakland.school',
+        recipient_name: audience === 'All Staff' ? 'All Staff' : audience,
+        notification_type: 'broadcast',
+        subject: title.trim(),
+        content_html: message.trim(),
+        status: 'sent',
+        attempts_count: 0,
+      });
+    } catch (notifErr) {
+      console.warn('Notification delivery sync warning:', notifErr);
+    }
+
+    // Institutional Audit Log (DEF-003)
+    try {
+      await sb.from('audit_logs').insert({
+        school_id: DEFAULT_SCHOOL_ID,
+        actor_name: 'Office of the Proprietor',
+        actor_role: 'Proprietor',
+        action: 'BROADCAST.SENT',
+        resource_type: 'staff_broadcast',
+        resource_id: data.id,
+        metadata: {
+          title: title.trim(),
+          audience: targetAudience,
+          priority: priorityVal,
+        },
+      });
+    } catch (auditErr) {
+      console.warn('Audit logging warning:', auditErr);
+    }
 
     return NextResponse.json({
       success: true,

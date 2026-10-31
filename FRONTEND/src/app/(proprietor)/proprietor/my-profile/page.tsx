@@ -20,18 +20,20 @@ import {
 export default function ProprietorMyProfilePage() {
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [fullName, setFullName] = useState('School Proprietor');
-  const [officialTitle, setOfficialTitle] = useState('School Proprietor');
-  const [email, setEmail] = useState('proprietor@oaklandschools.edu');
-  const [phone, setPhone] = useState('+234 803 555 0199');
-  const [officeLocation, setOfficeLocation] = useState('Executive Suite, Senate Building, Oakland International College');
-  const [bio, setBio] = useState('Educationist and school founder committed to academic excellence, STEM leadership, and moral discipline.');
+  const [fullName, setFullName] = useState('');
+  const [officialTitle, setOfficialTitle] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [officeLocation, setOfficeLocation] = useState('');
+  const [bio, setBio] = useState('');
 
   // Security States
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -54,6 +56,15 @@ export default function ProprietorMyProfilePage() {
         if (schoolRes?.data?.proprietorName) {
           setFullName(schoolRes.data.proprietorName);
         }
+        if (schoolRes?.data?.proprietorTitle) {
+          setOfficialTitle(schoolRes.data.proprietorTitle);
+        }
+        if (schoolRes?.data?.proprietorOffice) {
+          setOfficeLocation(schoolRes.data.proprietorOffice);
+        }
+        if (schoolRes?.data?.proprietorBio) {
+          setBio(schoolRes.data.proprietorBio);
+        }
         if (meRes?.profile?.name) {
           setFullName(meRes.profile.name);
         }
@@ -62,6 +73,15 @@ export default function ProprietorMyProfilePage() {
         }
         if (meRes?.profile?.phone) {
           setPhone(meRes.profile.phone);
+        }
+        if (meRes?.user?.user_metadata?.office) {
+          setOfficeLocation(meRes.user.user_metadata.office);
+        }
+        if (meRes?.user?.user_metadata?.bio) {
+          setBio(meRes.user.user_metadata.bio);
+        }
+        if (meRes?.user?.user_metadata?.title) {
+          setOfficialTitle(meRes.user.user_metadata.title);
         }
       } catch (err) {
         console.error('Failed to load profile:', err);
@@ -80,14 +100,31 @@ export default function ProprietorMyProfilePage() {
     e.preventDefault();
     setIsSaving(true);
     try {
-      // Sync proprietor name to school settings in PostgreSQL
-      await fetch('/api/schools/profile', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          proprietorName: fullName,
+      // DEF-128: Persist proprietor name, title, contact, office, and bio
+      await Promise.all([
+        fetch('/api/schools/profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            proprietorName: fullName,
+            title: officialTitle,
+            phone,
+            email,
+            office: officeLocation,
+            bio,
+          }),
         }),
-      });
+        fetch('/api/auth/me', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            phone,
+            office: officeLocation,
+            bio,
+            title: officialTitle,
+          }),
+        }),
+      ]);
 
       showToast('Proprietor profile updated successfully.');
     } catch {
@@ -97,20 +134,49 @@ export default function ProprietorMyProfilePage() {
     }
   };
 
-  const handleUpdatePassword = (e: React.FormEvent) => {
+  const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPassword) {
-      alert('Please enter a new password.');
+    setPasswordError(null);
+
+    if (!currentPassword) {
+      setPasswordError('Please enter your current password.');
+      return;
+    }
+    if (!newPassword || newPassword.length < 6) {
+      setPasswordError('New password must be at least 6 characters.');
       return;
     }
     if (newPassword !== confirmPassword) {
-      alert('New passwords do not match.');
+      setPasswordError('New passwords do not match.');
       return;
     }
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-    showToast('Account password updated successfully.');
+
+    setIsUpdatingPassword(true);
+    try {
+      const res = await fetch('/api/auth/me', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword,
+        }),
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) {
+        setPasswordError(json?.message || 'Failed to update password.');
+        return;
+      }
+
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      showToast('Account password updated successfully.');
+    } catch {
+      setPasswordError('Network error while updating password.');
+    } finally {
+      setIsUpdatingPassword(false);
+    }
   };
 
   if (loading) {
@@ -253,14 +319,24 @@ export default function ProprietorMyProfilePage() {
         </div>
 
         <form onSubmit={handleUpdatePassword} className="space-y-4 text-xs max-w-md">
+          {passwordError && (
+            <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium">
+              {passwordError}
+            </div>
+          )}
+
           <div>
             <label className="block font-semibold text-slate-700 mb-1">Current Password</label>
             <input
               type="password"
               value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
+              onChange={(e) => {
+                setCurrentPassword(e.target.value);
+                if (passwordError) setPasswordError(null);
+              }}
               placeholder="••••••••"
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono"
+              required
+              className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono focus:bg-white"
             />
           </div>
 
@@ -270,9 +346,14 @@ export default function ProprietorMyProfilePage() {
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
+                onChange={(e) => {
+                  setNewPassword(e.target.value);
+                  if (passwordError) setPasswordError(null);
+                }}
                 placeholder="••••••••"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono"
+                required
+                minLength={6}
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono focus:bg-white"
               />
             </div>
             <div>
@@ -280,9 +361,14 @@ export default function ProprietorMyProfilePage() {
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  if (passwordError) setPasswordError(null);
+                }}
                 placeholder="••••••••"
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono"
+                required
+                minLength={6}
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-mono focus:bg-white"
               />
             </div>
           </div>
@@ -297,8 +383,8 @@ export default function ProprietorMyProfilePage() {
               {showPassword ? 'Hide Password' : 'Show Password'}
             </button>
 
-            <Button size="sm" variant="outline" type="submit">
-              Update Password
+            <Button size="sm" variant="outline" type="submit" disabled={isUpdatingPassword}>
+              {isUpdatingPassword ? 'Updating...' : 'Update Password'}
             </Button>
           </div>
         </form>

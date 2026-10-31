@@ -124,6 +124,20 @@ export default function BursarDashboardPage() {
   const handlePaymentRecorded = (newPay: PaymentTransaction, updatedStudent: StudentFeeLedgerItem) => {
     setPayments((prev) => [newPay, ...prev]);
     setStudents((prev) => prev.map((s) => (s.id === updatedStudent.id ? updatedStudent : s)));
+    setClassBreakdowns((prev) =>
+      prev.map((cls) => {
+        if (cls.class !== updatedStudent.class) return cls;
+        const newCollected = (cls.collected || 0) + newPay.amount;
+        const newOutstanding = Math.max(0, (cls.expected || 0) - newCollected);
+        const newPct = cls.expected > 0 ? Math.min(100, Math.round((newCollected / cls.expected) * 100)) : 0;
+        return {
+          ...cls,
+          collected: newCollected,
+          outstanding: newOutstanding,
+          pct: newPct,
+        };
+      })
+    );
     setIsRecordPaymentOpen(false);
     setActiveReceiptPayment(newPay);
   };
@@ -403,7 +417,7 @@ export default function BursarDashboardPage() {
             <table className="w-full text-xs text-left">
               <thead className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
                 <tr>
-                  <th className="py-2.5 px-3">Student and Receipt</th>
+                  <th className="py-2.5 px-3">Student</th>
                   <th className="py-2.5 px-2 text-center">Class</th>
                   <th className="py-2.5 px-3 text-right">Amount</th>
                   <th className="py-2.5 px-3 text-center">Receipt</th>
@@ -441,7 +455,7 @@ export default function BursarDashboardPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => setActiveReceiptPayment(pay)}
-                          className="h-6 px-2 text-[10px] font-bold text-teal-800 border-teal-300 hover:bg-teal-50"
+                          className="min-h-[44px] sm:min-h-[32px] px-2.5 text-[10px] font-bold text-teal-800 border-teal-300 hover:bg-teal-50"
                         >
                           <Receipt className="w-3 h-3 mr-1" />
                           Print
@@ -479,7 +493,7 @@ export default function BursarDashboardPage() {
             <table className="w-full text-xs text-left">
               <thead className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
                 <tr>
-                  <th className="py-2.5 px-3">Beneficiary and Voucher</th>
+                  <th className="py-2.5 px-3">Beneficiary</th>
                   <th className="py-2.5 px-2">Category</th>
                   <th className="py-2.5 px-3 text-right">Amount</th>
                   <th className="py-2.5 px-3 text-center">Voucher</th>
@@ -517,7 +531,7 @@ export default function BursarDashboardPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => setActiveVoucher(vch)}
-                          className="h-6 px-2 text-[10px] font-bold text-slate-800 border-slate-300 hover:bg-slate-100"
+                          className="min-h-[44px] sm:min-h-[32px] px-2.5 text-[10px] font-bold text-slate-800 border-slate-300 hover:bg-slate-100"
                         >
                           <FileText className="w-3 h-3 mr-1" />
                           Print

@@ -1,13 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
 function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return getSupabaseAdmin();
 }
 
 export async function GET() {
@@ -57,6 +52,11 @@ export async function GET() {
         nextTermResumption: school?.settings?.next_term_resumption || '2027-01-11',
         principalName,
         proprietorName: school?.settings?.proprietor_name || 'School Proprietor',
+        proprietorTitle: school?.settings?.proprietor_title || 'Proprietor & Governing Board Chair',
+        proprietorPhone: school?.settings?.proprietor_phone || school?.phone || '+234 800 625 5263',
+        proprietorEmail: school?.settings?.proprietor_email || school?.email || 'admin@oaklandschools.edu',
+        proprietorOffice: school?.settings?.proprietor_office || 'Executive Suite 1, Administrative Wing',
+        proprietorBio: school?.settings?.proprietor_bio || '',
       },
     });
   } catch (err: any) {
@@ -90,6 +90,11 @@ export async function PUT(request: NextRequest) {
       website_url: body.websiteUrl || currentSchool?.settings?.website_url,
       next_term_resumption: body.nextTermResumption || currentSchool?.settings?.next_term_resumption,
       proprietor_name: body.proprietorName || currentSchool?.settings?.proprietor_name,
+      proprietor_title: body.title || body.proprietorTitle || currentSchool?.settings?.proprietor_title,
+      proprietor_phone: body.phone || body.proprietorPhone || currentSchool?.settings?.proprietor_phone,
+      proprietor_email: body.email || body.proprietorEmail || currentSchool?.settings?.proprietor_email,
+      proprietor_office: body.office || body.proprietorOffice || currentSchool?.settings?.proprietor_office,
+      proprietor_bio: body.bio || body.proprietorBio || currentSchool?.settings?.proprietor_bio,
     };
 
     const updatePayload: Record<string, any> = {

@@ -57,6 +57,7 @@ export default function BursarProfilePage() {
 
   // Password state
   const [passwordState, setPasswordState] = useState({
+    currentPassword: '',
     newPassword: '',
     confirmPassword: '',
     showNew: false,
@@ -240,7 +241,10 @@ export default function BursarProfilePage() {
       const res = await fetch('/api/auth/me', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ newPassword: passwordState.newPassword }),
+        body: JSON.stringify({
+          currentPassword: passwordState.currentPassword,
+          newPassword: passwordState.newPassword,
+        }),
       });
 
       if (!res.ok) {
@@ -250,6 +254,7 @@ export default function BursarProfilePage() {
 
       setProfile((prev) => (prev ? { ...prev, passwordChanged: true } : null));
       setPasswordState({
+        currentPassword: '',
         newPassword: '',
         confirmPassword: '',
         showNew: false,
@@ -554,11 +559,11 @@ export default function BursarProfilePage() {
                 <div className="p-4 rounded-xl bg-amber-50 border border-amber-200 space-y-2">
                   <div className="flex items-center gap-2 text-amber-800 font-semibold text-xs">
                     <ShieldAlert className="w-4 h-4 text-amber-600" />
-                    <span>Default Password In Use</span>
+                    <span>Temporary Password In Use</span>
                   </div>
                   <p className="text-xs text-amber-700 leading-relaxed">
-                    Your account is still using the school default password (<code className="font-mono bg-white px-1.5 py-0.5 rounded text-slate-800">Oakland@2026</code>).
-                    Please choose a new password.
+                    Your account is currently using a temporary one-time password. Please set a
+                    personal password below to secure your ledger access.
                   </p>
                 </div>
               )}
@@ -592,6 +597,26 @@ export default function BursarProfilePage() {
                     <span>{passwordState.error}</span>
                   </div>
                 )}
+
+                <div className="space-y-1.5">
+                  <label
+                    htmlFor="currentPassword"
+                    className="block text-xs font-semibold text-slate-700 tracking-wide uppercase"
+                  >
+                    Current Password
+                  </label>
+                  <input
+                    id="currentPassword"
+                    type={passwordState.showNew ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    value={passwordState.currentPassword}
+                    onChange={(e) =>
+                      setPasswordState({ ...passwordState, currentPassword: e.target.value })
+                    }
+                    placeholder="Your current password"
+                    className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 min-h-[44px] text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
+                  />
+                </div>
 
                 <div className="space-y-1.5">
                   <label

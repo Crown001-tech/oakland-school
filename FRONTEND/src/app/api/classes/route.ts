@@ -1,14 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
 function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return getSupabaseAdmin();
 }
 
 export async function GET() {
@@ -40,6 +36,15 @@ export async function GET() {
       .select('id, first_name, last_name, assigned_class')
       .not('assigned_class', 'is', null);
 
+    // DEF-139: Resolve master class capacity dynamically from schools.settings (zero hardcoded 50)
+    const { data: school } = await sb
+      .from('schools')
+      .select('settings')
+      .limit(1)
+      .maybeSingle();
+
+    const masterCapacity = Number(school?.settings?.classCapacity) || 0;
+
     const formatted = (classes || []).map((c: any) => {
       const activeEnrollments = (c.class_enrollments || []).filter(
         (e: any) => e.status === 'active'
@@ -67,7 +72,7 @@ export async function GET() {
         id: c.id,
         name: c.name,
         gradeLevel: c.grade_level,
-        capacity: c.capacity || 50,
+        capacity: typeof c.capacity === 'number' && c.capacity > 0 ? c.capacity : masterCapacity,
         enrolledCount: activeEnrollments,
         classTeacher: teacherName,
         class_teacher: teacherName,
@@ -128,6 +133,13 @@ export async function POST(request: NextRequest) {
             session_id: sessionId,
             is_class_teacher: true,
           });
+
+        // Also sync staff_profiles assigned_class
+        const { data: classObj } = await sb.from('classes').select('name').eq('id', classId).single();
+        if (classObj) {
+          await sb.from('staff_profiles').update({ assigned_class: null }).eq('assigned_class', classObj.name);
+          await sb.from('staff_profiles').update({ assigned_class: classObj.name }).eq('id', teacherId);
+        }
       }
     }
 
@@ -135,4 +147,8 @@ export async function POST(request: NextRequest) {
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
+}
+
+export async function PATCH(request: NextRequest) {
+  return POST(request);
 }

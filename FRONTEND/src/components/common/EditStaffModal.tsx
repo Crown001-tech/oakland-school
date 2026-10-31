@@ -67,6 +67,15 @@ export function EditStaffModal({
 
   // Populate state when staff changes or modal opens
   useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
+  useEffect(() => {
     if (!staff || !isOpen) return;
 
     setErrorMsg(null);
@@ -188,7 +197,7 @@ export function EditStaffModal({
               </span>
             </div>
             <h2 className="text-lg font-bold text-slate-900 tracking-tight mt-1">
-              Edit Role & Assignment
+              Edit Role
             </h2>
             <p className="text-xs text-slate-500">
               Configure designated responsibility, homeroom custody, and teaching allocations for <span className="font-semibold text-slate-800">{staffDisplayName}</span>.
@@ -430,7 +439,7 @@ export function EditStaffModal({
               disabled={isSaving}
               className="bg-[#0f3a3e] hover:bg-[#164e53] text-white font-bold"
             >
-              {isSaving ? 'Saving...' : 'Save Role & Assignment'}
+              {isSaving ? 'Saving...' : 'Save Role'}
             </Button>
           </div>
         </form>

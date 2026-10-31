@@ -1,19 +1,20 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { cookies } from 'next/headers';
-import { createClient } from '@supabase/supabase-js';
 import { getServerPrincipalDelegations } from '@/lib/delegations';
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+import { getCaller, isAdminRole } from '@/lib/caller';
+import {
+  generateStaffTempPassword,
+  getSupabaseAdmin,
+  hashInviteToken,
+} from '@/lib/supabase/admin';
 
 function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return getSupabaseAdmin();
 }
 
 export async function GET() {
   try {
+    // Contact numbers and initial passwords are for administrators only; other staff get the directory.
+    const canSeeCredentials = isAdminRole((await getCaller()).role);
     const sb = getAdminClient();
     const { data, error } = await sb
       .from('staff_profiles')
@@ -38,7 +39,9 @@ export async function GET() {
 
     const formatted = (data || []).map((s: any) => {
       const authUser = (s.user_id && authUserMap.get(s.user_id)) || (s.email && authEmailMap.get(s.email.toLowerCase()));
-      const rawPassword = authUser?.user_metadata?.default_password;
+      const passwordChanged =
+        s.must_change_password === false || Boolean(authUser?.user_metadata?.password_changed);
+      const rawPassword = passwordChanged ? undefined : authUser?.user_metadata?.default_password;
       const rawAssignments = authUser?.user_metadata?.teaching_assignments || [];
       const teacherType = authUser?.user_metadata?.teacher_type || authUser?.user_metadata?.staff_role;
 
@@ -71,7 +74,7 @@ export async function GET() {
         employeeId: s.employee_id,
         name: `${s.first_name} ${s.last_name}`,
         email: s.email,
-        phone: s.phone || '—',
+        phone: canSeeCredentials ? s.phone || '—' : '—',
         role: resolvedRole,
         department: s.department || 'Academics',
         status: s.is_active ? 'Active' : 'Inactive',
@@ -79,7 +82,8 @@ export async function GET() {
         assignedClass: assignedHomeroom,
         assignedClasses: distinctClasses,
         teachingAssignments: rawAssignments,
-        password: rawPassword,
+        passwordChanged,
+        password: canSeeCredentials && !passwordChanged ? rawPassword : undefined,
       };
     });
 
@@ -95,8 +99,7 @@ export async function POST(request: NextRequest) {
     const sb = getAdminClient();
 
     // Verify delegation if called by Admin / Principal
-    const cookieStore = await cookies();
-    const roleCookie = cookieStore.get('oakland_auth_role')?.value || cookieStore.get('oakland_demo_role')?.value;
+    const roleCookie = (await getCaller()).role;
     if (roleCookie === 'admin' || roleCookie === 'principal') {
       const delegations = await getServerPrincipalDelegations(sb);
       if (!delegations.canOnboardStaff) {
@@ -188,10 +191,16 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // 1. Create or update user in Supabase Auth
+      // 1. Create or update user in Supabase Auth with a unique per-person temporary password
       let authUserId: string | null = null;
-      const targetPassword = item.password || 'Oakland@2026';
+      const targetPassword =
+        item.password && String(item.password).trim() !== ''
+          ? String(item.password).trim()
+          : generateStaffTempPassword();
+      const tokenHash = hashInviteToken(targetPassword);
+      const inviteExpiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
       const teachingAssignments = Array.isArray(item.teachingAssignments) ? item.teachingAssignments : [];
+      let existingPasswordChanged = false;
 
       try {
         const { data: created, error: createErr } = await sb.auth.admin.createUser({
@@ -204,6 +213,7 @@ export async function POST(request: NextRequest) {
             staff_role: item.role || (isClassTeacher ? 'Class Teacher' : 'Subject Teacher'),
             full_name: item.name,
             default_password: targetPassword,
+            password_changed: false,
             teaching_assignments: teachingAssignments,
           },
         });
@@ -212,29 +222,29 @@ export async function POST(request: NextRequest) {
           authUserId = created.user.id;
         } else {
           // User already exists, locate and update metadata
-          let existingId: string | null = null;
+          let existingUserObj: any = null;
           if (cachedAuthUsers) {
-            const match = cachedAuthUsers.find((u: any) => u.email?.toLowerCase() === cleanEmail);
-            if (match) existingId = match.id;
+            existingUserObj = cachedAuthUsers.find((u: any) => u.email?.toLowerCase() === cleanEmail);
           }
 
-          if (!existingId) {
+          if (!existingUserObj) {
             const { data: usersData } = await sb.auth.admin.listUsers();
-            const match = usersData?.users?.find((u: any) => u.email?.toLowerCase() === cleanEmail);
-            if (match) existingId = match.id;
+            existingUserObj = usersData?.users?.find((u: any) => u.email?.toLowerCase() === cleanEmail);
           }
 
-          if (existingId) {
-            authUserId = existingId;
-            await sb.auth.admin.updateUserById(existingId, {
-              password: targetPassword,
+          if (existingUserObj) {
+            authUserId = existingUserObj.id;
+            existingPasswordChanged = Boolean(existingUserObj.user_metadata?.password_changed);
+            await sb.auth.admin.updateUserById(existingUserObj.id, {
+              ...(existingPasswordChanged ? {} : { password: targetPassword }),
               email_confirm: true,
               user_metadata: {
+                ...(existingUserObj.user_metadata || {}),
                 role: dbRole,
                 teacher_type: item.role || (isClassTeacher ? 'Class Teacher' : 'Subject Teacher'),
                 staff_role: item.role || (isClassTeacher ? 'Class Teacher' : 'Subject Teacher'),
                 full_name: item.name,
-                default_password: targetPassword,
+                ...(existingPasswordChanged ? {} : { default_password: targetPassword, password_changed: false }),
                 teaching_assignments: teachingAssignments,
               },
             });
@@ -248,13 +258,15 @@ export async function POST(request: NextRequest) {
       try {
         const { data: existingProfile } = await sb
           .from('staff_profiles')
-          .select('id')
+          .select('id, must_change_password')
           .eq('email', cleanEmail)
           .maybeSingle();
 
         let profileRecord: any = null;
 
         if (existingProfile) {
+          const keepExistingCredentials =
+            existingPasswordChanged || existingProfile.must_change_password === false;
           const { data: updated, error: updateError } = await sb
             .from('staff_profiles')
             .update({
@@ -269,6 +281,13 @@ export async function POST(request: NextRequest) {
               subjects: Array.isArray(item.subjects) ? item.subjects : [],
               status: item.status ? item.status.toLowerCase() : 'active',
               is_active: true,
+              ...(keepExistingCredentials
+                ? {}
+                : {
+                    must_change_password: true,
+                    invite_token_hash: tokenHash,
+                    invite_expires_at: inviteExpiresAt,
+                  }),
             })
             .eq('id', existingProfile.id)
             .select();
@@ -292,6 +311,9 @@ export async function POST(request: NextRequest) {
               subjects: Array.isArray(item.subjects) ? item.subjects : [],
               status: item.status ? item.status.toLowerCase() : 'active',
               is_active: true,
+              must_change_password: true,
+              invite_token_hash: tokenHash,
+              invite_expires_at: inviteExpiresAt,
             })
             .select();
 
@@ -299,7 +321,12 @@ export async function POST(request: NextRequest) {
         }
 
         if (profileRecord) {
-          results.push({ ...profileRecord, teachingAssignments, password: targetPassword });
+          results.push({
+            ...profileRecord,
+            teachingAssignments,
+            password: existingPasswordChanged ? undefined : targetPassword,
+            passwordChanged: existingPasswordChanged,
+          });
 
           // 3. Upsert school_memberships for role resolution
           if (authUserId) {

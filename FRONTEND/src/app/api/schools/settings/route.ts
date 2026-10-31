@@ -1,14 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getCaller, formatRoleLabel } from '@/lib/caller';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
 function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return getSupabaseAdmin();
 }
 
 export async function GET() {
@@ -24,6 +21,8 @@ export async function GET() {
 
     if (schoolErr) throw schoolErr;
 
+    const persisted = school?.settings || {};
+
     // 2. Fetch Classes Capacity from PostgreSQL
     const { data: classesData } = await sb
       .from('classes')
@@ -31,16 +30,16 @@ export async function GET() {
       .order('grade_level', { ascending: true })
       .limit(1);
 
-    const standardCapacity = classesData?.[0]?.capacity || 50;
+    const standardCapacity = persisted.classCapacity || classesData?.[0]?.capacity || 0;
 
     // 3. Fetch Tuition from fee_structures in PostgreSQL
     const { data: feesData } = await sb
       .from('fee_structures')
       .select('class_name, total_amount');
 
-    const jssFee = feesData?.find((f: any) => f.class_name === 'JSS 1')?.total_amount || 185000;
-    const ss12Fee = feesData?.find((f: any) => f.class_name === 'SS 1')?.total_amount || 220000;
-    const ss3Fee = feesData?.find((f: any) => f.class_name === 'SS 3')?.total_amount || 240000;
+    const jssFee = persisted.tuitionJSS || feesData?.find((f: any) => f.class_name === 'JSS 1')?.total_amount || 0;
+    const ss12Fee = persisted.tuitionSS12 || feesData?.find((f: any) => f.class_name === 'SS 1')?.total_amount || 0;
+    const ss3Fee = persisted.tuitionSS3 || feesData?.find((f: any) => f.class_name === 'SS 3')?.total_amount || 0;
 
     // 4. Fetch Session & Term
     const [sessionRes, termRes] = await Promise.all([
@@ -48,17 +47,15 @@ export async function GET() {
       sb.from('academic_terms').select('*').eq('is_current', true).maybeSingle(),
     ]);
 
-    const persisted = school?.settings || {};
-
     const settingsData = {
       // General & Session
-      schoolName: school?.name || 'Oakland International College',
-      motto: school?.motto || 'Knowledge, Integrity and Excellence',
-      address: school?.address || '14 Academic Crescent, Victoria Island, Lagos',
-      academicSession: sessionRes.data?.name || persisted.academicSession || '2026/2027',
-      currentTerm: termRes.data?.name || persisted.currentTerm || 'Term 1',
-      termStartDate: termRes.data?.start_date || persisted.termStartDate || '2026-09-14',
-      termEndDate: termRes.data?.end_date || persisted.termEndDate || '2026-12-18',
+      schoolName: school?.name || '',
+      motto: school?.motto || '',
+      address: school?.address || '',
+      academicSession: sessionRes.data?.name || persisted.academicSession || '',
+      currentTerm: termRes.data?.name || persisted.currentTerm || '',
+      termStartDate: termRes.data?.start_date || persisted.termStartDate || '',
+      termEndDate: termRes.data?.end_date || persisted.termEndDate || '',
       classCapacity: standardCapacity,
 
       // Academic & Grading
@@ -87,12 +84,12 @@ export async function GET() {
       alertLargeTransactions: persisted.alertLargeTransactions ?? true,
 
       // Staff Compensation Scales (Master Institutional Configuration)
-      salaryPrincipal: Number(persisted.salaryPrincipal ?? 450000),
-      salaryBursar: Number(persisted.salaryBursar ?? 400000),
-      salaryClassTeacher: Number(persisted.salaryClassTeacher ?? 280000),
-      salarySubjectTeacher: Number(persisted.salarySubjectTeacher ?? 240000),
-      salarySupportStaff: Number(persisted.salarySupportStaff ?? 180000),
-      allowanceClassTeacher: Number(persisted.allowanceClassTeacher ?? 35000),
+      salaryPrincipal: Number(persisted.salaryPrincipal || 0),
+      salaryBursar: Number(persisted.salaryBursar || 0),
+      salaryClassTeacher: Number(persisted.salaryClassTeacher || 0),
+      salarySubjectTeacher: Number(persisted.salarySubjectTeacher || 0),
+      salarySupportStaff: Number(persisted.salarySupportStaff || 0),
+      allowanceClassTeacher: Number(persisted.allowanceClassTeacher || 0),
 
       // Entrance Exam Schedule Windows
       entranceExamWindows: Array.isArray(persisted.entranceExamWindows)
@@ -122,29 +119,28 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const sb = getAdminClient();
 
-    // 1. Fetch current school
+    // 1. Fetch current school ID
     const { data: school } = await sb
       .from('schools')
-      .select('id, settings')
+      .select('id')
       .limit(1)
       .maybeSingle();
 
     const schoolId = school?.id || DEFAULT_SCHOOL_ID;
-    const currentSettings = school?.settings || {};
 
-    const updatedSettings = {
-      ...currentSettings,
-      ...body,
-    };
+    // 2. Persist atomically using merge_school_settings RPC (DEF-113)
+    const { data: updatedSettings, error: rpcErr } = await sb.rpc('merge_school_settings', {
+      p_school_id: schoolId,
+      p_patch: body,
+    });
 
-    // 2. Persist to schools table
-    await sb
-      .from('schools')
-      .update({
-        settings: updatedSettings,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', schoolId);
+    if (rpcErr) {
+      console.error('merge_school_settings RPC failed:', rpcErr);
+      return NextResponse.json(
+        { success: false, message: `Failed to atomically persist school settings: ${rpcErr.message}` },
+        { status: 500 }
+      );
+    }
 
     // 3. Update Seat Capacity across all classes in PostgreSQL
     if (typeof body.classCapacity === 'number' && body.classCapacity > 0) {
@@ -178,14 +174,20 @@ export async function POST(request: NextRequest) {
 
     // Log to audit_logs
     try {
+      const caller = await getCaller();
+      const actorRole = formatRoleLabel(caller.role);
+      const actorName = caller.email || actorRole;
+
       await sb.from('audit_logs').insert({
         school_id: schoolId,
-        actor_role: 'Proprietor',
+        actor_id: caller.userId,
+        actor_name: actorName,
+        actor_role: actorRole,
         action: 'settings.updated',
         resource_type: 'schools',
         resource_id: schoolId,
         metadata: {
-          summary: 'Master institutional settings updated by Proprietor',
+          summary: `Master institutional settings updated by ${actorName}`,
           updatedKeys: Object.keys(body),
         },
       });

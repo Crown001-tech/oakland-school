@@ -51,6 +51,7 @@ export default function GateSecurityPickupPage() {
   const [loading, setLoading] = useState(true);
   const [searchInput, setSearchInput] = useState('');
   const [logs, setLogs] = useState<PickupLog[]>([]);
+  const [movements, setMovements] = useState<any[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const [activeStudent, setActiveStudent] = useState<any>(null);
@@ -66,13 +67,26 @@ export default function GateSecurityPickupPage() {
   const [newEscortPhone, setNewEscortPhone] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const closeRegisterModal = () => {
+    setIsRegisterOpen(false);
+    setNewEscortName('');
+    setNewEscortPhone('');
+    setNewEscortRelation('Parent');
+  };
+
   // Fetch recent logs, authorized escorts & student directory from PostgreSQL database
   const loadData = async () => {
     try {
-      const [pickupRes, studentsRes] = await Promise.all([
+      const [pickupRes, studentsRes, movementRes] = await Promise.all([
         fetch('/api/pickup'),
         fetch('/api/students'),
+        fetch('/api/security/movement'),
       ]);
+
+      if (movementRes.ok) {
+        const mData = await movementRes.json();
+        if (mData.success) setMovements(mData.movements || []);
+      }
 
       if (pickupRes.ok) {
         const pData = await pickupRes.json();
@@ -202,7 +216,7 @@ export default function GateSecurityPickupPage() {
           studentClass: activeStudent.class,
           pickedUpByName: activeEscort.fullName,
           relationship: activeEscort.relationship,
-          verifiedByName: 'Officer Yakubu (Gate 1)',
+          verifiedByName: 'Gate Security',
           verificationMethod: 'manual_code',
           notes: '4-digit PIN verified. Student released.',
         }),
@@ -234,7 +248,7 @@ export default function GateSecurityPickupPage() {
           studentClass: activeStudent.class,
           pickedUpByName: activeEscort.fullName,
           relationship: activeEscort.relationship,
-          verifiedByName: 'Officer Yakubu (Gate 1)',
+          verifiedByName: 'Gate Security',
           reason: 'Escort identity questioned at gate dismissal.',
         }),
       });
@@ -586,6 +600,64 @@ export default function GateSecurityPickupPage() {
         </div>
       </div>
 
+      {/* Student Movement Passes */}
+      <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold text-slate-900">Student Movement Passes</h2>
+          <span className="text-xs text-slate-500 font-medium">{movements.length} logged</span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-slate-100 text-slate-400 uppercase tracking-wider text-[10px]">
+                <th className="py-2.5 px-3">Pass</th>
+                <th className="py-2.5 px-3">Student</th>
+                <th className="py-2.5 px-3">Class</th>
+                <th className="py-2.5 px-3">Reason</th>
+                <th className="py-2.5 px-3">Departed</th>
+                <th className="py-2.5 px-3">Returned</th>
+                <th className="py-2.5 px-3">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {movements.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-12 text-center text-slate-500 text-xs">
+                    No movement passes recorded yet.
+                  </td>
+                </tr>
+              ) : (
+                movements.map((m) => (
+                  <tr key={m.id} className="hover:bg-slate-50/70">
+                    <td className="py-3 px-3 font-mono text-slate-600">{m.passNumber}</td>
+                    <td className="py-3 px-3 font-semibold text-slate-900">{m.studentName}</td>
+                    <td className="py-3 px-3 text-slate-600">{m.studentClass}</td>
+                    <td className="py-3 px-3 text-slate-600 capitalize">{String(m.reason).replace(/_/g, ' ')}</td>
+                    <td className="py-3 px-3 text-slate-600">
+                      {m.departureTime ? new Date(m.departureTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '—'}
+                    </td>
+                    <td className="py-3 px-3 text-slate-600">
+                      {m.actualReturnTime ? new Date(m.actualReturnTime).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : '—'}
+                    </td>
+                    <td className="py-3 px-3">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                        m.status === 'overdue'
+                          ? 'bg-rose-50 text-rose-700 border-rose-200'
+                          : m.status === 'departed'
+                          ? 'bg-amber-50 text-amber-700 border-amber-200'
+                          : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      }`}>
+                        {String(m.status).replace(/_/g, ' ')}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       {/* Registration Modal */}
       {isRegisterOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
@@ -596,7 +668,7 @@ export default function GateSecurityPickupPage() {
               </h3>
               <button
                 type="button"
-                onClick={() => setIsRegisterOpen(false)}
+                onClick={closeRegisterModal}
                 className="p-1 text-slate-400 hover:text-slate-600 rounded-lg cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -631,7 +703,7 @@ export default function GateSecurityPickupPage() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Chief Emeka Okafor"
+                  placeholder="Enter full name"
                   value={newEscortName}
                   onChange={(e) => setNewEscortName(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-hidden focus:border-slate-800"
@@ -678,7 +750,7 @@ export default function GateSecurityPickupPage() {
               <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
                 <button
                   type="button"
-                  onClick={() => setIsRegisterOpen(false)}
+                  onClick={closeRegisterModal}
                   className="px-3 py-1.5 border border-slate-200 rounded-xl font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
                 >
                   Cancel

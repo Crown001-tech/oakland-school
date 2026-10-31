@@ -81,6 +81,16 @@ export default function ProprietorDashboardPage() {
   });
   const [attendance, setAttendance] = useState<AttendanceMetrics | null>(null);
   const [loading, setLoading] = useState(true);
+  const [securityStats, setSecurityStats] = useState<any | null>(null);
+
+  useEffect(() => {
+    fetch('/api/security/overview')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.success) setSecurityStats(d.stats);
+      })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -289,6 +299,37 @@ export default function ProprietorDashboardPage() {
         })}
       </div>
 
+      {/* Perimeter Safety Status (aggregate counts only) */}
+      <Card className="p-5 border-slate-200/80">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div>
+            <CardTitle className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+              <Shield className="w-4 h-4 text-[#b3141f]" />
+              Perimeter Safety
+            </CardTitle>
+            <CardDescription className="text-xs text-slate-500">
+              Live gate summary from the Security Desk.
+            </CardDescription>
+          </div>
+          <Badge variant={(securityStats?.openIncidents ?? 0) > 0 ? 'crimson' : 'teal'} size="sm">
+            {(securityStats?.openIncidents ?? 0) > 0 ? `${securityStats.openIncidents} Open Incidents` : 'No Open Incidents'}
+          </Badge>
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4">
+          {[
+            { label: 'Visitors On Campus', value: securityStats?.activeVisitors ?? 0 },
+            { label: 'Students Out', value: securityStats?.activeMovements ?? 0 },
+            { label: 'Pickups Cleared Today', value: securityStats?.todayPickups ?? 0 },
+            { label: 'Deliveries Waiting', value: securityStats?.pendingDeliveries ?? 0 },
+          ].map((m) => (
+            <div key={m.label} className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+              <p className="text-xl font-black text-slate-900 font-mono">{m.value}</p>
+              <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">{m.label}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
+
       {/* Operational Grids */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Class Capacity & Enrollment Widget */}
@@ -297,7 +338,7 @@ export default function ProprietorDashboardPage() {
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <div>
                 <CardTitle className="text-sm font-bold text-slate-900">
-                  Class Capacity and Enrollment
+                  Class Capacity
                 </CardTitle>
                 <CardDescription className="text-xs text-slate-500">
                   Distribution of students across grades and available seats.
@@ -356,7 +397,7 @@ export default function ProprietorDashboardPage() {
                   Active Student Register
                 </CardTitle>
                 <CardDescription className="text-xs text-slate-500">
-                  Recent enrolled pupils recorded in the institution.
+                  Recent enrolled students recorded in the institution.
                 </CardDescription>
               </div>
 
@@ -374,7 +415,7 @@ export default function ProprietorDashboardPage() {
                   <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
                   <p className="font-semibold text-sm text-slate-700">No Students Enrolled</p>
                   <p className="text-xs text-slate-400 mt-0.5">
-                    Admit new pupils through the Admissions Board.
+                    Admit new students through the Admissions Board.
                   </p>
                 </div>
               ) : (

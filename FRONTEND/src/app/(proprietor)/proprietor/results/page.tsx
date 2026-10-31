@@ -108,17 +108,6 @@ export default function ProprietorResultsPage() {
       const json = await res.json();
 
       if (json.success) {
-        // Also update local storage for any client tabs
-        try {
-          const stored = localStorage.getItem('oakland_results_endorsed_by_proprietor');
-          const list: string[] = stored ? JSON.parse(stored) : [];
-          pendingClasses.forEach((cls) => {
-            if (!list.includes(cls)) list.push(cls);
-          });
-          localStorage.setItem('oakland_results_endorsed_by_proprietor', JSON.stringify(list));
-          window.dispatchEvent(new Event('storage'));
-        } catch {}
-
         setClassesResults((prev) =>
           prev.map((c) =>
             pendingClasses.includes(c.class) ? { ...c, status: 'Dispatched to Parents' } : c
@@ -148,16 +137,6 @@ export default function ProprietorResultsPage() {
       const json = await res.json();
 
       if (json.success) {
-        try {
-          const stored = localStorage.getItem('oakland_results_endorsed_by_proprietor');
-          const list: string[] = stored ? JSON.parse(stored) : [];
-          if (!list.includes(className)) {
-            list.push(className);
-            localStorage.setItem('oakland_results_endorsed_by_proprietor', JSON.stringify(list));
-            window.dispatchEvent(new Event('storage'));
-          }
-        } catch {}
-
         setClassesResults((prev) =>
           prev.map((c) => (c.class === className ? { ...c, status: 'Dispatched to Parents' } : c))
         );
@@ -184,18 +163,18 @@ export default function ProprietorResultsPage() {
         <head>
           <title>Terminal Broadsheet - ${selectedInspectClass}</title>
           <style>
-            @page { size: portrait; margin: 15mm; }
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 24px; color: #0f172a; line-height: 1.4; }
-            .header { border-bottom: 2px solid #0f3a3e; padding-bottom: 12px; margin-bottom: 16px; text-align: center; }
-            .title { font-size: 20px; font-weight: 800; color: #0f3a3e; text-transform: uppercase; margin: 0; }
-            .subtitle { font-size: 12px; color: #64748b; margin-top: 4px; }
-            .meta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; background: #f8fafc; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px; font-size: 12px; }
-            .meta-label { font-size: 10px; color: #64748b; text-transform: uppercase; font-weight: 700; display: block; }
-            .meta-value { font-weight: 700; color: #0f172a; font-size: 13px; }
-            .notice-box { padding: 20px; border: 1px dashed #cbd5e1; border-radius: 8px; text-align: center; font-size: 13px; color: #475569; background: #f8fafc; margin: 24px 0; }
-            .signatures { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
-            .sig-line { border-top: 1px solid #94a3b8; margin-top: 32px; padding-top: 4px; font-size: 11px; color: #475569; }
-            .sig-title { font-size: 11px; font-weight: 700; color: #0f172a; }
+            @page { size: A4 portrait; margin: 10mm; }
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 12px; color: #0f172a; line-height: 1.35; }
+            .header { border-bottom: 2px solid #0f3a3e; padding-bottom: 8px; margin-bottom: 12px; text-align: center; }
+            .title { font-size: 18px; font-weight: 800; color: #0f3a3e; text-transform: uppercase; margin: 0; }
+            .subtitle { font-size: 11px; color: #64748b; margin-top: 3px; }
+            .meta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; background: #f8fafc; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 14px; font-size: 11px; }
+            .meta-label { font-size: 9px; color: #64748b; text-transform: uppercase; font-weight: 700; display: block; }
+            .meta-value { font-weight: 700; color: #0f172a; font-size: 12px; }
+            .notice-box { padding: 14px; border: 1px dashed #cbd5e1; border-radius: 8px; text-align: center; font-size: 12px; color: #475569; background: #f8fafc; margin: 14px 0; page-break-inside: avoid; }
+            .signatures { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; padding-top: 14px; border-top: 1px solid #e2e8f0; page-break-inside: avoid; }
+            .sig-line { border-top: 1px solid #94a3b8; margin-top: 24px; padding-top: 4px; font-size: 10px; color: #475569; }
+            .sig-title { font-size: 10px; font-weight: 700; color: #0f172a; }
           </style>
         </head>
         <body>
@@ -214,7 +193,7 @@ export default function ProprietorResultsPage() {
             </div>
             <div>
               <span class="meta-label">Enrolled Students</span>
-              <span class="meta-value">${inspectClassData?.totalStudents || 0} Pupils</span>
+              <span class="meta-value">${inspectClassData?.totalStudents || 0} Students</span>
             </div>
             <div>
               <span class="meta-label">Ratification Status</span>
@@ -594,7 +573,7 @@ export default function ProprietorResultsPage() {
                       Subject teachers have not yet submitted continuous assessment and terminal examination scores for {selectedInspectClass}. The broadsheet will automatically populate as teachers submit scores.
                     </p>
                     <div className="pt-2 text-xs text-slate-400 font-mono">
-                      Class Teacher: {inspectClassData?.classTeacher} &bull; Enrolled: {inspectClassData?.totalStudents} pupils
+                      Class Teacher: {inspectClassData?.classTeacher} &bull; Enrolled: {inspectClassData?.totalStudents} students
                     </div>
                   </div>
                 );
@@ -634,7 +613,7 @@ export default function ProprietorResultsPage() {
                     </p>
                     <p className="pt-2 border-t border-slate-200 text-[#0f3a3e]">
                       <strong>Proprietor Endorsement:</strong>{' '}
-                      <span className="font-semibold">{inspectClassData?.status === 'Dispatched to Parents' ? 'OFFICIALLY RATIFIED & DISPATCHED TO PARENTS.' : 'AWAITING PROPRIETOR RATIFICATION.'}</span>
+                      <span className="font-semibold">{inspectClassData?.status === 'Dispatched to Parents' ? 'OFFICIALLY RATIFIED AND DISPATCHED TO PARENTS.' : 'AWAITING PROPRIETOR RATIFICATION.'}</span>
                     </p>
                   </div>
                 </div>
@@ -688,7 +667,7 @@ export default function ProprietorResultsPage() {
                     Oakland International School
                   </span>
                   <span className="text-[10px] text-slate-400 font-mono">
-                    Office of the Principal and Academic Directorate
+                    Office of the Principal
                   </span>
                 </div>
 

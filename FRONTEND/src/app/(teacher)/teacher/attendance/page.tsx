@@ -166,7 +166,7 @@ export default function DailyAttendancePage() {
           class: selectedClass || homeroomClass,
           date: today,
           records: students,
-          markedBy: currentTeacher?.name || 'Adesayan Peter',
+          markedBy: currentTeacher?.name || 'Class Teacher',
         }),
       });
 

@@ -77,6 +77,7 @@ export default function TeacherProfilePage() {
 
   // Password change tab state
   const [passwordState, setPasswordState] = useState({
+    currentPassword: '',
     newPassword: '',
     confirmPassword: '',
     showNew: false,
@@ -312,12 +313,16 @@ export default function TeacherProfilePage() {
       const res = await fetch('/api/auth/me', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ newPassword: passwordState.newPassword }),
+        body: JSON.stringify({
+          currentPassword: passwordState.currentPassword,
+          newPassword: passwordState.newPassword,
+        }),
       });
 
       if (res.ok) {
         setProfile((prev) => (prev ? { ...prev, passwordChanged: true } : null));
         setPasswordState({
+          currentPassword: '',
           newPassword: '',
           confirmPassword: '',
           showNew: false,
@@ -733,7 +738,7 @@ export default function TeacherProfilePage() {
         <div className="flex border-b border-slate-200 bg-white px-2 rounded-2xl shadow-xs overflow-x-auto">
           {[
             { id: 'overview', label: 'Profile Details', icon: User },
-            { id: 'security', label: 'Security and Password', icon: Key },
+            { id: 'security', label: 'Security', icon: Key },
             { id: 'classes', label: 'Teaching Remit', icon: BookOpen },
             { id: 'payroll', label: 'Compensation', icon: CreditCard },
           ].map((tab) => {
@@ -957,9 +962,23 @@ export default function TeacherProfilePage() {
                   {!profile.passwordChanged && (
                     <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2">
                       <ShieldAlert className="w-4 h-4 shrink-0 text-amber-600" />
-                      <span>You are currently using the default staff password (Oakland@2026). Please change it now.</span>
+                      <span>You are currently using a temporary one-time staff password. Please set a personal password now.</span>
                     </div>
                   )}
+
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 block mb-1">
+                      Current Password
+                    </label>
+                    <Input
+                      type={passwordState.showNew ? 'text' : 'password'}
+                      autoComplete="current-password"
+                      value={passwordState.currentPassword}
+                      onChange={(e) => setPasswordState({ ...passwordState, currentPassword: e.target.value })}
+                      placeholder="Your current password"
+                      className="text-xs"
+                    />
+                  </div>
 
                   <div>
                     <label className="text-xs font-semibold text-slate-700 block mb-1">
@@ -1158,7 +1177,7 @@ export default function TeacherProfilePage() {
                     <Lock className="w-3.5 h-3.5 text-teal-700" />
                     Set Personal Password
                   </span>
-                  <span className="text-[10px] text-slate-500 font-medium">Replaces Oakland@2026</span>
+                  <span className="text-[10px] text-slate-500 font-medium">Replaces temporary password</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

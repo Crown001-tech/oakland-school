@@ -94,6 +94,31 @@ export default function ProprietorLayout({ children }: { children: React.ReactNo
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
+  const [navBadges, setNavBadges] = useState<Record<string, { count: number; dot: boolean }>>({});
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchBadges = async () => {
+      try {
+        const res = await fetch('/api/nav-badges?role=proprietor');
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && data.success && data.badges) {
+            setNavBadges(data.badges);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to load navigation badges:', err);
+      }
+    };
+
+    fetchBadges();
+    const interval = setInterval(fetchBadges, 15000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [pathname]);
 
   const handleLogout = async () => {
     try {
@@ -172,6 +197,10 @@ export default function ProprietorLayout({ children }: { children: React.ReactNo
               {group.items.map((item) => {
                 const Icon = item.icon;
                 const active = pathname === item.href;
+                const badgeInfo = navBadges[item.href];
+                const badgeCount = badgeInfo?.count || 0;
+                const hasDot = badgeInfo?.dot || false;
+
                 return (
                   <Link
                     key={item.href}
@@ -183,15 +212,34 @@ export default function ProprietorLayout({ children }: { children: React.ReactNo
                         : 'text-slate-400 hover:bg-white/5 hover:text-white'
                     }`}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <Icon className={`w-3.5 h-3.5 ${active ? 'text-teal-400' : 'text-slate-500'}`} />
-                      <span>{item.label}</span>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="relative flex items-center justify-center shrink-0">
+                        <Icon className={`w-3.5 h-3.5 ${active ? 'text-teal-400' : 'text-slate-500'}`} />
+                        {badgeCount > 0 ? (
+                          <span
+                            className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-0.5 bg-rose-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none ring-2 ring-[#0a1b1d] shadow-xs"
+                            title={`${badgeCount} item${badgeCount > 1 ? 's' : ''} requiring attention`}
+                          >
+                            {badgeCount > 99 ? '99+' : badgeCount}
+                          </span>
+                        ) : hasDot ? (
+                          <span
+                            className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-[#0a1b1d] animate-pulse"
+                            title="Attention required"
+                          />
+                        ) : null}
+                      </div>
+                      <span className="truncate">{item.label}</span>
                     </div>
-                    {item.badge && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-slate-300 font-bold">
+                    {badgeCount > 0 ? (
+                      <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-rose-500/15 text-rose-300 font-bold border border-rose-500/25 shrink-0">
+                        {badgeCount}
+                      </span>
+                    ) : item.badge ? (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-slate-300 font-bold shrink-0">
                         {item.badge}
                       </span>
-                    )}
+                    ) : null}
                   </Link>
                 );
               })}

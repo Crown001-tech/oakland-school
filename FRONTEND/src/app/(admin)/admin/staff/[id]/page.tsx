@@ -150,8 +150,9 @@ export default function AdminStaffProfilePage() {
       });
       const json = await res.json();
       if (json.success) {
-        setStaff((prev) => (prev ? { ...prev, defaultPassword: 'Oakland@2026' } : null));
-        showToast('Password successfully reset to default Oakland@2026');
+        const issuedPassword = json.defaultPassword || '—';
+        setStaff((prev) => (prev ? { ...prev, defaultPassword: issuedPassword } : null));
+        showToast(json.message || `One-time password generated: ${issuedPassword}`);
       } else {
         alert(json.message || 'Failed to reset password');
       }
@@ -298,7 +299,7 @@ export default function AdminStaffProfilePage() {
               onClick={() => setIsEditModalOpen(true)}
               className="bg-[#0f3a3e] hover:bg-[#164e53] text-white font-bold cursor-pointer"
             >
-              Edit Role & Assignment
+              Edit Role
             </Button>
           </div>
         </div>
@@ -350,7 +351,7 @@ export default function AdminStaffProfilePage() {
                       Responsibility
                     </span>
                     <span className="text-xs sm:text-sm font-bold text-[#0f3a3e] mt-0.5 block">
-                      Academic & Operations
+                      Operations
                     </span>
                   </div>
                 </>
@@ -370,7 +371,7 @@ export default function AdminStaffProfilePage() {
                       Responsibility
                     </span>
                     <span className="text-xs sm:text-sm font-bold text-amber-900 mt-0.5 block">
-                      Bursary & Accounts
+                      Accounts
                     </span>
                   </div>
                 </>
@@ -522,13 +523,13 @@ export default function AdminStaffProfilePage() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                   <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-1">
-                    <p className="font-bold text-slate-900">Curriculum & Instructional Leadership</p>
+                    <p className="font-bold text-slate-900">Curriculum Leadership</p>
                     <p className="text-slate-600">
                       Supervision of teaching staff, syllabus execution, lesson plans, and instructional standards.
                     </p>
                   </div>
                   <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-1">
-                    <p className="font-bold text-slate-900">Examinations & Result Approvals</p>
+                    <p className="font-bold text-slate-900">Examination Approvals</p>
                     <p className="text-slate-600">
                       Terminal examination vetting, continuous assessment moderation, and verification of report cards.
                     </p>
@@ -832,7 +833,7 @@ export default function AdminStaffProfilePage() {
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Folake Davies"
+                    placeholder="Account holder name"
                     value={formAccountName}
                     onChange={(e) => setFormAccountName(e.target.value)}
                     className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-hidden focus:border-slate-800 bg-white"

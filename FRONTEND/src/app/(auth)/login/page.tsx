@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Logo } from '@/components/brand/Logo';
+import { BrandLoader } from '@/components/ui/BrandLoader';
 import {
   Mail,
   Lock,
@@ -82,6 +83,10 @@ function LoginForm() {
           destination = redirectUrl;
         } else if (data.role === 'proprietor' && redirectUrl.startsWith('/proprietor')) {
           destination = redirectUrl;
+        } else if (data.role === 'parent' && redirectUrl.startsWith('/parent')) {
+          destination = redirectUrl;
+        } else if (data.role === 'student' && redirectUrl.startsWith('/student')) {
+          destination = redirectUrl;
         }
       }
 
@@ -139,7 +144,7 @@ function LoginForm() {
             Oakland International School
           </h1>
           <p className="text-xs text-slate-500 font-medium mt-1">
-            Faculty, Bursary & Administration Portal
+            School Operating System &bull; Unified Portal
           </p>
         </div>
       </div>
@@ -196,11 +201,11 @@ function LoginForm() {
           <form onSubmit={handlePasswordLogin} className="space-y-4">
             <div>
               <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                Official School Email
+                Email Address or Student Admission Number
               </label>
               <Input
-                type="email"
-                placeholder="e.g. principal@oaklandschools.edu"
+                type="text"
+                placeholder="e.g. staff@oakland.ng or OAK-2026-123"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -217,7 +222,7 @@ function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="text-[11px] text-teal-800 hover:text-teal-950 font-semibold inline-flex items-center gap-1 cursor-pointer"
+                  className="text-[11px] text-[#0f3a3e] hover:text-[#b3141f] font-semibold inline-flex items-center gap-1 cursor-pointer transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
                   <span>{showPassword ? 'Hide' : 'Show'}</span>
@@ -230,7 +235,7 @@ function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 leftIcon={<Lock className="w-4 h-4 text-slate-400" />}
-                className="text-xs font-mono h-10"
+                className="text-xs font-mono h-11"
               />
             </div>
 
@@ -239,7 +244,7 @@ function LoginForm() {
                 type="submit"
                 size="lg"
                 isLoading={isLoading}
-                className="w-full bg-[#0f3a3e] hover:bg-[#164e53] text-white shadow-md font-bold text-xs py-2.5 h-11"
+                className="w-full bg-[#0f3a3e] hover:bg-[#164e53] text-white shadow-md font-bold text-xs py-2.5 h-11 min-h-[44px]"
               >
                 Sign In to Portal
               </Button>
@@ -258,7 +263,7 @@ function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 leftIcon={<Mail className="w-4 h-4 text-slate-400" />}
-                className="text-xs h-10"
+                className="text-xs h-11"
               />
               <p className="text-[11px] text-slate-500 mt-1.5">
                 A passwordless verification link will be sent to your official registered email address.
@@ -271,7 +276,7 @@ function LoginForm() {
                 size="lg"
                 isLoading={isLoading}
                 leftIcon={<Sparkles className="w-4 h-4" />}
-                className="w-full bg-[#0f3a3e] hover:bg-[#164e53] text-white shadow-md font-bold text-xs py-2.5 h-11"
+                className="w-full bg-[#0f3a3e] hover:bg-[#164e53] text-white shadow-md font-bold text-xs py-2.5 h-11 min-h-[44px]"
               >
                 Send Magic Sign-In Link
               </Button>
@@ -279,25 +284,25 @@ function LoginForm() {
           </form>
         )}
 
-        {/* Parent Portal Access */}
-        <div className="pt-3 pb-1 border-t border-slate-100 text-center">
+        {/* Quick Portal Navigation */}
+        <div className="pt-4 pb-1 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-center gap-2.5">
           <Link
-            href="/parent/dashboard"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 text-xs font-bold border border-teal-200/80 transition-colors"
+            href="/parent"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-[#0f3a3e]/5 text-[#0f3a3e] text-xs font-bold border border-slate-200/90 hover:border-[#0f3a3e]/30 transition-all shadow-2xs min-h-[44px]"
           >
-            Are you a Parent? Go to Parent Portal &rarr;
+            <span>Parent Portal</span>
+            <span aria-hidden="true" className="text-[#0f3a3e] font-bold">&rarr;</span>
+          </Link>
+          <Link
+            href="/activate"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-bold border border-slate-200/90 hover:border-slate-300 transition-all shadow-2xs min-h-[44px]"
+          >
+            <span>Activate Student Account</span>
+            <span aria-hidden="true" className="text-slate-500 font-bold">&rarr;</span>
           </Link>
         </div>
 
-        {/* Footnote */}
-        <div className="pt-3 border-t border-slate-100 text-center space-y-1">
-          <p className="text-[11px] text-slate-500 font-medium">
-            Principal and Bursar accounts are appointed exclusively by the Proprietor.
-          </p>
-          <p className="text-[10px] text-slate-400">
-            Internal school management system &bull; Confidential & monitored access
-          </p>
-        </div>
+
       </div>
     </div>
   );
@@ -305,7 +310,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="text-center py-12 text-slate-500 text-xs">Loading Oakland Portal...</div>}>
+    <Suspense fallback={<BrandLoader fullScreen size="lg" />}>
       <LoginForm />
     </Suspense>
   );

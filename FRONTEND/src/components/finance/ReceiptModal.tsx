@@ -14,6 +14,15 @@ interface ReceiptModalProps {
 }
 
 export function ReceiptModal({ payment, studentItem, onClose }: ReceiptModalProps) {
+  React.useEffect(() => {
+    if (!payment) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [payment, onClose]);
+
   if (!payment) return null;
 
   const handlePrint = () => {
@@ -21,10 +30,18 @@ export function ReceiptModal({ payment, studentItem, onClose }: ReceiptModalProp
   };
 
   const balance = studentItem ? studentItem.balance : 0;
-  const bursarName = 'Mrs Folake Esther';
+  const bursarName =
+    payment.recordedBy && payment.recordedBy !== '—' && payment.recordedBy !== 'Bursar'
+      ? payment.recordedBy
+      : 'Mrs Folake Esther';
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div
+      className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
         {/* Controls Bar */}
         <div className="print:hidden p-3.5 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
@@ -42,7 +59,7 @@ export function ReceiptModal({ payment, studentItem, onClose }: ReceiptModalProp
               type="button"
               size="sm"
               onClick={handlePrint}
-              className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold gap-1.5 h-8 px-3"
+              className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold gap-1.5 min-h-[44px] sm:h-9 px-3"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Print Official Receipt</span>
@@ -50,7 +67,8 @@ export function ReceiptModal({ payment, studentItem, onClose }: ReceiptModalProp
             <button
               type="button"
               onClick={onClose}
-              className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition-colors cursor-pointer"
+              aria-label="Close receipt modal"
+              className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>

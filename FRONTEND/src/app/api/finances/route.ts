@@ -1,20 +1,33 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getAuthenticatedActor, getCaller, getLinkedStudentIds, isAdminRole } from '@/lib/caller';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
 const STANDARD_CLASSES = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'] as const;
 
 function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!serviceKey) {
+    throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY in environment variables');
+  }
+  return createClient(SUPABASE_URL, serviceKey, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 }
 
 export async function GET() {
   try {
+    // Full ledger for finance and administration; parents see only their own children; everyone else is refused.
+    const caller = await getCaller();
+    const isFullAccess = isAdminRole(caller.role) || caller.role === 'bursar';
+    const isGuardian = caller.role === 'parent';
+    if (!isFullAccess && !isGuardian) {
+      return NextResponse.json({ success: false, message: 'Access denied for this role.' }, { status: 403 });
+    }
+    const linkedStudentIds = isGuardian ? await getLinkedStudentIds(caller.email) : [];
+
     const sb = getAdminClient();
 
     // 1. Fetch School Settings
@@ -24,18 +37,19 @@ export async function GET() {
       .limit(1)
       .maybeSingle();
 
+    const schoolId = school?.id || DEFAULT_SCHOOL_ID;
     const settings = school?.settings || {};
 
-    const salaryPrincipal = Number(settings.salaryPrincipal ?? 450000);
-    const salaryBursar = Number(settings.salaryBursar ?? 400000);
-    const salaryClassTeacher = Number(settings.salaryClassTeacher ?? 280000);
-    const salarySubjectTeacher = Number(settings.salarySubjectTeacher ?? 240000);
-    const salarySupportStaff = Number(settings.salarySupportStaff ?? 180000);
-    const allowanceClassTeacher = Number(settings.allowanceClassTeacher ?? 35000);
+    const salaryPrincipal = Number(settings.salaryPrincipal || 0);
+    const salaryBursar = Number(settings.salaryBursar || 0);
+    const salaryClassTeacher = Number(settings.salaryClassTeacher || 0);
+    const salarySubjectTeacher = Number(settings.salarySubjectTeacher || 0);
+    const salarySupportStaff = Number(settings.salarySupportStaff || 0);
+    const allowanceClassTeacher = Number(settings.allowanceClassTeacher || 0);
 
-    const tuitionJSS = Number(settings.tuitionJSS ?? 185000);
-    const tuitionSS12 = Number(settings.tuitionSS12 ?? 220000);
-    const tuitionSS3 = Number(settings.tuitionSS3 ?? 240000);
+    const tuitionJSS = Number(settings.tuitionJSS || 0);
+    const tuitionSS12 = Number(settings.tuitionSS12 || 0);
+    const tuitionSS3 = Number(settings.tuitionSS3 || 0);
 
     // 2. Fetch Fee Structures
     const { data: feeStructures } = await sb
@@ -86,35 +100,61 @@ export async function GET() {
       accountsMap.set(acc.student_id, acc);
     });
 
-    const paymentsList = (paymentsRes.data || []).map((p: any) => ({
-      id: p.id,
-      receiptNo: p.receipt_number || `REC-${p.id.slice(0, 8).toUpperCase()}`,
-      admissionNo: p.student_id,
-      studentName: p.payer_name || 'Student',
-      class: 'Class',
-      amount: Number(p.amount) || 0,
-      method: p.payment_method || 'Bank Transfer',
-      bankRef: p.reference || `REF-${p.id.slice(0, 8)}`,
-      receivingAccount: 'GTBank Operations (0123984712)',
-      timestamp: new Date(p.created_at || Date.now()).toLocaleDateString('en-GB'),
-      status: p.status === 'successful' ? 'Confirmed' : 'Reconciled',
-    }));
+    // Sum confirmed fee_transactions per student to guarantee zero discrepancy with student_financial_accounts
+    const txPaidMap = new Map<string, number>();
+    (paymentsRes.data || []).forEach((tx: any) => {
+      if (tx.status === 'successful') {
+        txPaidMap.set(tx.student_id, (txPaidMap.get(tx.student_id) || 0) + (Number(tx.amount) || 0));
+      }
+    });
+
+    const studentMap = new Map<string, any>();
+    (studentsData || []).forEach((s: any) => {
+      const enrollment = s.class_enrollments?.find((e: any) => e.status === 'active') || s.class_enrollments?.[0];
+      studentMap.set(s.id, {
+        name: `${s.first_name || ''} ${s.last_name || ''}`.trim(),
+        admissionNo: s.admission_number || '—',
+        className: enrollment?.classes?.name || '—',
+      });
+    });
+
+    const paymentsList = (paymentsRes.data || []).map((p: any) => {
+      const studentInfo = studentMap.get(p.student_id);
+      return {
+        id: p.id,
+        studentId: p.student_id,
+        receiptNo: p.receipt_number || `REC-${p.id.slice(0, 8).toUpperCase()}`,
+        admissionNo: studentInfo?.admissionNo || p.student_id || '—',
+        studentName: studentInfo?.name || p.payer_name || '—',
+        class: studentInfo?.className || '—',
+        amount: Number(p.amount) || 0,
+        method: p.payment_method || 'Bank Transfer',
+        bankRef: p.reference || `REF-${p.id.slice(0, 8)}`,
+        receivingAccount: p.receiving_account || '—',
+        recordedBy: p.recorded_by || '—',
+        timestamp: new Date(p.created_at || Date.now()).toLocaleDateString('en-GB'),
+        status: p.status === 'successful' ? 'Confirmed' : 'Reconciled',
+      };
+    });
 
     // 5. Build Student Ledger
-    const studentLedger = (studentsData || []).map((s: any, idx: number) => {
+    const studentLedger = (studentsData || []).map((s: any) => {
       const enrollment = s.class_enrollments?.find((e: any) => e.status === 'active') || s.class_enrollments?.[0];
-      const clsName: string = enrollment?.classes?.name || 'JSS 1';
+      const clsName: string = enrollment?.classes?.name || '—';
       const guardianRel = s.student_guardians?.[0];
       const guardian = guardianRel?.guardians;
       const guardianName = guardian ? `${guardian.first_name || ''} ${guardian.last_name || ''}`.trim() : 'Guardian';
       const guardianPhone = guardian?.phone || '—';
 
-      // Rate from fee_structures or settings
-      let rate = clsName.startsWith('JSS')
-        ? tuitionJSS
-        : clsName === 'SS 3'
-        ? tuitionSS3
-        : tuitionSS12;
+      // Rate from fee_structures or settings (0 if no class assigned)
+      let rate = 0;
+      if (clsName.startsWith('JSS')) {
+        rate = tuitionJSS;
+      } else if (clsName === 'SS 3') {
+        rate = tuitionSS3;
+      } else if (clsName.startsWith('SS')) {
+        rate = tuitionSS12;
+      }
 
       const matchedStructure = (feeStructures || []).find((f: any) => f.class_name === clsName);
       if (matchedStructure && Number(matchedStructure.total_amount) > 0) {
@@ -122,14 +162,17 @@ export async function GET() {
       }
 
       const financialAccount = accountsMap.get(s.id);
-      const paid = financialAccount ? Number(financialAccount.total_paid) : 0;
+      const txPaid = txPaidMap.get(s.id) || 0;
+      const accPaid = financialAccount ? Number(financialAccount.total_paid || 0) : 0;
+      const paid = Math.max(txPaid, accPaid);
       const balance = Math.max(0, rate - paid);
+      const creditBalance = Math.max(0, paid - rate, Number(financialAccount?.credit_balance || 0));
 
       const status = balance === 0 ? 'Fully Paid' : paid > 0 ? 'Partial Payment' : 'Defaulter';
 
       return {
         id: s.id,
-        admissionNo: s.admission_number || `OAK-2026-${100 + idx}`,
+        admissionNo: s.admission_number || '—',
         studentName: `${s.first_name || ''} ${s.last_name || ''}`.trim(),
         class: clsName,
         gender: s.gender === 'female' ? ('Female' as const) : ('Male' as const),
@@ -138,6 +181,7 @@ export async function GET() {
         totalBilled: rate,
         amountPaid: paid,
         balance,
+        creditBalance,
         status: status as 'Fully Paid' | 'Partial Payment' | 'Defaulter',
       };
     });
@@ -174,18 +218,45 @@ export async function GET() {
       };
     });
 
-    // 7. Fetch Staff Profiles & Calculate Payroll
-    const { data: staffData } = await sb
-      .from('staff_profiles')
-      .select('*')
-      .eq('is_active', true)
-      .order('created_at', { ascending: true });
-
+    // 7. Fetch Staff Profiles & Persistent Payroll Runs (DEF-111)
     const currentTermName = settings.currentTerm || 'First Term';
     const academicSessionName = settings.academicSession || '2026/2027';
-    const staffBankMap = (settings.staffBankAccounts as Record<string, any>) || {};
+    const currentPayPeriod = `${currentTermName} ${academicSessionName}`;
+    const currentMonth = new Date().getMonth() + 1;
+    const currentYear = new Date().getFullYear();
 
-    const payrollRecords = (staffData || []).map((st: any, idx: number) => {
+    const [staffRes, payrollRunsRes] = await Promise.all([
+      sb
+        .from('staff_profiles')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: true }),
+      sb
+        .from('payroll_runs')
+        .select('*, payroll_run_items(*)')
+        .eq('school_id', schoolId)
+        .order('authorized_at', { ascending: false })
+        .limit(12),
+    ]);
+
+    const staffData = staffRes.data || [];
+    const payrollRuns = payrollRunsRes.data || [];
+    const currentRun = payrollRuns.find(
+      (r: any) =>
+        (r.pay_period === currentPayPeriod && r.month === currentMonth && r.year === currentYear) ||
+        r.pay_period === currentPayPeriod
+    );
+    const runItemsByStaffId = new Map<string, any>();
+    if (currentRun && Array.isArray(currentRun.payroll_run_items)) {
+      currentRun.payroll_run_items.forEach((item: any) => {
+        runItemsByStaffId.set(item.staff_id, item);
+      });
+    }
+
+    const staffBankMap = (settings.staffBankAccounts as Record<string, any>) || {};
+    const staffDeductionsMap = (settings.staffDeductions as Record<string, any>) || {};
+
+    const payrollRecords = staffData.map((st: any, idx: number) => {
       const isPrincipal = st.role === 'admin' || (st.role || '').toLowerCase().includes('principal');
       const isBursar = st.role === 'bursar' || (st.role || '').toLowerCase().includes('bursar');
       const isHomeroom = !!st.assigned_class;
@@ -212,13 +283,14 @@ export async function GET() {
       const otherAllowances = 0;
       const grossSalary = basicSalary + respAllowance + otherAllowances;
 
-      // Deductions strictly 0 unless recorded
-      const tax = 0;
-      const pension = 0;
-      const cooperative = 0;
-      const netSalary = grossSalary - tax - pension - cooperative;
+      const staffDeduction = staffDeductionsMap[st.id] || null;
+      const tax = Number(staffDeduction?.taxDeduction || 0);
+      const cooperative = Number(staffDeduction?.cooperativeDeduction || 0);
+      const netSalary = Math.max(0, grossSalary - tax - cooperative);
 
       const staffBank = staffBankMap[st.id] || null;
+      const persistedRunItem = runItemsByStaffId.get(st.id);
+      const isDisbursed = Boolean(currentRun && currentRun.status === 'Approved & Disbursed');
 
       return {
         id: st.id || `st-pay-${idx}`,
@@ -230,49 +302,73 @@ export async function GET() {
         responsibilityAllowance: respAllowance,
         otherAllowances,
         taxDeduction: tax,
-        pensionDeduction: 0,
         cooperativeDeduction: cooperative,
         netSalary,
-        status: 'Pending Approval' as const,
+        status: (persistedRunItem?.status || (isDisbursed ? 'Approved & Disbursed' : 'Pending Approval')) as
+          | 'Approved & Disbursed'
+          | 'Pending Approval'
+          | 'Processing',
         bankName: staffBank?.bankName || st.bank_name || '—',
         bankAccount: staffBank?.accountNumber || st.bank_account || '—',
-        payPeriod: `${currentTermName} ${academicSessionName}`,
+        payPeriod: currentPayPeriod,
       };
     });
 
     // 8. Fetch Expenditures, Petty Cash & Institutional Bank Accounts from DB
     const [expRes, pettyRes, bankAccRes] = await Promise.all([
-      sb.from('expenditures').select('*').order('date', { ascending: false }),
-      sb.from('petty_cash').select('*').order('date', { ascending: false }),
-      sb.from('bank_accounts').select('*').eq('is_active', true),
+      sb
+        .from('expenditures')
+        .select('*')
+        .order('date', { ascending: false })
+        .order('created_at', { ascending: false }),
+      sb
+        .from('petty_cash')
+        .select('*')
+        .order('date', { ascending: true })
+        .order('created_at', { ascending: true })
+        .order('id', { ascending: true }),
+      sb.from('bank_accounts').select('*').order('created_at', { ascending: true }),
     ]);
 
-    const expenditures = (expRes.data || []).map((e: any, idx: number) => ({
-      id: e.id,
-      voucherNo: `VCH-${new Date(e.date).getFullYear()}-0${idx + 1}`,
-      category: e.category,
-      description: e.description,
-      amount: Number(e.amount) || 0,
-      beneficiary: e.vendor || 'Authorized Vendor',
-      invoiceNo: `INV-${e.id.slice(0, 6).toUpperCase()}`,
-      approvedBy: 'Office of the Proprietor',
-      paymentAccount: 'GTBank Operations (0123984712)',
-      date: new Date(e.date).toLocaleDateString('en-GB'),
-      status: e.status === 'approved' ? ('Approved & Paid' as const) : ('Pending Approval' as const),
-    }));
+    const bankAccountsMap = new Map<string, any>();
+    (bankAccRes.data || []).forEach((b: any) => {
+      bankAccountsMap.set(b.id, b);
+    });
 
+    const expenditures = (expRes.data || []).map((e: any, idx: number) => {
+      const matchedBank = e.bank_account_id ? bankAccountsMap.get(e.bank_account_id) : null;
+      const paymentAccountDisplay =
+        e.payment_account ||
+        (matchedBank ? `${matchedBank.bank_name} (${matchedBank.account_number})` : '—');
+
+      return {
+        id: e.id,
+        voucherNo: e.voucher_number || `VCH-${new Date(e.date).getFullYear()}-0${idx + 1}`,
+        category: e.category,
+        description: e.description,
+        amount: Number(e.amount) || 0,
+        beneficiary: e.vendor || 'Authorized Vendor',
+        invoiceNo: `INV-${e.id.slice(0, 6).toUpperCase()}`,
+        approvedBy: e.approved_by || e.recorded_by || 'Office of the Proprietor',
+        paymentAccount: paymentAccountDisplay,
+        date: new Date(e.date).toLocaleDateString('en-GB'),
+        status: e.status === 'approved' ? ('Approved & Paid' as const) : ('Pending Approval' as const),
+      };
+    });
+
+    // Compute petty cash running float in chronological order (oldest -> newest), then reverse for newest-first display (DEF-117)
     let runningFloat = 0;
-    const pettyCash = (pettyRes.data || []).map((p: any, idx: number) => {
+    const chronologicalPettyCash = (pettyRes.data || []).map((p: any, idx: number) => {
       const amt = Number(p.amount) || 0;
       if (p.type === 'replenishment') runningFloat += amt;
       else runningFloat -= amt;
 
       return {
         id: p.id,
-        receiptNo: `PC-${idx + 101}`,
+        receiptNo: p.receipt_number || `PC-${idx + 101}`,
         date: new Date(p.date).toLocaleDateString('en-GB'),
         item: p.description,
-        category: 'Office Stationery' as const,
+        category: (p.category || 'Office Stationery') as any,
         amount: amt,
         type: (p.type === 'replenishment' ? 'Inflow' : 'Outflow') as 'Inflow' | 'Outflow',
         balanceAfter: Math.max(0, runningFloat),
@@ -280,6 +376,23 @@ export async function GET() {
         approvedBy: p.approved_by || 'School Bursar',
       };
     });
+    const pettyCash = chronologicalPettyCash.reverse();
+
+    if (isGuardian) {
+      const ownIds = new Set(linkedStudentIds);
+      return NextResponse.json({
+        success: true,
+        data: {
+          studentLedger: studentLedger.filter((s: any) => ownIds.has(s.id)),
+          payments: (paymentsRes.data || [])
+            .filter((p: any) => ownIds.has(p.student_id))
+            .map((p: any) => paymentsList.find((x: any) => x.id === p.id)),
+          tuitionRates: { jss: tuitionJSS, ss12: tuitionSS12, ss3: tuitionSS3 },
+          academicSession: academicSessionName,
+          currentTerm: currentTermName,
+        },
+      });
+    }
 
     return NextResponse.json({
       success: true,
@@ -287,6 +400,20 @@ export async function GET() {
         studentLedger,
         classBreakdowns,
         payrollRecords,
+        payrollRuns: payrollRuns.map((r: any) => ({
+          id: r.id,
+          payPeriod: r.pay_period,
+          month: r.month,
+          year: r.year,
+          totalGross: Number(r.total_gross || 0),
+          totalDeductions: Number(r.total_deductions || 0),
+          totalNet: Number(r.total_net || 0),
+          staffCount: Number(r.staff_count || 0),
+          status: r.status,
+          authorizedByName: r.authorized_by_name,
+          authorizedByRole: r.authorized_by_role,
+          authorizedAt: r.authorized_at,
+        })),
         expenditures,
         pettyCash,
         payments: paymentsList,
@@ -295,12 +422,17 @@ export async function GET() {
           ss12: tuitionSS12,
           ss3: tuitionSS3,
         },
+        academicSession: academicSessionName,
+        currentTerm: currentTermName,
         institutionalBankAccounts: (bankAccRes.data || []).map((b: any) => ({
           id: b.id,
           name: b.account_name,
           bank: b.bank_name,
           accountNumber: b.account_number,
           accountType: b.account_type,
+          currency: b.currency || 'NGN',
+          balance: Number(b.balance || 0),
+          isActive: Boolean(b.is_active),
           displayName: `${b.bank_name} (${b.account_number}) - ${b.account_name}`,
         })),
         salaryRates: {
@@ -323,8 +455,18 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Authenticate the real signed-in user for all money actions and audit logs (DEF-112, DEF-120)
+    const actor = await getAuthenticatedActor();
+    if (!actor.hasSession || (!isAdminRole(actor.role) && actor.role !== 'bursar')) {
+      return NextResponse.json(
+        { success: false, message: 'Access denied. Bursar or Administrative authorization required.' },
+        { status: actor.hasSession ? 403 : 401 }
+      );
+    }
+
     const body = await request.json();
     const sb = getAdminClient();
+    const schoolId = actor.schoolId || DEFAULT_SCHOOL_ID;
 
     const { action } = body;
 
@@ -334,16 +476,65 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, message: 'Description and amount required' }, { status: 400 });
       }
 
+      const numAmount = Number(amount);
+      if (isNaN(numAmount) || numAmount <= 0) {
+        return NextResponse.json({ success: false, message: 'Valid expenditure amount required' }, { status: 400 });
+      }
+
+      // Generate sequential voucher number per school per year (DEF-119)
+      const currentYear = new Date().getFullYear();
+      let voucherNumber = `VCH-${currentYear}-${Date.now().toString().slice(-4)}`;
+      const { data: seqNo } = await sb.rpc('next_school_document_number', {
+        p_school_id: schoolId,
+        p_doc_type: 'VCH',
+        p_year: currentYear,
+      });
+      if (seqNo && typeof seqNo === 'string') {
+        voucherNumber = seqNo;
+      }
+
+      // Match institutional bank account if provided (DEF-121)
+      let matchedBankId: string | null = null;
+      if (paymentAccount) {
+        const { data: bankAccounts } = await sb
+          .from('bank_accounts')
+          .select('id, bank_name, account_number, balance')
+          .eq('school_id', schoolId);
+
+        const matched = (bankAccounts || []).find(
+          (b: any) =>
+            b.id === paymentAccount ||
+            String(paymentAccount).includes(b.account_number) ||
+            String(paymentAccount).toLowerCase().includes(String(b.bank_name).toLowerCase())
+        );
+        if (matched) {
+          matchedBankId = matched.id;
+          await sb
+            .from('bank_accounts')
+            .update({
+              balance: Math.max(0, Number(matched.balance || 0) - numAmount),
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', matched.id);
+        }
+      }
+
       const { data: inserted, error: insErr } = await sb
         .from('expenditures')
         .insert({
-          school_id: DEFAULT_SCHOOL_ID,
+          school_id: schoolId,
+          voucher_number: voucherNumber,
           category: category || 'Diesel & Power',
-          amount: Number(amount),
-          description,
-          vendor: vendor || 'Authorized Vendor',
+          amount: numAmount,
+          description: String(description).trim(),
+          vendor: vendor ? String(vendor).trim() : 'Authorized Vendor',
           payment_method: 'bank_transfer',
-          recorded_by: 'Office of the Proprietor',
+          bank_account_id: matchedBankId,
+          payment_account: paymentAccount ? String(paymentAccount).trim() : 'Institutional Account',
+          recorded_by: actor.actorName,
+          recorded_by_id: actor.userId,
+          recorded_by_role: actor.actorRoleLabel,
+          approved_by: actor.actorName,
           status: 'approved',
           date: new Date().toISOString().split('T')[0],
         })
@@ -352,19 +543,26 @@ export async function POST(request: NextRequest) {
 
       if (insErr) throw insErr;
 
-      // Log to audit_logs
+      // Log to audit_logs with real signed-in user (DEF-120)
       try {
         await sb.from('audit_logs').insert({
-          school_id: DEFAULT_SCHOOL_ID,
-          actor_role: 'Proprietor',
+          school_id: schoolId,
+          actor_id: actor.userId,
+          actor_name: actor.actorName,
+          actor_role: actor.actorRoleLabel,
           action: 'finance.expenditure_created',
           resource_type: 'expenditures',
           resource_id: inserted.id,
           metadata: {
+            actorName: actor.actorName,
+            actorRole: actor.actorRoleLabel,
+            voucherNumber,
             category,
-            amount,
+            amount: numAmount,
             description,
             vendor,
+            paymentAccount,
+            summary: `Payment voucher ${voucherNumber} (NGN ${numAmount.toLocaleString()}) recorded by ${actor.actorName} (${actor.actorRoleLabel})`,
           },
         });
       } catch {}
@@ -373,21 +571,44 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'create_petty_cash') {
-      const { description, amount, type, requestedBy } = body;
+      const { description, amount, type, category, requestedBy } = body;
       if (!description || !amount) {
         return NextResponse.json({ success: false, message: 'Description and amount required' }, { status: 400 });
       }
 
+      const numAmount = Number(amount);
+      if (isNaN(numAmount) || numAmount <= 0) {
+        return NextResponse.json({ success: false, message: 'Valid petty cash amount required' }, { status: 400 });
+      }
+
+      // Generate sequential petty cash receipt number per school per year (DEF-119)
+      const currentYear = new Date().getFullYear();
+      let receiptNumber = `PC-${currentYear}-${Date.now().toString().slice(-4)}`;
+      const { data: seqNo } = await sb.rpc('next_school_document_number', {
+        p_school_id: schoolId,
+        p_doc_type: 'PC',
+        p_year: currentYear,
+      });
+      if (seqNo && typeof seqNo === 'string') {
+        receiptNumber = seqNo;
+      }
+
+      const resolvedCategory = category || 'Office Stationery';
+
       const { data: inserted, error: pcErr } = await sb
         .from('petty_cash')
         .insert({
-          school_id: DEFAULT_SCHOOL_ID,
-          amount: Number(amount),
+          school_id: schoolId,
+          receipt_number: receiptNumber,
+          category: resolvedCategory,
+          amount: numAmount,
           type: type === 'Inflow' ? 'replenishment' : 'disbursement',
-          description,
+          description: String(description).trim(),
           recipient: requestedBy || 'Cashier',
           requested_by: requestedBy || 'Campus Staff',
-          approved_by: 'School Bursar',
+          approved_by: actor.actorName,
+          recorded_by_id: actor.userId,
+          recorded_by_role: actor.actorRoleLabel,
           date: new Date().toISOString().split('T')[0],
         })
         .select()
@@ -397,15 +618,22 @@ export async function POST(request: NextRequest) {
 
       try {
         await sb.from('audit_logs').insert({
-          school_id: DEFAULT_SCHOOL_ID,
-          actor_role: 'Proprietor',
+          school_id: schoolId,
+          actor_id: actor.userId,
+          actor_name: actor.actorName,
+          actor_role: actor.actorRoleLabel,
           action: 'finance.petty_cash_logged',
           resource_type: 'petty_cash',
           resource_id: inserted.id,
           metadata: {
-            amount,
+            actorName: actor.actorName,
+            actorRole: actor.actorRoleLabel,
+            receiptNumber,
+            category: resolvedCategory,
+            amount: numAmount,
             type,
             description,
+            summary: `Petty cash ${type === 'Inflow' ? 'replenishment' : 'disbursement'} ${receiptNumber} (NGN ${numAmount.toLocaleString()}) logged by ${actor.actorName}`,
           },
         });
       } catch {}
@@ -414,26 +642,164 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'approve_payroll') {
-      const { totalAmount, staffCount } = body;
+      // Persist payroll disbursement to payroll_runs and payroll_run_items so it survives reloads (DEF-111, DEF-112)
+      const [schoolRes, staffRes] = await Promise.all([
+        sb.from('schools').select('id, settings').eq('id', schoolId).maybeSingle(),
+        sb.from('staff_profiles').select('*').eq('is_active', true).order('created_at', { ascending: true }),
+      ]);
+
+      const settings = schoolRes.data?.settings || {};
+      const salaryPrincipal = Number(settings.salaryPrincipal || 0);
+      const salaryBursar = Number(settings.salaryBursar || 0);
+      const salaryClassTeacher = Number(settings.salaryClassTeacher || 0);
+      const salarySubjectTeacher = Number(settings.salarySubjectTeacher || 0);
+      const allowanceClassTeacher = Number(settings.allowanceClassTeacher || 0);
+
+      const currentTermName = settings.currentTerm || 'First Term';
+      const academicSessionName = settings.academicSession || '2026/2027';
+      const payPeriod = body.payPeriod || `${currentTermName} ${academicSessionName}`;
+      const currentMonth = new Date().getMonth() + 1;
+      const currentYear = new Date().getFullYear();
+
+      const staffBankMap = (settings.staffBankAccounts as Record<string, any>) || {};
+      const staffDeductionsMap = (settings.staffDeductions as Record<string, any>) || {};
+
+      let totalGross = 0;
+      let totalDeductions = 0;
+      let totalNet = 0;
+
+      const computedItems = (staffRes.data || []).map((st: any) => {
+        const isPrincipal = st.role === 'admin' || (st.role || '').toLowerCase().includes('principal');
+        const isBursar = st.role === 'bursar' || (st.role || '').toLowerCase().includes('bursar');
+        const isHomeroom = !!st.assigned_class;
+
+        let basicSalary = salarySubjectTeacher;
+        let roleName = st.role === 'teacher' ? 'Subject Teacher' : (st.role || 'Staff');
+
+        if (isPrincipal) {
+          basicSalary = salaryPrincipal;
+          roleName = 'Principal';
+        } else if (isBursar) {
+          basicSalary = salaryBursar;
+          roleName = 'School Bursar';
+        } else if (isHomeroom) {
+          basicSalary = salaryClassTeacher;
+          roleName = `Class Teacher (${st.assigned_class})`;
+        }
+
+        const respAllowance = isHomeroom ? allowanceClassTeacher : 0;
+        const otherAllowances = 0;
+        const gross = basicSalary + respAllowance + otherAllowances;
+
+        const staffDeduction = staffDeductionsMap[st.id] || null;
+        const tax = Number(staffDeduction?.taxDeduction || 0);
+        const cooperative = Number(staffDeduction?.cooperativeDeduction || 0);
+        const net = Math.max(0, gross - tax - cooperative);
+
+        totalGross += gross;
+        totalDeductions += tax + cooperative;
+        totalNet += net;
+
+        const staffBank = staffBankMap[st.id] || null;
+
+        return {
+          school_id: schoolId,
+          staff_id: st.id,
+          employee_id: st.employee_id || '—',
+          staff_name: `${st.first_name || ''} ${st.last_name || ''}`.trim(),
+          role: roleName,
+          basic_salary: basicSalary,
+          responsibility_allowance: respAllowance,
+          other_allowances: otherAllowances,
+          tax_deduction: tax,
+          cooperative_deduction: cooperative,
+          net_salary: net,
+          bank_name: staffBank?.bankName || st.bank_name || '—',
+          bank_account: staffBank?.accountNumber || st.bank_account || '—',
+          status: 'Approved & Disbursed',
+        };
+      });
+
+      const finalTotalNet = computedItems.length > 0 ? totalNet : Number(body.totalAmount || 0);
+      const finalStaffCount = computedItems.length > 0 ? computedItems.length : Number(body.staffCount || 0);
+
+      const { data: runRow, error: runErr } = await sb
+        .from('payroll_runs')
+        .upsert(
+          {
+            school_id: schoolId,
+            pay_period: payPeriod,
+            month: currentMonth,
+            year: currentYear,
+            total_gross: totalGross,
+            total_deductions: totalDeductions,
+            total_net: finalTotalNet,
+            staff_count: finalStaffCount,
+            status: 'Approved & Disbursed',
+            authorized_by_id: actor.userId,
+            authorized_by_name: actor.actorName,
+            authorized_by_role: actor.actorRoleLabel,
+            authorized_at: new Date().toISOString(),
+          },
+          { onConflict: 'school_id,pay_period,month,year' }
+        )
+        .select()
+        .single();
+
+      if (runErr) throw runErr;
+
+      if (runRow && computedItems.length > 0) {
+        const itemsWithRunId = computedItems.map((item: any) => ({
+          ...item,
+          payroll_run_id: runRow.id,
+        }));
+        const { error: itemsErr } = await sb
+          .from('payroll_run_items')
+          .upsert(itemsWithRunId, { onConflict: 'payroll_run_id,staff_id' });
+        if (itemsErr) throw itemsErr;
+      }
+
       try {
         await sb.from('audit_logs').insert({
-          school_id: DEFAULT_SCHOOL_ID,
-          actor_role: 'Proprietor',
+          school_id: schoolId,
+          actor_id: actor.userId,
+          actor_name: actor.actorName,
+          actor_role: actor.actorRoleLabel,
           action: 'finance.payroll_authorized',
           resource_type: 'payroll',
+          resource_id: runRow?.id || null,
           metadata: {
-            totalAmount,
-            staffCount,
-            summary: `Monthly payroll authorized across ${staffCount} staff members`,
+            actorName: actor.actorName,
+            actorRole: actor.actorRoleLabel,
+            payPeriod,
+            totalGross,
+            totalDeductions,
+            totalAmount: finalTotalNet,
+            staffCount: finalStaffCount,
+            summary: `Monthly payroll (${payPeriod}) of NGN ${finalTotalNet.toLocaleString()} across ${finalStaffCount} staff members authorized by ${actor.actorName} (${actor.actorRoleLabel})`,
           },
         });
       } catch {}
 
-      return NextResponse.json({ success: true, message: 'Payroll authorization logged to institutional audit trail' });
+      return NextResponse.json({
+        success: true,
+        message: 'Payroll disbursement persisted and logged to institutional audit trail',
+        data: runRow,
+      });
     }
 
     if (action === 'record_payment') {
-      const { studentId, amount, method, bankRef, receivingAccount, payerName } = body;
+      const {
+        studentId,
+        amount,
+        method,
+        bankRef,
+        idempotencyKey,
+        receivingAccount,
+        payerName,
+        allowOverpayment,
+      } = body;
+
       if (!studentId || !amount) {
         return NextResponse.json({ success: false, message: 'Student ID and amount required' }, { status: 400 });
       }
@@ -443,131 +809,260 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: false, message: 'Valid payment amount required' }, { status: 400 });
       }
 
-      const receiptNumber = `REC-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 90000)}`;
+      const headerIdempotencyKey =
+        request.headers.get('idempotency-key') ||
+        request.headers.get('x-idempotency-key') ||
+        idempotencyKey ||
+        null;
 
-      // 1. Insert fee transaction
-      const { data: insertedTx, error: txErr } = await sb
-        .from('fee_transactions')
-        .insert({
-          school_id: DEFAULT_SCHOOL_ID,
-          student_id: studentId,
-          amount: numAmount,
-          receipt_number: receiptNumber,
-          payment_method: method || 'Bank Transfer',
-          reference: bankRef || `REF-${Date.now()}`,
-          payer_name: payerName || 'Guardian',
-          status: 'successful',
-          recorded_by: 'Bursar',
-        })
-        .select()
-        .single();
-
-      if (txErr) throw txErr;
-
-      // 2. Update or insert student_financial_accounts
-      const { data: existingAcc } = await sb
-        .from('student_financial_accounts')
-        .select('*')
-        .eq('student_id', studentId)
-        .maybeSingle();
-
-      if (existingAcc) {
-        const newPaid = Number(existingAcc.total_paid || 0) + numAmount;
-        const newBal = Math.max(0, Number(existingAcc.total_billed || 0) - newPaid);
-        await sb
-          .from('student_financial_accounts')
-          .update({
-            total_paid: newPaid,
-            outstanding_balance: newBal,
-            last_payment_date: new Date().toISOString(),
-            updated_at: new Date().toISOString(),
-          })
-          .eq('id', existingAcc.id);
-      } else {
-        await sb
-          .from('student_financial_accounts')
-          .insert({
-            school_id: DEFAULT_SCHOOL_ID,
-            student_id: studentId,
-            total_billed: numAmount,
-            total_paid: numAmount,
-            outstanding_balance: 0,
-            last_payment_date: new Date().toISOString(),
-          });
+      if (!headerIdempotencyKey || !String(headerIdempotencyKey).trim()) {
+        return NextResponse.json(
+          { success: false, message: 'Idempotency key is required for payment processing.' },
+          { status: 400 }
+        );
       }
 
-      // 3. Log audit trail
-      try {
-        await sb.from('audit_logs').insert({
-          school_id: DEFAULT_SCHOOL_ID,
-          actor_role: 'Bursar',
-          action: 'finance.fee_payment_recorded',
-          resource_type: 'fee_transactions',
-          resource_id: insertedTx.id,
-          metadata: {
-            studentId,
-            amount: numAmount,
-            receiptNumber,
-            method,
-            bankRef,
-          },
-        });
-      } catch {}
+      // Execute single atomic PostgreSQL transaction function (`record_fee_payment_tx`)
+      const { data: rpcResult, error: rpcErr } = await sb.rpc('record_fee_payment_tx', {
+        p_school_id: schoolId,
+        p_student_id: studentId,
+        p_amount: numAmount,
+        p_payment_method: method || 'Bank Transfer',
+        p_reference: bankRef ? String(bankRef).trim() : null,
+        p_idempotency_key: String(headerIdempotencyKey).trim(),
+        p_payer_name: payerName ? String(payerName).trim() : 'Guardian',
+        p_receiving_account: receivingAccount ? String(receivingAccount).trim() : null,
+        p_actor_id: actor.userId,
+        p_actor_name: actor.actorName,
+        p_actor_role: actor.actorRoleLabel,
+        p_allow_overpayment: Boolean(allowOverpayment),
+      });
 
-      return NextResponse.json({ success: true, data: insertedTx });
+      if (rpcErr) {
+        const msg = rpcErr.message || '';
+        if (msg.includes('DUPLICATE_REFERENCE')) {
+          const cleanMsg = msg.replace(/^.*DUPLICATE_REFERENCE:\s*/, '');
+          return NextResponse.json(
+            { success: false, code: 'DUPLICATE_REFERENCE', message: cleanMsg },
+            { status: 409 }
+          );
+        }
+        if (msg.includes('IDEMPOTENCY_CONFLICT')) {
+          const cleanMsg = msg.replace(/^.*IDEMPOTENCY_CONFLICT:\s*/, '');
+          return NextResponse.json(
+            { success: false, code: 'IDEMPOTENCY_CONFLICT', message: cleanMsg },
+            { status: 409 }
+          );
+        }
+        if (msg.includes('OVERPAYMENT_REJECTED')) {
+          const cleanMsg = msg.replace(/^.*OVERPAYMENT_REJECTED:\s*/, '');
+          return NextResponse.json(
+            {
+              success: false,
+              code: 'OVERPAYMENT_REJECTED',
+              message: cleanMsg,
+            },
+            { status: 422 }
+          );
+        }
+        if (msg.includes('STUDENT_NOT_FOUND')) {
+          return NextResponse.json(
+            { success: false, code: 'STUDENT_NOT_FOUND', message: 'Student record not found for this school.' },
+            { status: 404 }
+          );
+        }
+        if (msg.includes('INVALID_AMOUNT')) {
+          return NextResponse.json(
+            { success: false, code: 'INVALID_AMOUNT', message: 'Valid payment amount required.' },
+            { status: 400 }
+          );
+        }
+        throw rpcErr;
+      }
+
+      return NextResponse.json({
+        success: true,
+        idempotentReplay: Boolean(rpcResult?.idempotent_replay),
+        data: rpcResult?.transaction,
+        account: rpcResult?.account,
+      });
     }
 
     if (action === 'update_staff_bank') {
       const { staffId, bankName, accountNumber } = body;
       if (!staffId || !bankName || !accountNumber) {
-        return NextResponse.json({ success: false, message: 'Missing staff ID, bank name, or account number' }, { status: 400 });
+        return NextResponse.json(
+          { success: false, message: 'Missing staff ID, bank name, or account number' },
+          { status: 400 }
+        );
       }
 
-      const { data: schoolData, error: schoolErr } = await sb
-        .from('schools')
-        .select('id, settings')
-        .eq('id', DEFAULT_SCHOOL_ID)
-        .single();
-
-      if (schoolErr || !schoolData) {
-        return NextResponse.json({ success: false, message: 'School not found' }, { status: 404 });
-      }
-
-      const currentSettings = schoolData.settings || {};
-      const currentBankMap = { ...(currentSettings.staffBankAccounts || {}) };
-
-      currentBankMap[staffId] = {
-        bankName: String(bankName).trim(),
-        accountNumber: String(accountNumber).trim(),
-        updatedAt: new Date().toISOString(),
+      const patch = {
+        staffBankAccounts: {
+          [staffId]: {
+            bankName: String(bankName).trim(),
+            accountNumber: String(accountNumber).trim(),
+            updatedAt: new Date().toISOString(),
+          },
+        },
       };
 
-      const { error: updateErr } = await sb
-        .from('schools')
-        .update({
-          settings: {
-            ...currentSettings,
-            staffBankAccounts: currentBankMap,
-          },
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', DEFAULT_SCHOOL_ID);
+      const { error: rpcErr } = await sb.rpc('merge_school_settings', {
+        p_school_id: schoolId,
+        p_patch: patch,
+      });
 
-      if (updateErr) {
-        return NextResponse.json({ success: false, message: updateErr.message }, { status: 500 });
+      if (rpcErr) {
+        const { data: schoolData } = await sb
+          .from('schools')
+          .select('settings')
+          .eq('id', schoolId)
+          .single();
+        const currentSettings = schoolData?.settings || {};
+        const currentBankMap = { ...(currentSettings.staffBankAccounts || {}) };
+        currentBankMap[staffId] = patch.staffBankAccounts[staffId];
+        await sb
+          .from('schools')
+          .update({
+            settings: { ...currentSettings, staffBankAccounts: currentBankMap },
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', schoolId);
       }
 
       try {
         await sb.from('audit_logs').insert({
-          school_id: DEFAULT_SCHOOL_ID,
+          school_id: schoolId,
+          actor_id: actor.userId,
+          actor_name: actor.actorName,
+          actor_role: actor.actorRoleLabel,
           action: 'finance.staff_bank_updated',
-          entity_type: 'staff_profiles',
-          entity_id: staffId,
-          metadata: { staffId, bankName, accountNumber },
+          resource_type: 'staff_profiles',
+          resource_id: staffId,
+          metadata: {
+            actorName: actor.actorName,
+            actorRole: actor.actorRoleLabel,
+            staffId,
+            bankName,
+            accountNumber,
+            summary: `Staff bank account (${bankName} - ${accountNumber}) updated by ${actor.actorName}`,
+          },
         });
       } catch {}
 
       return NextResponse.json({ success: true, message: 'Staff bank details updated successfully' });
+    }
+
+    if (action === 'update_staff_deductions') {
+      const { staffId, taxDeduction, cooperativeDeduction } = body;
+      if (!staffId) {
+        return NextResponse.json({ success: false, message: 'Missing staffId' }, { status: 400 });
+      }
+
+      const patch = {
+        staffDeductions: {
+          [staffId]: {
+            taxDeduction: Number(taxDeduction) || 0,
+            cooperativeDeduction: Number(cooperativeDeduction) || 0,
+            updatedAt: new Date().toISOString(),
+          },
+        },
+      };
+
+      const { error: rpcErr } = await sb.rpc('merge_school_settings', {
+        p_school_id: schoolId,
+        p_patch: patch,
+      });
+
+      if (rpcErr) {
+        const { data: schoolData } = await sb
+          .from('schools')
+          .select('settings')
+          .eq('id', schoolId)
+          .single();
+        const currentSettings = schoolData?.settings || {};
+        const currentDeductionsMap = { ...(currentSettings.staffDeductions || {}) };
+        currentDeductionsMap[staffId] = patch.staffDeductions[staffId];
+        await sb
+          .from('schools')
+          .update({
+            settings: { ...currentSettings, staffDeductions: currentDeductionsMap },
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', schoolId);
+      }
+
+      try {
+        await sb.from('audit_logs').insert({
+          school_id: schoolId,
+          actor_id: actor.userId,
+          actor_name: actor.actorName,
+          actor_role: actor.actorRoleLabel,
+          action: 'finance.staff_deductions_updated',
+          resource_type: 'staff_profiles',
+          resource_id: staffId,
+          metadata: {
+            actorName: actor.actorName,
+            actorRole: actor.actorRoleLabel,
+            staffId,
+            taxDeduction,
+            cooperativeDeduction,
+            summary: `Payroll deductions updated for staff member by ${actor.actorName}`,
+          },
+        });
+      } catch {}
+
+      return NextResponse.json({ success: true, message: 'Staff deductions updated successfully' });
+    }
+
+    if (action === 'create_bank_account') {
+      const { bankName, accountNumber, accountName, accountType, balance } = body;
+      if (!bankName || !accountNumber || !accountName) {
+        return NextResponse.json(
+          { success: false, message: 'Bank name, account number, and account name are required' },
+          { status: 400 }
+        );
+      }
+
+      const { data: insertedBank, error: bankErr } = await sb
+        .from('bank_accounts')
+        .insert({
+          school_id: schoolId,
+          bank_name: String(bankName).trim(),
+          account_number: String(accountNumber).trim(),
+          account_name: String(accountName).trim(),
+          account_type: accountType || 'Current Account',
+          currency: 'NGN',
+          balance: Number(balance || 0),
+          is_active: true,
+        })
+        .select()
+        .single();
+
+      if (bankErr) throw bankErr;
+
+      try {
+        await sb.from('audit_logs').insert({
+          school_id: schoolId,
+          actor_id: actor.userId,
+          actor_name: actor.actorName,
+          actor_role: actor.actorRoleLabel,
+          action: 'finance.bank_account_created',
+          resource_type: 'bank_accounts',
+          resource_id: insertedBank.id,
+          metadata: {
+            actorName: actor.actorName,
+            actorRole: actor.actorRoleLabel,
+            bankName,
+            accountNumber,
+            accountName,
+            accountType,
+            summary: `Institutional bank account ${bankName} (${accountNumber}) added by ${actor.actorName}`,
+          },
+        });
+      } catch {}
+
+      return NextResponse.json({ success: true, data: insertedBank });
     }
 
     return NextResponse.json({ success: false, message: 'Unknown action' }, { status: 400 });

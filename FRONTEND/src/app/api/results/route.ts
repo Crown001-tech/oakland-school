@@ -1,19 +1,29 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+import { getCaller, getLinkedStudentIds, getOwnStudentId, isAdminRole } from '@/lib/caller';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
 function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return getSupabaseAdmin();
 }
 
 const CLASS_ORDER = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'];
 
 export async function GET(request: NextRequest) {
   try {
+    // Administrators see the whole school; a parent or student sees only their own report card.
+    const caller = await getCaller();
+    const isAdmin = isAdminRole(caller.role);
+    const isGuardian = caller.role === 'parent';
+    const isStudent = caller.role === 'student';
+    if (!isAdmin && !isGuardian && !isStudent) {
+      return NextResponse.json({ success: false, error: 'Access denied for this role.' }, { status: 403 });
+    }
+    const permittedStudentIds: string[] = isAdmin
+      ? []
+      : isGuardian
+      ? await getLinkedStudentIds(caller.email)
+      : [(await getOwnStudentId(caller.userId ?? undefined)) || ''].filter(Boolean);
+
     const sb = getAdminClient();
 
     // 1. Fetch Classes with capacity and teacher
@@ -194,11 +204,17 @@ export async function GET(request: NextRequest) {
       const url = new URL(request.url);
       const studentId = url.searchParams.get('studentId');
       if (studentId) {
+        if (!isAdmin && !permittedStudentIds.includes(studentId)) {
+          return NextResponse.json({ success: false, error: 'Access denied for this student.' }, { status: 403 });
+        }
         targetStudent = (students || []).find((s: any) => s.id === studentId);
       }
     }
-    if (!targetStudent && (students || []).length > 0) {
+    if (!targetStudent && isAdmin && (students || []).length > 0) {
       targetStudent = students[0];
+    }
+    if (!targetStudent && !isAdmin) {
+      targetStudent = (students || []).find((s: any) => permittedStudentIds.includes(s.id)) || null;
     }
 
     if (targetStudent) {
@@ -216,21 +232,22 @@ export async function GET(request: NextRequest) {
         className: studentClassName,
         isEndorsed: isClassEndorsed,
         hasScores: Boolean(studentRc),
-        averageScore: studentRc ? Number(studentRc.average_score || 0) : null,
-        position: studentRc?.class_position || null,
-        subjects: Array.isArray(studentRc?.subjects) ? studentRc.subjects : [],
-        teacherRemark: studentRc?.teacher_remark || null,
-        principalRemark: studentRc?.principal_remark || null,
+        // Families see scores only after the Proprietor has endorsed the class
+        averageScore: studentRc && (isAdmin || isClassEndorsed) ? Number(studentRc.average_score || 0) : null,
+        position: isAdmin || isClassEndorsed ? studentRc?.class_position || null : null,
+        subjects: (isAdmin || isClassEndorsed) && Array.isArray(studentRc?.subjects) ? studentRc.subjects : [],
+        teacherRemark: isAdmin || isClassEndorsed ? studentRc?.teacher_remark || null : null,
+        principalRemark: isAdmin || isClassEndorsed ? studentRc?.principal_remark || null : null,
       };
     }
 
     return NextResponse.json({
       success: true,
       data: {
-        classes: classesSummary,
-        parentEmailDeliveries,
+        classes: isAdmin ? classesSummary : [],
+        parentEmailDeliveries: isAdmin ? parentEmailDeliveries : [],
         endorsedClasses,
-        forwardedClasses,
+        forwardedClasses: isAdmin ? forwardedClasses : [],
         studentReportCard,
       },
     });

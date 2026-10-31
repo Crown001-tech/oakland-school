@@ -33,13 +33,81 @@ export default function BursarPayrollPage() {
   const [isSavingBank, setIsSavingBank] = useState(false);
   const [bankError, setBankError] = useState<string | null>(null);
 
+  // Deductions management state
+  const [editingDeductionStaff, setEditingDeductionStaff] = useState<PayrollRecord | null>(null);
+  const [taxDeductionAmount, setTaxDeductionAmount] = useState<string>('0');
+  const [cooperativeDeductionAmount, setCooperativeDeductionAmount] = useState<string>('0');
+  const [isSavingDeductions, setIsSavingDeductions] = useState(false);
+  const [deductionError, setDeductionError] = useState<string | null>(null);
+
   // Modals
   const [activePayslip, setActivePayslip] = useState<PayrollRecord | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (editingBankStaff) setEditingBankStaff(null);
+        if (editingDeductionStaff) setEditingDeductionStaff(null);
+        if (activePayslip) setActivePayslip(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [editingBankStaff, editingDeductionStaff, activePayslip]);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 4000);
+  };
+
+  const handleSaveDeductions = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingDeductionStaff) return;
+    setDeductionError(null);
+
+    const tax = Math.max(0, Number(taxDeductionAmount) || 0);
+    const coop = Math.max(0, Number(cooperativeDeductionAmount) || 0);
+
+    setIsSavingDeductions(true);
+    try {
+      const res = await fetch('/api/finances', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_staff_deductions',
+          staffId: editingDeductionStaff.id,
+          taxDeduction: tax,
+          cooperativeDeduction: coop,
+        }),
+      });
+
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.message || 'Failed to update deductions');
+      }
+
+      setPayrollRecords((prev) =>
+        prev.map((r) => {
+          if (r.id !== editingDeductionStaff.id) return r;
+          const gross = r.basicSalary + r.responsibilityAllowance + r.otherAllowances;
+          const newNet = Math.max(0, gross - tax - coop);
+          return {
+            ...r,
+            taxDeduction: tax,
+            cooperativeDeduction: coop,
+            netSalary: newNet,
+          };
+        })
+      );
+
+      showToast(`Payroll deductions for ${editingDeductionStaff.name} updated successfully.`);
+      setEditingDeductionStaff(null);
+    } catch (err: any) {
+      setDeductionError(err?.message || 'Error updating deductions');
+    } finally {
+      setIsSavingDeductions(false);
+    }
   };
 
   const handleSaveBank = async (e: React.FormEvent) => {
@@ -187,7 +255,7 @@ export default function BursarPayrollPage() {
         <div>
           <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Salaries</h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Staff monthly compensation, allowances, statutory tax, and bank payment schedule.
+            Staff monthly compensation, allowances, and bank payment schedule.
           </p>
         </div>
 
@@ -247,37 +315,37 @@ export default function BursarPayrollPage() {
 
         <Card className="p-4 border-slate-200 shadow-xs bg-white">
           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-            Statutory Deductions
+            Active Staff on Roster
           </span>
           <p className="text-2xl font-black text-slate-800 mt-1">
-            {formatNaira(totalTaxDeduction)}
+            {payrollRecords.length} {payrollRecords.length === 1 ? 'Member' : 'Members'}
           </p>
-          <p className="text-[11px] text-slate-400 mt-1">Zero pension deductions applied</p>
+          <p className="text-[11px] text-slate-400 mt-1">Full institutional faculty roster</p>
         </Card>
       </div>
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3 top-3.5 text-slate-400" />
           <Input
             placeholder="Search staff by name, staff ID, or role..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 text-xs h-9"
+            className="pl-9 text-xs min-h-[44px]"
           />
         </div>
 
         <select
           value={deptFilter}
           onChange={(e) => setDeptFilter(e.target.value)}
-          className="h-9 px-3 rounded-lg border border-slate-300 bg-white text-xs font-medium text-slate-800 cursor-pointer"
+          className="min-h-[44px] px-3 rounded-lg border border-slate-300 bg-white text-xs font-medium text-slate-800 cursor-pointer"
         >
           <option value="All">All Departments</option>
           <option value="Academic">Academic</option>
           <option value="Administration">Administration</option>
           <option value="Accounts">Accounts</option>
-          <option value="Operations & Support">Operations</option>
+          <option value="Operations">Operations</option>
           <option value="Medical">Medical</option>
         </select>
       </div>
@@ -299,7 +367,7 @@ export default function BursarPayrollPage() {
           <table className="w-full text-xs text-left">
             <thead className="bg-[#0f3a3e] text-white font-bold">
               <tr>
-                <th className="py-2.5 px-4">Staff Member and ID</th>
+                <th className="py-2.5 px-4">Staff Member</th>
                 <th className="py-2.5 px-3">Role</th>
                 <th className="py-2.5 px-3 text-right">Basic Pay</th>
                 <th className="py-2.5 px-3 text-right">Allowances</th>
@@ -344,7 +412,26 @@ export default function BursarPayrollPage() {
                         +{formatNaira(totalAllowances)}
                       </td>
                       <td className="py-3 px-3 text-right font-mono text-slate-500">
-                        {rec.taxDeduction > 0 ? `-${formatNaira(rec.taxDeduction)}` : '₦0'}
+                        <div className="flex items-center justify-end gap-1.5">
+                          <span>
+                            {rec.taxDeduction + (rec.cooperativeDeduction || 0) > 0
+                              ? `-${formatNaira(rec.taxDeduction + (rec.cooperativeDeduction || 0))}`
+                              : '₦0'}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingDeductionStaff(rec);
+                              setTaxDeductionAmount(rec.taxDeduction.toString());
+                              setCooperativeDeductionAmount((rec.cooperativeDeduction || 0).toString());
+                            }}
+                            aria-label="Adjust Deductions"
+                            className="text-slate-400 hover:text-teal-700 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 p-1 rounded hover:bg-slate-100 transition-colors cursor-pointer flex items-center justify-center"
+                            title="Adjust Deductions"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-black text-slate-900 bg-slate-50 text-sm">
                         {formatNaira(rec.netSalary)}
@@ -363,7 +450,8 @@ export default function BursarPayrollPage() {
                                 setBankName(rec.bankName);
                                 setBankAccount(rec.bankAccount);
                               }}
-                              className="text-slate-400 hover:text-teal-700 p-1 rounded hover:bg-slate-100 transition-colors cursor-pointer"
+                              aria-label="Update Bank Details"
+                              className="text-slate-400 hover:text-teal-700 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 p-1 rounded hover:bg-slate-100 transition-colors cursor-pointer flex items-center justify-center"
                               title="Update Bank Details"
                             >
                               <Edit2 className="w-3.5 h-3.5" />
@@ -379,7 +467,7 @@ export default function BursarPayrollPage() {
                                 setBankName('');
                                 setBankAccount('');
                               }}
-                              className="text-[10px] font-semibold text-teal-800 hover:text-teal-900 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-2 py-0.5 rounded cursor-pointer transition-colors"
+                              className="min-h-[44px] sm:min-h-0 text-[10px] font-semibold text-teal-800 hover:text-teal-900 bg-teal-50 hover:bg-teal-100 border border-teal-200 px-2.5 py-1 rounded cursor-pointer transition-colors"
                             >
                               + Add Bank
                             </button>
@@ -390,8 +478,8 @@ export default function BursarPayrollPage() {
                         <span
                           className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                             rec.status === 'Approved & Disbursed'
-                              ? 'bg-emerald-100 text-emerald-800'
-                              : 'bg-amber-100 text-amber-800'
+                              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                              : 'bg-amber-50 text-amber-800 border border-amber-200'
                           }`}
                         >
                           {rec.status === 'Approved & Disbursed' ? 'Disbursed' : 'Pending'}
@@ -403,7 +491,7 @@ export default function BursarPayrollPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => setActivePayslip(rec)}
-                          className="h-7 px-2.5 text-[10px] font-bold text-teal-800 border-teal-300 hover:bg-teal-50"
+                          className="min-h-[44px] sm:min-h-[32px] px-2.5 text-[10px] font-bold text-teal-800 border-teal-300 hover:bg-teal-50"
                         >
                           <Eye className="w-3 h-3 mr-1" />
                           Print Payslip
@@ -426,8 +514,16 @@ export default function BursarPayrollPage() {
 
       {/* Update Bank Details Modal */}
       {editingBankStaff && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-          <div className="bg-white rounded-2xl max-w-md w-full border border-slate-200 shadow-xl overflow-hidden animate-in zoom-in-95 duration-150">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150"
+          onClick={() => setEditingBankStaff(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="bg-white rounded-2xl max-w-md w-full border border-slate-200 shadow-xl overflow-hidden animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="px-5 py-4 bg-[#0f3a3e] text-white flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold">Staff Bank Account</h3>
@@ -438,7 +534,8 @@ export default function BursarPayrollPage() {
               <button
                 type="button"
                 onClick={() => setEditingBankStaff(null)}
-                className="text-white/70 hover:text-white p-1 rounded-lg cursor-pointer"
+                aria-label="Close bank account modal"
+                className="text-white/70 hover:text-white w-11 h-11 flex items-center justify-center rounded-lg cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -457,7 +554,7 @@ export default function BursarPayrollPage() {
                   value={bankName}
                   onChange={(e) => setBankName(e.target.value)}
                   required
-                  className="w-full h-9 px-3 rounded-lg border border-slate-300 bg-white text-slate-800 text-xs"
+                  className="w-full min-h-[44px] px-3 rounded-lg border border-slate-300 bg-white text-slate-800 text-xs"
                 >
                   <option value="">Select Commercial Bank...</option>
                   <option value="Access Bank">Access Bank</option>
@@ -486,7 +583,7 @@ export default function BursarPayrollPage() {
                   value={bankAccount}
                   onChange={(e) => setBankAccount(e.target.value.replace(/\D/g, ''))}
                   placeholder="e.g. 0123456789"
-                  className="h-9 text-xs font-mono font-bold tracking-wider"
+                  className="min-h-[44px] text-xs font-mono font-bold tracking-wider"
                 />
               </div>
 
@@ -497,7 +594,7 @@ export default function BursarPayrollPage() {
                   size="sm"
                   onClick={() => setEditingBankStaff(null)}
                   disabled={isSavingBank}
-                  className="text-xs"
+                  className="min-h-[44px] text-xs"
                 >
                   Cancel
                 </Button>
@@ -506,9 +603,116 @@ export default function BursarPayrollPage() {
                   variant="primary"
                   size="sm"
                   disabled={isSavingBank}
-                  className="text-xs font-semibold"
+                  className="min-h-[44px] text-xs font-semibold"
                 >
                   {isSavingBank ? 'Saving...' : 'Save Account'}
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Adjust Deductions Modal */}
+      {editingDeductionStaff && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 animate-in fade-in duration-150"
+          onClick={() => setEditingDeductionStaff(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="bg-white rounded-2xl max-w-md w-full border border-slate-200 shadow-xl overflow-hidden animate-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-4 bg-slate-900 text-white flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-bold">Adjust Payroll Deductions</h3>
+                <p className="text-[11px] text-slate-300">
+                  {editingDeductionStaff.name} ({editingDeductionStaff.employeeId})
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingDeductionStaff(null)}
+                aria-label="Close deductions modal"
+                className="text-slate-400 hover:text-white w-11 h-11 flex items-center justify-center rounded-lg"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveDeductions} className="p-5 space-y-4 text-xs">
+              {deductionError && (
+                <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-800 text-xs">
+                  {deductionError}
+                </div>
+              )}
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Tax Withholding (₦)
+                </label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={taxDeductionAmount}
+                  onChange={(e) => setTaxDeductionAmount(e.target.value)}
+                  className="min-h-[44px] text-xs font-mono font-bold"
+                  placeholder="0"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Cooperative Deduction (₦)
+                </label>
+                <Input
+                  type="number"
+                  min={0}
+                  value={cooperativeDeductionAmount}
+                  onChange={(e) => setCooperativeDeductionAmount(e.target.value)}
+                  className="min-h-[44px] text-xs font-mono font-bold"
+                  placeholder="0"
+                />
+              </div>
+
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+                <div className="flex justify-between text-[11px] text-slate-600">
+                  <span>Gross Salary:</span>
+                  <span className="font-mono font-bold">{formatNaira(editingDeductionStaff.basicSalary + editingDeductionStaff.responsibilityAllowance + editingDeductionStaff.otherAllowances)}</span>
+                </div>
+                <div className="flex justify-between text-[11px] text-rose-600 font-semibold">
+                  <span>Total Deductions:</span>
+                  <span className="font-mono">-{formatNaira((Number(taxDeductionAmount) || 0) + (Number(cooperativeDeductionAmount) || 0))}</span>
+                </div>
+                <div className="flex justify-between text-xs text-slate-900 font-bold pt-1 border-t border-slate-200">
+                  <span>Revised Net Disbursed:</span>
+                  <span className="font-mono font-black text-emerald-700">
+                    {formatNaira(Math.max(0, (editingDeductionStaff.basicSalary + editingDeductionStaff.responsibilityAllowance + editingDeductionStaff.otherAllowances) - ((Number(taxDeductionAmount) || 0) + (Number(cooperativeDeductionAmount) || 0))))}
+                  </span>
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2.5">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditingDeductionStaff(null)}
+                  disabled={isSavingDeductions}
+                  className="min-h-[44px] text-xs"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="sm"
+                  disabled={isSavingDeductions}
+                  className="min-h-[44px] text-xs font-semibold"
+                >
+                  {isSavingDeductions ? 'Saving...' : 'Save Deductions'}
                 </Button>
               </div>
             </form>

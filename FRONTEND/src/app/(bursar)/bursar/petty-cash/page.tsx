@@ -178,7 +178,7 @@ export default function BursarPettyCashPage() {
             variant="outline"
             size="sm"
             onClick={() => window.print()}
-            className="text-xs border-slate-300 font-semibold gap-1.5"
+            className="min-h-[44px] sm:min-h-[36px] text-xs border-slate-300 font-semibold gap-1.5"
           >
             <Printer className="w-3.5 h-3.5" />
             <span>Print Journal</span>

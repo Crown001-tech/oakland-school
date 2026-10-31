@@ -150,8 +150,9 @@ export default function ProprietorStaffProfilePage() {
       });
       const json = await res.json();
       if (json.success) {
-        setStaff((prev) => (prev ? { ...prev, defaultPassword: 'Oakland@2026' } : null));
-        showToast('Password successfully reset to default Oakland@2026');
+        const issuedPassword = json.defaultPassword || '—';
+        setStaff((prev) => (prev ? { ...prev, defaultPassword: issuedPassword } : null));
+        showToast(json.message || `One-time password generated: ${issuedPassword}`);
       } else {
         alert(json.message || 'Failed to reset password');
       }
@@ -258,7 +259,7 @@ export default function ProprietorStaffProfilePage() {
     ...(hasTeachingAssignments
       ? [{ id: 'assignment' as TabType, label: 'Assignment', icon: BookOpen }]
       : []),
-    { id: 'payroll_security', label: 'Payroll & Security', icon: Key },
+    { id: 'payroll_security', label: 'Payroll', icon: Key },
   ];
 
   return (
@@ -299,7 +300,7 @@ export default function ProprietorStaffProfilePage() {
               onClick={() => setIsEditModalOpen(true)}
               className="bg-[#0f3a3e] hover:bg-[#164e53] text-white font-bold cursor-pointer"
             >
-              Edit Role & Assignment
+              Edit Role
             </Button>
           </div>
         </div>
@@ -351,7 +352,7 @@ export default function ProprietorStaffProfilePage() {
                       Responsibility
                     </span>
                     <span className="text-xs sm:text-sm font-bold text-[#0f3a3e] mt-0.5 block">
-                      Academic & Operations
+                      Academic Leadership
                     </span>
                   </div>
                 </>
@@ -371,7 +372,7 @@ export default function ProprietorStaffProfilePage() {
                       Responsibility
                     </span>
                     <span className="text-xs sm:text-sm font-bold text-amber-900 mt-0.5 block">
-                      Bursary & Accounts
+                      School Treasury
                     </span>
                   </div>
                 </>
@@ -453,7 +454,7 @@ export default function ProprietorStaffProfilePage() {
               <Card className="p-6 border-slate-200/80 space-y-4">
                 <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
                   <User className="w-4 h-4 text-[#0f3a3e]" />
-                  <h2 className="text-sm font-bold text-slate-900">Personal & Contact Details</h2>
+                  <h2 className="text-sm font-bold text-slate-900">Personal Details</h2>
                 </div>
 
                 <div className="space-y-3 text-xs">
@@ -519,29 +520,29 @@ export default function ProprietorStaffProfilePage() {
               <Card className="p-6 border-slate-200/80 bg-gradient-to-r from-teal-50/50 via-white to-slate-50 space-y-4">
                 <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
                   <ShieldCheck className="w-4 h-4 text-[#0f3a3e]" />
-                  <h2 className="text-sm font-bold text-slate-900">Executive Administrative Scope & Responsibilities</h2>
+                  <h2 className="text-sm font-bold text-slate-900">Executive Scope</h2>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                   <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-1">
-                    <p className="font-bold text-slate-900">Curriculum & Instructional Leadership</p>
+                    <p className="font-bold text-slate-900">Curriculum Leadership</p>
                     <p className="text-slate-600">
                       Direct supervision of teaching faculty, syllabus execution, lesson plans, and instructional standards across all classes.
                     </p>
                   </div>
                   <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-1">
-                    <p className="font-bold text-slate-900">Examinations & Result Approvals</p>
+                    <p className="font-bold text-slate-900">Examination Approvals</p>
                     <p className="text-slate-600">
                       Terminal examination administration, continuous assessment vetting, and final authorization of official student report cards.
                     </p>
                   </div>
                   <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-1">
-                    <p className="font-bold text-slate-900">Student Welfare & Institutional Discipline</p>
+                    <p className="font-bold text-slate-900">Student Welfare</p>
                     <p className="text-slate-600">
                       Maintenance of school ethos, code of conduct, pastoral care, and regulatory ministry compliance.
                     </p>
                   </div>
                   <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-1">
-                    <p className="font-bold text-slate-900">Admissions & Board Liaison</p>
+                    <p className="font-bold text-slate-900">Admissions Liaison</p>
                     <p className="text-slate-600">
                       Prospective student screening, admission endorsements, and reporting operational progress directly to the Proprietor.
                     </p>
@@ -552,17 +553,17 @@ export default function ProprietorStaffProfilePage() {
               <Card className="p-6 border-slate-200/80 bg-gradient-to-r from-amber-50/50 via-white to-slate-50 space-y-4">
                 <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
                   <CreditCard className="w-4 h-4 text-amber-800" />
-                  <h2 className="text-sm font-bold text-slate-900">Bursary & Financial Administration Scope</h2>
+                  <h2 className="text-sm font-bold text-slate-900">Financial Administration Scope</h2>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                   <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-1">
-                    <p className="font-bold text-slate-900">Tuition & Fee Collection</p>
+                    <p className="font-bold text-slate-900">Tuition Collection</p>
                     <p className="text-slate-600">
                       Invoicing, tuition receipt issuance, debtor ledger management, and financial clearance for term examinations.
                     </p>
                   </div>
                   <div className="p-4 rounded-xl bg-white border border-slate-200 space-y-1">
-                    <p className="font-bold text-slate-900">Disbursement & Payroll Reconciliation</p>
+                    <p className="font-bold text-slate-900">Payroll Reconciliation</p>
                     <p className="text-slate-600">
                       Execution of staff payroll schedules, vendor disbursements, and bank account reconciliation.
                     </p>
@@ -978,7 +979,7 @@ export default function ProprietorStaffProfilePage() {
         {/* 1. Official Biodata & Position */}
         <div className="mb-6">
           <h3 className="text-xs font-bold uppercase tracking-wider text-teal-900 border-b border-slate-200 pb-1 mb-3">
-            1. Personal & Employment Information
+            1. Employment Information
           </h3>
           <table className="w-full text-xs border-collapse">
             <tbody>
@@ -1017,18 +1018,18 @@ export default function ProprietorStaffProfilePage() {
         {/* 2. Institutional Responsibility Scope */}
         <div className="mb-6">
           <h3 className="text-xs font-bold uppercase tracking-wider text-teal-900 border-b border-slate-200 pb-1 mb-3">
-            2. Institutional Scope & Duties
+            2. Institutional Scope
           </h3>
           {staff.role === 'Principal' ? (
             <div className="text-xs text-slate-700 bg-slate-50 p-3 rounded border border-slate-200 space-y-1">
-              <p className="font-bold text-slate-900">Executive Head of School & Chief Academic Officer</p>
+              <p className="font-bold text-slate-900">Executive Head of School</p>
               <p>&bull; Full executive oversight of academic curriculum, teaching standards, and instructional staff.</p>
               <p>&bull; Final approval of continuous assessments, examination results, and terminal report cards.</p>
               <p>&bull; Administration of student discipline, admissions policies, and institutional compliance.</p>
             </div>
           ) : staff.role === 'Bursar' ? (
             <div className="text-xs text-slate-700 bg-slate-50 p-3 rounded border border-slate-200 space-y-1">
-              <p className="font-bold text-slate-900">Chief Financial Officer & Bursary Lead</p>
+              <p className="font-bold text-slate-900">Chief Financial Officer</p>
               <p>&bull; Direction of school bursary, tuition billing, bank receipts reconciliation, and fee enforcement.</p>
               <p>&bull; Monthly payroll disbursement preparation, operational expense control, and financial reporting.</p>
             </div>

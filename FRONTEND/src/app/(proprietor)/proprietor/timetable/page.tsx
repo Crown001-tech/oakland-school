@@ -28,6 +28,7 @@ type TimetableData = Record<string, Record<string, Record<string, TimetableCell>
 
 export default function ProprietorTimetablePage() {
   const [selectedClass, setSelectedClass] = useState('JSS 1');
+  const [mobileDay, setMobileDay] = useState('Monday');
   const [timetable, setTimetable] = useState<TimetableData>({});
   const [loading, setLoading] = useState(true);
 
@@ -127,19 +128,82 @@ export default function ProprietorTimetablePage() {
           </div>
         </Card>
       ) : (
-        <Card className="border-slate-200 shadow-xs overflow-hidden">
-          <CardContent className="p-0 overflow-x-auto">
-            <table className="w-full text-xs text-left">
-              <thead className="bg-[#0f3a3e] text-white font-bold">
-                <tr>
-                  <th className="py-3 px-4 w-36">Period</th>
-                  {DAYS.map((d) => (
-                    <th key={d} className="py-3 px-3 min-w-[130px]">
-                      {d}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
+        <>
+          {/* Mobile Day Segment Selector (< md) */}
+          <div className="flex md:hidden items-center justify-between bg-white p-1 rounded-xl border border-slate-200 shadow-2xs">
+            {DAYS.map((d) => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => setMobileDay(d)}
+                className={`flex-1 py-1.5 px-2 text-center text-xs font-bold rounded-lg transition-all ${
+                  mobileDay === d
+                    ? 'bg-[#0f3a3e] text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {d.slice(0, 3)}
+              </button>
+            ))}
+          </div>
+
+          {/* Mobile Vertical Period Stack (< md) */}
+          <div className="md:hidden space-y-2">
+            {PERIODS.map((p) => {
+              if (p.isBreak) {
+                return (
+                  <div
+                    key={p.id}
+                    className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-center text-xs text-slate-500 font-medium flex items-center justify-center gap-2"
+                  >
+                    <Clock className="w-3.5 h-3.5 text-slate-400" />
+                    <span>{p.label} &bull; {p.time}</span>
+                  </div>
+                );
+              }
+              const cell = classData[p.id]?.[mobileDay];
+              return (
+                <div
+                  key={p.id}
+                  className="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs flex items-center justify-between"
+                >
+                  <div>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      {p.label} ({p.time})
+                    </span>
+                    {cell ? (
+                      <div className="mt-0.5">
+                        <p className="text-sm font-bold text-slate-900">{cell.subject}</p>
+                        {cell.teacher && (
+                          <p className="text-xs text-teal-800 font-medium flex items-center gap-1 mt-0.5">
+                            <User className="w-3 h-3" />
+                            <span>{cell.teacher}</span>
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-slate-400 italic mt-0.5">Free Period</p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop 5-Day Master Grid (>= md) */}
+          <Card className="hidden md:block border-slate-200 shadow-xs overflow-hidden">
+            <CardContent className="p-0 overflow-x-auto relative">
+              <table className="w-full text-xs text-left">
+                <thead className="bg-[#0f3a3e] text-white font-bold">
+                  <tr>
+                    <th className="py-3 px-4 w-36">Period</th>
+                    {DAYS.map((d) => (
+                      <th key={d} className="py-3 px-3 min-w-[130px]">
+                        {d}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
               <tbody className="divide-y divide-slate-100 bg-white">
                 {PERIODS.map((p) => {
                   if (p.isBreak) {
@@ -189,6 +253,7 @@ export default function ProprietorTimetablePage() {
             </table>
           </CardContent>
         </Card>
+      </>
       )}
     </div>
   );

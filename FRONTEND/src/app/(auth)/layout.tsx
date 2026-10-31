@@ -9,7 +9,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-gradient-to-br from-slate-50 via-white to-teal-50/20">
+    <div className="min-h-screen flex flex-col justify-between bg-gradient-to-br from-slate-50 via-white to-slate-100/50">
       {/* Top Bar */}
       <div className="px-6 py-5 flex items-center justify-between border-b border-slate-200/60 bg-white/70 backdrop-blur-sm">
         <Logo size="sm" href="/" />

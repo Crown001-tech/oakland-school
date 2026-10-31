@@ -38,6 +38,31 @@ export default function BursarLayout({ children }: { children: React.ReactNode }
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [bursarProfile, setBursarProfile] = useState<{ name: string; email: string } | null>(null);
+  const [navBadges, setNavBadges] = useState<Record<string, { count: number; dot: boolean }>>({});
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchBadges = async () => {
+      try {
+        const res = await fetch('/api/nav-badges?role=bursar');
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && data.success && data.badges) {
+            setNavBadges(data.badges);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to load navigation badges:', err);
+      }
+    };
+
+    fetchBadges();
+    const interval = setInterval(fetchBadges, 15000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [pathname]);
 
   useEffect(() => {
     let isMounted = true;
@@ -96,10 +121,11 @@ export default function BursarLayout({ children }: { children: React.ReactNode }
     {
       category: 'PAYMENTS',
       items: [
-        { label: 'Fees and Receipts', href: '/bursar/fees', icon: Receipt },
+        { label: 'Tuition', href: '/bursar/fees', icon: Receipt },
         { label: 'Salaries', href: '/bursar/payroll', icon: Users },
         { label: 'Expenditures', href: '/bursar/expenditures', icon: ShoppingBag },
         { label: 'Petty Cash', href: '/bursar/petty-cash', icon: Wallet },
+        { label: 'Bank Accounts', href: '/bursar/bank-accounts', icon: School },
       ],
     },
   ];
@@ -185,7 +211,7 @@ export default function BursarLayout({ children }: { children: React.ReactNode }
               setIsSidebarOpen(false);
             }}
             aria-label="Close navigation sidebar"
-            className="w-9 h-9 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 active:bg-white/20 transition-colors shrink-0 z-20 cursor-pointer lg:hidden"
+            className="w-11 h-11 rounded-lg flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 active:bg-white/20 transition-colors shrink-0 z-20 cursor-pointer lg:hidden"
           >
             <X className="w-5 h-5 shrink-0" />
           </button>
@@ -207,26 +233,49 @@ export default function BursarLayout({ children }: { children: React.ReactNode }
               {group.items.map((item) => {
                 const Icon = item.icon;
                 const active = pathname === item.href;
+                const badgeInfo = navBadges[item.href];
+                const badgeCount = badgeInfo?.count || 0;
+                const hasDot = badgeInfo?.dot || false;
+
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => setIsSidebarOpen(false)}
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
+                    className={`flex items-center justify-between px-3 py-2.5 min-h-[44px] rounded-lg text-xs font-medium transition-all ${
                       active
                         ? 'bg-white/10 text-white'
                         : 'text-slate-400 hover:bg-white/5 hover:text-white'
                     }`}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <Icon className={`w-3.5 h-3.5 ${active ? 'text-teal-400' : 'text-slate-500'}`} />
-                      <span>{item.label}</span>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="relative flex items-center justify-center shrink-0">
+                        <Icon className={`w-3.5 h-3.5 ${active ? 'text-teal-400' : 'text-slate-500'}`} />
+                        {badgeCount > 0 ? (
+                          <span
+                            className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-0.5 bg-rose-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none ring-2 ring-[#0a1b1d] shadow-xs"
+                            title={`${badgeCount} item${badgeCount > 1 ? 's' : ''} requiring attention`}
+                          >
+                            {badgeCount > 99 ? '99+' : badgeCount}
+                          </span>
+                        ) : hasDot ? (
+                          <span
+                            className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-[#0a1b1d] animate-pulse"
+                            title="Attention required"
+                          />
+                        ) : null}
+                      </div>
+                      <span className="truncate">{item.label}</span>
                     </div>
-                    {item.badge && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-slate-300 font-bold">
+                    {badgeCount > 0 ? (
+                      <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-rose-500/15 text-rose-300 font-bold border border-rose-500/25 shrink-0">
+                        {badgeCount}
+                      </span>
+                    ) : item.badge ? (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-slate-300 font-bold shrink-0">
                         {item.badge}
                       </span>
-                    )}
+                    ) : null}
                   </Link>
                 );
               })}
@@ -279,7 +328,7 @@ export default function BursarLayout({ children }: { children: React.ReactNode }
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(true)}
-              className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 lg:hidden cursor-pointer"
+              className="w-11 h-11 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 lg:hidden cursor-pointer"
               aria-label="Open sidebar"
             >
               <Menu className="w-5 h-5" />
@@ -293,13 +342,15 @@ export default function BursarLayout({ children }: { children: React.ReactNode }
                   : pathname === '/bursar/profile'
                   ? 'My Profile'
                   : pathname === '/bursar/fees'
-                  ? 'Fees and Receipts'
+                  ? 'Tuition'
                   : pathname === '/bursar/payroll'
                   ? 'Salaries'
                   : pathname === '/bursar/expenditures'
                   ? 'Expenditures'
                   : pathname === '/bursar/petty-cash'
                   ? 'Petty Cash'
+                  : pathname === '/bursar/bank-accounts'
+                  ? 'Bank Accounts'
                   : pathname.split('/').pop()?.replace(/-/g, ' ')}
               </span>
             </div>

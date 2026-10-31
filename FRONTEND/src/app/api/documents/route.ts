@@ -1,22 +1,24 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+import { getCaller, isAdminRole } from '@/lib/caller';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
 function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return getSupabaseAdmin();
 }
 
 export async function GET() {
   try {
     const sb = getAdminClient();
-    const { data: docs, error } = await sb
-      .from('documents')
-      .select('*')
-      .order('created_at', { ascending: false });
+    // Documents tied to a student or staff member, and unpublished drafts, are for administrators only.
+    const isAdmin = isAdminRole((await getCaller()).role);
+    let docQuery = sb.from('documents').select('*');
+    if (!isAdmin) {
+      docQuery = docQuery
+        .is('associated_student_id', null)
+        .is('associated_staff_id', null)
+        .or('status.eq.published,status.is.null');
+    }
+    const { data: docs, error } = await docQuery.order('created_at', { ascending: false });
 
     if (error) throw error;
 

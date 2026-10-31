@@ -226,7 +226,7 @@ export default function SubjectScoresPage() {
   const isHomeroom = isClassTeacher && selectedClass === homeroomClass;
 
   const assignedClassTeacher = isHomeroom
-    ? `${currentTeacher?.name || 'Adesayan Peter'} (You)`
+    ? (currentTeacher?.name ? `${currentTeacher.name} (You)` : 'Class Teacher (You)')
     : classTeacherMap[selectedClass] || 'Unassigned Class Teacher';
 
   // Automated Grade derivation
@@ -261,6 +261,54 @@ export default function SubjectScoresPage() {
       prev.map((s) => (s.id === id ? { ...s, remark } : s))
     );
     setIsSubmitted(false);
+  };
+
+  const handleScoreKeyDown = (
+    e: React.KeyboardEvent<HTMLInputElement>,
+    rowIndex: number,
+    colIndex: number
+  ) => {
+    if (e.key === 'ArrowDown' || e.key === 'Enter') {
+      e.preventDefault();
+      const nextInput = document.querySelector<HTMLInputElement>(
+        `input[data-row="${rowIndex + 1}"][data-col="${colIndex}"]`
+      );
+      if (nextInput) {
+        nextInput.focus();
+        nextInput.select();
+      }
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prevInput = document.querySelector<HTMLInputElement>(
+        `input[data-row="${rowIndex - 1}"][data-col="${colIndex}"]`
+      );
+      if (prevInput) {
+        prevInput.focus();
+        prevInput.select();
+      }
+    } else if (e.key === 'ArrowRight' && colIndex < 3) {
+      const input = e.currentTarget;
+      if (input.selectionStart === input.value.length) {
+        const rightInput = document.querySelector<HTMLInputElement>(
+          `input[data-row="${rowIndex}"][data-col="${colIndex + 1}"]`
+        );
+        if (rightInput) {
+          rightInput.focus();
+          rightInput.select();
+        }
+      }
+    } else if (e.key === 'ArrowLeft' && colIndex > 0) {
+      const input = e.currentTarget;
+      if (input.selectionStart === 0) {
+        const leftInput = document.querySelector<HTMLInputElement>(
+          `input[data-row="${rowIndex}"][data-col="${colIndex - 1}"]`
+        );
+        if (leftInput) {
+          leftInput.focus();
+          leftInput.select();
+        }
+      }
+    }
   };
 
   // Automated System Statistics with Zero-Placeholder Compliance
@@ -648,6 +696,9 @@ export default function SubjectScoresPage() {
                         min={0}
                         max={20}
                         disabled={isLocked}
+                        data-row={idx}
+                        data-col={0}
+                        onKeyDown={(e) => handleScoreKeyDown(e, idx, 0)}
                         value={student.ca1 === 0 ? '' : student.ca1}
                         placeholder="0"
                         onChange={(e) => handleScoreChange(student.id, 'ca1', e.target.value)}
@@ -662,6 +713,9 @@ export default function SubjectScoresPage() {
                         min={0}
                         max={20}
                         disabled={isLocked}
+                        data-row={idx}
+                        data-col={1}
+                        onKeyDown={(e) => handleScoreKeyDown(e, idx, 1)}
                         value={student.ca2 === 0 ? '' : student.ca2}
                         placeholder="0"
                         onChange={(e) => handleScoreChange(student.id, 'ca2', e.target.value)}
@@ -676,6 +730,9 @@ export default function SubjectScoresPage() {
                         min={0}
                         max={60}
                         disabled={isLocked}
+                        data-row={idx}
+                        data-col={2}
+                        onKeyDown={(e) => handleScoreKeyDown(e, idx, 2)}
                         value={student.exam === 0 ? '' : student.exam}
                         placeholder="0"
                         onChange={(e) => handleScoreChange(student.id, 'exam', e.target.value)}
@@ -706,6 +763,9 @@ export default function SubjectScoresPage() {
                       <Input
                         type="text"
                         disabled={isLocked}
+                        data-row={idx}
+                        data-col={3}
+                        onKeyDown={(e) => handleScoreKeyDown(e, idx, 3)}
                         value={student.remark}
                         onChange={(e) => handleRemarkChange(student.id, e.target.value)}
                         className="h-8 text-xs bg-slate-50 border-slate-200 focus:bg-white disabled:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-700"
@@ -808,7 +868,7 @@ export default function SubjectScoresPage() {
             {/* Verification Stats Summary */}
             <div className="grid grid-cols-3 gap-2.5 text-center text-xs">
               <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
-                <p className="text-[10px] text-slate-500 font-semibold">Pupils Entered</p>
+                <p className="text-[10px] text-slate-500 font-semibold">Students Entered</p>
                 <p className="text-sm font-extrabold text-slate-900 mt-0.5">
                   {evaluatedPupils} of {scores.length}
                 </p>

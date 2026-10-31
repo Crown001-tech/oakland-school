@@ -52,6 +52,7 @@ interface Student360Data {
     dob: string;
     bloodGroup: string;
     address: string;
+    department?: string | null;
     status: string;
     createdAt?: string;
   };
@@ -173,7 +174,7 @@ export default function AdminStudentProfilePage() {
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: User },
-    { id: 'guardians', label: 'Guardians and Pickup', icon: Shield },
+    { id: 'guardians', label: 'Guardians', icon: Shield },
     { id: 'academics', label: 'Academics', icon: GraduationCap },
     { id: 'attendance', label: 'Attendance', icon: Calendar },
     { id: 'tuition', label: 'Tuition', icon: CreditCard },
@@ -224,6 +225,11 @@ export default function AdminStudentProfilePage() {
                 <Badge variant="teal" size="sm">
                   {currentClass}
                 </Badge>
+                {student.department ? (
+                  <span className="px-2 py-0.5 rounded-md text-[11px] font-bold bg-indigo-50 text-indigo-800 border border-indigo-200/80">
+                    {student.department}
+                  </span>
+                ) : null}
               </div>
               <p className="text-xs text-slate-500 font-mono">
                 Admission No: {student.admissionNumber}
@@ -380,7 +386,7 @@ export default function AdminStudentProfilePage() {
                   </h2>
                 </div>
                 <p className="text-xs text-teal-100/90 max-w-lg">
-                  This 4-digit security PIN is required at the school gate before pupil release to authorized pickup persons.
+                  This 4-digit security PIN is required at the school gate before student release to authorized pickup persons.
                 </p>
               </div>
 
@@ -490,7 +496,7 @@ export default function AdminStudentProfilePage() {
             <div className="pt-4 border-t border-slate-100 text-xs text-slate-500">
               {academics.averageScore !== null
                 ? 'Continuous assessment and exam marks are recorded by subject teachers and verified by the Principal.'
-                : 'No continuous assessment or examination marks have been entered for this pupil yet.'}
+                : 'No continuous assessment or examination marks have been entered for this student yet.'}
             </div>
           </Card>
 
@@ -540,7 +546,7 @@ export default function AdminStudentProfilePage() {
 
           {attendance.totalDays === 0 && (
             <p className="text-xs text-slate-500 text-center pt-2">
-              No roll call attendance records logged yet for this pupil.
+              No roll call attendance records logged yet for this student.
             </p>
           )}
         </Card>

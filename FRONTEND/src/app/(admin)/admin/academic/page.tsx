@@ -78,6 +78,16 @@ export default function AcademicCurriculumPage() {
     loadData();
   }, []);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isAddOpen) {
+        setIsAddOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isAddOpen]);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
@@ -185,13 +195,13 @@ export default function AcademicCurriculumPage() {
             type="button"
             size="sm"
             onClick={() => setIsAddOpen(true)}
-            className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold flex items-center gap-1.5 self-start sm:self-auto shadow-xs"
+            className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-semibold flex items-center gap-1.5 self-start sm:self-auto shadow-xs min-h-[44px]"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Subject to {selectedClass}</span>
           </Button>
         ) : (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs font-semibold self-start sm:self-auto">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs font-semibold self-start sm:self-auto min-h-[44px]">
             <Lock className="w-3.5 h-3.5 text-amber-600" />
             <span>Curriculum Editing Reserved</span>
           </div>
@@ -222,7 +232,7 @@ export default function AcademicCurriculumPage() {
                   setSelectedClass(cls);
                   setSelectedStream('All');
                 }}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
+                className={`px-3 py-2 min-h-[44px] rounded-xl text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
                   isSelected
                     ? 'bg-[#0f3a3e] text-white shadow-xs'
                     : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200/60'
@@ -401,7 +411,8 @@ export default function AcademicCurriculumPage() {
               <button
                 type="button"
                 onClick={() => setIsAddOpen(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+                className="text-slate-400 hover:text-slate-600 w-11 h-11 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-xl cursor-pointer"
+                aria-label="Close modal"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -418,7 +429,7 @@ export default function AcademicCurriculumPage() {
                     setSelectedSubjectOption(e.target.value);
                     setCustomSubjectName('');
                   }}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-hidden focus:border-slate-800 bg-white"
+                  className="w-full px-3 py-2 min-h-[44px] border border-slate-200 rounded-xl focus:outline-hidden focus:border-slate-800 bg-white"
                 >
                   {ALL_OFFICIAL_SUBJECT_NAMES.map((name) => (
                     <option key={name} value={name}>
@@ -437,7 +448,7 @@ export default function AcademicCurriculumPage() {
                   placeholder="e.g. Further Mathematics, Yoruba, or Igbo"
                   value={customSubjectName}
                   onChange={(e) => setCustomSubjectName(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-hidden focus:border-slate-800"
+                  className="w-full px-3 py-2 min-h-[44px] border border-slate-200 rounded-xl focus:outline-hidden focus:border-slate-800"
                 />
               </div>
 
@@ -447,7 +458,7 @@ export default function AcademicCurriculumPage() {
                   <select
                     value={newStream}
                     onChange={(e) => setNewStream(e.target.value as any)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-hidden focus:border-slate-800 bg-white"
+                    className="w-full px-3 py-2 min-h-[44px] border border-slate-200 rounded-xl focus:outline-hidden focus:border-slate-800 bg-white"
                   >
                     <option value="Core">Core</option>
                     <option value="Science">Science</option>
@@ -464,7 +475,7 @@ export default function AcademicCurriculumPage() {
                     max="10"
                     value={newPeriods}
                     onChange={(e) => setNewPeriods(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-hidden focus:border-slate-800"
+                    className="w-full px-3 py-2 min-h-[44px] border border-slate-200 rounded-xl focus:outline-hidden focus:border-slate-800"
                   />
                 </div>
               </div>
@@ -474,7 +485,7 @@ export default function AcademicCurriculumPage() {
                 <select
                   value={newTeacher}
                   onChange={(e) => setNewTeacher(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-hidden focus:border-slate-800 bg-white"
+                  className="w-full px-3 py-2 min-h-[44px] border border-slate-200 rounded-xl focus:outline-hidden focus:border-slate-800 bg-white"
                 >
                   {availableTeachers.map((t, idx) => (
                     <option key={`${t}-${idx}`} value={t}>
@@ -488,13 +499,13 @@ export default function AcademicCurriculumPage() {
                 <button
                   type="button"
                   onClick={() => setIsAddOpen(false)}
-                  className="px-4 py-2 border border-slate-200 rounded-xl font-semibold text-slate-600 hover:bg-slate-50 transition"
+                  className="px-4 py-2 min-h-[44px] border border-slate-200 rounded-xl font-semibold text-slate-600 hover:bg-slate-50 transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-[#0f3a3e] hover:bg-[#164e53] text-white font-semibold rounded-xl shadow-xs transition"
+                  className="px-5 py-2 min-h-[44px] bg-[#0f3a3e] hover:bg-[#164e53] text-white font-semibold rounded-xl shadow-xs transition cursor-pointer"
                 >
                   Save Subject
                 </button>

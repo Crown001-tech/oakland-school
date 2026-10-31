@@ -2,7 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Logo } from '@/components/brand/Logo';
 import { PublicNavbar } from '@/components/brand/PublicNavbar';
-import { MapPin, Mail, Phone } from 'lucide-react';
+import { PublicFooter } from '@/components/brand/PublicFooter';
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -466,71 +466,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       {/* ── Content ── */}
       <main style={{ flex: 1 }}>{children}</main>
 
-      {/* ── Footer ── */}
-      <footer className="ok-footer">
-        <div className="ok-footer-inner">
-          <div className="ok-footer-top">
-            <div className="ok-footer-brand">
-              <Logo size="md" theme="dark" />
-              <p>
-                Oakland Schools is Lagos&apos;s foremost international secondary college, delivering world-class education rooted in Nigerian excellence, moral character, and global standards since 2008.
-              </p>
-            </div>
-
-            <div className="ok-footer-col">
-              <h5>Quick Links</h5>
-              <ul>
-                <li><Link href="/">Home</Link></li>
-                <li><Link href="/about">About Oakland</Link></li>
-                <li><Link href="/academics">Curriculum &amp; Academics</Link></li>
-                <li><Link href="/our-values">Our Values</Link></li>
-                <li><Link href="/admissions">Admissions</Link></li>
-                <li><Link href="/login">Staff Portal</Link></li>
-              </ul>
-            </div>
-
-            <div className="ok-footer-col">
-              <h5>School Hours</h5>
-              <ul>
-                <li><span>Mon – Thu: 7:45am – 3:30pm</span></li>
-                <li><span>Friday: 7:45am – 1:00pm</span></li>
-                <li><span>Current Session: 2026/2027</span></li>
-                <li><span>Term One in Progress</span></li>
-              </ul>
-            </div>
-
-            <div className="ok-footer-col">
-              <h5>Contact</h5>
-              <ul>
-                <li>
-                  <span>
-                    <MapPin size={13} style={{ color: '#b3141f', marginTop: 2, flexShrink: 0 }} />
-                    14 Academic Crescent, Victoria Island, Lagos
-                  </span>
-                </li>
-                <li>
-                  <span>
-                    <Phone size={13} style={{ color: '#b3141f', marginTop: 2, flexShrink: 0 }} />
-                    +234 800 625 5263
-                  </span>
-                </li>
-                <li>
-                  <span>
-                    <Mail size={13} style={{ color: '#b3141f', marginTop: 2, flexShrink: 0 }} />
-                    info@oaklandschools.edu
-                  </span>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="ok-footer-bottom">
-            <p className="ok-footer-copy">
-              © {new Date().getFullYear()} Oakland Schools. All rights reserved.
-            </p>
-          </div>
-        </div>
-      </footer>
+      {/* ── Dynamic Footer ── */}
+      <PublicFooter />
     </div>
   );
 }

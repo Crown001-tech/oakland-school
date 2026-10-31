@@ -1,15 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+import { getCaller, getLinkedStudentIds, getOwnStudentId, isAdminRole } from '@/lib/caller';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
 const STANDARD_CLASSES = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'] as const;
 
 function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return getSupabaseAdmin();
 }
 
 export async function GET(request: NextRequest) {
@@ -17,6 +13,41 @@ export async function GET(request: NextRequest) {
     const sb = getAdminClient();
     const { searchParams } = new URL(request.url);
     const dateParam = searchParams.get('date') || new Date().toISOString().split('T')[0];
+    const studentIdParam = searchParams.get('studentId');
+
+    const caller = await getCaller();
+    const isStaffView = isAdminRole(caller.role) || caller.role === 'teacher';
+    const denied = NextResponse.json({ success: false, message: 'Access denied for this role.' }, { status: 403 });
+
+    if (studentIdParam) {
+      // A family may only read the attendance of its own children
+      const ownsRecord =
+        isStaffView ||
+        (caller.role === 'parent' && (await getLinkedStudentIds(caller.email)).includes(studentIdParam)) ||
+        (caller.role === 'student' && (await getOwnStudentId(caller.userId ?? undefined)) === studentIdParam);
+      if (!ownsRecord) return denied;
+
+      const { data: stuAtt, error: stuAttErr } = await sb
+        .from('attendance_records')
+        .select('id, status, date')
+        .eq('student_id', studentIdParam);
+
+      if (stuAttErr && stuAttErr.code !== '42P01') throw stuAttErr;
+
+      const total = (stuAtt || []).length;
+      const present = (stuAtt || []).filter((r: any) => r.status === 'present').length;
+      const rate = total > 0 ? ((present / total) * 100).toFixed(1) : null;
+
+      return NextResponse.json({
+        success: true,
+        total,
+        present,
+        attendanceRate: rate ? `${rate}%` : null,
+      });
+    }
+
+    // The whole-school register is for teachers and administrators
+    if (!isStaffView) return denied;
 
     // 1. Fetch Classes with teacher assignments
     const { data: dbClasses, error: clsErr } = await sb

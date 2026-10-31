@@ -701,8 +701,8 @@ export default function ProprietorDocumentsPage() {
                   onChange={(e) => setNewDocType(e.target.value as any)}
                   className="w-full px-3 py-2 text-xs border border-slate-200 rounded-xl focus:outline-hidden focus:border-slate-800 bg-white"
                 >
-                  <option value="policy">Policy & Regulations</option>
-                  <option value="curriculum">Curriculum & Syllabus</option>
+                  <option value="policy">Policy</option>
+                  <option value="curriculum">Curriculum</option>
                   <option value="report_card">Report Card</option>
                   <option value="receipt">Fee Payment Receipt</option>
                   <option value="admission_letter">Admission Offer</option>

@@ -20,6 +20,7 @@ interface StudentRecord {
   admissionNo: string;
   fullName: string;
   class: string;
+  department?: string | null;
   gender: 'Male' | 'Female';
   guardianName: string;
   guardianPhone: string;
@@ -221,7 +222,16 @@ export default function AdminStudentsPage() {
                       <span className="font-bold text-slate-900">{student.fullName}</span>
                       <span className="text-[11px] text-slate-400 block">{student.gender}</span>
                     </td>
-                    <td className="py-3 px-4 font-semibold text-slate-800">{student.class}</td>
+                    <td className="py-3 px-4">
+                      <div className="flex flex-col items-start gap-0.5">
+                        <span className="font-semibold text-slate-800">{student.class}</span>
+                        {student.department && (
+                          <span className="text-[10px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-1.5 py-0.5 rounded">
+                            {student.department}
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td className="py-3 px-4 text-slate-700">{student.guardianName}</td>
                     <td className="py-3 px-4 font-mono text-slate-600">{student.guardianPhone}</td>
                     <td className="py-3 px-4 font-mono font-semibold text-emerald-700">

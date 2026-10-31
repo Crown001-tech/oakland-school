@@ -1,14 +1,14 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import {
+  generateStaffTempPassword,
+  getSupabaseAdmin,
+  hashInviteToken,
+} from '@/lib/supabase/admin';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
 function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return getSupabaseAdmin();
 }
 
 export async function GET() {
@@ -37,6 +37,7 @@ export async function GET() {
         : '—',
       status: a.status === 'rejected' ? 'declined' : a.status === 'approved' ? 'approved' : 'pending',
       resumeUrl: a.resume_url,
+      photoUrl: a.photo_url,
       notes: a.notes,
     }));
 
@@ -75,19 +76,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 1. Create or ensure Supabase Auth user with default password Oakland@2026
+    // 1. Create or ensure Supabase Auth user with a unique per-person temporary password
     let userId: string | null = null;
+    const tempPassword = generateStaffTempPassword();
+    const tokenHash = hashInviteToken(tempPassword);
+    const inviteExpiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
+
     try {
       const { data: userData } = await sb.auth.admin.createUser({
         email: email.toLowerCase(),
-        password: 'Oakland@2026',
+        password: tempPassword,
         email_confirm: true,
         user_metadata: {
           first_name: firstName,
           last_name: lastName,
           role: assignedRole || 'teacher',
           staff_role: assignedRole === 'admin' ? 'Principal' : assignedRole === 'bursar' ? 'Bursar' : 'Teacher',
-          default_password: 'Oakland@2026',
+          default_password: tempPassword,
+          password_changed: false,
           teaching_assignments: assignedSubject ? [{ subject: assignedSubject, classes: assignedClasses || [] }] : [],
         },
       });
@@ -97,6 +103,18 @@ export async function POST(request: NextRequest) {
       const { data: usersList } = await sb.auth.admin.listUsers();
       const existing = (usersList?.users || []).find((u: any) => u.email?.toLowerCase() === email.toLowerCase());
       userId = existing?.id || null;
+    }
+
+    let photoUrl = body.photoUrl || null;
+    if (applicantId && applicantId.length === 36) {
+      const { data: appData } = await sb
+        .from('staff_applications')
+        .select('photo_url')
+        .eq('id', applicantId)
+        .maybeSingle();
+      if (appData?.photo_url && !photoUrl) {
+        photoUrl = appData.photo_url;
+      }
     }
 
     // 2. Insert into staff_profiles in PostgreSQL
@@ -110,12 +128,16 @@ export async function POST(request: NextRequest) {
         last_name: lastName,
         email: email.toLowerCase(),
         phone: phone || null,
+        photo_url: photoUrl,
         role: assignedRole === 'admin' ? 'admin' : assignedRole === 'bursar' ? 'bursar' : 'teacher',
         department: department || 'Academics',
         qualification: qualification || 'B.Ed',
         subjects: assignedSubject ? [assignedSubject] : [],
         assigned_class: assignedClasses?.[0] || null,
         is_active: true,
+        must_change_password: true,
+        invite_token_hash: tokenHash,
+        invite_expires_at: inviteExpiresAt,
       })
       .select()
       .single();
@@ -130,10 +152,34 @@ export async function POST(request: NextRequest) {
         .eq('id', applicantId);
     }
 
+    // 4. Institutional Audit Log (DEF-003)
+    try {
+      await sb.from('audit_logs').insert({
+        school_id: DEFAULT_SCHOOL_ID,
+        actor_name: 'Office of the Proprietor',
+        actor_role: 'Proprietor',
+        action: 'STAFF.APPOINTED',
+        resource_type: 'staff_profile',
+        resource_id: newStaff.id,
+        metadata: {
+          summary: `${firstName} ${lastName} appointed as ${newStaff.employee_id || employeeId}`,
+          role: assignedRole,
+          department,
+          employeeId: newStaff.employee_id || employeeId,
+        },
+      });
+    } catch (auditErr) {
+      console.warn('Audit logging error:', auditErr);
+    }
+
     return NextResponse.json({
       success: true,
       message: `${firstName} ${lastName} successfully approved and provisioned as staff.`,
-      data: newStaff,
+      data: {
+        ...newStaff,
+        temporaryPassword: tempPassword,
+      },
+      temporaryPassword: tempPassword,
     });
   } catch (err: any) {
     return NextResponse.json(
@@ -160,6 +206,24 @@ export async function PATCH(request: NextRequest) {
       .eq('id', applicantId);
 
     if (error) throw error;
+
+    // Institutional Audit Log (DEF-003)
+    try {
+      await sb.from('audit_logs').insert({
+        school_id: DEFAULT_SCHOOL_ID,
+        actor_name: 'Office of the Proprietor',
+        actor_role: 'Proprietor',
+        action: action === 'decline' ? 'STAFF.APPLICATION_DECLINED' : 'STAFF.APPLICATION_STATUS_UPDATED',
+        resource_type: 'staff_application',
+        resource_id: applicantId,
+        metadata: {
+          status: newStatus,
+          action,
+        },
+      });
+    } catch (auditErr) {
+      console.warn('Audit logging error:', auditErr);
+    }
 
     return NextResponse.json({ success: true, message: `Application status updated to ${newStatus}` });
   } catch (err: any) {

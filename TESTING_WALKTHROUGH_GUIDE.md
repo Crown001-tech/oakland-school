@@ -119,7 +119,7 @@ Follow this step-by-step sequence to test the entire institutional lifecycle fro
 1. Open [`http://localhost:3000/proprietor/finances`](http://localhost:3000/proprietor/finances) or [`http://localhost:3000/bursar/payroll`](http://localhost:3000/bursar/payroll).
 2. **Staff Salaries (24 Personnel):**
    - Notice the 6 appointed Class Teachers each receive their **+₦35,000 Monthly Responsibility Allowance**.
-   - Click **"Adjust"** on any staff member &rarr; edit basic pay or allowances with live statutory recalculation of Lagos PAYE tax (10%) and pension (8%).
+   - Click **"Adjust"** on any staff member &rarr; adjust base pay or allowances.
    - Click **"Payslip"** &rarr; opens and prints the official Oakland Schools payslip.
    - Click **"Export CBN NIP Schedule"** &rarr; downloads bulk bank payment CSV for Nigerian commercial banks.
    - Click **"Authorize & Disburse Monthly Payroll"** &rarr; approves the ₦3.16M monthly net salary.

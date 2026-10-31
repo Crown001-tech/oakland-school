@@ -18,8 +18,15 @@ import {
   User,
   Lock,
   School,
+  BookOpenCheck,
+  Laptop,
+  HelpCircle,
+  FileText,
+  Calendar,
+  FolderArchive,
 } from 'lucide-react';
 import { BrandLoader } from '@/components/ui/BrandLoader';
+import { PortalHeader } from '@/components/layout/PortalHeader';
 
 interface NavItem {
   label: string;
@@ -37,6 +44,31 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [hasTeacherAuth, setHasTeacherAuth] = useState<boolean | null>(null);
   const [currentTeacher, setCurrentTeacher] = useState<any>(null);
+  const [navBadges, setNavBadges] = useState<Record<string, { count: number; dot: boolean }>>({});
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchBadges = async () => {
+      try {
+        const res = await fetch('/api/nav-badges?role=teacher');
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted && data.success && data.badges) {
+            setNavBadges(data.badges);
+          }
+        }
+      } catch (err) {
+        console.warn('Failed to load navigation badges:', err);
+      }
+    };
+
+    fetchBadges();
+    const interval = setInterval(fetchBadges, 15000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [pathname]);
 
   useEffect(() => {
     let isMounted = true;
@@ -106,6 +138,8 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
       category: 'OVERVIEW',
       items: [
         { label: 'Dashboard', href: '/teacher', icon: LayoutDashboard },
+        { label: 'Leave Requests', href: '/teacher/leave', icon: Calendar },
+        { label: 'School Policies', href: '/teacher/policies', icon: FolderArchive },
         { label: 'My Profile', href: '/teacher/profile', icon: User },
       ],
     },
@@ -120,6 +154,10 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
     {
       category: 'TEACHING',
       items: [
+        { label: 'Assignments', href: '/teacher/assignments', icon: BookOpenCheck },
+        { label: 'Examinations', href: '/teacher/cbt', icon: Laptop },
+        { label: 'Question Bank', href: '/teacher/cbt/questions', icon: HelpCircle },
+        { label: 'Learning Materials', href: '/teacher/materials', icon: FileText },
         { label: 'Scores', href: '/teacher/scores', icon: FileSpreadsheet },
         { label: 'Timetable', href: '/teacher/timetable', icon: Clock },
       ],
@@ -234,7 +272,13 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
               </p>
               {group.items.map((item) => {
                 const Icon = item.icon;
-                const active = pathname === item.href;
+                const active = item.href === '/teacher'
+                  ? pathname === '/teacher'
+                  : pathname === item.href || pathname.startsWith(item.href);
+                const badgeInfo = navBadges[item.href];
+                const badgeCount = badgeInfo?.count || 0;
+                const hasDot = badgeInfo?.dot || false;
+
                 return (
                   <Link
                     key={item.href}
@@ -246,15 +290,34 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
                         : 'text-slate-400 hover:bg-white/5 hover:text-white'
                     }`}
                   >
-                    <div className="flex items-center gap-2.5">
-                      <Icon className={`w-3.5 h-3.5 ${active ? 'text-teal-400' : 'text-slate-500'}`} />
-                      <span>{item.label}</span>
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="relative flex items-center justify-center shrink-0">
+                        <Icon className={`w-3.5 h-3.5 ${active ? 'text-teal-400' : 'text-slate-500'}`} />
+                        {badgeCount > 0 ? (
+                          <span
+                            className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-0.5 bg-rose-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center leading-none ring-2 ring-[#0a1b1d] shadow-xs"
+                            title={`${badgeCount} item${badgeCount > 1 ? 's' : ''} requiring attention`}
+                          >
+                            {badgeCount > 99 ? '99+' : badgeCount}
+                          </span>
+                        ) : hasDot ? (
+                          <span
+                            className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-[#0a1b1d] animate-pulse"
+                            title="Attention required"
+                          />
+                        ) : null}
+                      </div>
+                      <span className="truncate">{item.label}</span>
                     </div>
-                    {item.badge && (
-                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-slate-300 font-bold">
+                    {badgeCount > 0 ? (
+                      <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-rose-500/15 text-rose-300 font-bold border border-rose-500/25 shrink-0">
+                        {badgeCount}
+                      </span>
+                    ) : item.badge ? (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-white/10 text-slate-300 font-bold shrink-0">
                         {item.badge}
                       </span>
-                    )}
+                    ) : null}
                   </Link>
                 );
               })}
@@ -291,27 +354,10 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="h-14 bg-white border-b border-slate-200 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-30 print:hidden">
-          <div className="flex items-center gap-3">
-            <button onClick={() => setIsSidebarOpen(true)} className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 lg:hidden">
-              <Menu className="w-5 h-5" />
-            </button>
-            <div className="flex items-center gap-2 text-xs text-slate-500">
-              <span className="font-semibold text-slate-800">Teacher</span>
-              <ChevronRight className="w-3 h-3 text-slate-300" />
-              <span className="text-slate-600 capitalize font-medium">
-                {pathname === '/teacher' ? 'Dashboard' : pathname.split('/').pop()?.replace(/-/g, ' ')}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs">
-              <School className="w-3 h-3 text-slate-500" />
-              <span className="text-slate-600 font-medium">Oakland Schools</span>
-            </div>
-          </div>
-        </header>
+        <PortalHeader
+          portalName="Teacher Portal"
+          onOpenSidebar={() => setIsSidebarOpen(true)}
+        />
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 print:p-0 print:m-0 print:overflow-visible print:bg-white">{children}</main>
       </div>
     </div>

@@ -21,6 +21,7 @@ import {
   Shield,
   School,
   Megaphone,
+  ShieldAlert,
 } from 'lucide-react';
 import { getClassTeacherMap, normalizeClass } from '@/lib/class-utils';
 
@@ -44,6 +45,16 @@ export default function AdminDashboardPage() {
     { class: 'SS 3', enrolled: 0, present: 0, late: 0, absent: 0, teacher: 'Unassigned', status: 'Pending' },
   ]);
   const [broadcasts, setBroadcasts] = React.useState<any[]>([]);
+  const [security, setSecurity] = React.useState<any | null>(null);
+
+  React.useEffect(() => {
+    fetch('/api/security/overview')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.success) setSecurity(d);
+      })
+      .catch(() => {});
+  }, []);
 
   const stats = [
     {
@@ -358,12 +369,59 @@ export default function AdminDashboardPage() {
 
         {/* Right Column: Notices & Supervisory Stream */}
         <div className="space-y-4">
+          {/* Campus Security Card */}
+          <Card className="p-5 border-rose-200/80 shadow-xs">
+            <CardTitle className="text-sm font-bold text-slate-900 mb-3 pb-2 border-b border-slate-100 flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-[#0f3a3e]">
+                <ShieldAlert className="w-4 h-4 text-[#b3141f]" />
+                Campus Security
+              </span>
+              <Link href="/admin/pickup" className="text-[11px] font-semibold text-[#0f3a3e] hover:underline">
+                Gate Pickup
+              </Link>
+            </CardTitle>
+            <div className="grid grid-cols-2 gap-2 mb-3">
+              {[
+                { label: 'Open Incidents', value: security?.stats?.openIncidents ?? 0 },
+                { label: 'Visitors On Campus', value: security?.stats?.activeVisitors ?? 0 },
+                { label: 'Students Out', value: security?.stats?.activeMovements ?? 0 },
+                { label: 'Pickups Today', value: security?.stats?.todayPickups ?? 0 },
+              ].map((k) => (
+                <div key={k.label} className="p-2.5 rounded-lg bg-slate-50 border border-slate-100">
+                  <p className="text-lg font-black text-slate-900 font-mono">{k.value}</p>
+                  <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">{k.label}</p>
+                </div>
+              ))}
+            </div>
+            {(security?.alerts?.criticalIncidents?.length ?? 0) === 0 &&
+            (security?.alerts?.flaggedPickups?.length ?? 0) === 0 ? (
+              <div className="p-3 text-center text-xs text-slate-400 bg-slate-50 rounded-lg">
+                No security alerts. Escalated incidents will appear here.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {(security?.alerts?.criticalIncidents || []).map((i: any) => (
+                  <div key={i.id} className="p-2.5 rounded-lg border border-rose-200 bg-rose-50 text-xs">
+                    <p className="font-bold text-rose-800">{i.incident_number}: {i.title}</p>
+                    <p className="text-[10px] text-rose-700 uppercase">{i.severity} • {i.location}</p>
+                  </div>
+                ))}
+                {(security?.alerts?.flaggedPickups || []).map((p: any) => (
+                  <div key={p.id} className="p-2.5 rounded-lg border border-amber-200 bg-amber-50 text-xs">
+                    <p className="font-bold text-amber-800">Flagged pickup: {p.student_name}</p>
+                    <p className="text-[10px] text-amber-700">Escort: {p.picked_up_by_name}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+
           {/* Executive Notices from Proprietor */}
           <Card className="p-5 border-teal-200/80 bg-teal-50/20 shadow-xs">
             <CardTitle className="text-sm font-bold text-slate-900 mb-3 pb-2 border-b border-teal-100 flex items-center justify-between">
               <span className="flex items-center gap-1.5 text-[#0f3a3e]">
                 <Megaphone className="w-4 h-4 text-[#b3141f]" />
-                Proprietor Directives
+                Proprietor Notices
               </span>
               <Badge variant="teal" size="sm">
                 {broadcasts.length} Active
@@ -373,7 +431,7 @@ export default function AdminDashboardPage() {
             <div className="space-y-3">
               {broadcasts.length === 0 ? (
                 <div className="p-4 bg-white rounded-lg border border-slate-200/80 text-center text-slate-400 text-xs">
-                  No active executive directives from the Proprietor.
+                  No active notices from the Proprietor.
                 </div>
               ) : (
                 broadcasts.slice(0, 3).map((bc) => (

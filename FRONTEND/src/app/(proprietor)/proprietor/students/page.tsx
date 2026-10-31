@@ -27,6 +27,7 @@ interface StudentRecord {
   lastName: string;
   gender: 'Male' | 'Female';
   class: string;
+  department?: string | null;
   classTeacher: string;
   guardianName: string;
   guardianPhone: string;
@@ -53,11 +54,12 @@ export default function ProprietorStudentsPage() {
   const [enrollFirstName, setEnrollFirstName] = useState('');
   const [enrollLastName, setEnrollLastName] = useState('');
   const [enrollClass, setEnrollClass] = useState('JSS 1');
+  const [enrollDepartment, setEnrollDepartment] = useState('');
   const [enrollGender, setEnrollGender] = useState<'Male' | 'Female'>('Male');
   const [enrollGuardianName, setEnrollGuardianName] = useState('');
   const [enrollGuardianPhone, setEnrollGuardianPhone] = useState('');
   const [enrollGuardianEmail, setEnrollGuardianEmail] = useState('');
-  const [enrollDob, setEnrollDob] = useState('2012-05-15');
+  const [enrollDob, setEnrollDob] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const loadData = async () => {
@@ -96,6 +98,7 @@ export default function ProprietorStudentsPage() {
           lastName: parts.slice(1).join(' ') || '',
           gender: s.gender === 'Female' ? 'Female' : 'Male',
           class: targetClass,
+          department: s.department || null,
           classTeacher: assignedTeacher,
           guardianName: s.guardianName || 'Guardian',
           guardianPhone: s.guardianPhone || '—',
@@ -130,6 +133,7 @@ export default function ProprietorStudentsPage() {
         firstName: enrollFirstName.trim(),
         lastName: enrollLastName.trim(),
         class: enrollClass,
+        department: enrollClass.startsWith('SS') ? enrollDepartment : null,
         gender: enrollGender,
         guardianName: enrollGuardianName.trim() || 'Primary Guardian',
         guardianPhone: enrollGuardianPhone.trim() || '—',
@@ -153,6 +157,8 @@ export default function ProprietorStudentsPage() {
         setEnrollGuardianName('');
         setEnrollGuardianPhone('');
         setEnrollGuardianEmail('');
+        setEnrollDob('');
+        setEnrollDepartment('');
         await loadData();
       } else {
         alert(json.message || 'Enrollment failed');
@@ -215,6 +221,13 @@ export default function ProprietorStudentsPage() {
     return acc;
   }, {});
 
+  // DEF-138: Calculate dynamic fee clearance metrics from live student ledger
+  const clearedStudents = students.filter(
+    (s) => s.feeStatus === 'Cleared' || s.feeStatus === 'Paid in Full'
+  ).length;
+  const feeClearancePct =
+    students.length > 0 ? ((clearedStudents / students.length) * 100).toFixed(1) : '—';
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -224,7 +237,7 @@ export default function ProprietorStudentsPage() {
             Student Directory
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Complete pupil roster across JSS 1 through SS 3 with guardian contact records.
+            Complete student roster across JSS 1 through SS 3 with guardian contact records.
           </p>
         </div>
 
@@ -295,9 +308,11 @@ export default function ProprietorStudentsPage() {
           <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">
             Fee Clearance Rate
           </span>
-          <p className="text-2xl font-bold text-emerald-700 mt-1">100.0%</p>
+          <p className="text-2xl font-bold text-slate-900 mt-1">
+            {feeClearancePct !== '—' ? `${feeClearancePct}%` : '—'}
+          </p>
           <p className="text-[11px] text-slate-500 mt-1">
-            All active accounts in good standing
+            {clearedStudents} of {students.length} accounts in good standing
           </p>
         </Card>
       </div>
@@ -408,9 +423,16 @@ export default function ProprietorStudentsPage() {
                     </td>
 
                     <td className="py-3.5 px-4">
-                      <Badge variant="teal" size="sm">
-                        {student.class}
-                      </Badge>
+                      <div className="flex flex-col items-start gap-1">
+                        <Badge variant="teal" size="sm">
+                          {student.class}
+                        </Badge>
+                        {student.department && (
+                          <span className="text-[10px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-1.5 py-0.5 rounded">
+                            {student.department}
+                          </span>
+                        )}
+                      </div>
                     </td>
 
                     <td className="py-3.5 px-4">
@@ -531,6 +553,22 @@ export default function ProprietorStudentsPage() {
                   </select>
                 </div>
               </div>
+
+              {enrollClass.startsWith('SS') && (
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Department</label>
+                  <select
+                    value={enrollDepartment}
+                    onChange={(e) => setEnrollDepartment(e.target.value)}
+                    className="w-full px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold"
+                  >
+                    <option value="">Select Department...</option>
+                    <option value="Sciences">Sciences</option>
+                    <option value="Commercial">Commercial</option>
+                    <option value="Humanities">Humanities</option>
+                  </select>
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-3">
                 <div>

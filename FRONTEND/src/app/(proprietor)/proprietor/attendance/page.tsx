@@ -189,7 +189,7 @@ export default function ProprietorAttendancePage() {
                 <tr>
                   <th className="px-5 py-3.5">Class</th>
                   <th className="px-4 py-3.5">Class Teacher</th>
-                  <th className="px-4 py-3.5 text-center">Enrolled Pupils</th>
+                  <th className="px-4 py-3.5 text-center">Enrolled Students</th>
                   <th className="px-4 py-3.5 text-center">Present</th>
                   <th className="px-4 py-3.5 text-center">Absent</th>
                   <th className="px-5 py-3.5 text-right">Register Status</th>

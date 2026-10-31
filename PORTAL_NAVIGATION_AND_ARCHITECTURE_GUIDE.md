@@ -118,7 +118,7 @@ Report cards follow a strict step-by-step chain of approval before reaching pare
   * Records cash and bank transfer payments, and generates printable official stamped payment receipts.
   * Runs staff monthly payroll based on official base pay plus Class Teacher allowance.
   * Records operational school expenses (diesel, repairs, office supplies) and manages daily petty cash.
-* **Zero Pension Deductions**: Pension deductions are 100% eliminated from all payroll, profiles, and ledgers. Staff take home their full base salary plus allowance.
+* **Staff Compensation**: Staff receive their full master base salary plus appointed Class Teacher allowances.
 
 ### Relationship 7: One Class = One Class Teacher & Dynamic Capacity
 * Each student belongs to strictly **one class**.
@@ -269,8 +269,8 @@ Bursar Portal Navigation
 | :--- | :--- | :--- | :--- |
 | **OVERVIEW** | **Dashboard** | `/bursar` | Financial dashboard. Displays total fees collected this term, outstanding fee arrears owed by parents, today's cash inflows, and quick receipt creation shortcuts. |
 | **OVERVIEW** | **My Profile** | `/bursar/profile` | Personal account. Where the Bursar updates their contact email, phone number, and password. |
-| **PAYMENTS** | **Fees and Receipts**| `/bursar/fees` | Daily fee workstation. Generates student fee invoices from master rates (`tuitionJSS`, `tuitionSS12`, `tuitionSS3`), records cash/bank transfer payments, tracks partial balances, and generates printable official stamped Payment Receipts. |
-| **PAYMENTS** | **Salaries** | `/bursar/payroll` | Staff monthly payroll. Computes monthly staff pay based on master salary settings plus Class Teacher allowances. In line with school policy, pension deductions are completely removed. Exports bank transfer schedules. |
+| **PAYMENTS** | **Tuition** | `/bursar/fees` | Daily fee workstation. Generates student fee invoices from master rates (`tuitionJSS`, `tuitionSS12`, `tuitionSS3`), records cash/bank transfer payments, tracks partial balances, and generates printable official stamped Payment Receipts. |
+| **PAYMENTS** | **Salaries** | `/bursar/payroll` | Staff monthly payroll. Computes monthly staff pay based on master salary settings plus Class Teacher allowances. Exports bank transfer schedules. |
 | **PAYMENTS** | **Expenditures**| `/bursar/expenditures`| Expense tracker. Records school expenses like generator diesel, utility bills, building maintenance, and vendor purchases with attached receipts. |
 | **PAYMENTS** | **Petty Cash** | `/bursar/petty-cash`| Small cash float. Tracks small daily cash expenses for immediate office needs, transport, and emergency supplies with daily balance checks. |
 

@@ -40,8 +40,8 @@
 * **Gate Security**:
   * Student gate checkout uses a clean **Pickup PIN** assigned to authorized guardians. No biometric complexity.
 * **Staff Password Handling**:
-  * The universal default password for staff accounts is **`Oakland@2026`**.
-  * Staff profile must provide an unmasked copy button, visibility toggle, and a 1-click **Reset Password** button reverting the account to `Oakland@2026`.
+  * Each newly appointed or reset staff account receives a unique, cryptographically random one-time password (`Oak-XXXXXX`) with `must_change_password = true`.
+  * Staff profile must provide an unmasked copy button, visibility toggle, and a 1-click **Reset Password** button issuing a fresh per-person one-time code (`Oak-XXXXXX`). Shared default passwords are strictly prohibited.
 
 ### 5. Workflow Simplification
 * **Admissions Flow**:

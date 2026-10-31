@@ -22,7 +22,6 @@ import {
   UploadCloud,
   X,
 } from 'lucide-react';
-import { createClient } from '@/lib/supabase/client';
 
 export default function StaffRegistrationPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -97,30 +96,26 @@ export default function StaffRegistrationPage() {
     setIsSubmitting(true);
 
     try {
-      const supabase = createClient();
-
-      const { data, error } = await supabase.auth.signUp({
-        email: formData.email.trim(),
-        password: formData.password,
-        options: {
-          data: {
-            first_name: formData.firstName,
-            last_name: formData.lastName,
-            phone: formData.phone,
-            qualification: formData.qualification,
-            department: formData.department,
-            desired_role: formData.desiredRole,
-            years_experience: formData.yearsExperience,
-            photo_url: photoPreview,
-            approval_status: 'pending_approval',
-          },
-        },
+      const res = await fetch('/api/register/staff', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          qualification: formData.qualification,
+          department: formData.department,
+          desiredRole: formData.desiredRole,
+          yearsExperience: formData.yearsExperience,
+          password: formData.password,
+          photoPreview: photoPreview,
+        }),
       });
 
-      if (error && !error.message.includes('Invalid API key') && !error.message.includes('FetchError')) {
-        setErrorMessage(error.message);
-        setIsSubmitting(false);
-        return;
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.message || 'Registration failed. Please check your information and try again.');
       }
 
       setIsSuccess(true);
@@ -135,7 +130,7 @@ export default function StaffRegistrationPage() {
   if (isSuccess) {
     return (
       <div className="w-full max-w-lg mx-auto p-4 sm:p-6">
-        <Card className="border-teal-200/80 shadow-lg text-center p-8 space-y-6 bg-white">
+        <Card className="border-slate-200 shadow-lg text-center p-8 space-y-6 bg-white">
           <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200">
             <Clock className="w-8 h-8" />
           </div>
@@ -186,13 +181,13 @@ export default function StaffRegistrationPage() {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-xl font-bold text-slate-900">
-                Staff & Teacher Registration
+                Staff Registration
               </CardTitle>
               <CardDescription className="text-xs text-slate-500 mt-1">
                 Apply for academic or administrative appointment at Oakland Schools.
               </CardDescription>
             </div>
-            <Badge variant="teal" size="sm">
+            <Badge variant="crimson" size="sm">
               Proprietor Approved
             </Badge>
           </div>
@@ -315,7 +310,7 @@ export default function StaffRegistrationPage() {
             {/* Step 3: Professional Background */}
             <div className="pt-4 border-t border-slate-100">
               <p className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-3">
-                2. Academic Background & Specialization
+                2. Academic Qualifications
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1.5">
@@ -338,7 +333,7 @@ export default function StaffRegistrationPage() {
 
                 <div className="space-y-1.5">
                   <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wide">
-                    Subject / Department
+                    Department
                   </label>
                   <select
                     className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#0f3a3e]"
@@ -364,9 +359,9 @@ export default function StaffRegistrationPage() {
                     value={formData.desiredRole}
                     onChange={(e) => setFormData({ ...formData, desiredRole: e.target.value })}
                   >
-                    <option value="teacher">Teacher (Subject & Class Instruction)</option>
-                    <option value="admin">Administrator (Principal / Registrar)</option>
-                    <option value="bursar">Bursar (Accountant)</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="admin">Administrator (Principal)</option>
+                    <option value="bursar">Bursar</option>
                   </select>
                 </div>
 

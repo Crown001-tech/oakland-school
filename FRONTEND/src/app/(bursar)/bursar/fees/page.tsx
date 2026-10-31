@@ -71,6 +71,20 @@ export default function BursarFeesPage() {
   const handlePaymentRecorded = (newPay: PaymentTransaction, updatedStudent: StudentFeeLedgerItem) => {
     setPayments((prev) => [newPay, ...prev]);
     setStudents((prev) => prev.map((s) => (s.id === updatedStudent.id ? updatedStudent : s)));
+    setClassFinancials((prev) =>
+      prev.map((cls) => {
+        if (cls.class !== updatedStudent.class) return cls;
+        const newCollected = (cls.collected || 0) + newPay.amount;
+        const newOutstanding = Math.max(0, (cls.expected || 0) - newCollected);
+        const newPct = cls.expected > 0 ? Math.min(100, Math.round((newCollected / cls.expected) * 100)) : 0;
+        return {
+          ...cls,
+          collected: newCollected,
+          outstanding: newOutstanding,
+          pct: newPct,
+        };
+      })
+    );
     setIsRecordPaymentOpen(false);
     setActiveReceiptPayment(newPay);
     showToast(`Payment of ${formatNaira(newPay.amount)} recorded for ${updatedStudent.studentName}. Official receipt generated.`);
@@ -97,7 +111,7 @@ export default function BursarFeesPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Fees and Receipts</h1>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Tuition</h1>
           <p className="text-xs text-slate-500 mt-0.5">
             Student tuition accounts, payment tracking, and official stamped receipts.
           </p>
@@ -159,7 +173,7 @@ export default function BursarFeesPage() {
                     {formatNaira(row.feePerStudent)}
                   </td>
                   <td className="py-3 px-3 text-center font-bold text-slate-800">
-                    {row.students ?? 0} {row.students === 1 ? 'Pupil' : 'Pupils'}
+                    {row.students ?? 0} {row.students === 1 ? 'Student' : 'Students'}
                   </td>
                   <td className="py-3 px-4 text-right font-mono font-medium text-slate-900">
                     {formatNaira(row.expected)}
@@ -167,7 +181,7 @@ export default function BursarFeesPage() {
                   <td className="py-3 px-4 text-right font-mono font-bold text-emerald-700">
                     {formatNaira(row.collected)}
                   </td>
-                  <td className="py-3 px-4 text-right font-mono font-bold text-[#b3141f]">
+                  <td className="py-3 px-4 text-right font-mono font-bold text-rose-700">
                     {formatNaira(row.outstanding)}
                   </td>
                   <td className="py-3 px-3 text-center">
@@ -185,19 +199,19 @@ export default function BursarFeesPage() {
       {/* Search and Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3 top-3.5 text-slate-400" />
           <Input
             placeholder="Search students by name, admission number, or guardian..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 text-xs h-9"
+            className="pl-9 text-xs min-h-[44px]"
           />
         </div>
 
         <select
           value={classFilter}
           onChange={(e) => setClassFilter(e.target.value)}
-          className="h-9 px-3 rounded-lg border border-slate-300 bg-white text-xs font-medium text-slate-800 cursor-pointer"
+          className="min-h-[44px] px-3 rounded-lg border border-slate-300 bg-white text-xs font-medium text-slate-800 cursor-pointer"
         >
           <option value="All">All Classes</option>
           <option value="JSS 1">JSS 1</option>
@@ -211,7 +225,7 @@ export default function BursarFeesPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="h-9 px-3 rounded-lg border border-slate-300 bg-white text-xs font-medium text-slate-800 cursor-pointer"
+          className="min-h-[44px] px-3 rounded-lg border border-slate-300 bg-white text-xs font-medium text-slate-800 cursor-pointer"
         >
           <option value="All">All Payment Statuses</option>
           <option value="Fully Paid">Fully Paid</option>
@@ -224,10 +238,10 @@ export default function BursarFeesPage() {
       <Card className="border-slate-200 shadow-xs overflow-hidden">
         <CardHeader className="pb-3 border-b border-slate-100">
           <CardTitle className="text-sm font-bold text-slate-900">
-            Student Fee Register ({filteredStudents.length} {filteredStudents.length === 1 ? 'Pupil' : 'Pupils'})
+            Student Fee Register ({filteredStudents.length} {filteredStudents.length === 1 ? 'Student' : 'Students'})
           </CardTitle>
           <CardDescription className="text-xs text-slate-500">
-            Official pupil accounts and verifiable payment receipts
+            Official student accounts and verifiable payment receipts
           </CardDescription>
         </CardHeader>
 
@@ -235,7 +249,7 @@ export default function BursarFeesPage() {
           <table className="w-full text-xs text-left">
             <thead className="bg-[#0f3a3e] text-white font-bold">
               <tr>
-                <th className="py-2.5 px-4">Student and ID</th>
+                <th className="py-2.5 px-4">Student</th>
                 <th className="py-2.5 px-3 text-center">Class</th>
                 <th className="py-2.5 px-4">Guardian</th>
                 <th className="py-2.5 px-3 text-right">Term Bill</th>
@@ -281,17 +295,17 @@ export default function BursarFeesPage() {
                       <td className="py-3 px-3 text-right font-mono font-bold text-emerald-700">
                         {formatNaira(stu.amountPaid)}
                       </td>
-                      <td className="py-3 px-3 text-right font-mono font-bold text-[#b3141f]">
+                      <td className="py-3 px-3 text-right font-mono font-bold text-rose-700">
                         {formatNaira(stu.balance)}
                       </td>
                       <td className="py-3 px-3 text-center">
                         <span
                           className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                             stu.status === 'Fully Paid'
-                              ? 'bg-emerald-100 text-emerald-800'
+                              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                               : stu.status === 'Partial Payment'
-                              ? 'bg-amber-100 text-amber-800'
-                              : 'bg-rose-100 text-rose-800'
+                              ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                              : 'bg-rose-50 text-rose-800 border border-rose-200'
                           }`}
                         >
                           {stu.status}
@@ -304,7 +318,7 @@ export default function BursarFeesPage() {
                             size="sm"
                             variant="outline"
                             onClick={() => setActiveReceiptPayment(matchedPayment)}
-                            className="h-7 px-2.5 text-[10px] font-bold text-teal-800 border-teal-300 hover:bg-teal-50"
+                            className="min-h-[44px] sm:min-h-[32px] px-2.5 text-[10px] font-bold text-teal-800 border-teal-300 hover:bg-teal-50"
                           >
                             <Receipt className="w-3 h-3 mr-1" />
                             View Receipt

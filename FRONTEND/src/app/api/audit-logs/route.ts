@@ -1,18 +1,12 @@
-import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { NextResponse, type NextRequest } from 'next/server';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getCaller, formatRoleLabel } from '@/lib/caller';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-
-function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
-}
+const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
 export async function GET() {
   try {
-    const sb = getAdminClient();
+    const sb = getSupabaseAdmin();
 
     const { data: logs, error } = await sb
       .from('audit_logs')
@@ -42,7 +36,11 @@ export async function GET() {
         category = 'Admissions';
       }
 
-      const actorName = l.metadata?.publishedBy || l.metadata?.actorName || (actorRole === 'Proprietor' ? 'Office of the Proprietor' : 'Mr Seyi Bankole');
+      const actorName =
+        l.actor_name ||
+        l.metadata?.actorName ||
+        l.metadata?.publishedBy ||
+        actorRole;
 
       return {
         id: l.id,
@@ -65,6 +63,54 @@ export async function GET() {
   } catch (err: any) {
     return NextResponse.json(
       { success: false, error: err instanceof Error ? err.message : 'Failed to fetch audit logs' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const caller = await getCaller();
+    if (!caller.hasSession) {
+      return NextResponse.json({ success: false, message: 'Authentication required' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { action, resource_type, resource_id, metadata, actor_name, actor_role } = body;
+
+    if (!action) {
+      return NextResponse.json({ success: false, message: 'Action required' }, { status: 400 });
+    }
+
+    const sb = getSupabaseAdmin();
+    const resolvedRole = actor_role || formatRoleLabel(caller.role);
+    const resolvedName = actor_name || caller.email || resolvedRole;
+
+    const { data: newLog, error } = await sb
+      .from('audit_logs')
+      .insert({
+        school_id: DEFAULT_SCHOOL_ID,
+        actor_id: caller.userId,
+        actor_name: resolvedName,
+        actor_role: resolvedRole,
+        action: String(action).trim(),
+        resource_type: resource_type ? String(resource_type).trim() : 'system',
+        resource_id: resource_id ? String(resource_id).trim() : null,
+        metadata: metadata || {},
+        created_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Failed to create audit log:', error);
+      return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ success: true, data: newLog }, { status: 201 });
+  } catch (err: any) {
+    return NextResponse.json(
+      { success: false, message: err instanceof Error ? err.message : 'Failed to save audit log' },
       { status: 500 }
     );
   }

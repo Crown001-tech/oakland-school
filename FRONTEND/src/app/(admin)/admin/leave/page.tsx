@@ -63,6 +63,18 @@ export default function AdminLeavePage() {
     fetchPrincipalDelegations().then(setDelegations);
   }, []);
 
+  useEffect(() => {
+    if (!selectedLeave) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedLeave(null);
+        setReviewNotes('');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [selectedLeave]);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);

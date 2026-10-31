@@ -190,9 +190,9 @@ export default function AdminStaffPage() {
 
     let finalDept = newDept;
     if (newRole === 'Non-Teaching Staff') {
-      if (newNonTeachingRole.includes('Security')) finalDept = 'Operations & Safety';
+      if (newNonTeachingRole.includes('Security')) finalDept = 'Operations';
       else if (newNonTeachingRole.includes('Facilities')) finalDept = 'Maintenance';
-      else if (newNonTeachingRole.includes('Nurse')) finalDept = 'Health & Medical';
+      else if (newNonTeachingRole.includes('Nurse')) finalDept = 'Medical';
       else if (newNonTeachingRole.includes('Accounts')) finalDept = 'Finance';
       else finalDept = 'Administration';
     }
@@ -224,8 +224,6 @@ export default function AdminStaffPage() {
       distinctClasses.push(newHomeroomClass);
     }
 
-    const cleanPassword = 'Oakland@2026';
-
     const newStaff: StaffRecord = {
       id: `stf-${Date.now()}`,
       employeeId: `OAK/STF/0${staffList.length + 1}`,
@@ -240,7 +238,7 @@ export default function AdminStaffPage() {
       department: finalDept,
       nonTeachingRole: newRole === 'Non-Teaching Staff' ? newNonTeachingRole : undefined,
       status: 'Active',
-      password: cleanPassword,
+      password: '',
     };
 
     try {
@@ -253,6 +251,9 @@ export default function AdminStaffPage() {
       if (!res.ok || !data.success) {
         showToast(data.message || 'Failed to onboard staff member in database.');
         return;
+      }
+      if (data.data?.[0]?.password) {
+        newStaff.password = data.data[0].password;
       }
     } catch (err: any) {
       showToast(err?.message || 'Network error saving staff credentials.');
@@ -331,9 +332,9 @@ export default function AdminStaffPage() {
         assignedClass: resolvedHomeroom,
         assignedClasses: role === 'Non-Teaching Staff' ? [] : resolvedAssignedClasses,
         subjects: validatedSubjects,
-        department: r.department || (role === 'Non-Teaching Staff' ? 'Operations & Safety' : 'Academics'),
+        department: r.department || (role === 'Non-Teaching Staff' ? 'Operations' : 'Academics'),
         status: 'Active',
-        password: r.password || 'Oakland@2026',
+        password: r.password || '',
       };
     });
 
@@ -648,7 +649,7 @@ export default function AdminStaffPage() {
                           type="button"
                           onClick={() => setEditingStaff(staff)}
                           className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-[#0f3a3e] transition"
-                          title="Edit Role & Assignment"
+                          title="Edit Role"
                         >
                           <Edit3 className="w-3.5 h-3.5" />
                         </button>
@@ -702,7 +703,7 @@ export default function AdminStaffPage() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Mrs. Folake Davies"
+                  placeholder="Enter full name"
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-hidden focus:border-slate-800"
@@ -742,7 +743,7 @@ export default function AdminStaffPage() {
                     const r = e.target.value as StaffRecord['role'];
                     setNewRole(r);
                     if (r === 'Non-Teaching Staff') {
-                      setNewDept('Operations & Safety');
+                      setNewDept('Operations');
                     } else {
                       setNewDept('Academics');
                     }
@@ -966,9 +967,9 @@ export default function AdminStaffPage() {
                 <span className="font-mono text-slate-800 break-all">{selectedStaffForCreds.email}</span>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 font-semibold block uppercase">Default Password:</span>
+                <span className="text-[10px] text-slate-400 font-semibold block uppercase">One-Time Password:</span>
                 <span className="font-mono font-bold text-slate-900">
-                  {selectedStaffForCreds.password || 'Oakland@2026'}
+                  {selectedStaffForCreds.password || 'Changed (Personal)'}
                 </span>
               </div>
             </div>

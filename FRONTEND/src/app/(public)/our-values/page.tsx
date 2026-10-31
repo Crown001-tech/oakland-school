@@ -26,8 +26,8 @@ export default function OurValuesPage() {
       accent: '#d4a85a',
       motto: 'Virtus et Sapientia (Valor and Wisdom)',
       namesake: 'Queen Moremi of Ile-Ife — Paragon of self-sacrifice, civic courage, and visionary fortitude.',
-      master: 'Mrs. Folake Adebisi, M.Ed',
-      points: '1,420 Pts (Leading)',
+      master: 'House Patron: Queen Moremi',
+      points: 'Valor, Civic Courage & Wisdom',
       shieldLetter: 'M',
       description: 'Scholars of Moremi are recognized by their indomitable moral courage, readiness to champion justice, and willingness to place the collective welfare of the college and community above personal convenience.',
     },
@@ -37,8 +37,8 @@ export default function OurValuesPage() {
       accent: '#d4a85a',
       motto: 'Integritas et Pax (Integrity and Peace)',
       namesake: 'Sir Abubakar Tafawa Balewa — Exemplar of rhetorical dignity, humble statesmanship, and national unity.',
-      master: 'Mr. Chukwuma Obi, B.Sc, M.A',
-      points: '1,385 Pts',
+      master: 'House Patron: Tafawa Balewa',
+      points: 'Integrity, Statesmanship & Peace',
       shieldLetter: 'B',
       description: 'Balewa House cultivates statesmanship, diplomatic eloquence, and serene composure under pressure. Its scholars lead the collegiate debate union, Model United Nations, and editorial publications.',
     },
@@ -48,8 +48,8 @@ export default function OurValuesPage() {
       accent: '#d4a85a',
       motto: 'Invenio et Lidero (Discover and Lead)',
       namesake: 'Herbert Macaulay — Pioneer civil engineer, surveyor, journalist, and nationalist champion.',
-      master: 'Engr. Daniel Alabi, M.Tech',
-      points: '1,360 Pts',
+      master: 'House Patron: Herbert Macaulay',
+      points: 'Scientific Ingenuity & Enterprise',
       shieldLetter: 'H',
       description: 'Macaulay scholars represent scientific ingenuity, mathematical audacity, and entrepreneurial enterprise. The house traditionally dominates the Inter-House Science Olympiad and Robotics Hackathons.',
     },
@@ -59,8 +59,8 @@ export default function OurValuesPage() {
       accent: '#d4a85a',
       motto: 'Semper Invicta (Always Unconquered)',
       namesake: 'Queen Idia of the Ancient Benin Empire — Supreme strategist, military counsel, and cultural patron.',
-      master: 'Dr. (Mrs.) Zainab Sanusi, Ph.D',
-      points: '1,340 Pts',
+      master: 'House Patron: Queen Idia',
+      points: 'Strategic Resilience & Cultural Excellence',
       shieldLetter: 'I',
       description: 'Idia House is celebrated for strategic brilliance, commanding resilience, and cultural sovereignty. Members excel across the performing arts, symphonic orchestra, and track and field athletics.',
     },
@@ -801,7 +801,7 @@ export default function OurValuesPage() {
               <ul className="spread-manifesto-list">
                 <li>
                   <CheckCircle2 size={16} />
-                  <span><strong>Solemn Matriculation Honor Code:</strong> Signed annually by every scholar and faculty member.</span>
+                  <span><strong>Collegiate Honor Code:</strong> Signed annually by every scholar and faculty member.</span>
                 </li>
                 <li>
                   <CheckCircle2 size={16} />
@@ -919,7 +919,7 @@ export default function OurValuesPage() {
             <div className="section-eyebrow">Collegiate Fraternity</div>
             <h2>The Four Houses of Oakland</h2>
             <p>
-              Upon matriculation, every scholar is permanently inducted into one of four collegiate houses. Spanning JSS 1 through SS 3, the House System fosters inter-generational brotherhood, pastoral care, and healthy collegiate rivalry.
+              Upon enrollment, every scholar is permanently inducted into one of four collegiate houses. Spanning JSS 1 through SS 3, the House System fosters inter-generational brotherhood, pastoral care, and healthy collegiate rivalry.
             </p>
           </div>
 
@@ -959,11 +959,11 @@ export default function OurValuesPage() {
 
               <div className="house-meta-row">
                 <div className="house-meta-item">
-                  <span>House Master</span>
+                  <span>Collegiate Patron</span>
                   <strong>{houses[activeHouse].master}</strong>
                 </div>
                 <div className="house-meta-item">
-                  <span>Inter-House Standing</span>
+                  <span>House Ethos</span>
                   <strong>{houses[activeHouse].points}</strong>
                 </div>
                 <div className="house-meta-item">
@@ -987,7 +987,7 @@ export default function OurValuesPage() {
       <section className="honor-section">
         <div className="honor-inner">
           <div className="honor-seal">OS</div>
-          <h2 className="honor-title">The Oakland Scholar&apos;s Matriculation Oath</h2>
+          <h2 className="honor-title">The Oakland Scholar&apos;s Collegiate Oath</h2>
           <div className="honor-sub">Recited Solenmly at Every Michaelmas Convocation</div>
 
           <p className="honor-p">

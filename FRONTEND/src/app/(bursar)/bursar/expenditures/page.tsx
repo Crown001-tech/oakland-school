@@ -38,7 +38,7 @@ export default function BursarExpendituresPage() {
   const [voucherDesc, setVoucherDesc] = useState('');
   const [voucherAmount, setVoucherAmount] = useState('');
   const [voucherBeneficiary, setVoucherBeneficiary] = useState('');
-  const [voucherAccount, setVoucherAccount] = useState<string>('Guaranty Trust Bank (0123984712)');
+  const [voucherAccount, setVoucherAccount] = useState<string>('');
   const [availableAccounts, setAvailableAccounts] = useState<
     Array<{ id: string; name: string; bank: string; accountNumber: string; displayName: string }>
   >([]);
@@ -76,6 +76,18 @@ export default function BursarExpendituresPage() {
   useEffect(() => {
     loadExpenditures();
   }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isNewVoucherModalOpen) {
+        setIsNewVoucherModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isNewVoucherModalOpen]);
+
+  const formatCategoryLabel = (cat: string) => cat.replace(/\s*&\s*/g, ' and ');
 
   const totalExpenditures = expenditures.reduce((a, b) => a + b.amount, 0);
 
@@ -128,14 +140,14 @@ export default function BursarExpendituresPage() {
       const inserted = resData.data;
       const newVch: ExpenditureRecord = {
         id: inserted?.id || `exp-${Date.now()}`,
-        voucherNo: `VCH-${new Date().getFullYear()}-0${expenditures.length + 1}`,
-        category: voucherCategory,
-        description: voucherDesc.trim(),
-        amount: amt,
-        beneficiary: voucherBeneficiary.trim(),
-        approvedBy: 'Office of the Proprietor',
-        paymentAccount: voucherAccount,
-        date: new Date().toLocaleDateString('en-GB'),
+        voucherNo: inserted?.voucher_number || `VCH-${new Date().getFullYear()}-0001`,
+        category: (inserted?.category || voucherCategory) as ExpenditureRecord['category'],
+        description: inserted?.description || voucherDesc.trim(),
+        amount: Number(inserted?.amount ?? amt),
+        beneficiary: inserted?.vendor || voucherBeneficiary.trim(),
+        approvedBy: inserted?.approved_by || inserted?.recorded_by || 'Bursar',
+        paymentAccount: (inserted?.payment_account || voucherAccount) as ExpenditureRecord['paymentAccount'],
+        date: inserted?.date || new Date().toLocaleDateString('en-GB'),
         status: 'Approved & Paid',
       };
 
@@ -251,19 +263,19 @@ export default function BursarExpendituresPage() {
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+          <Search className="w-4 h-4 absolute left-3 top-3.5 text-slate-400" />
           <Input
             placeholder="Search vouchers by beneficiary, description, or voucher number..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 text-xs h-9"
+            className="pl-9 text-xs min-h-[44px]"
           />
         </div>
 
         <select
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
-          className="h-9 px-3 rounded-lg border border-slate-300 bg-white text-xs font-medium text-slate-800 cursor-pointer"
+          className="min-h-[44px] px-3 rounded-lg border border-slate-300 bg-white text-xs font-medium text-slate-800 cursor-pointer"
         >
           <option value="All">All Categories</option>
           <option value="Diesel & Power">Diesel and Power</option>
@@ -328,7 +340,7 @@ export default function BursarExpendituresPage() {
                     </td>
                     <td className="py-3 px-3">
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-800">
-                        {vch.category}
+                        {formatCategoryLabel(vch.category)}
                       </span>
                     </td>
                     <td className="py-3 px-4 font-medium text-slate-900 max-w-xs">
@@ -344,7 +356,7 @@ export default function BursarExpendituresPage() {
                       {vch.paymentAccount}
                     </td>
                     <td className="py-3 px-3 text-center">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
                         {vch.status === 'Approved & Paid' ? 'Paid' : vch.status}
                       </span>
                     </td>
@@ -354,7 +366,7 @@ export default function BursarExpendituresPage() {
                         size="sm"
                         variant="outline"
                         onClick={() => setActiveVoucher(vch)}
-                        className="h-7 px-2.5 text-[10px] font-bold text-slate-800 border-slate-300 hover:bg-slate-100"
+                        className="min-h-[44px] sm:min-h-[32px] px-2.5 text-[10px] font-bold text-slate-800 border-slate-300 hover:bg-slate-100"
                       >
                         <FileText className="w-3 h-3 mr-1" />
                         Print Voucher
@@ -375,8 +387,16 @@ export default function BursarExpendituresPage() {
       />
 
       {isNewVoucherModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-          <div className="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
+        <div
+          className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+          onClick={() => setIsNewVoucherModalOpen(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="w-full max-w-lg bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
               <div>
                 <h3 className="text-sm font-bold text-white">
@@ -389,7 +409,8 @@ export default function BursarExpendituresPage() {
               <button
                 type="button"
                 onClick={() => setIsNewVoucherModalOpen(false)}
-                className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition-colors cursor-pointer"
+                aria-label="Close voucher modal"
+                className="w-11 h-11 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -410,7 +431,7 @@ export default function BursarExpendituresPage() {
                   <select
                     value={voucherCategory}
                     onChange={(e) => setVoucherCategory(e.target.value as ExpenditureRecord['category'])}
-                    className="w-full h-9 px-3 rounded-lg border border-slate-300 bg-white text-slate-800"
+                    className="w-full min-h-[44px] px-3 rounded-lg border border-slate-300 bg-white text-slate-800"
                     required
                   >
                     <option value="Diesel & Power">Diesel Fuel and Power</option>
@@ -432,11 +453,11 @@ export default function BursarExpendituresPage() {
                     value={voucherBeneficiary}
                     onChange={(e) => setVoucherBeneficiary(e.target.value)}
                     placeholder="e.g. Fuel Supplier, Chemical Vendor..."
-                    className="h-9 text-xs"
+                    className="min-h-[44px] text-xs"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <label className="block font-bold text-slate-700 mb-1">
                       Amount (₦)
@@ -447,7 +468,7 @@ export default function BursarExpendituresPage() {
                       value={voucherAmount}
                       onChange={(e) => setVoucherAmount(e.target.value)}
                       placeholder="e.g. 50000"
-                      className="h-9 text-xs font-mono font-bold"
+                      className="min-h-[44px] text-xs font-mono font-bold"
                     />
                   </div>
 
@@ -458,7 +479,7 @@ export default function BursarExpendituresPage() {
                     <select
                       value={voucherAccount}
                       onChange={(e) => setVoucherAccount(e.target.value)}
-                      className="w-full h-9 px-3 rounded-lg border border-slate-300 bg-white text-slate-800 text-xs"
+                      className="w-full min-h-[44px] px-3 rounded-lg border border-slate-300 bg-white text-slate-800 text-xs"
                     >
                       {availableAccounts.length > 0 ? (
                         availableAccounts.map((acc) => (
@@ -467,7 +488,7 @@ export default function BursarExpendituresPage() {
                           </option>
                         ))
                       ) : (
-                        <option value="Guaranty Trust Bank (0123984712)">Guaranty Trust Bank (0123984712)</option>
+                        <option value="">No bank account configured</option>
                       )}
                       <option value="Petty Cash Desk">Campus Petty Cash Desk</option>
                     </select>
@@ -496,7 +517,7 @@ export default function BursarExpendituresPage() {
                   size="sm"
                   onClick={() => setIsNewVoucherModalOpen(false)}
                   disabled={isSubmitting}
-                  className="text-xs"
+                  className="min-h-[44px] text-xs"
                 >
                   Cancel
                 </Button>
@@ -504,7 +525,7 @@ export default function BursarExpendituresPage() {
                   type="submit"
                   size="sm"
                   isLoading={isSubmitting}
-                  className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold gap-1"
+                  className="min-h-[44px] bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold gap-1"
                 >
                   <Check className="w-3.5 h-3.5" />
                   <span>Authorize Voucher</span>

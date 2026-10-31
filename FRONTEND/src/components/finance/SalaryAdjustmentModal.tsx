@@ -1,12 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { PayrollRecord } from '@/types/finance';
 import { calculateNetSalary, formatNaira } from '@/lib/finance-data';
-import { X, Check, Calculator, DollarSign } from 'lucide-react';
+import { X, Check, Calculator } from 'lucide-react';
 
 interface SalaryAdjustmentModalProps {
   record: PayrollRecord | null;
@@ -14,15 +13,26 @@ interface SalaryAdjustmentModalProps {
   onClose: () => void;
 }
 
-export function SalaryAdjustmentModal({ record, onSave, onClose }: SalaryAdjustmentModalProps) {
-  if (!record) return null;
+export function SalaryAdjustmentModal(props: SalaryAdjustmentModalProps) {
+  if (!props.record) return null;
+  return <SalaryAdjustmentModalForm key={props.record.id} record={props.record} onSave={props.onSave} onClose={props.onClose} />;
+}
 
-  const [basicSalary, setBasicSalary] = useState(record.basicSalary);
+function SalaryAdjustmentModalForm({
+  record,
+  onSave,
+  onClose,
+}: {
+  record: PayrollRecord;
+  onSave: (updatedRecord: PayrollRecord) => void;
+  onClose: () => void;
+}) {
+  const [basicSalary] = useState(record.basicSalary);
   const [responsibilityAllowance, setResponsibilityAllowance] = useState(record.responsibilityAllowance);
   const [otherAllowances, setOtherAllowances] = useState(record.otherAllowances);
   const [cooperativeDeduction, setCooperativeDeduction] = useState(record.cooperativeDeduction);
 
-  const { gross, tax, pension, net } = calculateNetSalary(
+  const { gross, tax, net } = calculateNetSalary(
     Number(basicSalary) || 0,
     Number(responsibilityAllowance) || 0,
     Number(otherAllowances) || 0,
@@ -37,7 +47,6 @@ export function SalaryAdjustmentModal({ record, onSave, onClose }: SalaryAdjustm
       responsibilityAllowance: Number(responsibilityAllowance) || 0,
       otherAllowances: Number(otherAllowances) || 0,
       taxDeduction: tax,
-      pensionDeduction: pension,
       cooperativeDeduction: Number(cooperativeDeduction) || 0,
       netSalary: net,
     };
@@ -85,15 +94,20 @@ export function SalaryAdjustmentModal({ record, onSave, onClose }: SalaryAdjustm
             {/* Inputs */}
             <div className="space-y-3">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">
-                  Basic Monthly Salary (₦)
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block font-bold text-slate-700">
+                    Basic Monthly Salary (₦)
+                  </label>
+                  <span className="text-[10px] text-slate-500 font-semibold">
+                    Resolved from Master Settings
+                  </span>
+                </div>
                 <Input
                   type="number"
-                  required
+                  disabled
+                  readOnly
                   value={basicSalary}
-                  onChange={(e) => setBasicSalary(Number(e.target.value))}
-                  className="font-mono font-bold text-sm h-9"
+                  className="font-mono font-bold text-sm h-9 bg-slate-100 text-slate-600 cursor-not-allowed"
                 />
               </div>
 

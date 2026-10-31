@@ -1312,7 +1312,7 @@ export default function AcademicsPage() {
               <>
                 <div className="agenda-row">
                   <div className="agenda-date"><Calendar size={14} /> Sept 1, 2026</div>
-                  <div className="agenda-event">Resumption &amp; Matriculation Assembly for All Scholars</div>
+                  <div className="agenda-event">Resumption &amp; Welcome Assembly for All Scholars</div>
                   <div className="agenda-tag">Collegiate Rite</div>
                 </div>
                 <div className="agenda-row">

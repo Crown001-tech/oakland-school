@@ -140,7 +140,7 @@ export default function AdminResultsVettingPage() {
 
         if (allStudents.length > 0) {
           const classStudents = allStudents.filter(
-            (s: any) => !s.class || s.class === selectedClass
+            (s: any) => s.class === selectedClass
           );
 
           if (classStudents.length > 0) {

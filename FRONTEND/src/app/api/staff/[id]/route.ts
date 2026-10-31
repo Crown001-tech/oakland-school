@@ -1,13 +1,13 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+import { getCaller, isAdminRole } from '@/lib/caller';
+import {
+  generateStaffTempPassword,
+  getSupabaseAdmin,
+  hashInviteToken,
+} from '@/lib/supabase/admin';
 
 function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return getSupabaseAdmin();
 }
 
 export async function GET(
@@ -51,7 +51,15 @@ export async function GET(
       }
     } catch {}
 
-    const rawPassword = authUser?.user_metadata?.default_password || 'Oakland@2026';
+    const canSeeCredentials = isAdminRole((await getCaller()).role);
+    const passwordChanged =
+      staff.must_change_password === false || Boolean(authUser?.user_metadata?.password_changed);
+    const rawPassword =
+      !canSeeCredentials
+        ? '—'
+        : passwordChanged
+        ? 'Changed (Personal)'
+        : authUser?.user_metadata?.default_password || '—';
     const rawAssignments = authUser?.user_metadata?.teaching_assignments || [];
     const teacherType = authUser?.user_metadata?.teacher_type || authUser?.user_metadata?.staff_role;
 
@@ -84,19 +92,19 @@ export async function GET(
     let scaleAllowance: number = 0;
 
     if (resolvedRole === 'Principal') {
-      scaleBaseSalary = Number(schoolSettings.salaryPrincipal ?? 450000);
+      scaleBaseSalary = Number(schoolSettings.salaryPrincipal || 0);
       scaleAllowance = 0;
     } else if (resolvedRole === 'Bursar') {
-      scaleBaseSalary = Number(schoolSettings.salaryBursar ?? 400000);
+      scaleBaseSalary = Number(schoolSettings.salaryBursar || 0);
       scaleAllowance = 0;
     } else if (resolvedRole === 'Class Teacher') {
-      scaleBaseSalary = Number(schoolSettings.salaryClassTeacher ?? 280000);
-      scaleAllowance = Number(schoolSettings.allowanceClassTeacher ?? 35000);
+      scaleBaseSalary = Number(schoolSettings.salaryClassTeacher || 0);
+      scaleAllowance = Number(schoolSettings.allowanceClassTeacher || 0);
     } else if (resolvedRole === 'Subject Teacher') {
-      scaleBaseSalary = Number(schoolSettings.salarySubjectTeacher ?? 240000);
+      scaleBaseSalary = Number(schoolSettings.salarySubjectTeacher || 0);
       scaleAllowance = 0;
     } else {
-      scaleBaseSalary = Number(schoolSettings.salarySupportStaff ?? 180000);
+      scaleBaseSalary = Number(schoolSettings.salarySupportStaff || 0);
       scaleAllowance = 0;
     }
 
@@ -133,6 +141,7 @@ export async function GET(
 
         // Security Credentials
         defaultPassword: rawPassword,
+        passwordChanged,
 
         // Remuneration derived directly from Institutional Settings
         baseSalary: scaleBaseSalary,
@@ -175,22 +184,60 @@ export async function PATCH(
       return NextResponse.json({ success: false, message: 'Staff member not found' }, { status: 404 });
     }
 
-    // 2. Action: Reset Password to Oakland@2026
+    // 2. Action: Reset Password to a unique one-time password (`Oak-XXXXXX`)
     if (body.action === 'reset_password') {
-      const targetUserId = staff.user_id;
+      const caller = await getCaller();
+      if (!isAdminRole(caller.role)) {
+        return NextResponse.json(
+          { success: false, message: 'Only administrative leadership may reset staff passwords.' },
+          { status: 403 }
+        );
+      }
+
+      const tempPassword = generateStaffTempPassword();
+      const tokenHash = hashInviteToken(tempPassword);
+      const inviteExpiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
+
+      let targetUserId = staff.user_id;
+      if (!targetUserId && staff.email) {
+        try {
+          const { data: usersData } = await sb.auth.admin.listUsers();
+          const match = (usersData?.users || []).find(
+            (u: any) => u.email?.toLowerCase() === staff.email.toLowerCase()
+          );
+          if (match) targetUserId = match.id;
+        } catch {}
+      }
+
       if (targetUserId) {
+        const { data: currentAuth } = await sb.auth.admin.getUserById(targetUserId);
+        const existingMeta = currentAuth?.user?.user_metadata || {};
         await sb.auth.admin.updateUserById(targetUserId, {
-          password: 'Oakland@2026',
+          password: tempPassword,
           user_metadata: {
-            default_password: 'Oakland@2026',
+            ...existingMeta,
+            default_password: tempPassword,
+            password_changed: false,
           },
         });
       }
 
+      await sb
+        .from('staff_profiles')
+        .update({
+          user_id: targetUserId,
+          must_change_password: true,
+          invite_token_hash: tokenHash,
+          invite_expires_at: inviteExpiresAt,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', staff.id);
+
       return NextResponse.json({
         success: true,
-        message: 'Password successfully reset to default Oakland@2026',
-        defaultPassword: 'Oakland@2026',
+        message: `Temporary password generated: ${tempPassword}`,
+        defaultPassword: tempPassword,
+        passwordChanged: false,
       });
     }
 
@@ -320,6 +367,82 @@ export async function PATCH(
   } catch (err: any) {
     return NextResponse.json(
       { success: false, message: err instanceof Error ? err.message : 'Update failed' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await context.params;
+    const sb = getAdminClient();
+
+    // 1. Find the staff profile
+    let query = sb.from('staff_profiles').select('*');
+    if (id.includes('-') && id.length === 36) {
+      query = query.or(`id.eq.${id},user_id.eq.${id}`);
+    } else {
+      query = query.or(`employee_id.eq.${id},email.eq.${id}`);
+    }
+
+    const { data: staff, error: findErr } = await query.maybeSingle();
+    if (findErr) throw findErr;
+    if (!staff) {
+      return NextResponse.json(
+        { success: false, message: 'Staff profile not found' },
+        { status: 404 }
+      );
+    }
+
+    // 2. Mark profile as inactive in PostgreSQL
+    const { error: updateErr } = await sb
+      .from('staff_profiles')
+      .update({ is_active: false })
+      .eq('id', staff.id);
+
+    if (updateErr) throw updateErr;
+
+    // 3. Deactivate Supabase Auth user if user_id exists
+    if (staff.user_id) {
+      try {
+        await sb.auth.admin.deleteUser(staff.user_id);
+      } catch (authErr) {
+        console.warn('Failed to delete auth user, attempting ban:', authErr);
+        try {
+          await sb.auth.admin.updateUserById(staff.user_id, {
+            ban_duration: '876000h',
+          });
+        } catch {}
+      }
+    }
+
+    // 4. Institutional Audit Log
+    try {
+      await sb.from('audit_logs').insert({
+        school_id: staff.school_id,
+        actor_name: 'Office of the Proprietor',
+        actor_role: 'Proprietor',
+        action: 'STAFF.TERMINATED',
+        resource_type: 'staff_profile',
+        resource_id: staff.id,
+        metadata: {
+          employee_id: staff.employee_id,
+          name: `${staff.first_name} ${staff.last_name}`,
+          email: staff.email,
+        },
+      });
+    } catch {}
+
+    return NextResponse.json({
+      success: true,
+      message: `Staff member ${staff.first_name} ${staff.last_name} (${staff.employee_id}) has been removed.`,
+    });
+  } catch (err: any) {
+    return NextResponse.json(
+      { success: false, message: err instanceof Error ? err.message : 'Failed to remove staff' },
       { status: 500 }
     );
   }

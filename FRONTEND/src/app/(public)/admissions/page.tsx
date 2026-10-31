@@ -29,7 +29,6 @@ import {
   HeartPulse,
   BadgeCheck
 } from 'lucide-react';
-import { addAdmissionToQueue } from '@/lib/admissions-utils';
 
 interface FormData {
   surname: string;
@@ -38,6 +37,7 @@ interface FormData {
   gender: string;
   dateOfBirth: string;
   classApplyingFor: string;
+  department?: string;
   stateOfOrigin: string;
   lga: string;
   religion: string;
@@ -62,6 +62,7 @@ const INITIAL_FORM: FormData = {
   gender: 'Male',
   dateOfBirth: '',
   classApplyingFor: 'JSS 1',
+  department: 'Sciences',
   stateOfOrigin: '',
   lga: '',
   religion: 'Christianity',
@@ -118,19 +119,19 @@ const ADMISSION_STEPS = [
     badge: 'Stage 04',
     shapeName: 'Sovereign Portal',
     title: 'Offer & Enrollment',
-    tagline: 'Matriculation & house induction',
+    tagline: 'Enrollment & House Induction',
     desc: 'Successful candidates receive their formal Letter of Offer and welcome pack. Guardians confirm acceptance to secure class placement and house assignment.',
     metric: 'Official Decision in 5 Days',
     image: '/campus-quad.jpg',
-    caption: 'Central Quadrangle — Scholar Matriculation',
+    caption: 'Central Quadrangle — Student Enrollment',
   },
 ];
-
-let seqCounter = 1000;
 
 export default function PublicAdmissionsPage() {
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [applicationNo, setApplicationNo] = useState('');
   const [step, setStep] = useState(1);
   const [activeJourneyStep, setActiveJourneyStep] = useState<number>(0);
@@ -166,66 +167,114 @@ export default function PublicAdmissionsPage() {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    seqCounter += 1;
-    const randSuffix = Math.floor(1000 + Math.random() * 9000);
-    const appNo = `OSC-ADM-2026-${randSuffix}`;
-    setApplicationNo(appNo);
+  const validateStep1 = () => {
+    setSubmitError(null);
+    if (!formData.surname.trim()) {
+      setSubmitError('Please enter the student surname.');
+      return false;
+    }
+    if (!formData.firstName.trim()) {
+      setSubmitError('Please enter the student first name.');
+      return false;
+    }
+    if (!formData.dateOfBirth) {
+      setSubmitError('Please select the student date of birth.');
+      return false;
+    }
+    if (!formData.classApplyingFor) {
+      setSubmitError('Please select the class applying for.');
+      return false;
+    }
+    if (!formData.stateOfOrigin.trim()) {
+      setSubmitError('Please enter the state of origin.');
+      return false;
+    }
+    if (!formData.lga.trim()) {
+      setSubmitError('Please enter the local government area (LGA).');
+      return false;
+    }
+    if (!formData.previousSchool.trim()) {
+      setSubmitError('Please enter the previous school attended.');
+      return false;
+    }
+    if (!formData.lastClassPassed.trim()) {
+      setSubmitError('Please enter the last class passed.');
+      return false;
+    }
+    return true;
+  };
 
-    const fullName = `${formData.firstName} ${formData.surname}`.trim();
+  const validateStep2 = () => {
+    setSubmitError(null);
+    const hasFather = formData.fatherName.trim() && formData.fatherPhone.trim();
+    const hasMother = formData.motherName.trim() && formData.motherPhone.trim();
+
+    if (!hasFather && !hasMother) {
+      setSubmitError('Please provide contact details (Name and Phone) for at least one parent or guardian.');
+      return false;
+    }
+    if (!formData.residentialAddress.trim()) {
+      setSubmitError('Please enter the residential address.');
+      return false;
+    }
+    return true;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitError(null);
+
     const primaryPhone = formData.fatherPhone || formData.motherPhone || '—';
     const primaryEmail = formData.fatherEmail || formData.motherEmail || '—';
     const guardianName = formData.fatherName || formData.motherName || 'Guardian';
 
-    // 1. Post directly into shared admissions queue with all rich profile info
-    addAdmissionToQueue({
-      referenceNumber: appNo,
-      applicantName: fullName,
-      firstName: formData.firstName,
-      middleName: formData.middleName,
-      surname: formData.surname,
-      gender: formData.gender === 'Female' ? 'Female' : 'Male',
-      appliedClass: formData.classApplyingFor || 'JSS 1',
-      dob: formData.dateOfBirth,
-      stateOfOrigin: formData.stateOfOrigin,
-      lga: formData.lga,
-      religion: formData.religion,
-      previousSchool: formData.previousSchool,
-      lastClassPassed: formData.lastClassPassed,
-      parentName: guardianName,
-      parentPhone: primaryPhone,
-      parentEmail: primaryEmail,
-      fatherName: formData.fatherName,
-      fatherPhone: formData.fatherPhone,
-      fatherEmail: formData.fatherEmail,
-      motherName: formData.motherName,
-      motherPhone: formData.motherPhone,
-      motherEmail: formData.motherEmail,
-      residentialAddress: formData.residentialAddress,
-      bloodGroup: formData.bloodGroup,
-      genotype: formData.genotype,
-      medicalConditions: formData.medicalConditions,
-      stage: 'In Review',
-    });
+    try {
+      const res = await fetch('/api/admissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          middleName: formData.middleName,
+          surname: formData.surname,
+          gender: formData.gender,
+          dateOfBirth: formData.dateOfBirth,
+          appliedClass: formData.classApplyingFor || 'JSS 1',
+          department: formData.classApplyingFor?.startsWith('SS') ? (formData.department || 'Sciences') : null,
+          parentName: guardianName,
+          parentPhone: primaryPhone,
+          parentEmail: primaryEmail,
+          fatherName: formData.fatherName,
+          fatherPhone: formData.fatherPhone,
+          fatherEmail: formData.fatherEmail,
+          motherName: formData.motherName,
+          motherPhone: formData.motherPhone,
+          motherEmail: formData.motherEmail,
+          residentialAddress: formData.residentialAddress,
+          stateOfOrigin: formData.stateOfOrigin,
+          lga: formData.lga,
+          religion: formData.religion,
+          previousSchool: formData.previousSchool,
+          lastClassPassed: formData.lastClassPassed,
+          bloodGroup: formData.bloodGroup,
+          genotype: formData.genotype,
+          medicalConditions: formData.medicalConditions,
+        }),
+      });
 
-    // 2. Also send to backend admissions endpoint if active
-    fetch('http://localhost:5000/api/v1/admissions/apply', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        applicantName: fullName,
-        gender: formData.gender,
-        applyingForClass: formData.classApplyingFor || 'JSS 1',
-        guardianName,
-        guardianPhone: primaryPhone,
-        guardianEmail: primaryEmail,
-        previousSchool: formData.previousSchool,
-      }),
-    }).catch(() => {});
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        throw new Error(json.message || 'Failed to submit application. Please check all details and try again.');
+      }
 
-    setIsSubmitted(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+      setApplicationNo(json.referenceNumber || `OSC-ADM-2026-${Math.floor(1000 + Math.random() * 9000)}`);
+      setIsSubmitted(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (err: any) {
+      setSubmitError(err.message || 'Network error occurred while submitting your application.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isSubmitted) {
@@ -1493,7 +1542,7 @@ export default function PublicAdmissionsPage() {
         </div>
       </section>
 
-      {/* ── SECTION: APPLICATION DOSSIER & SIDEBAR ── */}
+      {/* ── SECTION: APPLICATION FORM & SIDEBAR ── */}
       <div className="adm-body" id="admission-form">
         <div className="adm-body-inner">
           {/* Section Introduction */}
@@ -1607,6 +1656,17 @@ export default function PublicAdmissionsPage() {
                       </div>
                     </div>
 
+                    {formData.classApplyingFor.startsWith('SS') && (
+                      <div className="adm-field" style={{ marginBottom: 22 }}>
+                        <label className="adm-label">Department <span className="adm-req">*</span></label>
+                        <select required name="department" value={formData.department || 'Sciences'} onChange={handleChange} className="adm-input">
+                          <option value="Sciences">Sciences</option>
+                          <option value="Commercial">Commercial</option>
+                          <option value="Humanities">Humanities</option>
+                        </select>
+                      </div>
+                    )}
+
                     <div className="adm-grid-3">
                       <div className="adm-field">
                         <label className="adm-label">State of Origin <span className="adm-req">*</span></label>
@@ -1645,7 +1705,7 @@ export default function PublicAdmissionsPage() {
 
                     <div className="adm-nav-row">
                       <span />
-                      <button type="button" className="adm-btn-next" onClick={() => setStep(2)}>
+                      <button type="button" className="adm-btn-next" onClick={() => { if (validateStep1()) { setStep(2); setSubmitError(null); } }}>
                         <span>Next: Guardian Details</span>
                         <ArrowRight size={14} />
                       </button>
@@ -1710,10 +1770,10 @@ export default function PublicAdmissionsPage() {
                     </div>
 
                     <div className="adm-nav-row">
-                      <button type="button" className="adm-btn-back" onClick={() => setStep(1)}>
+                      <button type="button" className="adm-btn-back" onClick={() => { setStep(1); setSubmitError(null); }}>
                         ← Back
                       </button>
-                      <button type="button" className="adm-btn-next" onClick={() => setStep(3)}>
+                      <button type="button" className="adm-btn-next" onClick={() => { if (validateStep2()) { setStep(3); setSubmitError(null); } }}>
                         <span>Next: Declaration</span>
                         <ArrowRight size={14} />
                       </button>
@@ -1761,12 +1821,18 @@ export default function PublicAdmissionsPage() {
                       </p>
                     </div>
 
+                    {submitError && (
+                      <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '14px 18px', marginBottom: 20, color: '#dc2626', fontSize: 13, fontFamily: 'Inter, sans-serif' }}>
+                        {submitError}
+                      </div>
+                    )}
+
                     <div className="adm-nav-row">
-                      <button type="button" className="adm-btn-back" onClick={() => setStep(2)}>
+                      <button type="button" className="adm-btn-back" onClick={() => { setStep(2); setSubmitError(null); }} disabled={isSubmitting}>
                         ← Back
                       </button>
-                      <button type="submit" className="adm-btn-next">
-                        <span>Submit Application</span>
+                      <button type="submit" className="adm-btn-next" disabled={isSubmitting} style={{ opacity: isSubmitting ? 0.7 : 1, cursor: isSubmitting ? 'not-allowed' : 'pointer' }}>
+                        <span>{isSubmitting ? 'Submitting Application...' : 'Submit Application'}</span>
                         <Send size={14} />
                       </button>
                     </div>
@@ -2000,7 +2066,9 @@ function SuccessScreen({
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                 Target Class
               </span>
-              <p className="font-bold text-teal-800 text-sm mt-0.5">{classFor}</p>
+              <p className="font-bold text-teal-800 text-sm mt-0.5">
+                {classFor}{formData?.department && classFor.startsWith('SS') ? ` (${formData.department})` : ''}
+              </p>
               <p className="text-[11px] text-slate-500">2026/2027 Academic Session</p>
             </div>
 
@@ -2029,7 +2097,7 @@ function SuccessScreen({
               className="w-full sm:w-auto flex-1 px-5 py-3 rounded-xl bg-[#0f3a3e] hover:bg-[#134b50] text-white text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition active:scale-98"
             >
               <Printer className="w-4 h-4" />
-              <span>Save / Print Application Slip</span>
+              <span>Print Application Slip</span>
             </button>
             <Link
               href="/"

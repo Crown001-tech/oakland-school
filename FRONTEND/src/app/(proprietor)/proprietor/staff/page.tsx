@@ -31,8 +31,9 @@ import {
   Briefcase,
   Upload,
   Edit3,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
-import { apiClient } from '@/lib/api-client';
 import { BulkImportModal } from '@/components/common/BulkImportModal';
 import { EditStaffModal } from '@/components/common/EditStaffModal';
 import {
@@ -72,6 +73,8 @@ export default function ProprietorStaffManagementPage() {
   const [staffList, setStaffList] = useState<StaffSummary[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isBulkOpen, setIsBulkOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<StaffSummary | null>(null);
@@ -184,9 +187,9 @@ export default function ProprietorStaffManagementPage() {
         assignedClass: resolvedHomeroom,
         assignedClasses: role === 'Non-Teaching Staff' ? [] : resolvedAssignedClasses,
         subjects: validatedSubjects,
-        department: r.department || (role === 'Non-Teaching Staff' ? 'Operations & Safety' : 'Academics'),
+        department: r.department || (role === 'Non-Teaching Staff' ? 'Operations' : 'Academics'),
         status: 'Active',
-        password: r.password || 'Oakland@2026',
+        password: r.password || '',
       };
     });
 
@@ -253,7 +256,7 @@ export default function ProprietorStaffManagementPage() {
 
     const isPrincipal = appointRole === 'principal';
     const employeeId = isPrincipal ? 'OAK-ADM-001' : 'OAK-BUR-001';
-    const roleTitle = isPrincipal ? 'School Principal & Head of Academics' : 'School Bursar & Chief Financial Officer';
+    const roleTitle = isPrincipal ? 'School Principal' : 'School Bursar';
 
     const appointedExec: ExecutiveData = {
       name: cleanName,
@@ -292,19 +295,24 @@ export default function ProprietorStaffManagementPage() {
       return;
     }
 
-    // 2. Notify backend services (non-blocking)
+    // 2. Audit log appointment (non-blocking)
     try {
-      const endpoint = isPrincipal ? '/staff/appoint-principal' : '/staff/appoint-bursar';
-      await apiClient.post(endpoint, {
-        fullName: cleanName,
-        email: cleanEmail,
-        phone: execPhone.trim(),
-        password: chosenPassword,
+      await fetch('/api/audit-logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: isPrincipal ? 'EXECUTIVE.PRINCIPAL_APPOINTED' : 'EXECUTIVE.BURSAR_APPOINTED',
+          resource_type: 'executive',
+          actor_name: 'Office of the Proprietor',
+          actor_role: 'Proprietor',
+          metadata: {
+            fullName: cleanName,
+            email: cleanEmail,
+            employeeId,
+          },
+        }),
       });
-    } catch (err: any) {
-      emailDeliveryStatus = 'smtp_error';
-      emailDeliveryError = err.message || 'Optional backend notification service offline';
-    }
+    } catch {}
 
     if (isPrincipal) {
       setPrincipal(appointedExec);
@@ -351,7 +359,7 @@ export default function ProprietorStaffManagementPage() {
 
     try {
       if (sackTarget.id) {
-        await apiClient.delete(`/staff/${encodeURIComponent(sackTarget.id)}`).catch(() => {});
+        await fetch(`/api/staff/${encodeURIComponent(sackTarget.id)}`, { method: 'DELETE' }).catch(() => {});
       }
     } catch {
       // Prevent network or API failure from stopping termination
@@ -449,12 +457,33 @@ Issued by the Office of the Proprietor.`;
     }
   });
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (isAppointModalOpen) setIsAppointModalOpen(false);
+        if (successSlip) setSuccessSlip(null);
+        if (sackTarget) setSackTarget(null);
+        if (editingStaff) setEditingStaff(null);
+        if (isBulkOpen) setIsBulkOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isAppointModalOpen, successSlip, sackTarget, editingStaff, isBulkOpen]);
+
   const filteredRoster = fullRoster.filter((s) =>
     s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.employeeId.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.role.toLowerCase().includes(searchQuery.toLowerCase()) ||
     s.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const totalPages = Math.max(1, Math.ceil(filteredRoster.length / pageSize));
+  const paginatedRoster = filteredRoster.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   if (!isLoaded) {
     return <BrandLoader size="lg" />;
@@ -497,7 +526,7 @@ Issued by the Office of the Proprietor.`;
                       <div className="flex items-center gap-2">
                         <h3 className="text-base font-bold text-slate-900">{principal.name}</h3>
                       </div>
-                      <p className="text-xs font-semibold text-[#0f3a3e] mt-0.5">School Principal & Head of Academics</p>
+                      <p className="text-xs font-semibold text-[#0f3a3e] mt-0.5">School Principal</p>
                       <p className="text-[11px] font-mono text-slate-500 mt-0.5">ID: {principal.employeeId}</p>
                     </div>
                   </div>
@@ -585,7 +614,7 @@ Issued by the Office of the Proprietor.`;
                       <div className="flex items-center gap-2">
                         <h3 className="text-base font-bold text-slate-900">{bursar.name}</h3>
                       </div>
-                      <p className="text-xs font-semibold text-amber-900 mt-0.5">School Bursar & Chief Financial Officer</p>
+                      <p className="text-xs font-semibold text-amber-900 mt-0.5">School Bursar</p>
                       <p className="text-[11px] font-mono text-slate-500 mt-0.5">ID: {bursar.employeeId}</p>
                     </div>
                   </div>
@@ -707,20 +736,20 @@ Issued by the Office of the Proprietor.`;
           </Card>
         ) : (
           <Card className="border-slate-200 shadow-xs">
-            <CardContent className="p-0 overflow-x-auto">
+            <CardContent className="p-0 overflow-x-auto max-h-[600px] relative">
               <table className="w-full text-xs text-left">
-                <thead className="bg-[#0f3a3e] text-white font-bold">
+                <thead className="bg-[#0f3a3e] text-white font-bold sticky top-0 z-10 shadow-xs">
                   <tr>
-                    <th className="py-2.5 px-4">Official ID</th>
-                    <th className="py-2.5 px-4">Staff Member</th>
-                    <th className="py-2.5 px-4">Role & Department</th>
-                    <th className="py-2.5 px-4">Official Email</th>
-                    <th className="py-2.5 px-4">Contact Phone</th>
-                    <th className="py-2.5 px-3 text-center">Action</th>
+                    <th className="py-2.5 px-4 bg-[#0f3a3e]">Official ID</th>
+                    <th className="py-2.5 px-4 bg-[#0f3a3e]">Staff Member</th>
+                    <th className="py-2.5 px-4 bg-[#0f3a3e]">Role</th>
+                    <th className="py-2.5 px-4 bg-[#0f3a3e]">Official Email</th>
+                    <th className="py-2.5 px-4 bg-[#0f3a3e]">Contact Phone</th>
+                    <th className="py-2.5 px-3 text-center bg-[#0f3a3e]">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 bg-white">
-                  {filteredRoster.map((st) => {
+                  {paginatedRoster.map((st) => {
                     const isPrincipalRow = principal && st.email.toLowerCase() === principal.email.toLowerCase();
                     const isBursarRow = bursar && st.email.toLowerCase() === bursar.email.toLowerCase();
 
@@ -771,7 +800,7 @@ Issued by the Office of the Proprietor.`;
                                 variant="outline"
                                 onClick={() => setEditingStaff(st)}
                                 className="h-7 text-[11px] px-2 text-slate-700 border-slate-200 hover:bg-slate-100 font-bold flex items-center gap-1 cursor-pointer"
-                                title="Edit Role & Assignment"
+                                title="Edit Role"
                               >
                                 <Edit3 className="w-3 h-3 text-[#0f3a3e]" />
                                 <span>Edit</span>
@@ -801,6 +830,42 @@ Issued by the Office of the Proprietor.`;
                 </tbody>
               </table>
             </CardContent>
+            {filteredRoster.length > pageSize && (
+              <div className="p-3 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+                <span>
+                  Showing <span className="font-semibold text-slate-900">{(currentPage - 1) * pageSize + 1}</span> to{' '}
+                  <span className="font-semibold text-slate-900">
+                    {Math.min(currentPage * pageSize, filteredRoster.length)}
+                  </span>{' '}
+                  of <span className="font-semibold text-slate-900">{filteredRoster.length}</span> staff members
+                </span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={currentPage <= 1}
+                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                    className="h-7 text-xs flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                  >
+                    <ChevronLeft className="w-3.5 h-3.5" />
+                    <span>Previous</span>
+                  </Button>
+                  <span className="px-2 font-medium text-slate-700">
+                    Page {currentPage} of {totalPages}
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={currentPage >= totalPages}
+                    onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                    className="h-7 text-xs flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                  >
+                    <span>Next</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+              </div>
+            )}
           </Card>
         )}
       </div>
@@ -942,7 +1007,7 @@ Issued by the Office of the Proprietor.`;
                   className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold flex items-center gap-1.5"
                 >
                   <Send className="w-3.5 h-3.5" />
-                  <span>Issue Appointment & Credentials</span>
+                  <span>Issue Appointment</span>
                 </Button>
               </div>
             </form>
@@ -1069,7 +1134,7 @@ Issued by the Office of the Proprietor.`;
               </div>
               <div>
                 <h3 className="text-base font-bold text-slate-900">
-                  Confirm Staff Termination & Sacking
+                  Confirm Termination
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">
                   Proprietor's Executive Dismissal Authority
@@ -1107,7 +1172,7 @@ Issued by the Office of the Proprietor.`;
                 className="bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold flex items-center gap-1.5 shadow-sm"
               >
                 <Trash2 className="w-3.5 h-3.5" />
-                <span>Confirm Dismissal & Revoke Access</span>
+                <span>Confirm Dismissal</span>
               </Button>
             </div>
           </div>

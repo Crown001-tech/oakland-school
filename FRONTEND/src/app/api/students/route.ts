@@ -1,18 +1,18 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getAssignedClassName, getCaller, isAdminRole } from '@/lib/caller';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
 function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return getSupabaseAdmin();
 }
 
 export async function GET(request: NextRequest) {
   try {
+    const caller = await getCaller();
+    const isAdmin = isAdminRole(caller.role);
+    const homeroomClass = caller.role === 'teacher' ? await getAssignedClassName(caller.email) : null;
     const sb = getAdminClient();
     const { searchParams } = new URL(request.url);
     const classFilter = searchParams.get('class');
@@ -29,11 +29,13 @@ export async function GET(request: NextRequest) {
         dob,
         blood_group,
         address,
+        department,
         status,
         created_at,
         class_enrollments (
           id,
           class_id,
+          department,
           classes:class_id ( id, name )
         ),
         student_guardians (
@@ -63,6 +65,10 @@ export async function GET(request: NextRequest) {
       const guardianName = guardian ? `${guardian.first_name || ''} ${guardian.last_name || ''}`.trim() : '—';
       const guardianPhone = guardian?.phone || '—';
 
+      // Full records for administrators and the homeroom teacher; bursars get guardian contact only; others get roster fields.
+      const fullAccess = isAdmin || (homeroomClass !== null && homeroomClass === className);
+      const guardianAccess = fullAccess || caller.role === 'bursar';
+
       return {
         id: s.id,
         admissionNo: s.admission_number,
@@ -70,15 +76,16 @@ export async function GET(request: NextRequest) {
         firstName: s.first_name,
         lastName: s.last_name,
         class: className,
+        department: s.department || enrollment?.department || null,
         gender: s.gender === 'female' ? 'Female' : 'Male',
-        dob: s.dob || '—',
-        bloodGroup: s.blood_group || '—',
-        address: s.address || '—',
-        guardianName: guardianName || 'Guardian',
-        guardianPhone: guardianPhone,
-        guardianEmail: guardian?.email || '—',
-        guardianOccupation: guardian?.occupation || 'Guardian',
-        guardianRelationship: guardianRel?.relationship || guardian?.relationship || 'Guardian',
+        dob: fullAccess ? s.dob || '—' : '—',
+        bloodGroup: fullAccess ? s.blood_group || '—' : '—',
+        address: fullAccess ? s.address || '—' : '—',
+        guardianName: guardianAccess ? guardianName || 'Guardian' : '—',
+        guardianPhone: guardianAccess ? guardianPhone : '—',
+        guardianEmail: fullAccess ? guardian?.email || '—' : '—',
+        guardianOccupation: fullAccess ? guardian?.occupation || 'Guardian' : '—',
+        guardianRelationship: guardianAccess ? guardianRel?.relationship || guardian?.relationship || 'Guardian' : '—',
         attendanceRate: null,
         status: s.status === 'graduated' ? 'Graduated' : s.status === 'withdrawn' ? 'Withdrawn' : 'Active',
       };
@@ -139,7 +146,7 @@ export async function POST(request: NextRequest) {
         if (rawFull) {
           const parts = rawFull.split(/\s+/);
           if (!firstName) firstName = parts[0] || 'Student';
-          if (!lastName) lastName = parts.slice(1).join(' ') || 'Pupil';
+          if (!lastName) lastName = parts.slice(1).join(' ') || 'Student';
         }
       }
 
@@ -150,9 +157,9 @@ export async function POST(request: NextRequest) {
       const targetClass = (item.class || item.className || 'JSS 1').trim();
       const classId = classMap.get(targetClass.toLowerCase()) || classes?.[0]?.id;
 
-      // PostgreSQL students table enforces `dob DATE NOT NULL`
+      // PostgreSQL students table: dob is optional/nullable (DEF-152)
       let rawDob = item.dob || item.dateOfBirth;
-      let studentDob = '2012-05-15';
+      let studentDob: string | null = null;
       if (rawDob && rawDob !== '—' && !isNaN(Date.parse(rawDob))) {
         studentDob = new Date(rawDob).toISOString().split('T')[0];
       }
@@ -212,6 +219,7 @@ export async function POST(request: NextRequest) {
             last_name: lastName,
             gender: gender,
             dob: studentDob,
+            department: item.department || null,
             status: 'active',
           })
           .select()
@@ -237,6 +245,7 @@ export async function POST(request: NextRequest) {
               student_id: student.id,
               class_id: classId,
               session_id: sessionId,
+              department: item.department || null,
               status: 'active',
             }, { onConflict: 'student_id,session_id' });
         } catch (enrollErr) {

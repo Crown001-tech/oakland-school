@@ -65,6 +65,15 @@ export function BulkImportModal({
   const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   // Download official CSV template
@@ -306,7 +315,7 @@ export function BulkImportModal({
           subjects: role === 'Non-Teaching Staff' ? [] : parsedSubjects,
           department: deptIdx !== -1 ? row[deptIdx] : (role === 'Non-Teaching Staff' ? 'Operations & Safety' : 'Academics'),
           status: 'Active',
-          password: 'Oakland@2026',
+          password: '',
         });
       }
     }
@@ -455,7 +464,7 @@ export function BulkImportModal({
               onChange={(e) => setPastedText(e.target.value)}
               placeholder={
                 importType === 'students'
-                  ? 'Full Name, Gender, Class, Admission No, Parent Name, Parent Phone\nChidera Okafor, Male, JSS 1, OAK-001, Engr. Emeka Okafor, +2348030001111\nAmina Yusuf, Female, JSS 2, OAK-002, Alhaji Bello Yusuf, +2348020002222'
+                  ? 'Full Name, Gender, Class, Admission No, Parent Name, Parent Phone\nChinedu Okafor, Male, JSS 1, OAK-001, Engr. Emeka Okafor, +2348030001111\nAmina Bello, Female, JSS 2, OAK-002, Alhaji Bello Yusuf, +2348020002222'
                   : 'Full Name, Role, Department, Assigned Class, Subject, Email\nMrs. Chioma Eze, Class Teacher, Academics, SS 1, Chemistry, chioma@oaklandschools.edu\nMr. Emmanuel Ojo, Class Teacher, Academics, JSS 2, English, emmanuel@oaklandschools.edu'
               }
               className="w-full p-3 text-xs font-mono border border-slate-200 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-teal-600 bg-slate-50"

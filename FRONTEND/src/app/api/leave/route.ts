@@ -1,19 +1,24 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { getCaller, isAdminRole } from '@/lib/caller';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
 function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return getSupabaseAdmin();
 }
 
 export async function GET() {
   try {
     const sb = getAdminClient();
+    // Administrators see every request; other staff see only their own
+    const caller = await getCaller();
+    const isAdmin = isAdminRole(caller.role);
+    let ownEmployeeId: string | null = null;
+    if (!isAdmin) {
+      const { data: own } = await sb.from('staff_profiles').select('employee_id').eq('email', caller.email || '').maybeSingle();
+      ownEmployeeId = own?.employee_id || null;
+    }
     const { data: rows, error } = await sb
       .from('workflow_instances')
       .select('*')
@@ -40,7 +45,8 @@ export async function GET() {
       notes: row.metadata?.notes || '',
     }));
 
-    return NextResponse.json({ success: true, data: formatted });
+    const visible = isAdmin ? formatted : formatted.filter((r: any) => ownEmployeeId !== null && r.employeeId === ownEmployeeId);
+    return NextResponse.json({ success: true, data: visible });
   } catch (err: any) {
     return NextResponse.json(
       { success: false, message: err instanceof Error ? err.message : 'Database error' },
@@ -112,6 +118,29 @@ export async function POST(request: NextRequest) {
 
     if (error) throw error;
 
+    // Institutional Audit Log (DEF-003)
+    try {
+      await sb.from('audit_logs').insert({
+        school_id: DEFAULT_SCHOOL_ID,
+        actor_name: staffName,
+        actor_role: role || 'Teacher',
+        action: 'LEAVE.SUBMITTED',
+        resource_type: 'leave_request',
+        resource_id: data.id,
+        metadata: {
+          staffName,
+          leaveType: leaveType || 'Casual',
+          days: Number(days) || 1,
+          startDate,
+          endDate,
+          reason,
+          reliefTeacher,
+        },
+      });
+    } catch (auditErr) {
+      console.warn('Audit log error:', auditErr);
+    }
+
     return NextResponse.json({ success: true, message: 'Leave request submitted successfully', data });
   } catch (err: any) {
     return NextResponse.json(
@@ -149,9 +178,25 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ success: false, message: 'Leave request not found' }, { status: 404 });
     }
 
+    const caller = await getCaller();
+    let approverName = 'Principal';
+    if (caller.email) {
+      const { data: profile } = await sb
+        .from('staff_profiles')
+        .select('first_name, last_name, role')
+        .eq('email', caller.email)
+        .maybeSingle();
+      if (profile) {
+        approverName = `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || caller.email;
+      } else {
+        approverName = caller.email;
+      }
+    }
+    const approverRole = caller.role === 'proprietor' ? 'Proprietor' : 'Principal';
+
     const updatedMetadata = {
       ...(existing.metadata || {}),
-      notes: notes || (action === 'approve' ? 'Approved by Principal' : 'Declined by Principal'),
+      notes: notes || (action === 'approve' ? `Approved by ${approverRole}` : `Declined by ${approverRole}`),
     };
 
     const { error: updateErr } = await sb
@@ -170,14 +215,35 @@ export async function PATCH(request: NextRequest) {
     await sb.from('workflow_steps').insert({
       instance_id: id,
       step_number: 2,
-      step_name: 'Principal Approval',
+      step_name: `${approverRole} Approval`,
       required_role: 'admin',
       action: action === 'approve' ? 'approved' : 'rejected',
-      actor_name: 'Mr Seyi Bankole',
-      actor_role: 'Principal',
+      actor_name: approverName,
+      actor_role: approverRole,
       comments: notes || '',
       action_timestamp: new Date().toISOString(),
     });
+
+    // Institutional Audit Log (DEF-003)
+    try {
+      await sb.from('audit_logs').insert({
+        school_id: DEFAULT_SCHOOL_ID,
+        actor_id: caller.userId,
+        actor_name: approverName,
+        actor_role: approverRole,
+        action: action === 'approve' ? 'LEAVE.APPROVED' : 'LEAVE.DECLINED',
+        resource_type: 'leave_request',
+        resource_id: id,
+        metadata: {
+          staffName: existing.metadata?.staffName,
+          leaveType: existing.metadata?.leaveType,
+          days: existing.metadata?.days,
+          remarks: notes || '',
+        },
+      });
+    } catch (auditErr) {
+      console.warn('Audit log error:', auditErr);
+    }
 
     return NextResponse.json({
       success: true,

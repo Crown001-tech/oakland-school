@@ -50,6 +50,7 @@ interface Student360Data {
     fullName: string;
     gender: string;
     dob: string;
+    department?: string | null;
     bloodGroup: string;
     address: string;
     status: string;
@@ -147,7 +148,7 @@ export default function ProprietorStudentProfilePage() {
         </div>
         <h2 className="text-lg font-bold text-slate-900">Student Profile Not Found</h2>
         <p className="text-xs text-slate-500 max-w-sm mx-auto">
-          The requested pupil record could not be found in the school database.
+          The requested student record could not be found in the school database.
         </p>
         <Link href="/proprietor/students">
           <Button size="sm" variant="outline">
@@ -173,7 +174,7 @@ export default function ProprietorStudentProfilePage() {
 
   const tabs = [
     { id: 'overview', label: 'Overview', icon: User },
-    { id: 'guardians', label: 'Guardians & Pickup', icon: Shield },
+    { id: 'guardians', label: 'Guardians', icon: Shield },
     { id: 'academics', label: 'Academics', icon: GraduationCap },
     { id: 'attendance', label: 'Attendance', icon: Calendar },
     { id: 'tuition', label: 'Tuition', icon: CreditCard },
@@ -224,6 +225,11 @@ export default function ProprietorStudentProfilePage() {
                 <Badge variant="teal" size="sm">
                   {currentClass}
                 </Badge>
+                {student.department && (
+                  <span className="text-[10px] font-semibold text-teal-800 bg-teal-50 border border-teal-200 px-2 py-0.5 rounded-full">
+                    {student.department}
+                  </span>
+                )}
               </div>
               <p className="text-xs text-slate-500 font-mono">
                 Admission No: {student.admissionNumber}
@@ -307,6 +313,12 @@ export default function ProprietorStudentProfilePage() {
                 <span className="text-slate-500">Enrolled Class</span>
                 <span className="font-semibold text-slate-900">{currentClass}</span>
               </div>
+              {student.department && (
+                <div className="flex justify-between py-1 border-b border-slate-50">
+                  <span className="text-slate-500">Department</span>
+                  <span className="font-semibold text-slate-900">{student.department}</span>
+                </div>
+              )}
               <div className="flex justify-between py-1 border-b border-slate-50">
                 <span className="text-slate-500">Gender</span>
                 <span className="font-semibold text-slate-900 capitalize">{student.gender}</span>
@@ -380,7 +392,7 @@ export default function ProprietorStudentProfilePage() {
                   </h2>
                 </div>
                 <p className="text-xs text-teal-100/90 max-w-lg">
-                  This 4-digit security PIN is required at the school gate before pupil release to authorized pickup persons.
+                  This 4-digit security PIN is required at the school gate before student release to authorized pickup persons.
                 </p>
               </div>
 
@@ -490,7 +502,7 @@ export default function ProprietorStudentProfilePage() {
             <div className="pt-4 border-t border-slate-100 text-xs text-slate-500">
               {academics.averageScore !== null
                 ? 'Continuous assessment and exam marks are recorded by subject teachers and verified by the Principal.'
-                : 'No continuous assessment or examination marks have been entered for this pupil yet.'}
+                : 'No continuous assessment or examination marks have been entered for this student yet.'}
             </div>
           </Card>
 
@@ -540,7 +552,7 @@ export default function ProprietorStudentProfilePage() {
 
           {attendance.totalDays === 0 && (
             <p className="text-xs text-slate-500 text-center pt-2">
-              No roll call attendance records logged yet for this pupil.
+              No roll call attendance records logged yet for this student.
             </p>
           )}
         </Card>
@@ -550,7 +562,7 @@ export default function ProprietorStudentProfilePage() {
       {activeTab === 'tuition' && (
         <Card className="p-6 border-slate-200/80 space-y-6">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <h2 className="text-sm font-bold text-slate-900">Tuition & School Fees</h2>
+            <h2 className="text-sm font-bold text-slate-900">Tuition</h2>
             <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
               {finance.status}
             </span>

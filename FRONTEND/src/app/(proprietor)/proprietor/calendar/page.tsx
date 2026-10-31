@@ -64,7 +64,7 @@ export default function ProprietorCalendarPage() {
   const [newStartDate, setNewStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [newEndDate, setNewEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [newAudience, setNewAudience] = useState<SchoolEvent['audience']>('all');
-  const [newLocation, setNewLocation] = useState('Oakland Main Campus');
+  const [newLocation, setNewLocation] = useState('');
   const [newDescription, setNewDescription] = useState('');
 
   const showToast = (msg: string) => {
@@ -115,6 +115,7 @@ export default function ProprietorCalendarPage() {
         showToast('Event created successfully.');
         setIsAddOpen(false);
         setNewTitle('');
+        setNewLocation('');
         setNewDescription('');
         loadEvents();
       } else {

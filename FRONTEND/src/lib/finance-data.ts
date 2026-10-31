@@ -59,12 +59,10 @@ export function calculateNetSalary(
 ) {
   const gross = basic + responsibility + otherAllowances;
   const tax = Math.round(gross * 0.05); // PAYE statutory 5%
-  const pension = 0; // Strictly zero per AGENTS.md invariant - no pension deductions
   const net = gross - tax - cooperative;
   return {
     gross,
     tax,
-    pension,
     net,
   };
 }
@@ -87,92 +85,7 @@ export const INITIAL_PETTY_CASH: PettyCashTransaction[] = [];
 // -------------------------------------------------------------
 // 4. STRICTLY 6 CLASSES FINANCIAL BREAKDOWN
 // -------------------------------------------------------------
-export const INITIAL_CLASS_FINANCIALS: ClassFinancial[] = [
-  {
-    class: 'JSS 1',
-    feePerStudent: 185000,
-    tuitionFee: 120000,
-    ictLevy: 20000,
-    scienceLevy: 15000,
-    devLevy: 20000,
-    booksAndExam: 10000,
-    students: 0,
-    expected: 0,
-    collected: 0,
-    outstanding: 0,
-    pct: 0,
-  },
-  {
-    class: 'JSS 2',
-    feePerStudent: 185000,
-    tuitionFee: 120000,
-    ictLevy: 20000,
-    scienceLevy: 15000,
-    devLevy: 20000,
-    booksAndExam: 10000,
-    students: 0,
-    expected: 0,
-    collected: 0,
-    outstanding: 0,
-    pct: 0,
-  },
-  {
-    class: 'JSS 3',
-    feePerStudent: 195000,
-    tuitionFee: 120000,
-    ictLevy: 20000,
-    scienceLevy: 20000,
-    devLevy: 20000,
-    booksAndExam: 15000,
-    students: 0,
-    expected: 0,
-    collected: 0,
-    outstanding: 0,
-    pct: 0,
-  },
-  {
-    class: 'SS 1',
-    feePerStudent: 220000,
-    tuitionFee: 140000,
-    ictLevy: 25000,
-    scienceLevy: 25000,
-    devLevy: 20000,
-    booksAndExam: 10000,
-    students: 0,
-    expected: 0,
-    collected: 0,
-    outstanding: 0,
-    pct: 0,
-  },
-  {
-    class: 'SS 2',
-    feePerStudent: 220000,
-    tuitionFee: 140000,
-    ictLevy: 25000,
-    scienceLevy: 25000,
-    devLevy: 20000,
-    booksAndExam: 10000,
-    students: 0,
-    expected: 0,
-    collected: 0,
-    outstanding: 0,
-    pct: 0,
-  },
-  {
-    class: 'SS 3',
-    feePerStudent: 240000,
-    tuitionFee: 150000,
-    ictLevy: 25000,
-    scienceLevy: 30000,
-    devLevy: 20000,
-    booksAndExam: 15000,
-    students: 0,
-    expected: 0,
-    collected: 0,
-    outstanding: 0,
-    pct: 0,
-  },
-];
+export const INITIAL_CLASS_FINANCIALS: ClassFinancial[] = [];
 
 // -------------------------------------------------------------
 // 5. STUDENT FEE LEDGER

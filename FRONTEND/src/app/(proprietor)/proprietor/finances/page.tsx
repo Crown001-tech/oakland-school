@@ -53,9 +53,9 @@ export default function ProprietorFinancesPage() {
   const [studentLedger, setStudentLedger] = useState<StudentFeeLedgerItem[]>([]);
   const [payments, setPayments] = useState<PaymentTransaction[]>([]);
   const [tuitionRates, setTuitionRates] = useState({
-    jss: 185000,
-    ss12: 220000,
-    ss3: 240000,
+    jss: 0,
+    ss12: 0,
+    ss3: 0,
   });
 
   // Search & Filter States
@@ -78,7 +78,10 @@ export default function ProprietorFinancesPage() {
   const [voucherDesc, setVoucherDesc] = useState('');
   const [voucherAmount, setVoucherAmount] = useState('');
   const [voucherBeneficiary, setVoucherBeneficiary] = useState('');
-  const [voucherAccount, setVoucherAccount] = useState<ExpenditureRecord['paymentAccount']>('GTBank Operations (0123984712)');
+  const [voucherAccount, setVoucherAccount] = useState<ExpenditureRecord['paymentAccount']>('' as any);
+  const [bankAccounts, setBankAccounts] = useState<
+    Array<{ id: string; name: string; bank: string; accountNumber: string }>
+  >([]);
 
   // Toast notifications
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -99,6 +102,13 @@ export default function ProprietorFinancesPage() {
         setPettyCash(json.data.pettyCash || []);
         setPayments(json.data.payments || []);
         if (json.data.tuitionRates) setTuitionRates(json.data.tuitionRates);
+        if (json.data.institutionalBankAccounts) {
+          setBankAccounts(json.data.institutionalBankAccounts);
+          if (json.data.institutionalBankAccounts.length > 0) {
+            const first = json.data.institutionalBankAccounts[0];
+            setVoucherAccount(`${first.bank} (${first.accountNumber})` as any);
+          }
+        }
       }
     } catch (err) {
       console.error('Failed to load finances:', err);
@@ -162,7 +172,7 @@ export default function ProprietorFinancesPage() {
 
   const handleApprovePayroll = async () => {
     try {
-      await fetch('/api/finances', {
+      const res = await fetch('/api/finances', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -171,6 +181,11 @@ export default function ProprietorFinancesPage() {
           staffCount: payrollRecords.length,
         }),
       });
+      if (res.ok) {
+        setPayrollRecords((prev) =>
+          prev.map((r) => ({ ...r, status: 'Approved & Disbursed' as const }))
+        );
+      }
       showToast(`Monthly Payroll (${formatNaira(monthlyPayrollTotal)}) authorized across ${payrollRecords.length} staff members.`);
     } catch {
       showToast(`Monthly Payroll authorized.`);
@@ -210,27 +225,9 @@ export default function ProprietorFinancesPage() {
   };
 
   const handleRecordPettyCash = async (tx: PettyCashTransaction) => {
-    try {
-      const res = await fetch('/api/finances', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'create_petty_cash',
-          description: tx.item,
-          amount: tx.amount,
-          type: tx.type,
-          requestedBy: tx.requestedBy,
-        }),
-      });
-      const json = await res.json();
-      if (json.success) {
-        setIsPettyCashModalOpen(false);
-        showToast(`Petty cash ${tx.type.toLowerCase()} of ${formatNaira(tx.amount)} recorded.`);
-        await loadData();
-      }
-    } catch {
-      alert('Network error while recording petty cash');
-    }
+    setPettyCash((prev) => [tx, ...prev]);
+    setIsPettyCashModalOpen(false);
+    showToast(`Petty cash ${tx.type.toLowerCase()} of ${formatNaira(tx.amount)} recorded.`);
   };
 
   const downloadBankSchedule = () => {
@@ -283,7 +280,7 @@ export default function ProprietorFinancesPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Finances & Fee Ledger</h1>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Financial Ledger</h1>
           <p className="text-xs text-slate-500 mt-0.5">
             Institutional fee collection, class billing summaries, staff payroll roster, and operating expenses.
           </p>
@@ -340,7 +337,7 @@ export default function ProprietorFinancesPage() {
             {formatNaira(totalExpectedRevenue)}
           </p>
           <p className="text-[10px] text-slate-500 mt-1">
-            Billed across {studentLedger.length} enrolled pupils
+            Billed across {studentLedger.length} enrolled students
           </p>
         </Card>
 
@@ -376,7 +373,7 @@ export default function ProprietorFinancesPage() {
             {formatNaira(totalOutstandingTuition)}
           </p>
           <p className="text-[10px] text-slate-500 mt-1">
-            {defaulterCount} pupils with pending balances
+            {defaulterCount} students with pending balances
           </p>
         </Card>
 
@@ -411,7 +408,7 @@ export default function ProprietorFinancesPage() {
           }`}
         >
           <Receipt className="w-4 h-4 text-emerald-400" />
-          <span>Tuition Fees</span>
+          <span>Tuition</span>
         </button>
 
         <button
@@ -424,7 +421,7 @@ export default function ProprietorFinancesPage() {
           }`}
         >
           <Users className="w-4 h-4 text-blue-400" />
-          <span>Staff Salaries & Payroll ({payrollRecords.length} Staff)</span>
+          <span>Staff Payroll ({payrollRecords.length} Staff)</span>
         </button>
 
         <button
@@ -437,7 +434,7 @@ export default function ProprietorFinancesPage() {
           }`}
         >
           <ShoppingBag className="w-4 h-4 text-rose-400" />
-          <span>School Operating Expenditures</span>
+          <span>Operating Expenditures</span>
         </button>
 
         <button
@@ -462,7 +459,7 @@ export default function ProprietorFinancesPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-lg font-bold text-slate-900">
-                Tuition Billing & Class Performance
+                Tuition Performance
               </h2>
               <p className="text-xs text-slate-500">
                 Term tuition schedules across the 6 classes (JSS 1 to SS 3). Fee amounts are configurable in School Settings.
@@ -501,7 +498,7 @@ export default function ProprietorFinancesPage() {
                         {formatNaira(row.feePerStudent)}
                       </td>
                       <td className="py-3 px-4 text-center font-bold text-slate-800 font-mono">
-                        {row.enrolled} Pupils
+                        {row.enrolled} {row.enrolled === 1 ? 'Student' : 'Students'}
                       </td>
                       <td className="py-3 px-4 text-right font-mono font-medium text-slate-900">
                         {formatNaira(row.expected)}
@@ -589,7 +586,7 @@ export default function ProprietorFinancesPage() {
                   <table className="w-full text-xs text-left">
                     <thead className="bg-[#0f3a3e] text-white font-bold">
                       <tr>
-                        <th className="py-2.5 px-4">Student & ID</th>
+                        <th className="py-2.5 px-4">Student</th>
                         <th className="py-2.5 px-3 text-center">Class</th>
                         <th className="py-2.5 px-4">Guardian</th>
                         <th className="py-2.5 px-3 text-right">Term Bill</th>
@@ -674,7 +671,7 @@ export default function ProprietorFinancesPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-lg font-bold text-slate-900">
-                Staff Salaries & Compensation Management
+                Staff Payroll Management
               </h2>
               <p className="text-xs text-slate-500">
                 Monthly Payroll &bull; Appointed Class Teachers receive <strong>+₦35,000 Monthly Responsibility Allowance</strong>.
@@ -700,7 +697,7 @@ export default function ProprietorFinancesPage() {
                 className="bg-[#0f3a3e] hover:bg-[#164e53] text-white shadow-xs text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
               >
                 <Check className="w-4 h-4" />
-                <span>Authorize & Disburse Monthly Payroll</span>
+                <span>Authorize Monthly Payroll</span>
               </Button>
             </div>
           </div>
@@ -733,7 +730,7 @@ export default function ProprietorFinancesPage() {
             <CardHeader className="pb-3 border-b border-slate-100 flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="text-base font-bold text-slate-900">
-                  Faculty & Staff Compensation Roster ({filteredPayroll.length} Personnel)
+                  Staff Compensation Roster ({filteredPayroll.length} Personnel)
                 </CardTitle>
                 <CardDescription className="text-xs text-slate-500">
                   Basic pay, responsibility allowances, statutory PAYE tax (5%), and net disbursement
@@ -753,7 +750,7 @@ export default function ProprietorFinancesPage() {
                 <table className="w-full text-xs text-left">
                   <thead className="bg-[#0f3a3e] text-white font-bold">
                     <tr>
-                      <th className="py-2.5 px-4">Staff Member & ID</th>
+                      <th className="py-2.5 px-4">Staff Member</th>
                       <th className="py-2.5 px-3">Role</th>
                       <th className="py-2.5 px-3 text-right">Basic Pay</th>
                       <th className="py-2.5 px-3 text-right">Allowances</th>
@@ -837,7 +834,7 @@ export default function ProprietorFinancesPage() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <h2 className="text-lg font-bold text-slate-900">
-                School Operating Overhead & Expenditures
+                Operating Overhead
               </h2>
               <p className="text-xs text-slate-500">
                 Diesel fuel, science laboratory reagents, ICT bandwidth, facility maintenance, and examination booklets.
@@ -1232,9 +1229,16 @@ export default function ProprietorFinancesPage() {
                       className="w-full h-9 px-3 rounded-lg border border-slate-300 bg-white text-slate-800 cursor-pointer"
                       required
                     >
-                      <option value="GTBank Operations (0123984712)">GTBank Operations</option>
+                      {bankAccounts.length > 0 ? (
+                        bankAccounts.map((acc) => (
+                          <option key={acc.id} value={`${acc.bank} (${acc.accountNumber})`}>
+                            {acc.bank} ({acc.accountNumber}) - {acc.name}
+                          </option>
+                        ))
+                      ) : (
+                        <option value="">No bank account configured</option>
+                      )}
                       <option value="Petty Cash Desk">Campus Petty Cash Desk</option>
-                      <option value="Zenith Bank (1019283741)">Zenith Bank</option>
                     </select>
                   </div>
                 </div>

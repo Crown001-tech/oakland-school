@@ -155,38 +155,26 @@ export function generateInitialCurriculum(): SubjectItem[] {
   return items;
 }
 
+let memoryCurriculum: SubjectItem[] | null = null;
+
 /**
- * Loads stored curriculum subjects or initializes with official curriculum
+ * Loads curriculum subjects or initializes with official curriculum
  */
 export function getStoredCurriculum(): SubjectItem[] {
-  if (typeof window === 'undefined') return generateInitialCurriculum();
-
-  try {
-    const raw = localStorage.getItem(CURRICULUM_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
-      }
-    }
-  } catch {}
-
-  const initial = generateInitialCurriculum();
-  try {
-    localStorage.setItem(CURRICULUM_STORAGE_KEY, JSON.stringify(initial));
-  } catch {}
-  return initial;
+  if (!memoryCurriculum) {
+    memoryCurriculum = generateInitialCurriculum();
+  }
+  return memoryCurriculum;
 }
 
 /**
- * Saves curriculum subjects and dispatches storage event for cross-module sync
+ * Saves curriculum subjects in memory and dispatches event for cross-module sync
  */
 export function saveStoredCurriculum(subjects: SubjectItem[]) {
-  if (typeof window === 'undefined') return;
-  try {
-    localStorage.setItem(CURRICULUM_STORAGE_KEY, JSON.stringify(subjects));
-    window.dispatchEvent(new Event('storage'));
-  } catch {}
+  memoryCurriculum = subjects;
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('oakland-curriculum-update', { detail: subjects }));
+  }
 }
 
 /**

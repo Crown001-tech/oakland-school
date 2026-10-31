@@ -29,13 +29,13 @@ export default function AboutPage() {
 
   const milestones = [
     {
-      year: '2008',
+      year: '2014',
       title: 'The Founding Vision',
       tag: 'Foundation',
-      desc: 'Founded on Victoria Island with 60 pioneer scholars and 12 distinguished educators, Oakland Schools was established to provide an uncompromised standard of British-Nigerian secondary education.',
+      desc: 'Founded on Victoria Island with distinguished educators, Oakland Schools was established to provide an uncompromised standard of British-Nigerian secondary education.',
     },
     {
-      year: '2014',
+      year: '2017',
       title: 'Cambridge International Accreditation',
       tag: 'Global Standard',
       desc: 'Accredited by Cambridge Assessment International Education. Our inaugural IGCSE cohort recorded a 98.4% distinction rate, cementing Oakland as an academic powerhouse.',
@@ -54,9 +54,9 @@ export default function AboutPage() {
     },
     {
       year: '2026',
-      title: 'Eighteen Years of Transformative Leadership',
+      title: 'Twelve Years of Transformative Leadership',
       tag: 'Present Era',
-      desc: 'Celebrating 18 years of academic nobility with over 1,250 active scholars, an alumni network across top global universities (Oxford, MIT, Imperial, Toronto), and 100% university matriculation.',
+      desc: 'Celebrating over a decade of academic nobility with an active scholar community, verified academic results, and an alumni network across top universities.',
     },
   ];
 
@@ -788,7 +788,7 @@ export default function AboutPage() {
           </div>
           <div className="stats-dock-item">
             <div className="stats-dock-val">100%</div>
-            <div className="stats-dock-lbl">University Matriculation</div>
+            <div className="stats-dock-lbl">University Admission</div>
             <div className="stats-dock-desc">Scholars admitted to premier institutions worldwide</div>
           </div>
         </div>

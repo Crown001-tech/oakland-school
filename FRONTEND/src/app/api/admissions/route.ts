@@ -1,13 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getCaller, formatRoleLabel } from '@/lib/caller';
 
 function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return getSupabaseAdmin();
 }
 
 export async function GET() {
@@ -28,6 +24,7 @@ export async function GET() {
       lastName: app.applicant_last_name,
       gender: app.gender,
       appliedClass: app.applying_for_class,
+      department: app.department || null,
       parentName: app.guardian_name,
       parentPhone: app.guardian_phone,
       parentEmail: app.guardian_email,
@@ -39,6 +36,124 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       data: applications,
+    });
+  } catch (err: any) {
+    return NextResponse.json(
+      { success: false, message: err instanceof Error ? err.message : 'Database error' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const sb = getAdminClient();
+
+    // 1. Resolve school_id
+    const { data: school } = await sb
+      .from('schools')
+      .select('id')
+      .limit(1)
+      .maybeSingle();
+
+    const schoolId = school?.id || 'a0000000-0000-0000-0000-000000000001';
+
+    // 2. Generate structured reference number
+    const randSuffix = Math.floor(1000 + Math.random() * 9000);
+    const referenceNumber = `OSC-ADM-2026-${randSuffix}`;
+
+    const firstName = (body.firstName || body.applicantFirstName || '').trim();
+    const lastName = (body.surname || body.lastName || body.applicantLastName || '').trim();
+    const gender = (body.gender || 'male').toLowerCase() === 'female' ? 'female' : 'male';
+    const dob = body.dateOfBirth || body.dob || null;
+    if (!dob) {
+      return NextResponse.json(
+        { success: false, message: 'Applicant date of birth is required.' },
+        { status: 400 }
+      );
+    }
+    const applyingForClass = (body.appliedClass || body.applyingForClass || body.classApplyingFor || 'JSS 1').trim();
+    const guardianName = (body.parentName || body.guardianName || 'Guardian').trim();
+    const guardianPhone = (body.parentPhone || body.guardianPhone || '—').trim();
+    const guardianEmail = (body.parentEmail || body.guardianEmail || '—').trim();
+
+    // 2. Deduplication / Idempotency check (DEF-004)
+    if (firstName && lastName) {
+      const { data: existingApp } = await sb
+        .from('admission_applications')
+        .select('id, reference_number, created_at')
+        .eq('applicant_first_name', firstName)
+        .eq('applicant_last_name', lastName)
+        .eq('applying_for_class', applyingForClass)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (existingApp && existingApp.created_at) {
+        const diffMs = Date.now() - new Date(existingApp.created_at).getTime();
+        // If submitted within last 5 minutes, return existing reference cleanly
+        if (diffMs < 5 * 60 * 1000) {
+          return NextResponse.json({
+            success: true,
+            message: 'Application already received and registered.',
+            referenceNumber: existingApp.reference_number,
+            data: existingApp,
+          });
+        }
+      }
+    }
+
+    const notesMetadata = {
+      middleName: body.middleName || '',
+      fatherName: body.fatherName || '',
+      fatherPhone: body.fatherPhone || '',
+      fatherEmail: body.fatherEmail || '',
+      motherName: body.motherName || '',
+      motherPhone: body.motherPhone || '',
+      motherEmail: body.motherEmail || '',
+      residentialAddress: body.residentialAddress || '',
+      stateOfOrigin: body.stateOfOrigin || '',
+      lga: body.lga || '',
+      religion: body.religion || '',
+      previousSchool: body.previousSchool || '',
+      lastClassPassed: body.lastClassPassed || '',
+      bloodGroup: body.bloodGroup || '',
+      genotype: body.genotype || '',
+      medicalConditions: body.medicalConditions || '',
+    };
+
+    const { data, error } = await sb
+      .from('admission_applications')
+      .insert({
+        school_id: schoolId,
+        reference_number: referenceNumber,
+        applicant_first_name: firstName,
+        applicant_last_name: lastName,
+        dob,
+        gender,
+        applying_for_class: applyingForClass,
+        department: body.department || null,
+        guardian_name: guardianName,
+        guardian_email: guardianEmail,
+        guardian_phone: guardianPhone,
+        status: 'submitted',
+        documents: body.documents || [],
+        notes: JSON.stringify(notesMetadata),
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error inserting admission application:', error);
+      throw error;
+    }
+
+    return NextResponse.json({
+      success: true,
+      referenceNumber,
+      data,
+      message: 'Application registered successfully.',
     });
   } catch (err: any) {
     return NextResponse.json(
@@ -79,7 +194,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ success: true, message: 'Application declined.' });
     }
 
-    // 2. Action === 'accept': Enroll pupil into PostgreSQL
+    // 2. Action === 'accept': Enroll student into PostgreSQL
     const schoolId = app.school_id || 'a0000000-0000-0000-0000-000000000001';
     const fName = (app.applicant_first_name || '').trim();
     const lName = (app.applicant_last_name || '').trim();
@@ -87,7 +202,7 @@ export async function PATCH(request: NextRequest) {
     // Check if student already exists to prevent duplicate creation
     const { data: existingStudent } = await sb
       .from('students')
-      .select('id, admission_number, status')
+      .select('id, admission_number, status, department')
       .eq('school_id', schoolId)
       .ilike('first_name', fName)
       .ilike('last_name', lName)
@@ -105,7 +220,8 @@ export async function PATCH(request: NextRequest) {
           first_name: fName,
           last_name: lName,
           gender: (app.gender || 'male').toLowerCase(),
-          dob: app.dob || '2012-05-15',
+          dob: app.dob || null,
+          department: app.department || null,
           status: 'active',
           address: 'Lagos, Nigeria',
         })
@@ -114,8 +230,15 @@ export async function PATCH(request: NextRequest) {
 
       if (studentErr) throw studentErr;
       studentRecord = newStu;
-    } else if (studentRecord.status !== 'active') {
-      await sb.from('students').update({ status: 'active', updated_at: new Date().toISOString() }).eq('id', studentRecord.id);
+    } else {
+      await sb
+        .from('students')
+        .update({
+          status: 'active',
+          department: app.department || studentRecord.department || null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', studentRecord.id);
     }
 
     // Find class_id
@@ -129,6 +252,8 @@ export async function PATCH(request: NextRequest) {
       await sb.from('class_enrollments').upsert({
         student_id: studentRecord.id,
         class_id: classRow.id,
+        session_id: 'b0000000-0000-0000-0000-000000000001',
+        department: app.department || null,
         status: 'active',
       }, { onConflict: 'student_id,session_id' });
     }
@@ -139,27 +264,46 @@ export async function PATCH(request: NextRequest) {
     const gFirst = guardianParts[0] || 'Guardian';
     const gLast = guardianParts.slice(1).join(' ') || 'Contact';
 
-    const { data: newGuardian } = await sb
-      .from('guardians')
-      .insert({
-        first_name: gFirst,
-        last_name: gLast,
-        phone: app.guardian_phone || '—',
-        email: app.guardian_email || '—',
-        relationship: 'Parent',
-      })
-      .select()
-      .maybeSingle();
+    // Find or create guardian with school_id (resolves DEF-133)
+    let guardianId: string | null = null;
+    if (app.guardian_email && app.guardian_email !== '—') {
+      const { data: existingG } = await sb
+        .from('guardians')
+        .select('id')
+        .eq('school_id', schoolId)
+        .eq('email', app.guardian_email.trim().toLowerCase())
+        .maybeSingle();
+      if (existingG) guardianId = existingG.id;
+    }
 
-    if (newGuardian && studentRecord) {
-      await sb.from('student_guardians').insert({
+    if (!guardianId) {
+      const { data: newGuardian, error: guardianErr } = await sb
+        .from('guardians')
+        .insert({
+          school_id: schoolId,
+          first_name: gFirst,
+          last_name: gLast,
+          phone: app.guardian_phone || '—',
+          email: app.guardian_email || '—',
+          relationship: 'Parent',
+        })
+        .select('id')
+        .maybeSingle();
+
+      if (!guardianErr && newGuardian) {
+        guardianId = newGuardian.id;
+      }
+    }
+
+    if (guardianId && studentRecord) {
+      await sb.from('student_guardians').upsert({
         student_id: studentRecord.id,
-        guardian_id: newGuardian.id,
+        guardian_id: guardianId,
         relationship: 'Guardian',
         is_primary: true,
         authorized_pickup: true,
         pickup_pin: pickupPin,
-      });
+      }, { onConflict: 'student_id,guardian_id' });
     }
 
     // Update application status to 'accepted'
@@ -169,6 +313,30 @@ export async function PATCH(request: NextRequest) {
       .eq('id', id);
 
     const finalAdmissionNo = studentRecord?.admission_number || '—';
+
+    // Institutional Audit Log (DEF-003)
+    try {
+      const caller = await getCaller();
+      const actorRole = formatRoleLabel(caller.role);
+      const actorName = caller.email || actorRole;
+
+      await sb.from('audit_logs').insert({
+        school_id: schoolId,
+        actor_id: caller.userId,
+        actor_name: actorName,
+        actor_role: actorRole,
+        action: 'ADMISSION.ACCEPTED',
+        resource_type: 'admission_application',
+        resource_id: id,
+        metadata: {
+          applicantName: `${fName} ${lName}`,
+          admissionNumber: finalAdmissionNo,
+          admittedClass: app.applying_for_class,
+        },
+      });
+    } catch (auditErr) {
+      console.warn('Audit logging warning:', auditErr);
+    }
 
     return NextResponse.json({
       success: true,

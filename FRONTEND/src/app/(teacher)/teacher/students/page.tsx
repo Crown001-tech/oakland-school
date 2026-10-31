@@ -197,7 +197,7 @@ export default function ClassStudentsPage() {
             Student Directory
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Pupil biodata, guardian contacts, pickup authorization, and health records.
+            Student biodata, guardian contacts, pickup authorization, and health records.
           </p>
         </div>
 

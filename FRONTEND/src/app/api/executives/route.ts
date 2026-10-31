@@ -1,13 +1,12 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+import {
+  generateStaffTempPassword,
+  getSupabaseAdmin,
+  hashInviteToken,
+} from '@/lib/supabase/admin';
 
 function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return getSupabaseAdmin();
 }
 
 export async function GET() {
@@ -79,15 +78,27 @@ export async function POST(request: NextRequest) {
     const lastName = names.slice(1).join(' ') || 'Officer';
     const cleanEmail = (data.email || '').trim().toLowerCase();
 
-    // 1. Ensure active Auth user exists in Supabase Auth
+    // 1. Ensure active Auth user exists in Supabase Auth with a per-person temporary password
     let authUserId: string | null = null;
-    const targetPassword = data.password || 'Oakland@2026';
+    const targetPassword =
+      data.password && String(data.password).trim() !== ''
+        ? String(data.password).trim()
+        : generateStaffTempPassword();
+    const tokenHash = hashInviteToken(targetPassword);
+    const inviteExpiresAt = new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString();
+    let existingPasswordChanged = false;
+
     try {
       const { data: created, error: createErr } = await sb.auth.admin.createUser({
         email: cleanEmail,
         password: targetPassword,
         email_confirm: true,
-        user_metadata: { role: targetRole, full_name: data.name },
+        user_metadata: {
+          role: targetRole,
+          full_name: data.name,
+          default_password: targetPassword,
+          password_changed: false,
+        },
       });
 
       if (!createErr && created?.user) {
@@ -97,10 +108,18 @@ export async function POST(request: NextRequest) {
         const existing = usersData?.users?.find((u: any) => u.email.toLowerCase() === cleanEmail);
         if (existing) {
           authUserId = existing.id;
+          existingPasswordChanged = Boolean(existing.user_metadata?.password_changed);
           await sb.auth.admin.updateUserById(existing.id, {
-            password: targetPassword,
+            ...(existingPasswordChanged ? {} : { password: targetPassword }),
             email_confirm: true,
-            user_metadata: { role: targetRole, full_name: data.name },
+            user_metadata: {
+              ...(existing.user_metadata || {}),
+              role: targetRole,
+              full_name: data.name,
+              ...(existingPasswordChanged
+                ? {}
+                : { default_password: targetPassword, password_changed: false }),
+            },
           });
         }
       }
@@ -128,6 +147,13 @@ export async function POST(request: NextRequest) {
       role: targetRole,
       department: type === 'principal' ? 'School Administration & Academics' : 'Finance & Accounts',
       is_active: true,
+      ...(existingPasswordChanged
+        ? {}
+        : {
+            must_change_password: true,
+            invite_token_hash: tokenHash,
+            invite_expires_at: inviteExpiresAt,
+          }),
     }, { onConflict: 'school_id,employee_id' }).select();
 
     if (error) throw error;
@@ -144,7 +170,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: upserted?.[0] || data,
+      data: {
+        ...(upserted?.[0] || data),
+        temporaryPassword: existingPasswordChanged ? undefined : targetPassword,
+      },
     });
   } catch (err: any) {
     return NextResponse.json(

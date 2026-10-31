@@ -80,6 +80,27 @@ export default function InventoryPage() {
   const [reqUrgency, setReqUrgency] = useState<ProcurementRequest['urgency']>('medium');
   const [reqJustification, setReqJustification] = useState('');
 
+  const closeAddItemModal = () => {
+    setIsAddItemOpen(false);
+    setNewItemName('');
+    setNewItemCategory('stationery');
+    setNewItemQty('');
+    setNewItemUnit('units');
+    setNewItemCost('');
+    setNewItemLocation('');
+  };
+
+  const closeNewReqModal = () => {
+    setIsNewReqOpen(false);
+    setReqItemName('');
+    setReqCategory('stationery');
+    setReqQty('');
+    setReqUnit('units');
+    setReqCost('');
+    setReqUrgency('medium');
+    setReqJustification('');
+  };
+
   // Fetch from PostgreSQL via /api/inventory
   const loadData = async () => {
     try {
@@ -242,8 +263,7 @@ export default function InventoryPage() {
       const data = await res.json();
       if (data.success && data.item) {
         setInventory((prev) => [data.item, ...prev]);
-        setIsAddItemOpen(false);
-        setNewItemName('');
+        closeAddItemModal();
         showToast(`Added ${data.item.name} to inventory ledger`);
       } else {
         showToast(data.message || 'Failed to save inventory item');
@@ -280,9 +300,7 @@ export default function InventoryPage() {
       const data = await res.json();
       if (data.success && data.request) {
         setRequests((prev) => [data.request, ...prev]);
-        setIsNewReqOpen(false);
-        setReqItemName('');
-        setReqJustification('');
+        closeNewReqModal();
         showToast('Purchase request recorded in procurement ledger');
       } else {
         showToast(data.message || 'Failed to submit request');
@@ -698,7 +716,7 @@ export default function InventoryPage() {
               <h3 className="text-sm font-bold text-slate-900">Add Stock Item</h3>
               <button
                 type="button"
-                onClick={() => setIsAddItemOpen(false)}
+                onClick={closeAddItemModal}
                 className="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -775,7 +793,7 @@ export default function InventoryPage() {
               <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
                 <button
                   type="button"
-                  onClick={() => setIsAddItemOpen(false)}
+                  onClick={closeAddItemModal}
                   className="px-3 py-1.5 border border-slate-200 rounded-xl font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
                 >
                   Cancel
@@ -801,7 +819,7 @@ export default function InventoryPage() {
               <h3 className="text-sm font-bold text-slate-900">New Purchase Request</h3>
               <button
                 type="button"
-                onClick={() => setIsNewReqOpen(false)}
+                onClick={closeNewReqModal}
                 className="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer"
               >
                 <X className="w-4 h-4" />
@@ -879,7 +897,7 @@ export default function InventoryPage() {
               <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
                 <button
                   type="button"
-                  onClick={() => setIsNewReqOpen(false)}
+                  onClick={closeNewReqModal}
                   className="px-3 py-1.5 border border-slate-200 rounded-xl font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
                 >
                   Cancel

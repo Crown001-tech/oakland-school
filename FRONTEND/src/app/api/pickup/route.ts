@@ -1,21 +1,58 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+import { getCaller, getLinkedStudentIds } from '@/lib/caller';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { checkAuthRateLimit, extractClientIp, recordAuthAttempt } from '@/lib/rate-limit';
 
 function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
+  return getSupabaseAdmin();
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Unique violation raised by a partial unique index (race-condition guard)
+function isUniqueViolation(err: any) {
+  return err?.code === '23505' || /duplicate key value/i.test(err?.message || '');
+}
+
+// Escort must be an active registered person or a linked guardian of this exact student
+async function isAuthorizedEscort(sb: any, studentId: string, escortName: string) {
+  const target = (escortName || '').trim().toLowerCase();
+  if (!target) return false;
+
+  const { data: persons } = await sb
+    .from('authorized_pickup_persons')
+    .select('full_name')
+    .eq('student_id', studentId)
+    .eq('is_active', true);
+  if ((persons || []).some((p: any) => (p.full_name || '').trim().toLowerCase() === target)) return true;
+
+  const { data: links } = await sb
+    .from('student_guardians')
+    .select('authorized_pickup, guardians(first_name, last_name)')
+    .eq('student_id', studentId);
+  return (links || []).some((l: any) => {
+    const g = l.guardians;
+    if (!g || l.authorized_pickup === false) return false;
+    return `${g.first_name} ${g.last_name}`.trim().toLowerCase() === target;
   });
 }
 
 // GET /api/pickup - Fetch logs and authorized escorts from PostgreSQL
 export async function GET(req: NextRequest) {
   try {
+    const caller = await getCaller();
+    const isParent = caller.role === 'parent';
+    const linkedIds = isParent ? await getLinkedStudentIds(caller.email) : [];
     const sb = getAdminClient();
     const { searchParams } = new URL(req.url);
     const lookupQuery = searchParams.get('query')?.trim().toUpperCase();
+
+    if (isParent && lookupQuery) {
+      return NextResponse.json(
+        { success: false, message: 'Gate lookups are restricted to security staff.' },
+        { status: 403 }
+      );
+    }
 
     // 1. Fetch recent pickup logs
     const { data: logsData, error: logsErr } = await sb
@@ -75,7 +112,7 @@ export async function GET(req: NextRequest) {
           id: `guard-${sg.id}`,
           studentId: sg.student_id,
           studentName: `${s.first_name} ${s.last_name}`.trim(),
-          studentClass: s.classes?.name || 'Enrolled',
+          studentClass: s.class_enrollments?.[0]?.classes?.name || 'Enrolled',
           admissionNo: s.admission_number,
           fullName: `${g.first_name} ${g.last_name}`.trim(),
           relationship: sg.relationship || 'Guardian',
@@ -118,6 +155,22 @@ export async function GET(req: NextRequest) {
 
     // If lookupQuery is provided, perform authoritative lookup
     if (lookupQuery) {
+      const clientIp = extractClientIp(req);
+      const pinRateKey = `pickup_pin:${caller.userId || clientIp}`;
+      const preCheck = await checkAuthRateLimit(pinRateKey);
+      if (preCheck.locked) {
+        const waitMins = Math.max(1, Math.ceil(preCheck.remainingSeconds / 60));
+        return NextResponse.json(
+          {
+            success: false,
+            locked: true,
+            remainingSeconds: preCheck.remainingSeconds,
+            message: `Pickup PIN verification locked after 5 failed attempts. Principal alerted. Please wait ${waitMins} minute(s).`,
+          },
+          { status: 429 }
+        );
+      }
+
       // Check by 4-digit PIN or QR token
       const escortMatch = allEscorts.find(
         (e) =>
@@ -127,6 +180,13 @@ export async function GET(req: NextRequest) {
       );
 
       if (escortMatch) {
+        await recordAuthAttempt({
+          key: pinRateKey,
+          scope: 'pickup_pin',
+          success: true,
+          targetLabel: lookupQuery,
+          ipAddress: clientIp,
+        });
         // Fetch student details
         const { data: studentRow } = await sb
           .from('students')
@@ -189,16 +249,41 @@ export async function GET(req: NextRequest) {
         });
       }
 
+      const attempt = await recordAuthAttempt({
+        key: pinRateKey,
+        scope: 'pickup_pin',
+        success: false,
+        targetLabel: lookupQuery,
+        ipAddress: clientIp,
+      });
+
+      if (attempt.locked) {
+        const waitMins = Math.max(1, Math.ceil(attempt.remainingSeconds / 60));
+        return NextResponse.json(
+          {
+            success: false,
+            locked: true,
+            remainingSeconds: attempt.remainingSeconds,
+            message: `Pickup PIN verification locked after 5 failed attempts. Principal alerted. Please wait ${waitMins} minute(s).`,
+          },
+          { status: 429 }
+        );
+      }
+
       return NextResponse.json({
         success: false,
+        attemptsRemaining: Math.max(0, 5 - attempt.attempts),
         message: `No student or authorized escort found matching "${lookupQuery}".`,
       });
     }
 
+    const scopedLogs = isParent ? formattedLogs.filter((l: any) => linkedIds.includes(l.studentId)) : formattedLogs;
+    const scopedEscorts = isParent ? allEscorts.filter((e: any) => linkedIds.includes(e.studentId)) : allEscorts;
+
     return NextResponse.json({
       success: true,
-      logs: formattedLogs,
-      escorts: allEscorts,
+      logs: scopedLogs,
+      escorts: scopedEscorts,
     });
   } catch (err: any) {
     return NextResponse.json(
@@ -211,9 +296,20 @@ export async function GET(req: NextRequest) {
 // POST /api/pickup - Verify and clear, flag, or register authorized escort
 export async function POST(req: NextRequest) {
   try {
+    const caller = await getCaller();
     const sb = getAdminClient();
     const body = await req.json();
     const { action } = body;
+
+    if (caller.role === 'parent') {
+      const linkedIds = await getLinkedStudentIds(caller.email);
+      if (action !== 'register_escort' || !linkedIds.includes(body.studentId)) {
+        return NextResponse.json(
+          { success: false, message: 'Guardians may only register escorts for their own children.' },
+          { status: 403 }
+        );
+      }
+    }
 
     if (action === 'verify') {
       const {
@@ -222,10 +318,75 @@ export async function POST(req: NextRequest) {
         studentClass,
         pickedUpByName,
         relationship,
-        verifiedByName = 'Officer Yakubu (Gate 1)',
+        verifiedByName = 'Gate Security',
         verificationMethod = 'qr_scan',
         notes = 'Pass verified. Student released.',
       } = body;
+
+      if (!studentId || !UUID_RE.test(String(studentId)) || !pickedUpByName?.trim()) {
+        return NextResponse.json(
+          { success: false, message: 'A valid student and escort name are required.' },
+          { status: 400 }
+        );
+      }
+
+      const { data: studentRow } = await sb.from('students').select('id').eq('id', studentId).maybeSingle();
+      if (!studentRow) {
+        return NextResponse.json({ success: false, message: 'Student not found.' }, { status: 404 });
+      }
+
+      const clientIp = extractClientIp(req);
+      const verifyRateKey = `pickup_pin:${studentId}`;
+      const preCheck = await checkAuthRateLimit(verifyRateKey);
+      if (preCheck.locked) {
+        const waitMins = Math.max(1, Math.ceil(preCheck.remainingSeconds / 60));
+        return NextResponse.json(
+          {
+            success: false,
+            locked: true,
+            remainingSeconds: preCheck.remainingSeconds,
+            message: `Dismissal verification locked for ${studentName || 'student'} after 5 failed attempts. Principal alerted. Please wait ${waitMins} minute(s).`,
+          },
+          { status: 429 }
+        );
+      }
+
+      if (!(await isAuthorizedEscort(sb, studentId, pickedUpByName))) {
+        const attempt = await recordAuthAttempt({
+          key: verifyRateKey,
+          scope: 'pickup_pin',
+          success: false,
+          targetLabel: `${studentName || studentId} (${pickedUpByName})`,
+          ipAddress: clientIp,
+        });
+        if (attempt.locked) {
+          return NextResponse.json(
+            {
+              success: false,
+              locked: true,
+              remainingSeconds: attempt.remainingSeconds,
+              message: `Dismissal verification locked for ${studentName || 'student'} after 5 failed attempts. Principal alerted.`,
+            },
+            { status: 429 }
+          );
+        }
+        return NextResponse.json(
+          {
+            success: false,
+            attemptsRemaining: Math.max(0, 5 - attempt.attempts),
+            message: 'This person is not an authorized escort for the student.',
+          },
+          { status: 403 }
+        );
+      }
+
+      await recordAuthAttempt({
+        key: verifyRateKey,
+        scope: 'pickup_pin',
+        success: true,
+        targetLabel: `${studentName || studentId}`,
+        ipAddress: clientIp,
+      });
 
       const { data, error } = await sb
         .from('pickup_logs')
@@ -244,7 +405,38 @@ export async function POST(req: NextRequest) {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        if (isUniqueViolation(error)) {
+          return NextResponse.json(
+            { success: false, message: `${studentName} has already been cleared for dismissal today.` },
+            { status: 409 }
+          );
+        }
+        throw error;
+      }
+
+      // Cross-portal dispatch: Notify guardian of cleared departure
+      try {
+        const { data: sgRows } = await sb
+          .from('student_guardians')
+          .select('guardians(email, first_name, last_name)')
+          .eq('student_id', studentId)
+          .eq('is_primary', true);
+        const guardianEmail = (sgRows?.[0]?.guardians as any)?.email;
+        if (guardianEmail) {
+          await sb.from('notifications').insert({
+            school_id: 'a0000000-0000-0000-0000-000000000001',
+            recipient_email: guardianEmail.toLowerCase(),
+            recipient_name: (sgRows?.[0]?.guardians as any)?.first_name || 'Guardian',
+            subject: 'Student Dismissal Clearance',
+            content_html: `${studentName} was cleared for gate dismissal with authorized escort ${pickedUpByName} (${relationship}).`,
+            notification_type: 'pickup',
+            status: 'sent',
+            attempts_count: 0,
+            idempotency_key: `notif-pickup-clear-${studentId}-${Date.now()}`,
+          });
+        }
+      } catch {}
 
       return NextResponse.json({
         success: true,
@@ -272,7 +464,7 @@ export async function POST(req: NextRequest) {
         studentClass,
         pickedUpByName,
         relationship,
-        verifiedByName = 'Officer Yakubu (Gate 1)',
+        verifiedByName = 'Gate Security',
         reason = 'Security question raised at gate dismissal.',
       } = body;
 
@@ -294,6 +486,21 @@ export async function POST(req: NextRequest) {
         .single();
 
       if (error) throw error;
+
+      // Cross-portal dispatch: Urgent alert to Principal and Admin
+      try {
+        await sb.from('notifications').insert({
+          school_id: 'a0000000-0000-0000-0000-000000000001',
+          recipient_email: 'seyibankole@gmail.com',
+          recipient_name: 'Mr Seyi Bankole (Principal)',
+          subject: 'Urgent: Flagged Dismissal Alert',
+          content_html: `Security Flag: Unauthorized or suspicious dismissal attempt for ${studentName} (${studentClass}). Escort presented: ${pickedUpByName || 'Unknown'}. Reason: ${reason}`,
+          notification_type: 'broadcast',
+          status: 'sent',
+          attempts_count: 0,
+          idempotency_key: `notif-pickup-flag-${studentId}-${Date.now()}`,
+        });
+      } catch {}
 
       return NextResponse.json({
         success: true,
@@ -325,7 +532,27 @@ export async function POST(req: NextRequest) {
       }
 
       // Generate 4-digit pickup PIN and QR token
-      const randomPin = Math.floor(1000 + Math.random() * 9000).toString();
+      // Generate a 4-digit PIN that no existing escort or guardian already holds
+      const { data: usedTokens } = await sb.from('authorized_pickup_persons').select('qr_token');
+      const { data: usedGuardianPins } = await sb.from('student_guardians').select('pickup_pin');
+      const taken = new Set<string>([
+        ...(usedTokens || []).map((t: any) => String(t.qr_token || '').replace(/\D/g, '').slice(-4)),
+        ...(usedGuardianPins || []).map((g: any) => String(g.pickup_pin || '')),
+      ]);
+      let randomPin = '';
+      for (let i = 0; i < 200; i++) {
+        const candidate = Math.floor(1000 + Math.random() * 9000).toString();
+        if (!taken.has(candidate)) {
+          randomPin = candidate;
+          break;
+        }
+      }
+      if (!randomPin) {
+        return NextResponse.json(
+          { success: false, message: 'No free pickup PIN is available.' },
+          { status: 500 }
+        );
+      }
       const qrToken = `OAK-PK-${randomPin}`;
 
       const { data, error } = await sb

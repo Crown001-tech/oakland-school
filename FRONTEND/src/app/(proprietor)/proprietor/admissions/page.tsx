@@ -25,6 +25,7 @@ interface AdmissionApplication {
   applicantName: string;
   gender: string;
   appliedClass: string;
+  department?: string | null;
   parentName: string;
   parentPhone: string;
   parentEmail: string;
@@ -124,7 +125,7 @@ export default function ProprietorAdmissionsPage() {
             Admissions Board
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Review online applications, approve admissions, and enroll pupils into classes.
+            Review online applications, approve admissions, and enroll students into classes.
           </p>
         </div>
       </div>
@@ -154,7 +155,7 @@ export default function ProprietorAdmissionsPage() {
 
         <Card className="p-4 border-slate-200">
           <span className="text-[11px] font-bold text-emerald-700 uppercase tracking-wide">
-            Accepted & Enrolled
+            Accepted
           </span>
           <p className="text-2xl font-black text-emerald-700 mt-1">{acceptedCount}</p>
         </Card>
@@ -248,9 +249,16 @@ export default function ProprietorAdmissionsPage() {
                       {app.referenceNumber}
                     </td>
                     <td className="px-4 py-3.5">
-                      <Badge variant="teal" size="sm">
-                        {app.appliedClass}
-                      </Badge>
+                      <div className="flex flex-col items-start gap-1">
+                        <Badge variant="teal" size="sm">
+                          {app.appliedClass}
+                        </Badge>
+                        {app.department && (
+                          <span className="text-[10px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-1.5 py-0.5 rounded">
+                            {app.department}
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-4 py-3.5">
                       <p className="font-semibold text-slate-800">{app.parentName}</p>
@@ -305,6 +313,7 @@ export default function ProprietorAdmissionsPage() {
                 </h3>
                 <p className="text-xs text-slate-500 font-mono">
                   Ref: {activeApp.referenceNumber} &bull; Class: {activeApp.appliedClass}
+                  {activeApp.department ? ` (${activeApp.department})` : ''}
                 </p>
               </div>
 
@@ -325,6 +334,12 @@ export default function ProprietorAdmissionsPage() {
                 <span className="text-slate-500">Target Class</span>
                 <span className="font-semibold text-slate-800">{activeApp.appliedClass}</span>
               </div>
+              {activeApp.department && (
+                <div className="flex justify-between py-1 border-b border-slate-200/60">
+                  <span className="text-slate-500">Department</span>
+                  <span className="font-semibold text-slate-800">{activeApp.department}</span>
+                </div>
+              )}
               <div className="flex justify-between py-1 border-b border-slate-200/60">
                 <span className="text-slate-500">Guardian Name</span>
                 <span className="font-semibold text-slate-800">{activeApp.parentName}</span>
@@ -374,7 +389,7 @@ export default function ProprietorAdmissionsPage() {
                   leftIcon={<CheckCircle2 className="w-4 h-4" />}
                   onClick={() => handleDecision(activeApp.id, 'accept')}
                 >
-                  Accept & Enroll Student
+                  Accept Admission
                 </Button>
               )}
             </div>

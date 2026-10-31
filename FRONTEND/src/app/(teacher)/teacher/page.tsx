@@ -16,6 +16,9 @@ import {
   ChevronRight,
   Megaphone,
   School,
+  BookOpenCheck,
+  Laptop,
+  FileText,
 } from 'lucide-react';
 
 interface TeachingAssignment {
@@ -83,11 +86,11 @@ export default function TeacherDashboard() {
           if (stData?.success && Array.isArray(stData.data)) {
             if (isMounted) {
               if (currentHomeroom) {
-                // For a Class Teacher, count pupils in their homeroom
+                // For a Class Teacher, count students in their homeroom
                 const homeroomStudents = stData.data.filter((s: any) => s.class === currentHomeroom);
                 setStudentCount(homeroomStudents.length);
               } else {
-                // For a Subject Teacher, count distinct pupils in the classes they actually teach
+                // For a Subject Teacher, count distinct students in the classes they actually teach
                 const teachingClassSet = new Set(resolvedClasses);
                 const assignedPupils = stData.data.filter((s: any) => teachingClassSet.has(s.class));
                 setStudentCount(assignedPupils.length);
@@ -198,11 +201,11 @@ export default function TeacherDashboard() {
                   {assignedClass}
                 </span>
                 <span className="text-xs text-teal-800 font-semibold">
-                  &bull; {studentCount} Enrolled Pupils
+                  &bull; {studentCount} Enrolled Students
                 </span>
               </div>
               <p className="text-xs text-teal-900 mt-1 font-medium">
-                You are the official Class Teacher for <strong>{assignedClass}</strong>. You oversee daily roll call, pupil welfare, and terminal report card remarks.
+                You are the official Class Teacher for <strong>{assignedClass}</strong>. You oversee daily roll call, student welfare, and terminal report card remarks.
               </p>
             </div>
           </div>
@@ -236,11 +239,11 @@ export default function TeacherDashboard() {
             </div>
             <div className="mt-3">
               <div className="text-2xl font-bold text-slate-900">
-                {isClassTeacher && assignedClass ? assignedClass : `${studentCount} Pupils`}
+                {isClassTeacher && assignedClass ? assignedClass : `${studentCount} Students`}
               </div>
               <p className="text-[11px] text-slate-500 mt-1">
                 {isClassTeacher && assignedClass
-                  ? `${studentCount} Enrolled Pupils in Homeroom`
+                  ? `${studentCount} Enrolled Students in Homeroom`
                   : assignedClasses.length > 0
                   ? `Teaching in ${assignedClasses.join(', ')}`
                   : 'No classes assigned'}
@@ -262,7 +265,7 @@ export default function TeacherDashboard() {
                 </div>
               </div>
               <div className="mt-3">
-                <div className="text-2xl font-bold text-slate-900">{studentCount > 0 ? `${studentCount} Pupils` : 'No Pupils'}</div>
+                <div className="text-2xl font-bold text-slate-900">{studentCount > 0 ? `${studentCount} Students` : 'No Students'}</div>
                 <p className="text-[11px] text-emerald-700 font-semibold mt-1">
                   Ready for morning attendance
                 </p>
@@ -401,11 +404,41 @@ export default function TeacherDashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Link href="/teacher/assignments" className="block">
+                <div className="p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/40 transition-colors flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2.5">
+                    <BookOpenCheck className="w-4 h-4 text-[#0f3a3e]" />
+                    <span className="font-semibold text-slate-800">Assignments</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                </div>
+              </Link>
+
+              <Link href="/teacher/cbt" className="block">
+                <div className="p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/40 transition-colors flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2.5">
+                    <Laptop className="w-4 h-4 text-[#0f3a3e]" />
+                    <span className="font-semibold text-slate-800">Examinations</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                </div>
+              </Link>
+
+              <Link href="/teacher/materials" className="block">
+                <div className="p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/40 transition-colors flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2.5">
+                    <FileText className="w-4 h-4 text-[#0f3a3e]" />
+                    <span className="font-semibold text-slate-800">Learning Materials</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-slate-400" />
+                </div>
+              </Link>
+
               <Link href="/teacher/scores" className="block">
                 <div className="p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/40 transition-colors flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2.5">
                     <FileSpreadsheet className="w-4 h-4 text-[#0f3a3e]" />
-                    <span className="font-semibold text-slate-800">Subject Gradebook</span>
+                    <span className="font-semibold text-slate-800">Scores</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-400" />
                 </div>
@@ -415,7 +448,7 @@ export default function TeacherDashboard() {
                 <div className="p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/40 transition-colors flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2.5">
                     <GraduationCap className="w-4 h-4 text-[#0f3a3e]" />
-                    <span className="font-semibold text-slate-800">My Students Roster</span>
+                    <span className="font-semibold text-slate-800">Students</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-400" />
                 </div>
@@ -426,7 +459,7 @@ export default function TeacherDashboard() {
                   <div className="p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/40 transition-colors flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2.5">
                       <CalendarCheck className="w-4 h-4 text-[#0f3a3e]" />
-                      <span className="font-semibold text-slate-800">Daily Attendance Register</span>
+                      <span className="font-semibold text-slate-800">Attendance</span>
                     </div>
                     <ChevronRight className="w-4 h-4 text-slate-400" />
                   </div>
@@ -437,7 +470,7 @@ export default function TeacherDashboard() {
                 <div className="p-3.5 rounded-2xl border border-slate-200 hover:border-teal-500 hover:bg-teal-50/40 transition-colors flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2.5">
                     <Clock className="w-4 h-4 text-[#0f3a3e]" />
-                    <span className="font-semibold text-slate-800">Teaching Timetable</span>
+                    <span className="font-semibold text-slate-800">Timetable</span>
                   </div>
                   <ChevronRight className="w-4 h-4 text-slate-400" />
                 </div>

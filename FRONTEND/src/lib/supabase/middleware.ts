@@ -1,5 +1,7 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import { checkApiAccess } from '@/lib/api-guard';
+import { ROLE_COOKIE, resolveVerifiedRole } from '@/lib/auth-role';
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
@@ -74,11 +76,22 @@ export async function updateSession(request: NextRequest) {
   }
 
   const pathname = request.nextUrl.pathname;
-  const authRole = request.cookies.get('oakland_auth_role')?.value || request.cookies.get('oakland_demo_role')?.value;
 
-  // Determine effective role
-  const realRole = user?.user_metadata?.role || user?.app_metadata?.role;
-  const effectiveRole = realRole || authRole;
+  // A role counts only when it comes from a verified Supabase user: app_metadata, or the signed cookie bound to that user.
+  const effectiveRole = await resolveVerifiedRole(user, request.cookies.get(ROLE_COOKIE)?.value);
+
+  // API access policy: every endpoint needs a verified session, plus per-role rules
+  const hasSession = Boolean(user);
+  const apiDenial = checkApiAccess({
+    pathname,
+    method: request.method,
+    role: effectiveRole,
+    hasSession,
+    searchParams: request.nextUrl.searchParams,
+  });
+  if (apiDenial) {
+    return NextResponse.json({ success: false, message: apiDenial.message }, { status: apiDenial.status });
+  }
 
   // Protect Bursar routes (Strictly requires Bursar role)
   if (pathname.startsWith('/bursar')) {
@@ -110,6 +123,45 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // Proprietor portal remains open exclusively
+  // Protect Parent routes (Strictly requires Parent role)
+  if (pathname.startsWith('/parent')) {
+    if (effectiveRole !== 'parent') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/login';
+      url.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // Protect Student routes (Strictly requires Student role)
+  if (pathname.startsWith('/student')) {
+    if (effectiveRole !== 'student') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/login';
+      url.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // Protect Security & Reception routes (Strictly requires Security role)
+  if (pathname.startsWith('/security')) {
+    if (effectiveRole !== 'security') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/login';
+      url.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(url);
+    }
+  }
+
+  // Protect Proprietor routes (Strictly requires Proprietor role)
+  if (pathname.startsWith('/proprietor')) {
+    if (effectiveRole !== 'proprietor') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/login';
+      url.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(url);
+    }
+  }
+
   return response;
 }

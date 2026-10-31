@@ -19,6 +19,7 @@ export interface AdmissionApplication {
   lastName?: string;
   gender: string;
   appliedClass: string;
+  department?: string | null;
   parentName: string;
   parentPhone: string;
   parentEmail: string;
@@ -207,10 +208,10 @@ export default function AdminAdmissionsPage() {
           <table className="w-full text-left text-xs text-slate-600">
             <thead className="bg-slate-50 text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200">
               <tr>
-                <th className="px-4 py-3">Reference & Date</th>
+                <th className="px-4 py-3">Reference</th>
                 <th className="px-4 py-3">Applicant Name</th>
                 <th className="px-4 py-3">Class</th>
-                <th className="px-4 py-3">Guardian Details</th>
+                <th className="px-4 py-3">Guardian</th>
                 <th className="px-4 py-3">Status</th>
                 <th className="px-4 py-3 text-right">Decision</th>
               </tr>
@@ -242,9 +243,16 @@ export default function AdminAdmissionsPage() {
                     </td>
 
                     <td className="px-4 py-3">
-                      <span className="px-2 py-0.5 rounded font-bold text-slate-800 bg-slate-100 border border-slate-200">
-                        {app.appliedClass}
-                      </span>
+                      <div className="flex flex-col items-start gap-1">
+                        <span className="px-2 py-0.5 rounded font-bold text-slate-800 bg-slate-100 border border-slate-200">
+                          {app.appliedClass}
+                        </span>
+                        {app.department && (
+                          <span className="text-[10px] font-semibold text-teal-700 bg-teal-50 border border-teal-200 px-1.5 py-0.5 rounded">
+                            {app.department}
+                          </span>
+                        )}
+                      </div>
                     </td>
 
                     <td className="px-4 py-3">

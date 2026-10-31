@@ -88,32 +88,11 @@ interface StudentReportCard {
 const REMARK_PRESETS = [
   'An intellectually brilliant, well-disciplined student who showed exceptional dedication and leadership throughout the term.',
   'Shows commendable focus and steady academic growth. With continued commitment to revision, top distinction is well within reach.',
-  'A polite, cheerful, and hardworking pupil. Demonstrated strong grasp in core sciences and languages. Keep aiming for the peak.',
+  'A polite, cheerful, and hardworking student. Demonstrated strong grasp in core sciences and languages. Keep aiming for the peak.',
   'Good terminal performance overall. Needs to improve punctuality and avoid classroom distractions during quantitative sessions.',
   'Capable of significantly higher achievement. Encouraged to participate more actively in class practicals and submit assignments promptly.',
 ];
 
-const JUNIOR_SUBJECTS = [
-  'Mathematics',
-  'English Studies',
-  'Basic Science and Technology',
-  'Social Studies',
-  'Business Studies',
-  'Creative and Cultural Arts',
-  'French Language',
-  'Agricultural Science',
-];
-
-const SENIOR_SUBJECTS = [
-  'General Mathematics',
-  'English Language',
-  'Physics',
-  'Chemistry',
-  'Biology',
-  'Economics',
-  'Civic Education',
-  'Computer Studies',
-];
 
 export default function ClassReportCardsPage() {
   const [currentTeacher, setCurrentTeacher] = useState<any>(null);
@@ -222,8 +201,27 @@ export default function ClassReportCardsPage() {
           }
         } catch { }
 
-        const isSenior = selectedClass.startsWith('SS');
-        const curriculumSubjects = isSenior ? SENIOR_SUBJECTS : JUNIOR_SUBJECTS;
+        // DEF-045: Dynamically resolve all registered subjects from database and submitted scores
+        let dbSubjectNames: string[] = [];
+        try {
+          const subRes = await fetch('/api/subjects');
+          if (subRes.ok) {
+            const subJson = await subRes.json();
+            if (subJson.success && Array.isArray(subJson.data)) {
+              dbSubjectNames = subJson.data.map((s: any) => s.name).filter(Boolean);
+            }
+          }
+        } catch {}
+
+        const allScoreKeys = Object.keys(subjectScoresMap).map((k) => {
+          if (k.startsWith(`${selectedClass}_`)) {
+            return k.slice(`${selectedClass}_`.length);
+          }
+          return k;
+        });
+
+        const activeSubjectSet = new Set<string>([...dbSubjectNames, ...allScoreKeys]);
+        const curriculumSubjects = Array.from(activeSubjectSet);
 
         const res = await fetch('/api/students');
         if (res.ok) {
@@ -325,7 +323,7 @@ export default function ClassReportCardsPage() {
                 term: 'First Term',
                 session: '2026/2027',
                 age: computedAge,
-                position: hasScoresRecorded ? `${idx + 1} of ${listToUse.length}` : '—',
+                position: '—',
                 status: 'Draft',
                 isEvaluated: false,
                 timesOpened: 0,
@@ -355,9 +353,31 @@ export default function ClassReportCardsPage() {
               };
             });
 
+            // Calculate true rank based on total aggregate score across real subjects
+            const studentsWithAgg = mapped.map((rep) => ({
+              id: rep.id,
+              totalScore: rep.subjects.reduce((sum, sub) => sum + sub.ca1 + sub.ca2 + sub.exam, 0),
+              hasScores: rep.subjects.some((sub) => sub.ca1 > 0 || sub.ca2 > 0 || sub.exam > 0),
+            }));
+
+            // Only rank students who actually have submitted scores > 0
+            const rankedScores = studentsWithAgg
+              .filter((s) => s.hasScores && s.totalScore > 0)
+              .sort((a, b) => b.totalScore - a.totalScore);
+
+            const rankMap: Record<string, string> = {};
+            rankedScores.forEach((s, rIdx) => {
+              rankMap[s.id] = `${rIdx + 1} of ${listToUse.length}`;
+            });
+
+            const finalReports = mapped.map((rep) => ({
+              ...rep,
+              position: rankMap[rep.id] || '—',
+            }));
+
             if (isMounted) {
-              setReports(mapped);
-              setSelectedReport(mapped[0] || null);
+              setReports(finalReports);
+              setSelectedReport(finalReports[0] || null);
             }
           }
         }
@@ -1058,7 +1078,7 @@ export default function ClassReportCardsPage() {
                     disabled={!isHomeroom || isBatchLocked}
                     value={selectedReport.classTeacherRemark}
                     onChange={(e) => handleTeacherRemarkChange(e.target.value)}
-                    placeholder="Enter comprehensive evaluation remark for this pupil..."
+                    placeholder="Enter comprehensive evaluation remark for this student..."
                     className={`w-full p-3 rounded-xl border border-teal-300 bg-white text-slate-800 text-xs focus:outline-teal-600 ${!isHomeroom || isBatchLocked ? 'cursor-not-allowed bg-slate-50 text-slate-600' : ''
                       }`}
                   />
@@ -1108,10 +1128,44 @@ export default function ClassReportCardsPage() {
               </div>
 
               {/* Printable Canvas */}
-              <Card className="border-slate-300 shadow-md bg-white p-6 sm:p-8 space-y-6 print:shadow-none print:border-none">
+              <style dangerouslySetInnerHTML={{ __html: `
+                @media print {
+                  @page {
+                    size: A4 portrait;
+                    margin: 6mm 8mm;
+                  }
+                  body {
+                    print-color-adjust: exact !important;
+                    -webkit-print-color-adjust: exact !important;
+                  }
+                  .printable-report-card {
+                    padding: 4px !important;
+                    margin: 0 !important;
+                    box-shadow: none !important;
+                    border: none !important;
+                    page-break-inside: avoid !important;
+                    break-inside: avoid !important;
+                  }
+                  .printable-report-card table th,
+                  .printable-report-card table td {
+                    padding: 2px 4px !important;
+                    font-size: 9.5px !important;
+                    line-height: 1.15 !important;
+                  }
+                  .printable-report-card h2 {
+                    font-size: 15px !important;
+                  }
+                  .printable-report-card h3,
+                  .printable-report-card h4 {
+                    font-size: 10px !important;
+                    margin-bottom: 2px !important;
+                  }
+                }
+              `}} />
+              <Card className="border-slate-300 shadow-md bg-white p-6 sm:p-8 space-y-6 print:shadow-none print:border-none printable-report-card print:p-2 print:space-y-2">
                 {/* 1. Official School Header */}
-                <div className="text-center pb-4 border-b-2 border-[#0f3a3e] space-y-1">
-                  <div className="flex items-center justify-center gap-3 mb-2">
+                <div className="text-center pb-3 border-b-2 border-[#0f3a3e] space-y-1 print:pb-1.5 print:space-y-0.5">
+                  <div className="flex items-center justify-center gap-3 mb-2 print:mb-1">
                     <Logo theme="light" size="sm" />
                   </div>
                   <h2 className="text-xl sm:text-2xl font-black text-[#0f3a3e] tracking-tight uppercase">
@@ -1121,7 +1175,7 @@ export default function ClassReportCardsPage() {
                     Excellence, Integrity, Leadership
                   </p>
                   <p className="text-[11px] text-slate-500">
-                    Oakland Hill Estate, Lekki Phase 1, Lagos, Nigeria &bull; contact@oaklandschools.edu.ng
+                    14 Academic Crescent, Victoria Island, Lagos &bull; admin@oaklandschools.edu
                   </p>
                   <div className="pt-2">
                     <span className="px-4 py-1 rounded-full bg-[#0f3a3e] text-white text-xs font-extrabold uppercase tracking-wide">
@@ -1413,7 +1467,7 @@ export default function ClassReportCardsPage() {
 
             <div className="grid grid-cols-2 gap-3 text-center text-xs">
               <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
-                <p className="text-[10px] text-slate-500 font-semibold">Evaluated Pupils</p>
+                <p className="text-[10px] text-slate-500 font-semibold">Evaluated Students</p>
                 <p className="text-base font-extrabold text-slate-900 mt-0.5">
                   {evaluatedCount} of {totalCount}
                 </p>

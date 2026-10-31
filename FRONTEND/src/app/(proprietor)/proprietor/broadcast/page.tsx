@@ -252,7 +252,7 @@ export default function ProprietorBroadcastPage() {
                 <input
                   type="text"
                   required
-                  placeholder="e.g., Staff Academic Assembly & Resumption Directives"
+                  placeholder="Enter notice title"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-hidden focus:ring-2 focus:ring-teal-700 text-xs"

@@ -14,6 +14,15 @@ interface PayslipModalProps {
 }
 
 export function PayslipModal({ record, onClose }: PayslipModalProps) {
+  React.useEffect(() => {
+    if (!record) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [record, onClose]);
+
   if (!record) return null;
 
   const grossEarnings = record.basicSalary + record.responsibilityAllowance + record.otherAllowances;
@@ -24,7 +33,12 @@ export function PayslipModal({ record, onClose }: PayslipModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div
+      className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
       <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
         {/* Modal Controls Bar (hidden during print) */}
         <div className="print:hidden p-3.5 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
@@ -42,7 +56,7 @@ export function PayslipModal({ record, onClose }: PayslipModalProps) {
               type="button"
               size="sm"
               onClick={handlePrint}
-              className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold gap-1.5 h-8 px-3"
+              className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs font-bold gap-1.5 min-h-[44px] sm:h-9 px-3"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Print Payslip</span>
@@ -50,7 +64,8 @@ export function PayslipModal({ record, onClose }: PayslipModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition-colors cursor-pointer"
+              aria-label="Close payslip modal"
+              className="w-11 h-11 min-h-[44px] min-w-[44px] rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -183,7 +198,7 @@ export function PayslipModal({ record, onClose }: PayslipModalProps) {
                   <div className="flex justify-between text-slate-700">
                     <div>
                       <p className="font-medium">Statutory Deductions</p>
-                      <p className="text-[10px] text-slate-400">Zero pension and tax deductions</p>
+                      <p className="text-[10px] text-slate-400">None applicable</p>
                     </div>
                     <span className="font-mono text-slate-500">₦0</span>
                   </div>

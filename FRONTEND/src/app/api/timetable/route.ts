@@ -1,15 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { cookies } from 'next/headers';
-import { createClient } from '@supabase/supabase-js';
 import { getServerPrincipalDelegations } from '@/lib/delegations';
-
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://gxkywfgoitfjyuipkmqj.supabase.co';
-const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+import { getCaller } from '@/lib/caller';
+import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
 function getAdminClient() {
-  return createClient(SUPABASE_URL, SERVICE_KEY, {
-    auth: { autoRefreshToken: false, persistSession: false },
-  });
+  return getSupabaseAdmin();
 }
 
 export async function GET() {
@@ -55,8 +50,7 @@ export async function POST(request: NextRequest) {
     const sb = getAdminClient();
 
     // Verify delegation if called by Admin / Principal
-    const cookieStore = await cookies();
-    const roleCookie = cookieStore.get('oakland_auth_role')?.value || cookieStore.get('oakland_demo_role')?.value;
+    const roleCookie = (await getCaller()).role;
     if (roleCookie === 'admin' || roleCookie === 'principal') {
       const delegations = await getServerPrincipalDelegations(sb);
       if (!delegations.canSetCalendarEvents) {

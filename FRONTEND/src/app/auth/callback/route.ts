@@ -1,6 +1,8 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse, type NextRequest } from 'next/server';
+import { createAdminClient } from '@/lib/supabase/server';
+import { ROLE_COOKIE, resolveVerifiedRole, roleCookieOptions, signRoleCookie } from '@/lib/auth-role';
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);
@@ -50,7 +52,26 @@ export async function GET(request: NextRequest) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error && data?.user) {
-      const role = data.user.user_metadata?.role || 'admin';
+      // Only a role that is already trusted (service-set app_metadata) or tied to a staff record is honoured here.
+      const trustedRole = await resolveVerifiedRole(data.user, cookieStore.get(ROLE_COOKIE)?.value);
+      let role: string | undefined = trustedRole;
+      if (!role) {
+        const { data: profile } = await createAdminClient()
+          .from('staff_profiles')
+          .select('role')
+          .or(`user_id.eq.${data.user.id},email.eq.${data.user.email?.toLowerCase()}`)
+          .maybeSingle();
+        if (profile?.role === 'principal' || profile?.role === 'admin') role = 'admin';
+        else if (profile?.role === 'bursar') role = 'bursar';
+        else if (profile?.role === 'proprietor') role = 'proprietor';
+        else if (profile?.role === 'security' || profile?.role === 'reception') role = 'security';
+        else if (profile) role = 'teacher';
+      }
+
+      if (!role) {
+        return NextResponse.redirect(new URL('/login?error=NoLinkedRecord', request.url));
+      }
+
       const destination =
         role === 'admin' || role === 'principal'
           ? '/admin'
@@ -58,17 +79,12 @@ export async function GET(request: NextRequest) {
           ? '/proprietor'
           : role === 'bursar'
           ? '/bursar'
+          : role === 'security'
+          ? '/security'
           : '/teacher';
 
       const response = NextResponse.redirect(new URL(destination, request.url));
-      const isProd = process.env.NODE_ENV === 'production';
-      response.cookies.set('oakland_auth_role', role, {
-        path: '/',
-        maxAge: 604800,
-        sameSite: 'lax',
-        httpOnly: true,
-        secure: isProd,
-      });
+      response.cookies.set(ROLE_COOKIE, await signRoleCookie(role, data.user.id), roleCookieOptions());
       return response;
     }
   }
