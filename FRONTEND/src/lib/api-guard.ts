@@ -80,6 +80,7 @@ const ROLE_RULES: RoleRule[] = [
   { prefix: '/api/calendar', methods: WRITE, roles: ADMIN_ROLES },
   { prefix: '/api/documents', methods: WRITE, roles: ADMIN_ROLES },
   { prefix: '/api/results', methods: WRITE, roles: ADMIN_ROLES },
+  { prefix: '/api/report-cards', roles: [...ADMIN_ROLES, 'teacher'] },
   { prefix: '/api/schools', methods: WRITE, roles: ADMIN_ROLES },
   { prefix: '/api/timetable', methods: WRITE, roles: ADMIN_ROLES },
 

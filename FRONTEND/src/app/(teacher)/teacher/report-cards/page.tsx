@@ -482,20 +482,45 @@ export default function ClassReportCardsPage() {
     setShowForwardModal(true);
   };
 
-  const handleConfirmForwardToPrincipal = () => {
+  const handleConfirmForwardToPrincipal = async () => {
     if (!isHomeroom) return;
-    setReports((prev) =>
-      prev.map((r) => ({ ...r, status: 'Submitted to Principal' }))
-    );
-    setSelectedReport((prev) => prev ? ({ ...prev, status: 'Submitted to Principal' }) : null);
-    setIsBatchLocked(true);
-    setBatchSubmitted(true);
     setShowForwardModal(false);
-    setSaveToast(`All ${selectedClass} report cards successfully forwarded to Principal Seyi Bankole and locked against further edits.`);
-    setTimeout(() => {
-      setBatchSubmitted(false);
-      setSaveToast(null);
-    }, 6000);
+
+    // The server builds each card from the locked scores and saves it; the page only sends the remarks
+    const remarks: Record<string, string> = {};
+    reports.forEach((r) => {
+      if (r.classTeacherRemark.trim()) remarks[r.id] = r.classTeacherRemark.trim();
+    });
+
+    try {
+      const res = await fetch('/api/report-cards', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'compile', className: selectedClass, remarks }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) {
+        setSaveToast(json.message || 'Report cards could not be submitted. Please try again.');
+        setTimeout(() => setSaveToast(null), 8000);
+        return;
+      }
+
+      setReports((prev) => prev.map((r) => ({ ...r, status: 'Submitted to Principal' })));
+      setSelectedReport((prev) => (prev ? { ...prev, status: 'Submitted to Principal' } : null));
+      setIsBatchLocked(true);
+      setBatchSubmitted(true);
+      const notes: string[] = [];
+      if (json.studentsWithoutScores > 0) notes.push(`${json.studentsWithoutScores} students have no locked scores yet and have no card`);
+      if (Array.isArray(json.unlockedSubjects) && json.unlockedSubjects.length > 0) notes.push(`not yet locked: ${json.unlockedSubjects.join(', ')}`);
+      setSaveToast(`${json.message}${notes.length ? ` (${notes.join('; ')})` : ''}`);
+      setTimeout(() => {
+        setBatchSubmitted(false);
+        setSaveToast(null);
+      }, 8000);
+    } catch {
+      setSaveToast('No connection. Report cards were not submitted.');
+      setTimeout(() => setSaveToast(null), 8000);
+    }
   };
 
   const filteredReports = reports.filter((r) => {
@@ -1461,7 +1486,7 @@ export default function ClassReportCardsPage() {
                 <span>Permanent Submission Lock Notice</span>
               </div>
               <p className="text-amber-800 leading-relaxed">
-                Once you forward these report cards to the Principal (<strong>Mr Seyi Bankole</strong>), <strong>all terminal remarks and ratings are officially submitted and cannot be edited again</strong>.
+                Once you forward these report cards to the Principal, <strong>they are saved from the locked scores and your remarks, and cannot be changed after the Principal approves them</strong>.
               </p>
             </div>
 

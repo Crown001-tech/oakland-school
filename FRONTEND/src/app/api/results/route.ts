@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getCaller, getLinkedStudentIds, getOwnStudentId, isAdminRole } from '@/lib/caller';
+import { getAuthenticatedActor, getCaller, getLinkedStudentIds, getOwnStudentId, isAdminRole } from '@/lib/caller';
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
 function getAdminClient() {
@@ -112,7 +112,6 @@ export async function GET(request: NextRequest) {
         ? `${teacher.first_name} ${teacher.last_name}`.trim()
         : 'Unassigned';
 
-      const isEndorsed = endorsedClasses.includes(className);
       const studentCount = classStudents.length;
 
       // Compute real scores from report_cards table in PostgreSQL
@@ -123,6 +122,9 @@ export async function GET(request: NextRequest) {
       );
 
       const hasRecordedScores = classReportCards.length > 0;
+      // The saved cards are the record: principal approval and endorsement live on each card
+      const isApproved = hasRecordedScores && classReportCards.every((rc: any) => rc.principal_approved === true);
+      const isEndorsed = hasRecordedScores && classReportCards.every((rc: any) => rc.proprietor_endorsed === true);
       const averageScore = hasRecordedScores
         ? Number(
             (
@@ -144,7 +146,7 @@ export async function GET(request: NextRequest) {
       if (studentCount > 0 && hasRecordedScores) {
         if (isEndorsed) {
           status = 'Dispatched to Parents';
-        } else {
+        } else if (isApproved) {
           status = 'Pending Proprietor Sign-off';
         }
       } else {
@@ -175,13 +177,13 @@ export async function GET(request: NextRequest) {
 
       const studentRc = (reportCards || []).find((r: any) => r.enrollment_id === studentEnrollment?.id);
       
-      // Only include in delivery stream if this class is endorsed AND report card exists
-      if (endorsedClasses.includes(studentClass) && studentRc) {
+      // Only include cards the proprietor has endorsed. Nothing is emailed yet, so these are published, not delivered.
+      if (studentRc?.proprietor_endorsed === true) {
         const guardianRel = (st.student_guardians || [])[0];
         const guardian = guardianRel?.guardians;
         const studentName = `${st.first_name} ${st.last_name}`.trim();
-        const parentName = guardian ? `${guardian.first_name} ${guardian.last_name}`.trim() : 'Registered Guardian';
-        const parentEmail = guardian?.email || `guardian.${st.admission_number.toLowerCase().replace(/[^a-z0-9]/g, '')}@oaklandschool.edu.ng`;
+        const parentName = guardian ? `${guardian.first_name} ${guardian.last_name}`.trim() : '—';
+        const parentEmail = guardian?.email || '—';
 
         parentEmailDeliveries.push({
           id: `disp-${st.id || idx}`,
@@ -190,8 +192,8 @@ export async function GET(request: NextRequest) {
           class: studentClass,
           parentName,
           parentEmail,
-          status: 'Delivered',
-          sentTime: 'Dispatched upon endorsement',
+          status: 'Published',
+          sentTime: studentRc.published_at ? new Date(studentRc.published_at).toLocaleDateString('en-GB') : '—',
           totalScore: `${studentRc.average_score}% Terminal Average`,
         });
       }
@@ -220,10 +222,14 @@ export async function GET(request: NextRequest) {
     if (targetStudent) {
       const activeEnrollment = (targetStudent.class_enrollments || []).find((e: any) => e.status === 'active');
       const studentClassObj = (dbClasses || []).find((c: any) => c.id === activeEnrollment?.class_id);
-      const studentClassName = studentClassObj?.name || 'JSS 2';
-      const isClassEndorsed = endorsedClasses.includes(studentClassName);
+      const studentClassName = studentClassObj?.name || '';
 
       const studentRc = (reportCards || []).find((r: any) => r.enrollment_id === activeEnrollment?.id);
+      // Families see a card only after the proprietor has endorsed it
+      const isClassEndorsed = studentRc?.proprietor_endorsed === true;
+      const classCardCount = (reportCards || []).filter(
+        (r: any) => r.class_name === studentRc?.class_name && r.term_id === studentRc?.term_id
+      ).length;
 
       studentReportCard = {
         studentId: targetStudent.id,
@@ -234,10 +240,10 @@ export async function GET(request: NextRequest) {
         hasScores: Boolean(studentRc),
         // Families see scores only after the Proprietor has endorsed the class
         averageScore: studentRc && (isAdmin || isClassEndorsed) ? Number(studentRc.average_score || 0) : null,
-        position: isAdmin || isClassEndorsed ? studentRc?.class_position || null : null,
+        position: (isAdmin || isClassEndorsed) && studentRc?.rank ? `${studentRc.rank} of ${classCardCount}` : null,
         subjects: (isAdmin || isClassEndorsed) && Array.isArray(studentRc?.subjects) ? studentRc.subjects : [],
-        teacherRemark: isAdmin || isClassEndorsed ? studentRc?.teacher_remark || null : null,
-        principalRemark: isAdmin || isClassEndorsed ? studentRc?.principal_remark || null : null,
+        teacherRemark: isAdmin || isClassEndorsed ? studentRc?.teacher_comment || null : null,
+        principalRemark: isAdmin || isClassEndorsed ? studentRc?.principal_comment || null : null,
       };
     }
 
@@ -263,102 +269,118 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const sb = getAdminClient();
+    const actor = await getAuthenticatedActor();
 
-    const { action, classNames } = body;
+    const { action } = body;
+    const classes: string[] = Array.isArray(body.classNames) ? body.classNames.filter((c: unknown) => typeof c === 'string') : [];
 
-    if (action === 'endorse') {
-      const classesToEndorse: string[] = Array.isArray(classNames) ? classNames : [];
-
-      if (classesToEndorse.length === 0) {
-        return NextResponse.json({ success: false, error: 'No classes specified for endorsement' }, { status: 400 });
-      }
-
-      // 1. Fetch current school settings
-      const { data: school } = await sb
-        .from('schools')
-        .select('id, settings')
-        .limit(1)
-        .maybeSingle();
-
-      const existingSettings = school?.settings || {};
-      const currentEndorsed: string[] = existingSettings.endorsed_results || [];
-
-      // Merge newly endorsed classes
-      const updatedEndorsed = Array.from(new Set([...currentEndorsed, ...classesToEndorse]));
-
-      // 2. Persist to schools.settings in PostgreSQL
-      if (school?.id) {
-        await sb
-          .from('schools')
-          .update({
-            settings: {
-              ...existingSettings,
-              endorsed_results: updatedEndorsed,
-            },
-          })
-          .eq('id', school.id);
-      }
-
-      // 3. Update report_cards table in PostgreSQL for active term
-      try {
-        await sb
-          .from('report_cards')
-          .update({
-            proprietor_endorsed: true,
-            status: 'published',
-            is_published: true,
-            published_at: new Date().toISOString(),
-          })
-          .eq('proprietor_endorsed', false);
-      } catch {}
-
-      return NextResponse.json({
-        success: true,
-        message: 'Class results officially endorsed and published to parents.',
-        endorsedClasses: updatedEndorsed,
-      });
+    if (action !== 'endorse' && action !== 'forward') {
+      return NextResponse.json({ success: false, error: 'Invalid action' }, { status: 400 });
+    }
+    // Only the proprietor publishes results to families
+    if (action === 'endorse' && actor.role !== 'proprietor') {
+      return NextResponse.json({ success: false, error: 'Only the proprietor can endorse results.' }, { status: 403 });
+    }
+    if (classes.length === 0) {
+      return NextResponse.json(
+        { success: false, error: `No classes specified for ${action === 'endorse' ? 'endorsement' : 'forwarding'}` },
+        { status: 400 }
+      );
     }
 
-    if (action === 'forward') {
-      const classesToForward: string[] = Array.isArray(classNames) ? classNames : [];
-
-      if (classesToForward.length === 0) {
-        return NextResponse.json({ success: false, error: 'No classes specified for forwarding' }, { status: 400 });
-      }
-
-      const { data: school } = await sb
-        .from('schools')
-        .select('id, settings')
-        .limit(1)
-        .maybeSingle();
-
-      const existingSettings = school?.settings || {};
-      const currentForwarded: string[] = existingSettings.forwarded_results || [];
-      const updatedForwarded = Array.from(new Set([...currentForwarded, ...classesToForward]));
-
-      if (school?.id) {
-        await sb
-          .from('schools')
-          .update({
-            settings: {
-              ...existingSettings,
-              forwarded_results: updatedForwarded,
-            },
-          })
-          .eq('id', school.id);
-      }
-
-      return NextResponse.json({
-        success: true,
-        message: 'Class results forwarded to Proprietor.',
-        forwardedClasses: updatedForwarded,
-      });
+    const { data: school } = await sb.from('schools').select('id, settings').limit(1).maybeSingle();
+    const { data: term } = await sb.from('academic_terms').select('id').eq('is_current', true).maybeSingle();
+    if (!school || !term) {
+      return NextResponse.json({ success: false, error: 'No current term is set.' }, { status: 409 });
     }
 
-    return NextResponse.json({ success: false, error: 'Invalid action' }, { status: 400 });
+    // Step 2 (forward): the principal approves the class teacher's submitted cards.
+    // Step 3 (endorse): the proprietor publishes the approved cards. Only that class's cards change.
+    const isForward = action === 'forward';
+    const processed: string[] = [];
+    const skipped: { class: string; reason: string }[] = [];
+
+    for (const className of classes) {
+      const { data: cards } = await sb
+        .from('report_cards')
+        .select('id, principal_approved, proprietor_endorsed')
+        .eq('class_name', className)
+        .eq('term_id', term.id);
+
+      const eligible = (cards || []).filter((c: any) =>
+        isForward ? c.principal_approved !== true : c.principal_approved === true && c.proprietor_endorsed !== true
+      );
+      if (eligible.length === 0) {
+        skipped.push({
+          class: className,
+          reason: isForward
+            ? (cards || []).length === 0
+              ? 'The class teacher has not submitted report cards yet.'
+              : 'Already approved.'
+            : (cards || []).length === 0
+              ? 'No report cards have been submitted.'
+              : 'The principal has not approved these report cards yet.',
+        });
+        continue;
+      }
+
+      const { error: updateError } = await sb
+        .from('report_cards')
+        .update(
+          isForward
+            ? { principal_approved: true, status: 'approved' }
+            : { proprietor_endorsed: true, status: 'published', published_at: new Date().toISOString() }
+        )
+        .in('id', eligible.map((c: any) => c.id));
+      if (updateError) throw updateError;
+      processed.push(className);
+    }
+
+    if (processed.length === 0) {
+      return NextResponse.json(
+        { success: false, error: skipped.map((s) => `${s.class}: ${s.reason}`).join(' '), skipped },
+        { status: 422 }
+      );
+    }
+
+    // Keep the class lists in settings in step, saved atomically (DEF-113)
+    const settingsKey = isForward ? 'forwarded_results' : 'endorsed_results';
+    const current: string[] = Array.isArray(school.settings?.[settingsKey]) ? school.settings[settingsKey] : [];
+    const updatedList = Array.from(new Set([...current, ...processed]));
+    const { error: settingsError } = await sb.rpc('merge_school_settings', {
+      p_school_id: school.id,
+      p_patch: { [settingsKey]: updatedList },
+    });
+    if (settingsError) throw settingsError;
+
+    try {
+      await sb.from('audit_logs').insert({
+        school_id: school.id,
+        actor_id: actor.userId,
+        actor_name: actor.actorName,
+        actor_role: actor.actorRoleLabel,
+        action: isForward ? 'results.approved_by_principal' : 'results.endorsed_by_proprietor',
+        resource_type: 'report_cards',
+        metadata: {
+          actorName: actor.actorName,
+          actorRole: actor.actorRoleLabel,
+          classes: processed,
+          summary: `${actor.actorName} ${isForward ? 'approved' : 'endorsed'} report cards for ${processed.join(', ')}`,
+        },
+      });
+    } catch {}
+
+    return NextResponse.json({
+      success: true,
+      message: isForward
+        ? 'Class results approved and forwarded to the proprietor.'
+        : 'Class results officially endorsed and published to parents.',
+      skipped,
+      ...(isForward ? { forwardedClasses: updatedList } : { endorsedClasses: updatedList }),
+    });
   } catch (err: any) {
     return NextResponse.json(
-      { success: false, error: err instanceof Error ? err.message : 'Endorsement action failed' },
+      { success: false, error: err instanceof Error ? err.message : 'Results action failed' },
       { status: 500 }
     );
   }

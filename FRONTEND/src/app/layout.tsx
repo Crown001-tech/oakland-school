@@ -3,6 +3,7 @@ import { Inter, Bricolage_Grotesque, DM_Sans } from 'next/font/google';
 import './globals.css';
 import { PRODUCT_NAME, getBrandId, isEductiveBrand } from '@/lib/brand';
 import { isDemoModeEnabled } from '@/lib/demo-mode';
+import { isLocalReviewFlagOn } from '@/lib/local-review';
 import { FloatingDemoSwitcher } from '@/components/demo/FloatingDemoSwitcher';
 
 const inter = Inter({
@@ -42,6 +43,7 @@ export default function RootLayout({
 }>) {
   const isEductive = isEductiveBrand();
   const isDemo = isDemoModeEnabled();
+  const showSwitcher = isDemo || isLocalReviewFlagOn();
   const fontClasses = isEductive
     ? `${inter.variable} ${displayFont.variable} ${bodyFont.variable}`
     : inter.variable;
@@ -51,10 +53,10 @@ export default function RootLayout({
       <body
         suppressHydrationWarning
         className={`min-h-full flex flex-col bg-[var(--background)] text-slate-900 selection:bg-brand-accent selection:text-white ${
-          isDemo ? 'pb-14 sm:pb-0' : ''
+          showSwitcher ? 'pb-14 sm:pb-0' : ''
         }`}
       >
-        {isDemo && <FloatingDemoSwitcher />}
+        {showSwitcher && <FloatingDemoSwitcher live={!isDemo} />}
         {children}
       </body>
     </html>

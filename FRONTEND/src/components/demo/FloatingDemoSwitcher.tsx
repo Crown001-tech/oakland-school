@@ -37,7 +37,10 @@ function detectActiveRole(pathname: string): DemoRole | null {
 }
 
 /** Role selector shown inside the demo school, so a visitor can change role without signing out. */
-export function FloatingDemoSwitcher() {
+export function FloatingDemoSwitcher({ live = false }: { live?: boolean }) {
+  // live: the role switcher on Oakland itself, not the separate sample demo school
+  const title = live ? 'Oakland Demo' : 'Eductive Demo';
+  const note = live ? 'Demo records' : 'Sample records';
   const pathname = usePathname() || '';
   const activeRole = detectActiveRole(pathname);
 
@@ -107,8 +110,8 @@ export function FloatingDemoSwitcher() {
         <div className="flex items-center gap-2 border-r border-[#0b4034] pl-2 pr-2.5">
           <span className="h-2 w-2 rounded-full bg-emerald-400" />
           <div className="hidden flex-col lg:flex">
-            <span className="text-[11px] font-black uppercase tracking-wider text-white">Eductive Demo</span>
-            <span className="text-xs text-emerald-300/80">Sample records</span>
+            <span className="text-[11px] font-black uppercase tracking-wider text-white">{title}</span>
+            <span className="text-xs text-emerald-300/80">{note}</span>
           </div>
         </div>
 
@@ -143,7 +146,7 @@ export function FloatingDemoSwitcher() {
             className="flex min-h-[44px] items-center gap-2 rounded-xl bg-[#0b4034] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#0d4d3e] focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent"
           >
             <span className="rounded bg-black/30 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
-              Sample
+              {live ? 'Demo' : 'Sample'}
             </span>
             <span>
               Role: <strong className="text-brand-accent">{activeRole ? DEMO_ROLE_LABELS[activeRole] : 'Choose'}</strong>
