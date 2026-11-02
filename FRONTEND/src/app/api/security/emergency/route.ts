@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/server';
+import { getSchoolDb } from '@/lib/school-db';
+
 
 // Official Institutional Safety Protocols
 const INSTITUTIONAL_PROTOCOLS = [
@@ -11,7 +12,7 @@ const INSTITUTIONAL_PROTOCOLS = [
     assemblyPoint: 'Main Sports Field (Zone A & B)',
     immediateActions: [
       'Trigger nearest fire alarm break-glass station immediately.',
-      'Notify Central Fire Control via 01-2222222 or 112.',
+      'Notify the fire service on the national emergency line, 112.',
       'Direct all staff and students via designated fire escape staircases.',
       'Ensure nobody uses elevators or attempts to collect personal items.',
       'Gate security must open all vehicular and pedestrian perimeter gates for fire engine ingress.',
@@ -28,7 +29,7 @@ const INSTITUTIONAL_PROTOCOLS = [
       'Secure and bolt all main gate barriers and pedestrian turnstiles immediately.',
       'Sound continuous short-blast perimeter alert siren.',
       'Instruct all teachers to lock classroom doors, close window blinds, and keep students silent on the floor.',
-      'Contact State Police Command Dispatch (112 / 08031234567) reporting Code Red Perimeter Alert.',
+      'Contact the police on the national emergency line, 112, and report a perimeter alert.',
       'Dispatch roving patrol guards to monitor CCTV blind spots if safe to do so.',
       'No person may enter or leave the premises until the Principal or Police issue the All-Clear.',
     ],
@@ -38,10 +39,10 @@ const INSTITUTIONAL_PROTOCOLS = [
     title: 'Medical Trauma Protocol',
     category: 'ambulance',
     priority: 'High',
-    assemblyPoint: 'Oakland Health Infirmary (Admin Ground Floor)',
+    assemblyPoint: 'School infirmary',
     immediateActions: [
-      'Contact School Infirmary Nurse / Medical Officer via 08055554321.',
-      'For severe trauma or unconsciousness, dispatch LASAMBUS (112).',
+      'Contact the school nurse or medical officer from the emergency directory.',
+      'For severe trauma or unconsciousness, call an ambulance on 112.',
       'Keep patient stable, warm, and do not move if spinal injury is suspected.',
       'Clear perimeter gate pathway and station a guard at Main Gate to guide arriving ambulance.',
       'Notify Principal and student primary guardian immediately.',
@@ -57,7 +58,7 @@ const INSTITUTIONAL_PROTOCOLS = [
       'Confirm if power outage is localized or grid-wide.',
       'Switch to primary auxiliary diesel generator bank within 90 seconds.',
       'Verify CCTV surveillance backup UPS batteries are active.',
-      'Contact EKEDC Faults Unit (07080655555) for grid updates.',
+      'Contact the electricity provider from the emergency directory for grid updates.',
       'Ensure perimeter floodlights remain operational via inverter systems.',
     ],
   },
@@ -65,7 +66,7 @@ const INSTITUTIONAL_PROTOCOLS = [
 
 export async function GET(req: NextRequest) {
   try {
-    const admin = createAdminClient();
+    const admin = await getSchoolDb();
     const { searchParams } = new URL(req.url);
     const category = searchParams.get('category');
     const search = searchParams.get('search')?.trim().toLowerCase();
@@ -141,7 +142,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const admin = createAdminClient();
+    const admin = await getSchoolDb();
     const body = await req.json();
 
     const {

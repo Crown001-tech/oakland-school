@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { BrandLoader } from '@/components/ui/BrandLoader';
+import { SchoolName } from '@/components/common/SchoolName';
 
 interface SchoolDocument {
   id: string;
@@ -608,7 +609,7 @@ export default function ProprietorDocumentsPage() {
                       O
                     </div>
                     <h4 className="text-sm font-black uppercase tracking-wider text-brand-primary font-serif">
-                      Oakland International School
+                      <SchoolName />
                     </h4>
                     <p className="text-[9px] font-bold text-brand-accent tracking-widest uppercase">
                       Official Document Record

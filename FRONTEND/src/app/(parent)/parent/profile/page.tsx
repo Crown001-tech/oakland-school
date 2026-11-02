@@ -1,4 +1,5 @@
 'use client';
+import { SchoolName, PrincipalName } from '@/components/common/SchoolName';
 
 import React, { useState } from 'react';
 import { useActiveChild } from '@/context/ParentContext';
@@ -100,7 +101,7 @@ export default function ParentProfilePage() {
               {parent?.name}
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              Relationship: <strong className="text-slate-700">{parent?.relationship || 'Guardian'}</strong> &bull; Oakland School Parent
+              Relationship: <strong className="text-slate-700">{parent?.relationship || 'Guardian'}</strong> &bull; <SchoolName /> Parent
             </p>
           </div>
         </div>

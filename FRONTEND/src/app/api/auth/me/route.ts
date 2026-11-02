@@ -1,7 +1,8 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { headers } from 'next/headers';
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { getVerifiedRole } from '@/lib/caller';
+import { getSchoolDb } from '@/lib/school-db';
 
 export async function GET(request?: NextRequest) {
   try {
@@ -37,7 +38,7 @@ export async function GET(request?: NextRequest) {
     let effectiveRole: string | undefined = await getVerifiedRole(user);
 
     try {
-      const adminClient = createAdminClient();
+      const adminClient = await getSchoolDb();
       const { data: profile } = await adminClient
         .from('staff_profiles')
         .select('*')
@@ -301,7 +302,7 @@ export async function PATCH(request: Request) {
     }
 
     const body = await request.json();
-    const adminClient = createAdminClient();
+    const adminClient = await getSchoolDb();
 
     // 1. Update fields in staff_profiles table if present
     const staffUpdates: Record<string, any> = {
@@ -414,7 +415,7 @@ export async function PATCH(request: Request) {
       }
 
       try {
-        const schoolId = user.user_metadata?.school_id || 'a0000000-0000-0000-0000-000000000001';
+        const schoolId = adminClient.schoolId;
         await adminClient.from('audit_logs').insert({
           school_id: schoolId,
           actor_id: user.id,

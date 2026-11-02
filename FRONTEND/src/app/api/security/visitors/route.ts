@@ -1,9 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/server';
+import { getSchoolDb } from '@/lib/school-db';
+
 
 export async function GET(req: NextRequest) {
   try {
-    const admin = createAdminClient();
+    const admin = await getSchoolDb();
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status');
     const search = searchParams.get('search')?.trim().toLowerCase();
@@ -70,7 +71,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const admin = createAdminClient();
+    const admin = await getSchoolDb();
     const body = await req.json();
 
     const {
@@ -96,7 +97,7 @@ export async function POST(req: NextRequest) {
 
     // Generate unique Pass Number: OAK-VIS-XXXX
     const randomPin = Math.floor(1000 + Math.random() * 9000);
-    const passNumber = `OAK-VIS-${randomPin}`;
+    const passNumber = `${admin.idPrefix}-VIS-${randomPin}`;
 
     const { data, error } = await admin
       .from('visitors')

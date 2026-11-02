@@ -1,12 +1,9 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getAuthenticatedActor, getCaller, getLinkedStudentIds, getOwnStudentId, isAdminRole } from '@/lib/caller';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { resolveGradingConfig } from '@/lib/grading-config';
+import { getClassNames } from '@/lib/school-classes';
+import { getSchoolDb } from '@/lib/school-db';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
-
-const CLASS_ORDER = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'];
 
 export async function GET(request: NextRequest) {
   try {
@@ -24,7 +21,7 @@ export async function GET(request: NextRequest) {
       ? await getLinkedStudentIds(caller.email)
       : [(await getOwnStudentId(caller.userId ?? undefined)) || ''].filter(Boolean);
 
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     // 1. Fetch Classes with capacity and teacher
     const { data: dbClasses, error: classError } = await sb
@@ -82,6 +79,7 @@ export async function GET(request: NextRequest) {
       .maybeSingle();
 
     const schoolSettings = schoolData?.settings || {};
+    const gradingConfig = resolveGradingConfig(schoolSettings);
     const endorsedClasses: string[] = schoolSettings.endorsed_results || [];
     const forwardedClasses: string[] = schoolSettings.forwarded_results || [];
 
@@ -91,7 +89,8 @@ export async function GET(request: NextRequest) {
       .select('*');
 
     // 5. Structure Class Result Summaries
-    const classesSummary = CLASS_ORDER.map((className) => {
+    const classNames = await getClassNames(sb);
+    const classesSummary = classNames.map((className) => {
       const classObj = (dbClasses || []).find((c: any) => c.name === className);
       const classId = classObj?.id;
 
@@ -122,22 +121,24 @@ export async function GET(request: NextRequest) {
       );
 
       const hasRecordedScores = classReportCards.length > 0;
+      // A remark card has no marks, so it counts as recorded but never enters an average or a pass rate
+      const scoredCards = classReportCards.filter((rc: any) => rc.style !== 'descriptive');
       // The saved cards are the record: principal approval and endorsement live on each card
       const isApproved = hasRecordedScores && classReportCards.every((rc: any) => rc.principal_approved === true);
       const isEndorsed = hasRecordedScores && classReportCards.every((rc: any) => rc.proprietor_endorsed === true);
-      const averageScore = hasRecordedScores
+      const averageScore = scoredCards.length > 0
         ? Number(
             (
-              classReportCards.reduce((acc: number, r: any) => acc + Number(r.average_score || 0), 0) /
-              classReportCards.length
+              scoredCards.reduce((acc: number, r: any) => acc + Number(r.average_score || 0), 0) /
+              scoredCards.length
             ).toFixed(1)
           )
         : 0;
 
-      const passRate = hasRecordedScores
+      const passRate = scoredCards.length > 0
         ? Math.round(
-            (classReportCards.filter((r: any) => Number(r.average_score || 0) >= 50).length /
-              classReportCards.length) *
+            (scoredCards.filter((r: any) => Number(r.average_score || 0) >= gradingConfig.passMark).length /
+              scoredCards.length) *
               100
           )
         : 0;
@@ -238,6 +239,7 @@ export async function GET(request: NextRequest) {
         className: studentClassName,
         isEndorsed: isClassEndorsed,
         hasScores: Boolean(studentRc),
+        passMark: gradingConfig.passMark,
         // Families see scores only after the Proprietor has endorsed the class
         averageScore: studentRc && (isAdmin || isClassEndorsed) ? Number(studentRc.average_score || 0) : null,
         position: (isAdmin || isClassEndorsed) && studentRc?.rank ? `${studentRc.rank} of ${classCardCount}` : null,
@@ -268,7 +270,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const actor = await getAuthenticatedActor();
 
     const { action } = body;

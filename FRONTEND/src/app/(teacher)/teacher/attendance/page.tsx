@@ -111,7 +111,7 @@ export default function DailyAttendancePage() {
               const matching = stData.data.filter((s: any) => s.class === homeroom);
               const mapped: AttendanceRecord[] = matching.map((s: any, idx: number) => ({
                 id: s.id || `std-${idx}`,
-                admissionNo: s.admissionNo || `OAK-${idx + 1}`,
+                admissionNo: s.admissionNo || '—',
                 name: s.fullName || 'Student',
                 gender: s.gender === 'Female' ? 'Female' : 'Male',
                 status: existingMap.get(s.id) || 'present',

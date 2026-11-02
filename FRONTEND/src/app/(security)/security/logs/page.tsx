@@ -131,7 +131,7 @@ export default function SecurityLogsPage() {
       const downloadUrl = `/api/security/logs?${params.toString()}`;
       const link = document.createElement('a');
       link.href = downloadUrl;
-      link.setAttribute('download', `oakland_security_logs_${new Date().toISOString().slice(0, 10)}.csv`);
+      link.setAttribute('download', `security_logs_${new Date().toISOString().slice(0, 10)}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

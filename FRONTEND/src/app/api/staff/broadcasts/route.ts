@@ -1,15 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET() {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { data: broadcasts, error } = await sb
       .from('staff_broadcasts')
       .select('*')
@@ -47,7 +43,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     const { title, message, audience, priority } = body;
 
@@ -72,7 +68,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await sb
       .from('staff_broadcasts')
       .insert({
-        school_id: DEFAULT_SCHOOL_ID,
+        school_id: sb.schoolId,
         sender_name: 'Office of the Proprietor',
         title: title.trim(),
         message: message.trim(),
@@ -87,8 +83,8 @@ export async function POST(request: NextRequest) {
     // Simultaneous delivery to notifications table (DEF-002)
     try {
       await sb.from('notifications').insert({
-        school_id: DEFAULT_SCHOOL_ID,
-        recipient_email: 'broadcast@oakland.school',
+        school_id: sb.schoolId,
+        recipient_email: 'broadcast@school.invalid',
         recipient_name: audience === 'All Staff' ? 'All Staff' : audience,
         notification_type: 'broadcast',
         subject: title.trim(),
@@ -103,7 +99,7 @@ export async function POST(request: NextRequest) {
     // Institutional Audit Log (DEF-003)
     try {
       await sb.from('audit_logs').insert({
-        school_id: DEFAULT_SCHOOL_ID,
+        school_id: sb.schoolId,
         actor_name: 'Office of the Proprietor',
         actor_role: 'Proprietor',
         action: 'BROADCAST.SENT',
@@ -139,7 +135,7 @@ export async function DELETE(request: NextRequest) {
     if (!id) {
       return NextResponse.json({ success: false, message: 'Broadcast ID is required' }, { status: 400 });
     }
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { error } = await sb.from('staff_broadcasts').delete().eq('id', id);
     if (error) throw error;
     return NextResponse.json({ success: true, message: 'Broadcast deleted successfully' });

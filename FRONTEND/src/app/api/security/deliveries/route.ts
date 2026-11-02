@@ -1,9 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/server';
+import { getSchoolDb } from '@/lib/school-db';
+
 
 export async function GET(req: NextRequest) {
   try {
-    const admin = createAdminClient();
+    const admin = await getSchoolDb();
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status');
     const type = searchParams.get('type');
@@ -109,7 +110,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const admin = createAdminClient();
+    const admin = await getSchoolDb();
     const body = await req.json();
 
     const {
@@ -148,7 +149,7 @@ export async function POST(req: NextRequest) {
     let trackingCode = customTrackingCode?.trim().toUpperCase();
     if (!trackingCode) {
       const randomPin = Math.floor(1000 + Math.random() * 9000);
-      trackingCode = `OAK-DEL-${randomPin}`;
+      trackingCode = `${admin.idPrefix}-DEL-${randomPin}`;
     }
 
     const { data, error } = await admin
@@ -203,7 +204,7 @@ export async function POST(req: NextRequest) {
 
       if (recipientEmail) {
         await admin.from('notifications').insert({
-          school_id: 'a0000000-0000-0000-0000-000000000001',
+          school_id: admin.schoolId,
           recipient_email: recipientEmail.toLowerCase(),
           recipient_name: recipientStaffName,
           subject: `Package Arrived at Gate: ${validPkgType.toUpperCase()} (${trackingCode})`,

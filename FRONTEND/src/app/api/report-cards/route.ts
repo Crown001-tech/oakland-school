@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getAuthenticatedActor, isAdminRole } from '@/lib/caller';
-import { buildClassReportCards, type ClassStudent } from '@/lib/report-cards';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { resolveGradingConfig } from '@/lib/grading-config';
+import { buildClassReportCards, buildDescriptiveCards, cleanTraits, type ClassStudent } from '@/lib/report-cards';
+import { getSchoolDb } from '@/lib/school-db';
 
 const fail = (message: string, status: number) => NextResponse.json({ success: false, message }, { status });
 
@@ -21,8 +22,11 @@ export async function POST(request: NextRequest) {
     const className = typeof body.className === 'string' ? body.className.trim() : '';
     if (body.action !== 'compile' || !className) return fail('Choose a class to compile.', 400);
     const remarks: Record<string, unknown> = body.remarks && typeof body.remarks === 'object' ? body.remarks : {};
+    // Ratings per student (skills and behaviour), kept with the card. Marks cards and remark cards can both carry them.
+    const traitsByStudent: Record<string, unknown> = body.traits && typeof body.traits === 'object' ? body.traits : {};
+    const descriptive = body.mode === 'descriptive';
 
-    const sb = getSupabaseAdmin();
+    const sb = await getSchoolDb();
 
     // A teacher may compile only the class they are class teacher of
     if (!isAdmin) {
@@ -63,15 +67,46 @@ export async function POST(request: NextRequest) {
     // Once the principal has approved the class, the cards are final
     const { data: existing } = await sb
       .from('report_cards')
-      .select('enrollment_id, principal_approved, teacher_comment')
+      .select('enrollment_id, principal_approved, teacher_comment, traits')
       .in('enrollment_id', students.map((s) => s.enrollmentId))
       .eq('term_id', term.id);
     if ((existing || []).some((c: any) => c.principal_approved === true)) {
       return fail(`${className} report cards have already been approved by the principal and cannot be changed.`, 409);
     }
     const existingComment = new Map<string, string | null>((existing || []).map((c: any) => [c.enrollment_id, c.teacher_comment]));
+    const existingTraits = new Map<string, unknown>((existing || []).map((c: any) => [c.enrollment_id, c.traits]));
 
-    const built = buildClassReportCards(className, students, school.settings?.subject_scores);
+    // Remark cards: the class teacher writes a remark for each subject and rates skills and behaviour. No marks.
+    if (descriptive) {
+      const { data: subjectRows } = await sb.from('subjects').select('name').eq('is_active', true);
+      const registered = (subjectRows || []).map((r: { name: string }) => r.name);
+      const input = body.cards && typeof body.cards === 'object' ? body.cards : {};
+      const made = buildDescriptiveCards(students, input, registered);
+      if (made.cards.length === 0) {
+        return fail(made.errors[0] || `Write a remark or a rating for at least one student in ${className}.`, 422);
+      }
+      const descriptiveRows = made.cards.map((card) => ({
+        enrollment_id: card.enrollmentId,
+        term_id: term.id,
+        class_name: className,
+        style: 'descriptive',
+        subjects: card.subjects,
+        traits: card.traits,
+        total_score: null,
+        average_score: null,
+        rank: null,
+        teacher_comment: card.comment || existingComment.get(card.enrollmentId) || null,
+        status: 'submitted',
+        principal_approved: false,
+        proprietor_endorsed: false,
+        published_at: null,
+      }));
+      const { error: descriptiveError } = await sb.from('report_cards').upsert(descriptiveRows, { onConflict: 'enrollment_id,term_id' });
+      if (descriptiveError) throw descriptiveError;
+      return NextResponse.json({ success: true, data: { saved: descriptiveRows.length, skipped: made.errors } });
+    }
+
+    const built = buildClassReportCards(className, students, school.settings?.subject_scores, resolveGradingConfig(school.settings));
     if (built.cards.length === 0) {
       return fail(
         built.unlockedSubjects.length > 0
@@ -94,7 +129,14 @@ export async function POST(request: NextRequest) {
       attended.set(row.student_id, entry);
     }
 
+    // Ratings sent with a marks card are checked before anything is saved
+    for (const card of built.cards) {
+      const checked = cleanTraits(traitsByStudent[card.studentId]);
+      if (checked.error) return fail(checked.error, 400);
+    }
+
     const rows = built.cards.map((card) => {
+      const sentTraits = traitsByStudent[card.studentId] === undefined ? undefined : cleanTraits(traitsByStudent[card.studentId]).traits;
       const remark = typeof remarks[card.studentId] === 'string' ? (remarks[card.studentId] as string).trim() : '';
       return {
         enrollment_id: card.enrollmentId,
@@ -107,6 +149,8 @@ export async function POST(request: NextRequest) {
         attendance_present: attended.get(card.studentId)?.present ?? 0,
         attendance_total: attended.get(card.studentId)?.total ?? 0,
         teacher_comment: remark || existingComment.get(card.enrollmentId) || null,
+        style: 'scored',
+        traits: sentTraits ?? existingTraits.get(card.enrollmentId) ?? [],
         status: 'submitted',
         principal_approved: false,
         proprietor_endorsed: false,

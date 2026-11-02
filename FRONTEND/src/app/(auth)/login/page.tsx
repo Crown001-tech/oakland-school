@@ -19,6 +19,7 @@ import {
   ShieldCheck,
   KeyRound,
 } from 'lucide-react';
+import { SchoolName } from '@/components/common/SchoolName';
 
 function LoginForm() {
   const searchParams = useSearchParams();
@@ -141,7 +142,7 @@ function LoginForm() {
         </div>
         <div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 font-serif">
-            Oakland International School
+            <SchoolName />
           </h1>
           <p className="text-xs text-slate-500 font-medium mt-1">
             School Operating System &bull; Unified Portal
@@ -205,7 +206,7 @@ function LoginForm() {
               </label>
               <Input
                 type="text"
-                placeholder="e.g. staff@oakland.ng or OAK-2026-123"
+                placeholder="Email or admission number"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -258,7 +259,7 @@ function LoginForm() {
               </label>
               <Input
                 type="email"
-                placeholder="e.g. staff@oaklandschools.edu"
+                placeholder="name@example.com"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

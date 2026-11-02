@@ -14,20 +14,20 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { BrandLoader } from '@/components/ui/BrandLoader';
+import { useClassNames } from '@/lib/use-class-names';
 
 interface DeliveryRecord {
   id: string;
   recipientsGroup: string;
   recipientCount: number;
   subject: string;
-  channels: ('email' | 'sms' | 'whatsapp')[];
   sentAt: string;
-  status: 'Delivered' | 'Scheduled';
+  status: 'Posted' | 'Scheduled';
 }
 
 const PREBUILT_TEMPLATES: Record<string, { subject: string; body: string }> = {
   resumption: {
-    subject: 'Term Resumption Notice - Oakland International School',
+    subject: 'Term Resumption Notice',
     body: 'Dear Guardians,\n\nWe look forward to welcoming our students back for the new academic term on Monday. Assembly begins promptly at 7:45 AM in complete school uniform.\n\nThank you,\nSchool Management',
   },
   fees: {
@@ -41,6 +41,7 @@ const PREBUILT_TEMPLATES: Record<string, { subject: string; body: string }> = {
 };
 
 export default function AdminCommunicationsPage() {
+  const CLASSES = useClassNames();
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'compose' | 'history'>('compose');
 
@@ -50,11 +51,6 @@ export default function AdminCommunicationsPage() {
   const [selectedTemplate, setSelectedTemplate] = useState('none');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
-  const [channels, setChannels] = useState<{ email: boolean; sms: boolean; whatsapp: boolean }>({
-    email: true,
-    sms: true,
-    whatsapp: false,
-  });
   const [deliveryTiming, setDeliveryTiming] = useState<'now' | 'scheduled'>('now');
   const [scheduledDate, setScheduledDate] = useState('');
 
@@ -130,10 +126,6 @@ export default function AdminCommunicationsPage() {
     }
   };
 
-  const toggleChannel = (ch: 'email' | 'sms' | 'whatsapp') => {
-    setChannels((prev) => ({ ...prev, [ch]: !prev[ch] }));
-  };
-
   // Resolve dynamic counts strictly from real database counts
   const allParentsCount = students.length;
   const allStaffCount = staff.length;
@@ -151,12 +143,6 @@ export default function AdminCommunicationsPage() {
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!subject.trim() || !message.trim()) return;
-
-    const activeChannels = (['email', 'sms', 'whatsapp'] as const).filter((c) => channels[c]);
-    if (activeChannels.length === 0) {
-      showToast('Please select at least one delivery channel.');
-      return;
-    }
 
     setIsSending(true);
 
@@ -176,7 +162,6 @@ export default function AdminCommunicationsPage() {
           recipientCount: currentRecipientCount,
           subject: subject.trim(),
           message: message.trim(),
-          channels: activeChannels,
           deliveryTiming,
         }),
       });
@@ -381,7 +366,7 @@ export default function AdminCommunicationsPage() {
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  {['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'].map((c) => {
+                  {CLASSES.map((c) => {
                     const countInClass = students.filter((s) => s.class === c).length;
                     const isSelected = selectedClass === c;
                     return (
@@ -476,86 +461,23 @@ export default function AdminCommunicationsPage() {
             </div>
           </div>
 
-          {/* Step 3: Delivery Channels */}
-          <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs space-y-4">
-            <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
-              <div className="w-6 h-6 rounded-lg bg-brand-primary text-white flex items-center justify-center font-bold text-xs shrink-0">
-                3
-              </div>
-              <div>
-                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-                  Select Delivery Channels
-                </h3>
-                <p className="text-[11px] text-slate-500">Pick which channels dispatch this communication</p>
-              </div>
+          {/* Where the notice appears */}
+          <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs space-y-3">
+            <div>
+              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Delivery Channels</h3>
+              <p className="text-[11px] text-slate-500">The notice is always posted to each parent's portal. The other channels switch on when the school's messaging account is connected.</p>
             </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-              <button
-                type="button"
-                onClick={() => toggleChannel('email')}
-                className={`w-full p-3.5 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
-                  channels.email
-                    ? 'border-emerald-600 bg-emerald-50/70 text-emerald-950 font-semibold shadow-xs'
-                    : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className={`p-1.5 rounded-lg ${channels.email ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
-                    <Mail className="w-4 h-4" />
-                  </div>
-                  <span>Email Notification</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="flex items-center justify-between gap-2 min-h-[44px] px-3 rounded-xl border border-emerald-600 bg-emerald-600 text-white font-semibold">
+                <span>Parent Portal</span>
+                <Check className="w-3 h-3 stroke-[3]" />
+              </div>
+              {['Email', 'SMS', 'WhatsApp'].map((label) => (
+                <div key={label} aria-disabled="true" className="flex items-center justify-between gap-2 min-h-[44px] px-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 font-semibold cursor-not-allowed">
+                  <span>{label}</span>
+                  <span className="text-[10px] font-medium">Not connected yet</span>
                 </div>
-                <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                  channels.email ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-300 bg-transparent'
-                }`}>
-                  {channels.email && <Check className="w-3 h-3 stroke-[3]" />}
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => toggleChannel('sms')}
-                className={`w-full p-3.5 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
-                  channels.sms
-                    ? 'border-emerald-600 bg-emerald-50/70 text-emerald-950 font-semibold shadow-xs'
-                    : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className={`p-1.5 rounded-lg ${channels.sms ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
-                    <Smartphone className="w-4 h-4" />
-                  </div>
-                  <span>SMS Dispatch</span>
-                </div>
-                <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                  channels.sms ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-300 bg-transparent'
-                }`}>
-                  {channels.sms && <Check className="w-3 h-3 stroke-[3]" />}
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => toggleChannel('whatsapp')}
-                className={`w-full p-3.5 rounded-xl border flex items-center justify-between transition-all cursor-pointer ${
-                  channels.whatsapp
-                    ? 'border-emerald-600 bg-emerald-50/70 text-emerald-950 font-semibold shadow-xs'
-                    : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50'
-                }`}
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className={`p-1.5 rounded-lg ${channels.whatsapp ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
-                    <MessageSquare className="w-4 h-4" />
-                  </div>
-                  <span>WhatsApp Gateway</span>
-                </div>
-                <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                  channels.whatsapp ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-300 bg-transparent'
-                }`}>
-                  {channels.whatsapp && <Check className="w-3 h-3 stroke-[3]" />}
-                </div>
-              </button>
+              ))}
             </div>
           </div>
 
@@ -593,7 +515,6 @@ export default function AdminCommunicationsPage() {
                   <th className="py-2.5 px-4 font-semibold">Sent At</th>
                   <th className="py-2.5 px-4 font-semibold">Recipients</th>
                   <th className="py-2.5 px-4 font-semibold">Subject</th>
-                  <th className="py-2.5 px-4 font-semibold">Channels</th>
                   <th className="py-2.5 px-4 font-semibold">Status</th>
                 </tr>
               </thead>
@@ -620,18 +541,6 @@ export default function AdminCommunicationsPage() {
                       </td>
                       <td className="py-3 px-4 font-medium text-slate-800">
                         {record.subject}
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-1.5 text-slate-600">
-                          {record.channels.map((ch) => (
-                            <span
-                              key={ch}
-                              className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-slate-100 text-slate-700"
-                            >
-                              {ch.toUpperCase()}
-                            </span>
-                          ))}
-                        </div>
                       </td>
                       <td className="py-3 px-4">
                         <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">

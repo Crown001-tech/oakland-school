@@ -1,7 +1,12 @@
 /**
- * Oakland International School - Academic Grading and Broadsheet Evaluation
- * Strict Zero Placeholder Invariant: Returns null and 'Scores Pending' when marks are missing.
+ * Academic grading and broadsheet evaluation.
+ * Strict Zero Placeholder Invariant: returns null and 'Scores Pending' when marks are missing.
+ *
+ * Every function takes the school's grading configuration (see lib/grading-config.ts) and falls back
+ * to the starter pack, so one codebase grades any school by its own settings.
  */
+
+import { STARTER_GRADING_CONFIG, bandFor, type GradingConfig } from '@/lib/grading-config';
 
 export interface SubjectScoreInput {
   ca1?: number | null;
@@ -18,16 +23,32 @@ export interface GradeResult {
   color: string;
 }
 
-export function calculateGrade(total: number): { grade: string; points: number; remark: string; color: string } {
-  if (total >= 90) return { grade: 'A+', points: 4.0, remark: 'Distinction', color: 'text-emerald-700 bg-emerald-50 border-emerald-200' };
-  if (total >= 80) return { grade: 'A', points: 4.0, remark: 'Excellent', color: 'text-teal-700 bg-teal-50 border-teal-200' };
-  if (total >= 70) return { grade: 'B', points: 3.0, remark: 'Very Good', color: 'text-blue-700 bg-blue-50 border-blue-200' };
-  if (total >= 60) return { grade: 'C', points: 2.0, remark: 'Good Credit', color: 'text-indigo-700 bg-indigo-50 border-indigo-200' };
-  if (total >= 50) return { grade: 'D', points: 1.0, remark: 'Pass', color: 'text-amber-700 bg-amber-50 border-amber-200' };
-  return { grade: 'F', points: 0.0, remark: 'Fail', color: 'text-rose-700 bg-rose-50 border-rose-200' };
+// Badge colours from the top band down; a scale with more bands reuses the last
+const BAND_COLORS = [
+  'text-emerald-700 bg-emerald-50 border-emerald-200',
+  'text-teal-700 bg-teal-50 border-teal-200',
+  'text-blue-700 bg-blue-50 border-blue-200',
+  'text-indigo-700 bg-indigo-50 border-indigo-200',
+  'text-amber-700 bg-amber-50 border-amber-200',
+  'text-rose-700 bg-rose-50 border-rose-200',
+];
+
+export function calculateGrade(
+  total: number,
+  config: GradingConfig = STARTER_GRADING_CONFIG
+): { grade: string; points: number; remark: string; color: string } {
+  const band = bandFor(total, config);
+  const index = config.scale.indexOf(band);
+  const isLast = index === config.scale.length - 1;
+  return {
+    grade: band.grade,
+    points: band.points,
+    remark: band.remark,
+    color: isLast ? BAND_COLORS[BAND_COLORS.length - 1] : BAND_COLORS[Math.min(index, BAND_COLORS.length - 2)],
+  };
 }
 
-export function computeSubjectGrade(score: SubjectScoreInput): GradeResult {
+export function computeSubjectGrade(score: SubjectScoreInput, config: GradingConfig = STARTER_GRADING_CONFIG): GradeResult {
   const hasCa1 = typeof score.ca1 === 'number' && !isNaN(score.ca1);
   const hasCa2 = typeof score.ca2 === 'number' && !isNaN(score.ca2);
   const hasExam = typeof score.exam === 'number' && !isNaN(score.exam);
@@ -43,12 +64,12 @@ export function computeSubjectGrade(score: SubjectScoreInput): GradeResult {
     };
   }
 
-  const c1 = hasCa1 ? Math.min(20, Math.max(0, score.ca1!)) : 0;
-  const c2 = hasCa2 ? Math.min(20, Math.max(0, score.ca2!)) : 0;
-  const ex = hasExam ? Math.min(60, Math.max(0, score.exam!)) : 0;
+  const c1 = hasCa1 ? Math.min(config.ca1Max, Math.max(0, score.ca1!)) : 0;
+  const c2 = hasCa2 ? Math.min(config.ca2Max, Math.max(0, score.ca2!)) : 0;
+  const ex = hasExam ? Math.min(config.examMax, Math.max(0, score.exam!)) : 0;
   const total = Math.round((c1 + c2 + ex) * 10) / 10;
 
-  const derived = calculateGrade(total);
+  const derived = calculateGrade(total, config);
   return {
     total,
     grade: derived.grade,
@@ -59,13 +80,16 @@ export function computeSubjectGrade(score: SubjectScoreInput): GradeResult {
   };
 }
 
-export function computeClassRankings(students: Array<{ id: string; scores: SubjectScoreInput[] }>): Map<string, { rank: number; average: number | null }> {
+export function computeClassRankings(
+  students: Array<{ id: string; scores: SubjectScoreInput[] }>,
+  config: GradingConfig = STARTER_GRADING_CONFIG
+): Map<string, { rank: number; average: number | null }> {
   const evaluated = students.map((s) => {
     let totalScore = 0;
     let scoredSubjectCount = 0;
 
     for (const score of s.scores) {
-      const res = computeSubjectGrade(score);
+      const res = computeSubjectGrade(score, config);
       if (res.hasScores && res.total !== null) {
         totalScore += res.total;
         scoredSubjectCount++;

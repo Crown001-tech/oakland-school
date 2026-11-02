@@ -1,9 +1,11 @@
+import { getPrincipalName } from '@/lib/school-people';
 import { NextResponse, type NextRequest } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/server';
+import { getSchoolDb } from '@/lib/school-db';
+
 
 export async function POST(req: NextRequest) {
   try {
-    const admin = createAdminClient();
+    const admin = await getSchoolDb();
     const body = await req.json();
 
     const {
@@ -33,7 +35,7 @@ export async function POST(req: NextRequest) {
     const notificationsToInsert = (staffList || [])
       .filter((s: any) => s.email)
       .map((s: any) => ({
-        school_id: 'a0000000-0000-0000-0000-000000000001',
+        school_id: admin.schoolId,
         recipient_email: s.email.toLowerCase(),
         recipient_name: `${s.first_name || ''} ${s.last_name || ''}`.trim() || 'Staff Member',
         subject: `🚨 [EMERGENCY BROADCAST]: ${title.trim().toUpperCase()}`,
@@ -55,7 +57,7 @@ export async function POST(req: NextRequest) {
 
     // 3. Automatically record a corresponding critical security incident
     const randomPin = Math.floor(1000 + Math.random() * 9000);
-    const incidentNumber = `OAK-INC-${randomPin}`;
+    const incidentNumber = `${admin.idPrefix}-INC-${randomPin}`;
 
     await admin.from('security_incidents').insert({
       incident_number: incidentNumber,
@@ -67,7 +69,7 @@ export async function POST(req: NextRequest) {
       reported_by_name: initiatorName.trim(),
       action_taken: `All-campus emergency broadcast dispatched to ${notificationsToInsert.length} active staff accounts.`,
       status: 'escalated',
-      escalated_to: 'Principal - Mr Seyi Bankole',
+      escalated_to: `Principal - ${await getPrincipalName(admin)}`,
       incident_time: now.toISOString(),
     });
 

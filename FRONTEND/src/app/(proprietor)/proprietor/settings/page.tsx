@@ -25,6 +25,7 @@ import {
   Building2,
   UserCheck,
 } from 'lucide-react';
+import { PrincipalInitials, PrincipalName, SchoolName } from '@/components/common/SchoolName';
 
 export interface EntranceExamWindow {
   id: string;
@@ -96,13 +97,13 @@ export interface SchoolSettings {
 }
 
 const DEFAULT_SETTINGS: SchoolSettings = {
-  schoolName: 'Oakland International School',
-  motto: 'Knowledge, Integrity and Excellence',
-  address: '14 Academic Crescent, Victoria Island, Lagos',
-  academicSession: '2026/2027',
-  currentTerm: 'First Term',
-  termStartDate: '2026-09-14',
-  termEndDate: '2026-12-18',
+  schoolName: '',
+  motto: '',
+  address: '',
+  academicSession: '',
+  currentTerm: '',
+  termStartDate: '',
+  termEndDate: '',
   classCapacity: 0,
 
   ca1Weight: 20,
@@ -234,7 +235,7 @@ export default function ProprietorSettingsPage() {
       windowEnd: newWindowEnd,
       examDate: newExamDate,
       examTime: newExamTime || '09:00 AM',
-      venue: newExamVenue.trim() || 'Oakland Main Auditorium',
+      venue: newExamVenue.trim() || '',
       isActive: true,
     };
 
@@ -299,7 +300,7 @@ export default function ProprietorSettingsPage() {
           leftIcon={<Save className="w-3.5 h-3.5" />}
           onClick={() => handleSave()}
           disabled={saving}
-          className="bg-[#0f3a3e] hover:bg-[#164e53] text-white"
+          className="bg-brand-primary hover:bg-brand-primary-light text-white"
         >
           {saving ? 'Saving Changes...' : 'Save Changes'}
         </Button>
@@ -320,7 +321,7 @@ export default function ProprietorSettingsPage() {
           <button
             onClick={() => setActiveTab('general')}
             className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${activeTab === 'general'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
           >
@@ -331,7 +332,7 @@ export default function ProprietorSettingsPage() {
           <button
             onClick={() => setActiveTab('academic')}
             className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${activeTab === 'academic'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
           >
@@ -342,7 +343,7 @@ export default function ProprietorSettingsPage() {
           <button
             onClick={() => setActiveTab('attendance')}
             className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${activeTab === 'attendance'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
           >
@@ -353,7 +354,7 @@ export default function ProprietorSettingsPage() {
           <button
             onClick={() => setActiveTab('fees')}
             className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${activeTab === 'fees'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
           >
@@ -364,7 +365,7 @@ export default function ProprietorSettingsPage() {
           <button
             onClick={() => setActiveTab('exams')}
             className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${activeTab === 'exams'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
           >
@@ -375,7 +376,7 @@ export default function ProprietorSettingsPage() {
           <button
             onClick={() => setActiveTab('delegations')}
             className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${activeTab === 'delegations'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
           >
@@ -386,7 +387,7 @@ export default function ProprietorSettingsPage() {
           <button
             onClick={() => setActiveTab('alerts')}
             className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${activeTab === 'alerts'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
           >
@@ -397,7 +398,7 @@ export default function ProprietorSettingsPage() {
           <button
             onClick={() => setActiveTab('payroll')}
             className={`px-3.5 py-2 font-bold rounded-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 ${activeTab === 'payroll'
-              ? 'bg-[#0f3a3e] text-white shadow-xs'
+              ? 'bg-brand-primary text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
               }`}
           >
@@ -507,7 +508,7 @@ export default function ProprietorSettingsPage() {
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg font-semibold text-slate-900 text-xs"
               />
               <p className="text-[10px] text-slate-500 mt-1">
-                Standard student enrollment limit per class (applies to JSS 1 through SS 3).
+                Standard student enrollment limit per class.
               </p>
             </div>
           </div>
@@ -890,7 +891,7 @@ export default function ProprietorSettingsPage() {
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Oakland Main Auditorium, Campus A"
+                    placeholder="Venue"
                     value={newExamVenue}
                     onChange={(e) => setNewExamVenue(e.target.value)}
                     className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 text-xs"
@@ -912,7 +913,7 @@ export default function ProprietorSettingsPage() {
                   type="submit"
                   variant="primary"
                   size="sm"
-                  className="bg-[#0f3a3e] hover:bg-[#164e53] text-white text-xs"
+                  className="bg-brand-primary hover:bg-brand-primary-light text-white text-xs"
                 >
                   Save Schedule Window
                 </Button>
@@ -1000,17 +1001,14 @@ export default function ProprietorSettingsPage() {
           {/* Principal Identity Card */}
           <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#0f3a3e] text-white flex items-center justify-center font-bold text-sm">
-                SB
+              <div className="w-10 h-10 rounded-full bg-brand-primary text-white flex items-center justify-center font-bold text-sm">
+                <PrincipalInitials />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="font-extrabold text-slate-900 text-sm">Mr Seyi Bankole</h3>
+                  <h3 className="font-extrabold text-slate-900 text-sm"><PrincipalName /></h3>
                   <Badge variant="teal" size="sm">Appointed Principal</Badge>
                 </div>
-                <p className="text-[11px] text-slate-500 font-mono mt-0.5">
-                  Employee ID: OAK-PRN-001 &bull; Head of School &bull; seyibankole@gmail.com
-                </p>
               </div>
             </div>
           </div>
@@ -1171,7 +1169,7 @@ export default function ProprietorSettingsPage() {
                   type="number"
                   value={settings.salaryPrincipal}
                   onChange={(e) => updateSetting('salaryPrincipal', Number(e.target.value))}
-                  className="w-full pl-7 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] font-mono font-bold text-slate-900"
+                  className="w-full pl-7 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-primary font-mono font-bold text-slate-900"
                 />
               </div>
             </div>
@@ -1187,7 +1185,7 @@ export default function ProprietorSettingsPage() {
                   type="number"
                   value={settings.salaryBursar}
                   onChange={(e) => updateSetting('salaryBursar', Number(e.target.value))}
-                  className="w-full pl-7 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] font-mono font-bold text-slate-900"
+                  className="w-full pl-7 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-primary font-mono font-bold text-slate-900"
                 />
               </div>
             </div>
@@ -1203,7 +1201,7 @@ export default function ProprietorSettingsPage() {
                   type="number"
                   value={settings.salaryClassTeacher}
                   onChange={(e) => updateSetting('salaryClassTeacher', Number(e.target.value))}
-                  className="w-full pl-7 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] font-mono font-bold text-slate-900"
+                  className="w-full pl-7 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-primary font-mono font-bold text-slate-900"
                 />
               </div>
             </div>
@@ -1219,7 +1217,7 @@ export default function ProprietorSettingsPage() {
                   type="number"
                   value={settings.salarySubjectTeacher}
                   onChange={(e) => updateSetting('salarySubjectTeacher', Number(e.target.value))}
-                  className="w-full pl-7 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] font-mono font-bold text-slate-900"
+                  className="w-full pl-7 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-primary font-mono font-bold text-slate-900"
                 />
               </div>
             </div>
@@ -1235,7 +1233,7 @@ export default function ProprietorSettingsPage() {
                   type="number"
                   value={settings.allowanceClassTeacher}
                   onChange={(e) => updateSetting('allowanceClassTeacher', Number(e.target.value))}
-                  className="w-full pl-7 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] font-mono font-bold text-slate-900"
+                  className="w-full pl-7 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-primary font-mono font-bold text-slate-900"
                 />
               </div>
             </div>
@@ -1251,7 +1249,7 @@ export default function ProprietorSettingsPage() {
                   type="number"
                   value={settings.salarySupportStaff}
                   onChange={(e) => updateSetting('salarySupportStaff', Number(e.target.value))}
-                  className="w-full pl-7 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#0f3a3e] font-mono font-bold text-slate-900"
+                  className="w-full pl-7 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-primary font-mono font-bold text-slate-900"
                 />
               </div>
             </div>
@@ -1266,7 +1264,7 @@ export default function ProprietorSettingsPage() {
           variant="primary"
           leftIcon={<Save className="w-3.5 h-3.5" />}
           onClick={() => handleSave()}
-          className="bg-[#0f3a3e] hover:bg-[#164e53] text-white px-6"
+          className="bg-brand-primary hover:bg-brand-primary-light text-white px-6"
         >
           Save All Settings
         </Button>

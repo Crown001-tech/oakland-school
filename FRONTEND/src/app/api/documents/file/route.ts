@@ -1,10 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getCaller, getLinkedStudentIds, getOwnStudentId, isAdminRole } from '@/lib/caller';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,7 +13,7 @@ export async function GET(request: NextRequest) {
       return new NextResponse('Document ID is required', { status: 400 });
     }
 
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { data: doc, error } = await sb
       .from('documents')
       .select('*')

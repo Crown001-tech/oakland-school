@@ -35,8 +35,8 @@ import { PettyCashModal } from '@/components/finance/PettyCashModal';
 
 export default function BursarDashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
-  const [bursarName, setBursarName] = useState('Mrs Folake Esther');
-  const [employeeId, setEmployeeId] = useState('OAK-BUR-001');
+  const [bursarName, setBursarName] = useState('');
+  const [employeeId, setEmployeeId] = useState('');
 
   // Real Database Financial State
   const [payments, setPayments] = useState<PaymentTransaction[]>([]);

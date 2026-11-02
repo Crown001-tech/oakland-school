@@ -32,8 +32,10 @@ import {
   Lock,
   ShieldCheck,
 } from 'lucide-react';
-import { getClassTeacherMap, STANDARD_CLASSES } from '@/lib/class-utils';
+import { getClassTeacherMap } from '@/lib/class-utils';
+import { loadClassNames } from '@/lib/use-class-names';
 import { BrandLoader } from '@/components/ui/BrandLoader';
+import { SchoolContactLine, SchoolMotto, SchoolName } from '@/components/common/SchoolName';
 
 interface SubjectResult {
   name: string;
@@ -98,8 +100,8 @@ export default function ClassReportCardsPage() {
   const [currentTeacher, setCurrentTeacher] = useState<any>(null);
   const [classTeacherMap, setClassTeacherMap] = useState<Record<string, string>>({});
   const [staffList, setStaffList] = useState<any[]>([]);
-  const [availableClasses, setAvailableClasses] = useState<string[]>(['JSS 1', 'JSS 2', 'JSS 3']);
-  const [selectedClass, setSelectedClass] = useState<string>('JSS 1');
+  const [availableClasses, setAvailableClasses] = useState<string[]>([]);
+  const [selectedClass, setSelectedClass] = useState<string>('');
 
   const [reports, setReports] = useState<StudentReportCard[]>([]);
   const [selectedReport, setSelectedReport] = useState<StudentReportCard | null>(null);
@@ -150,7 +152,8 @@ export default function ClassReportCardsPage() {
               ...classesFromAssignments,
             ])).filter(Boolean) as string[];
 
-            const uniqueClasses = STANDARD_CLASSES.filter((c) => distinctClasses.includes(c));
+            const schoolClassNames = await loadClassNames();
+            const uniqueClasses = schoolClassNames.filter((c) => distinctClasses.includes(c));
             const finalClasses = uniqueClasses.length > 0 ? uniqueClasses : distinctClasses;
             setAvailableClasses(finalClasses);
 
@@ -241,7 +244,7 @@ export default function ClassReportCardsPage() {
               const birthYear = s.dob && s.dob !== '—' ? new Date(s.dob).getFullYear() : null;
               const currentYear = new Date().getFullYear();
               const computedAge = birthYear && !isNaN(birthYear) ? `${currentYear - birthYear} yrs` : '—';
-              const adm = s.admissionNo || `OAK-${idx + 1}`;
+              const adm = s.admissionNo || '—';
               const studentName = s.fullName || 'Student';
 
               // Build subjects strictly from live gradebook submissions (zero fabricated 0-grade rows)
@@ -1194,13 +1197,13 @@ export default function ClassReportCardsPage() {
                     <Logo theme="light" size="sm" />
                   </div>
                   <h2 className="text-xl sm:text-2xl font-black text-brand-primary tracking-tight uppercase">
-                    Oakland International Schools
+                    <SchoolName />
                   </h2>
                   <p className="text-[11px] font-bold text-brand-accent tracking-widest uppercase">
-                    Excellence, Integrity, Leadership
+                    <SchoolMotto />
                   </p>
                   <p className="text-[11px] text-slate-500">
-                    14 Academic Crescent, Victoria Island, Lagos &bull; admin@oaklandschools.edu
+                    <SchoolContactLine />
                   </p>
                   <div className="pt-2">
                     <span className="px-4 py-1 rounded-full bg-brand-primary text-white text-xs font-extrabold uppercase tracking-wide">

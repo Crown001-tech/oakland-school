@@ -6,6 +6,7 @@ import { Logo } from '@/components/brand/Logo';
 import { ExpenditureRecord } from '@/types/finance';
 import { numberToNairaWords, formatNaira } from '@/lib/finance-data';
 import { Printer, X, CheckCircle2, Shield } from 'lucide-react';
+import { SchoolContactLine, SchoolName, PrincipalName } from '@/components/common/SchoolName';
 
 interface VoucherModalProps {
   voucher: ExpenditureRecord | null;
@@ -76,10 +77,10 @@ export function VoucherModal({ voucher, onClose }: VoucherModalProps) {
               <Logo size="md" />
               <div>
                 <h1 className="text-lg sm:text-xl font-black text-slate-900 uppercase tracking-tight">
-                  Oakland Schools, Lagos
+                  <SchoolName />
                 </h1>
                 <p className="text-[11px] text-slate-500">
-                  14 Academic Crescent, Victoria Island, Lagos &bull; +234 800 625 5263
+                  <SchoolContactLine />
                 </p>
                 <p className="text-[10px] text-teal-800 font-mono font-semibold uppercase">
                   Bursary &bull; Official Payment Voucher
@@ -172,7 +173,7 @@ export function VoucherModal({ voucher, onClose }: VoucherModalProps) {
           </div>
 
           <div className="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
-            <span>Institutional Accounting Voucher &bull; Oakland Schools Internal Audit</span>
+            <span>Institutional Accounting Voucher &bull; Internal Audit</span>
             <span className="text-emerald-700 font-bold flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Disbursed
             </span>

@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Clock, Calendar, BookOpen, User, Printer, CheckCircle2 } from 'lucide-react';
 import { BrandLoader } from '@/components/ui/BrandLoader';
-import { STANDARD_CLASSES } from '@/lib/class-utils';
+import { useClassNames } from '@/lib/use-class-names';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
@@ -34,8 +34,9 @@ type TimetableCell = { subject: string; teacher: string } | null;
 type TimetableData = Record<string, Record<string, Record<string, TimetableCell>>>;
 
 export default function TeacherTimetablePage() {
+  const schoolClasses = useClassNames();
   const [currentTeacher, setCurrentTeacher] = useState<any>(null);
-  const [selectedClass, setSelectedClass] = useState('JSS 2');
+  const [selectedClass, setSelectedClass] = useState('');
   const [mobileDay, setMobileDay] = useState('Monday');
   const [timetable, setTimetable] = useState<TimetableData>({});
   const [periods, setPeriods] = useState<PeriodItem[]>(DEFAULT_PERIODS);
@@ -56,11 +57,11 @@ export default function TeacherTimetablePage() {
             setCurrentTeacher(p);
 
             // Default to teacher's assigned class if set
-            if (p.assignedClass && STANDARD_CLASSES.includes(p.assignedClass)) {
+            if (p.assignedClass) {
               setSelectedClass(p.assignedClass);
             } else if (p.teachingAssignments && Array.isArray(p.teachingAssignments) && p.teachingAssignments.length > 0) {
               const firstClass = p.teachingAssignments[0]?.classes?.[0];
-              if (firstClass && STANDARD_CLASSES.includes(firstClass)) {
+              if (firstClass) {
                 setSelectedClass(firstClass);
               }
             }
@@ -152,7 +153,7 @@ export default function TeacherTimetablePage() {
             <BookOpen className="w-3.5 h-3.5 text-slate-500" />
             <span>Class:</span>
           </span>
-          {STANDARD_CLASSES.map((cls) => {
+          {schoolClasses.map((cls) => {
             const isSelected = selectedClass === cls;
             const isHome = currentTeacher?.assignedClass === cls;
             return (

@@ -301,7 +301,7 @@ export default function BursarBankAccountsPage() {
                   required
                   value={accountName}
                   onChange={(e) => setAccountName(e.target.value)}
-                  placeholder="e.g. Oakland International School - Tuition"
+                  placeholder="Account label"
                   className="min-h-[44px] text-xs"
                 />
               </div>

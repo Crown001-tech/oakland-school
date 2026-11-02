@@ -1,4 +1,5 @@
 'use client';
+import { SchoolName, PrincipalName } from '@/components/common/SchoolName';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -111,7 +112,7 @@ export default function StudentDashboard() {
       <div className="bg-linear-to-r from-brand-primary via-[#14484d] to-[#0a272a] rounded-2xl p-6 sm:p-8 text-white shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-1.5">
           <span className="text-[11px] font-bold text-amber-300 uppercase tracking-widest flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5" /> Oakland International School &bull; 2026/2027
+            <Sparkles className="w-3.5 h-3.5" /> <SchoolName />
           </span>
           <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
             {greeting}, {student?.firstName || student?.name?.split(' ')[0] || 'Student'}

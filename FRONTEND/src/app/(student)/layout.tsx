@@ -24,6 +24,8 @@ import {
   Sparkles,
   School,
 } from 'lucide-react';
+import { isModuleEnabled, moduleForPath } from '@/lib/modules';
+import { useModules } from '@/lib/use-modules';
 
 interface NavItem {
   label: string;
@@ -38,6 +40,7 @@ interface NavGroup {
 }
 
 function StudentLayoutContent({ children }: { children: React.ReactNode }) {
+  const modules = useModules();
   const pathname = usePathname();
   const { student, isLoading } = useStudent();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -202,7 +205,7 @@ function StudentLayoutContent({ children }: { children: React.ReactNode }) {
               <p className="px-3 text-[10px] font-bold text-slate-400 tracking-wider uppercase mb-1">
                 {group.category}
               </p>
-              {group.items.map((item) => {
+              {group.items.filter((item) => isModuleEnabled(modules, moduleForPath(item.href))).map((item) => {
                 const Icon = item.icon;
                 const active = pathname === item.href;
                 const badgeInfo = navBadges[item.href];

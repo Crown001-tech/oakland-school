@@ -1,14 +1,12 @@
+import { getPrincipalName } from '@/lib/school-people';
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 // GET /api/inventory - Fetch institutional inventory and procurement requisitions
 export async function GET() {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     const [invRes, reqRes] = await Promise.all([
       sb.from('inventory_items').select('*').order('name', { ascending: true }),
@@ -63,7 +61,7 @@ export async function GET() {
 // POST /api/inventory - Add stock item or submit procurement requisition
 export async function POST(req: NextRequest) {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const body = await req.json();
     const { action } = body;
 
@@ -191,7 +189,7 @@ export async function POST(req: NextRequest) {
 // PATCH /api/inventory - Adjust stock, approve/reject requisitions, or record delivery
 export async function PATCH(req: NextRequest) {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const body = await req.json();
     const { action, id } = body;
 
@@ -240,7 +238,7 @@ export async function PATCH(req: NextRequest) {
 
     if (action === 'approve_request') {
       const decision = body.decision === 'rejected' ? 'rejected' : 'approved';
-      const approverName = body.approverName || 'Mr Seyi Bankole (Principal)';
+      const approverName = body.approverName || (await getPrincipalName(sb));
       const notes = body.notes || (decision === 'approved' ? 'Approved for bursary disbursement' : 'Declined by Principal');
 
       const { data, error } = await sb

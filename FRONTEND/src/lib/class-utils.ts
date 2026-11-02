@@ -1,10 +1,16 @@
+/**
+ * The Nigerian secondary class names (JSS 1 to SS 3). They are only the starter naming this file recognises
+ * when a spreadsheet says 'JSS1' or 'SSS 2'. A school’s real classes come from its database (see
+ * lib/school-classes.ts); functions here accept them as `known`.
+ */
 export const STANDARD_CLASSES = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'] as const;
 
 export type StandardClass = typeof STANDARD_CLASSES[number];
 
 /**
- * Standardizes any class input (e.g., 'JSS1', 'jss 1', 'JSS-1', 'SSS 1', 'SS1A')
- * into the official 6 secondary class levels ('JSS 1' to 'SS 3').
+ * Tidies a bare level written in the usual ways ('JSS1', 'jss 1', 'JSS-1', 'SSS 1') into 'JSS 1' to 'SS 3'.
+ * A name that carries an arm ('SS 1A', 'JSS 1 Diamond') is returned as typed, so the arms of a level stay
+ * separate classes.
  */
 export function normalizeClass(raw?: string | null): string {
   if (!raw) return '';
@@ -12,11 +18,11 @@ export function normalizeClass(raw?: string | null): string {
   const upper = trimmed.toUpperCase();
 
   // Match JSS 1, JSS1, JSS-1, JSS 1A, etc.
-  const jssMatch = upper.match(/^(?:JSS|JS|J)\s*[-_]?\s*([1-3])/i);
+  const jssMatch = upper.match(/^(?:JSS|JS|J)\s*[-_]?\s*([1-3])$/i);
   if (jssMatch) return `JSS ${jssMatch[1]}`;
 
   // Match SS 1, SSS 1, SS1, SS-1, SS 1A, etc.
-  const ssMatch = upper.match(/^(?:SSS|SS|S)\s*[-_]?\s*([1-3])/i);
+  const ssMatch = upper.match(/^(?:SSS|SS|S)\s*[-_]?\s*([1-3])$/i);
   if (ssMatch) return `SS ${ssMatch[1]}`;
 
   return trimmed;
@@ -26,16 +32,16 @@ export function normalizeClass(raw?: string | null): string {
  * Parses single or multi-class inputs (comma/semicolon delimited, ranges like 'JSS 1-3',
  * or groups like 'All JSS', 'All SS', 'All Classes') into an array of normalized standard classes.
  */
-export function normalizeClassList(raw?: string | string[] | null): string[] {
+export function normalizeClassList(raw?: string | string[] | null, known: readonly string[] = STANDARD_CLASSES): string[] {
   if (!raw) return [];
 
   // If already an array, flatten and normalize
   if (Array.isArray(raw)) {
     const set = new Set<string>();
     raw.forEach((item) => {
-      normalizeClassList(item).forEach((c) => set.add(c));
+      normalizeClassList(item, known).forEach((c) => set.add(c));
     });
-    return STANDARD_CLASSES.filter((c) => set.has(c));
+    return known.filter((c) => set.has(c));
   }
 
   const str = String(raw).trim();
@@ -45,17 +51,17 @@ export function normalizeClassList(raw?: string | string[] | null): string[] {
 
   // Global keywords
   if (lower === 'all' || lower.includes('all classes') || lower.includes('entire school')) {
-    return [...STANDARD_CLASSES];
+    return [...known];
   }
   if (lower.includes('all jss') || lower.includes('junior') || lower.includes('jss 1-3') || lower.includes('jss 1 - 3') || lower.includes('jss 1 - jss 3')) {
-    const extra = str.includes('SS') ? normalizeClassList(str.replace(/all jss|junior|jss\s*1\s*[-–]\s*(?:jss\s*)?3/gi, '')) : [];
+    const extra = str.includes('SS') ? normalizeClassList(str.replace(/all jss|junior|jss\s*1\s*[-–]\s*(?:jss\s*)?3/gi, ''), known) : [];
     const base = ['JSS 1', 'JSS 2', 'JSS 3'];
-    return STANDARD_CLASSES.filter((c) => base.includes(c) || extra.includes(c));
+    return known.filter((c) => base.includes(c) || extra.includes(c));
   }
   if (lower.includes('all ss') || lower.includes('senior') || lower.includes('ss 1-3') || lower.includes('ss 1 - 3') || lower.includes('ss 1 - ss 3')) {
-    const extra = str.includes('JSS') ? normalizeClassList(str.replace(/all ss|senior|ss\s*1\s*[-–]\s*(?:ss\s*)?3/gi, '')) : [];
+    const extra = str.includes('JSS') ? normalizeClassList(str.replace(/all ss|senior|ss\s*1\s*[-–]\s*(?:ss\s*)?3/gi, ''), known) : [];
     const base = ['SS 1', 'SS 2', 'SS 3'];
-    return STANDARD_CLASSES.filter((c) => base.includes(c) || extra.includes(c));
+    return known.filter((c) => base.includes(c) || extra.includes(c));
   }
 
   // Split by comma, semicolon, slash, pipe, or 'and' / '&'
@@ -81,12 +87,12 @@ export function normalizeClassList(raw?: string | string[] | null): string[] {
     }
 
     const norm = normalizeClass(t);
-    if (STANDARD_CLASSES.includes(norm as any)) {
+    if (known.includes(norm)) {
       found.add(norm);
     }
   });
 
-  return STANDARD_CLASSES.filter((c) => found.has(c));
+  return known.filter((c) => found.has(c));
 }
 
 /**
@@ -94,14 +100,8 @@ export function normalizeClassList(raw?: string | string[] | null): string[] {
  * Robust against variations in role naming, class strings, or object shapes.
  */
 export function getClassTeacherMap(staffList: any[]): Record<string, string> {
-  const map: Record<string, string> = {
-    'JSS 1': 'Unassigned',
-    'JSS 2': 'Unassigned',
-    'JSS 3': 'Unassigned',
-    'SS 1': 'Unassigned',
-    'SS 2': 'Unassigned',
-    'SS 3': 'Unassigned',
-  };
+  // Every class that has a class teacher gets an entry; callers show 'Unassigned' for the rest
+  const map: Record<string, string> = {};
 
   if (!Array.isArray(staffList)) return map;
 
@@ -113,7 +113,7 @@ export function getClassTeacherMap(staffList: any[]): Record<string, string> {
     if (!rawClass || rawClass === 'None' || rawClass === 'Unassigned' || rawClass === '—') return;
 
     const norm = normalizeClass(rawClass);
-    if (map[norm] !== undefined) {
+    {
       const teacherName = (st.name || `${st.first_name || st.firstName || ''} ${st.last_name || st.lastName || ''}`).trim();
       if (teacherName) {
         map[norm] = teacherName;

@@ -1,14 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getCaller, isAdminRole } from '@/lib/caller';
-import {
-  generateStaffTempPassword,
-  getSupabaseAdmin,
-  hashInviteToken,
-} from '@/lib/supabase/admin';
+import { generateStaffTempPassword, hashInviteToken } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET(
   request: NextRequest,
@@ -16,7 +10,7 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params;
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     // 1. Fetch Staff Profile from PostgreSQL
     let query = sb.from('staff_profiles').select('*');
@@ -119,7 +113,7 @@ export async function GET(
       data: {
         id: staff.id,
         userId: staff.user_id || authUser?.id,
-        employeeId: staff.employee_id || 'OAK-STF-001',
+        employeeId: staff.employee_id || '—',
         firstName: staff.first_name,
         lastName: staff.last_name,
         fullName: `${staff.first_name} ${staff.last_name}`.trim(),
@@ -167,7 +161,7 @@ export async function PATCH(
   try {
     const { id } = await context.params;
     const body = await request.json();
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     // 1. Fetch Staff Profile to get auth user_id & email
     let query = sb.from('staff_profiles').select('*');
@@ -378,7 +372,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await context.params;
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     // 1. Find the staff profile
     let query = sb.from('staff_profiles').select('*');

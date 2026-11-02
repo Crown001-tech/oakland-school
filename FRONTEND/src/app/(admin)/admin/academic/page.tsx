@@ -24,10 +24,11 @@ import {
 } from '@/lib/delegations';
 import { DelegationRestrictedBanner } from '@/components/common/DelegationRestrictedBanner';
 import { Lock } from 'lucide-react';
+import { useClassNames } from '@/lib/use-class-names';
 
-const CLASSES = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'];
 
 export default function AcademicCurriculumPage() {
+  const CLASSES = useClassNames();
   const [selectedClass, setSelectedClass] = useState<string>('JSS 1');
   const [selectedStream, setSelectedStream] = useState<string>('All');
   const [subjects, setSubjects] = useState<SubjectItem[]>([]);

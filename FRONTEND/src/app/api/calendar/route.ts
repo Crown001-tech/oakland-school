@@ -1,15 +1,12 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getServerPrincipalDelegations } from '@/lib/delegations';
 import { getCaller } from '@/lib/caller';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET() {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { data: events, error } = await sb
       .from('school_events')
       .select('*')
@@ -27,7 +24,7 @@ export async function GET() {
       endDate: e.end_date ? new Date(e.end_date).toISOString().split('T')[0] : '',
       allDay: e.all_day ?? true,
       audience: e.audience || 'all',
-      location: e.location || 'Oakland Main Campus',
+      location: e.location || '',
     }));
 
     return NextResponse.json({
@@ -46,7 +43,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     // Verify delegation if called by Admin / Principal
     const roleCookie = (await getCaller()).role;
@@ -79,7 +76,7 @@ export async function POST(request: NextRequest) {
         end_date: new Date(endDate || startDate).toISOString(),
         all_day: allDay ?? true,
         audience: audience || 'all',
-        location: location || 'Oakland Main Campus',
+        location: location || '',
       })
       .select()
       .single();
@@ -104,7 +101,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ success: false, message: 'Event ID is required' }, { status: 400 });
     }
 
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     // Verify delegation if called by Admin / Principal
     const roleCookie = (await getCaller()).role;

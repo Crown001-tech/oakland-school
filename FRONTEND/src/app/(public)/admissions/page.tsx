@@ -1,6 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import { useClassNames } from '@/lib/use-class-names';
+import { useSchoolProfile } from '@/lib/use-school-profile';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
@@ -61,7 +63,7 @@ const INITIAL_FORM: FormData = {
   middleName: '',
   gender: 'Male',
   dateOfBirth: '',
-  classApplyingFor: 'JSS 1',
+  classApplyingFor: '',
   department: 'Sciences',
   stateOfOrigin: '',
   lga: '',
@@ -128,6 +130,8 @@ const ADMISSION_STEPS = [
 ];
 
 export default function PublicAdmissionsPage() {
+  const school = useSchoolProfile();
+  const CLASSES = useClassNames();
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -239,7 +243,7 @@ export default function PublicAdmissionsPage() {
           surname: formData.surname,
           gender: formData.gender,
           dateOfBirth: formData.dateOfBirth,
-          appliedClass: formData.classApplyingFor || 'JSS 1',
+          appliedClass: formData.classApplyingFor,
           department: formData.classApplyingFor?.startsWith('SS') ? (formData.department || 'Sciences') : null,
           parentName: guardianName,
           parentPhone: primaryPhone,
@@ -1430,12 +1434,12 @@ export default function PublicAdmissionsPage() {
 
       {/* ── HERO ── */}
       <section className="adm-hero">
-        <Image src="/library.jpg" alt="Oakland Admissions" fill priority quality={85} className="adm-hero-img" style={{ objectFit: 'cover', objectPosition: 'center 30%' }} />
+        <Image src="/library.jpg" alt={`${school.name} Admissions`} fill priority quality={85} className="adm-hero-img" style={{ objectFit: 'cover', objectPosition: 'center 30%' }} />
         <div className="adm-hero-overlay" />
         <div className="adm-hero-content">
           <p className="adm-eyebrow">2026 / 2027 Academic Session</p>
           <h1 className="adm-title">
-            Admissions — <em>Join</em><br />Oakland Schools.
+            Admissions — <em>Join</em><br />{school.name}.
           </h1>
         </div>
       </section>
@@ -1450,7 +1454,7 @@ export default function PublicAdmissionsPage() {
               The Four Milestones to <em>Enrollment</em>
             </h2>
             <p className="adm-scroll-sub">
-              A transparent, merit-guided journey welcoming exceptional scholars to Oakland Schools.
+              A transparent, merit-guided journey welcoming exceptional scholars to {school.name}.
             </p>
           </div>
 
@@ -1651,7 +1655,8 @@ export default function PublicAdmissionsPage() {
                       <div className="adm-field">
                         <label className="adm-label">Class Applying For <span className="adm-req">*</span></label>
                         <select required name="classApplyingFor" value={formData.classApplyingFor} onChange={handleChange} className="adm-input">
-                          {['JSS 1','JSS 2','JSS 3','SS 1','SS 2','SS 3'].map(c => <option key={c}>{c}</option>)}
+                          <option value="" disabled>Select a class</option>
+                          {CLASSES.map(c => <option key={c}>{c}</option>)}
                         </select>
                       </div>
                     </div>
@@ -1817,7 +1822,7 @@ export default function PublicAdmissionsPage() {
 
                     <div style={{ background: '#fbf9f6', border: '1px solid #ebe5dc', borderRadius: 10, padding: '20px 24px', marginBottom: 28 }}>
                       <p style={{ fontFamily: 'Inter, sans-serif', fontSize: 13, color: '#4b5563', lineHeight: 1.7, margin: 0 }}>
-                        By submitting this application, I confirm that all information provided is accurate and complete. I understand that false information will lead to disqualification. I agree to Oakland Schools using this information for admission assessment and enrollment.
+                        By submitting this application, I confirm that all information provided is accurate and complete. I understand that false information will lead to disqualification. I agree to {school.name} using this information for admission assessment and enrollment.
                       </p>
                     </div>
 
@@ -1878,7 +1883,7 @@ export default function PublicAdmissionsPage() {
                     {
                       num: '5',
                       title: 'Admission Offer',
-                      desc: 'Successful applicants receive an official Oakland Schools Admission Offer Letter.'
+                      desc: `Successful applicants receive an official ${school.name} Admission Offer Letter.`
                     }
                   ].map((item) => (
                     <div className="adm-protocol-item" key={item.num}>
@@ -1898,25 +1903,17 @@ export default function PublicAdmissionsPage() {
                   <div className="adm-cohort-title">Available Classes</div>
                   <div className="adm-cohort-pulse-badge">
                     <div className="adm-pulse-dot" />
-                    <span>2026 / 2027</span>
+                    <span>{school.currentSession}</span>
                   </div>
                 </div>
 
                 <div className="adm-cohort-list">
-                  {[
-                    { grade: 'JSS 1', status: 'Limited Spaces', type: 'limited' },
-                    { grade: 'JSS 2', status: 'Available', type: 'open' },
-                    { grade: 'SS 1', status: 'Available', type: 'open' },
-                    { grade: 'SS 2', status: 'Limited Spaces', type: 'limited' }
-                  ].map((cohort) => (
-                    <div className="adm-cohort-row" key={cohort.grade}>
+                  {CLASSES.map((grade) => (
+                    <div className="adm-cohort-row" key={grade}>
                       <div className="adm-cohort-class">
-                        <CheckCircle2 size={14} style={{ color: cohort.type === 'open' ? '#059669' : '#d97706' }} />
-                        <span>{cohort.grade}</span>
+                        <CheckCircle2 size={14} style={{ color: '#059669' }} />
+                        <span>{grade}</span>
                       </div>
-                      <span className={`adm-cohort-status ${cohort.type}`}>
-                        {cohort.status}
-                      </span>
                     </div>
                   ))}
                 </div>
@@ -1979,6 +1976,7 @@ function SuccessScreen({
   email: string;
   formData?: FormData;
 }) {
+  const school = useSchoolProfile();
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -1998,7 +1996,7 @@ function SuccessScreen({
       <div className="max-w-2xl w-full bg-white rounded-3xl border border-slate-200/90 shadow-xl overflow-hidden print:border-none print:shadow-none print:rounded-none print:p-0 print:m-0 animate-in fade-in zoom-in-95 duration-300">
         {/* Print-Only Formal Header */}
         <div className="hidden print:block text-center border-b border-slate-300 pb-4 mb-4 pt-2">
-          <h2 className="text-xl font-bold text-slate-900 uppercase tracking-wider">Oakland Schools</h2>
+          <h2 className="text-xl font-bold text-slate-900 uppercase tracking-wider">{school.name}</h2>
           <p className="text-xs text-slate-500 mt-0.5">
             Official Admission Application Slip &bull; 2026/2027 Academic Session
           </p>

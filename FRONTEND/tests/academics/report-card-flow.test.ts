@@ -55,6 +55,13 @@ function fakeTable(name: string) {
   return builder;
 }
 
+// Routes reach the database through the school client; these tests exercise the route's own logic, so the
+// school client here is the same fake database, with a school id. Scoping itself is tested in school-scope.test.ts.
+vi.mock('@/lib/school-db', async () => {
+  const { getSupabaseAdmin } = await import('@/lib/supabase/admin');
+  return { getSchoolDb: async () => Object.assign(getSupabaseAdmin(), { schoolId: 'a0000000-0000-0000-0000-000000000001' }) };
+});
+
 vi.mock('@/lib/supabase/admin', () => ({
   getSupabaseAdmin: () => ({
     from: (name: string) => fakeTable(name),

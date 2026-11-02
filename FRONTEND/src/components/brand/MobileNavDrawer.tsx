@@ -10,7 +10,11 @@ import { X, ArrowRight } from 'lucide-react';
 interface MobileNavDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  showLongPages?: boolean;
 }
+
+// Pages written for one school; other schools have only the short page
+const LONG_PAGES = ['/about', '/academics', '/our-values'];
 
 const NAV_ITEMS = [
   { label: 'Home', href: '/' },
@@ -22,7 +26,7 @@ const NAV_ITEMS = [
 
 const emptySubscribe = () => () => {};
 
-export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
+export function MobileNavDrawer({ isOpen, onClose, showLongPages = false }: MobileNavDrawerProps) {
   const isClient = useSyncExternalStore(
     emptySubscribe,
     () => true,
@@ -324,7 +328,7 @@ export function MobileNavDrawer({ isOpen, onClose }: MobileNavDrawerProps) {
         {/* Links Navigation */}
         <nav style={{ padding: '28px 24px', flex: 1 }}>
           <ul className="ok-drawer-nav-list">
-            {NAV_ITEMS.map((item) => {
+            {NAV_ITEMS.filter((i) => showLongPages || !LONG_PAGES.includes(i.href)).map((item) => {
               const isActive = pathname === item.href;
               return (
                 <li key={item.href}>

@@ -77,7 +77,7 @@ export async function GET() {
       status: 200,
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'Content-Disposition': 'attachment; filename="oakland_cbt_template.xlsx"',
+        'Content-Disposition': 'attachment; filename="cbt_template.xlsx"',
       },
     });
   } catch (err: any) {

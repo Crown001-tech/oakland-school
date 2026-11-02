@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/server';
+import { getSchoolDb } from '@/lib/school-db';
+
 
 export async function GET() {
   try {
-    const admin = createAdminClient();
+    const admin = await getSchoolDb();
     const startOfToday = new Date();
     startOfToday.setHours(0, 0, 0, 0);
     const todayIso = startOfToday.toISOString();
@@ -90,7 +91,7 @@ export async function GET() {
     // Compile timeline events
     const timeline: any[] = [];
 
-    (recentPickups || []).forEach((p) => {
+    (recentPickups || []).forEach((p: any) => {
       timeline.push({
         id: `pick-${p.id}`,
         type: 'pickup',
@@ -102,7 +103,7 @@ export async function GET() {
       });
     });
 
-    (recentVisitors || []).forEach((v) => {
+    (recentVisitors || []).forEach((v: any) => {
       timeline.push({
         id: `vis-${v.id}`,
         type: 'visitor',
@@ -114,7 +115,7 @@ export async function GET() {
       });
     });
 
-    (recentMovements || []).forEach((m) => {
+    (recentMovements || []).forEach((m: any) => {
       timeline.push({
         id: `mov-${m.id}`,
         type: 'movement',
@@ -126,7 +127,7 @@ export async function GET() {
       });
     });
 
-    (recentDeliveries || []).forEach((d) => {
+    (recentDeliveries || []).forEach((d: any) => {
       timeline.push({
         id: `del-${d.id}`,
         type: 'delivery',
@@ -138,7 +139,7 @@ export async function GET() {
       });
     });
 
-    (recentStaffGate || []).forEach((sg) => {
+    (recentStaffGate || []).forEach((sg: any) => {
       timeline.push({
         id: `sg-${sg.id}`,
         type: 'staff_gate',

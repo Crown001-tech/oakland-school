@@ -1,12 +1,13 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { getVerifiedRole } from '@/lib/caller';
+import { getSchoolDb } from '@/lib/school-db';
 
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
-    const adminClient = createAdminClient();
+    const adminClient = await getSchoolDb();
 
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
     if (authErr || !user) {
@@ -202,7 +203,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
-    const adminClient = createAdminClient();
+    const adminClient = await getSchoolDb();
 
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
     if (authErr || !user) {

@@ -25,11 +25,12 @@ import {
 import { BulkImportModal } from '@/components/common/BulkImportModal';
 import { EditStaffModal } from '@/components/common/EditStaffModal';
 import {
-  getRegisteredCurriculumSubjectNames,
   filterValidCurriculumSubjects,
 } from '@/lib/curriculum-data';
 import { fetchPrincipalDelegations, PrincipalDelegations } from '@/lib/delegations';
 import { DelegationRestrictedBanner } from '@/components/common/DelegationRestrictedBanner';
+import { useClassNames } from '@/lib/use-class-names';
+import { useSubjectNames } from '@/lib/use-subject-names';
 
 export interface TeachingAssignment {
   subject: string;
@@ -55,7 +56,6 @@ export interface StaffRecord {
 
 const DEFAULT_STAFF: StaffRecord[] = [];
 
-const CLASSES = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'];
 
 const NON_TEACHING_ROLES = [
   'Security Officer',
@@ -68,6 +68,8 @@ const NON_TEACHING_ROLES = [
 ];
 
 export default function AdminStaffPage() {
+  const registeredSubjects = useSubjectNames();
+  const CLASSES = useClassNames();
   const [staffList, setStaffList] = useState<StaffRecord[]>(DEFAULT_STAFF);
   const [curriculumSubjects, setCurriculumSubjects] = useState<string[]>([]);
   const [roleFilter, setRoleFilter] = useState<'All' | 'Class Teachers' | 'Subject Teachers' | 'Non-Teaching'>('All');
@@ -93,7 +95,7 @@ export default function AdminStaffPage() {
     { subject: 'Mathematics', classes: ['JSS 1', 'JSS 2'] },
   ]);
   const [newNonTeachingRole, setNewNonTeachingRole] = useState(NON_TEACHING_ROLES[0]);
-  const [newDept, setNewDept] = useState('Academics');
+  const [newDept, setNewDept] = useState('');
 
   const fetchStaffFromServer = () => {
     fetch('/api/staff')
@@ -114,7 +116,7 @@ export default function AdminStaffPage() {
     fetchStaffFromServer();
     fetchPrincipalDelegations().then(setDelegations);
 
-    const subs = getRegisteredCurriculumSubjectNames();
+    const subs = registeredSubjects;
     setCurriculumSubjects(subs);
     if (subs.length > 0) {
       setCourseAssignments((prev) => {
@@ -133,7 +135,7 @@ export default function AdminStaffPage() {
 
   const handleCopyCredentials = () => {
     if (!selectedStaffForCreds) return;
-    const credText = `Oakland School Portal Login\nEmail: ${selectedStaffForCreds.email}\nPassword: ${selectedStaffForCreds.password || 'Contact Admin'}`;
+    const credText = `School Portal Login\nEmail: ${selectedStaffForCreds.email}\nPassword: ${selectedStaffForCreds.password || 'Contact Admin'}`;
     navigator.clipboard.writeText(credText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -208,7 +210,7 @@ export default function AdminStaffPage() {
     }
 
     // Filter and sanitize course assignments
-    const registeredSubs = getRegisteredCurriculumSubjectNames();
+    const registeredSubs = registeredSubjects;
     const cleanedAssignments: TeachingAssignment[] = newRole === 'Non-Teaching Staff'
       ? []
       : courseAssignments
@@ -226,7 +228,7 @@ export default function AdminStaffPage() {
 
     const newStaff: StaffRecord = {
       id: `stf-${Date.now()}`,
-      employeeId: `OAK/STF/0${staffList.length + 1}`,
+      employeeId: '',
       name: newName.trim(),
       email: newEmail.trim().toLowerCase(),
       phone: newPhone.trim(),
@@ -274,7 +276,7 @@ export default function AdminStaffPage() {
       showToast('Action prohibited: Staff onboarding has not been delegated by the Proprietor.');
       return;
     }
-    const registeredSubs = getRegisteredCurriculumSubjectNames();
+    const registeredSubs = registeredSubjects;
     const newStaffMembers: StaffRecord[] = importedRows.map((r, i) => {
       let role: StaffRecord['role'] = 'Subject Teacher';
       const rawRole = (r.role || '').toLowerCase();
@@ -317,17 +319,17 @@ export default function AdminStaffPage() {
         resolvedAssignedClasses = [r.assignedClass];
       }
 
-      let resolvedHomeroom = role === 'Class Teacher' ? (r.assignedClass || resolvedAssignedClasses[0] || 'JSS 1') : undefined;
+      let resolvedHomeroom = role === 'Class Teacher' ? (r.assignedClass || resolvedAssignedClasses[0]) : undefined;
       if (role === 'Class Teacher' && resolvedHomeroom && !resolvedAssignedClasses.includes(resolvedHomeroom)) {
         resolvedAssignedClasses = [resolvedHomeroom, ...resolvedAssignedClasses];
       }
 
       return {
         id: r.id || `stf-bulk-${Date.now()}-${i}`,
-        employeeId: r.employeeId || `OAK/STF/${Math.floor(100 + Math.random() * 900)}`,
+        employeeId: r.employeeId,
         name: r.name,
         email: r.email,
-        phone: r.phone || '—',
+        phone: r.phone || '',
         role,
         assignedClass: resolvedHomeroom,
         assignedClasses: role === 'Non-Teaching Staff' ? [] : resolvedAssignedClasses,
@@ -716,7 +718,7 @@ export default function AdminStaffPage() {
                   <input
                     type="email"
                     required
-                    placeholder="f.davies@oaklandschools.edu.ng"
+                    placeholder="name@example.com"
                     value={newEmail}
                     onChange={(e) => setNewEmail(e.target.value)}
                     className="w-full px-3 py-2 border border-slate-200 rounded-xl focus:outline-hidden focus:border-slate-800"

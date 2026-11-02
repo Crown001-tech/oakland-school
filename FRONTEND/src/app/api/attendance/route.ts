@@ -1,16 +1,12 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getCaller, getLinkedStudentIds, getOwnStudentId, isAdminRole } from '@/lib/caller';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getClassNames } from '@/lib/school-classes';
+import { getSchoolDb } from '@/lib/school-db';
 
-const STANDARD_CLASSES = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'] as const;
-
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET(request: NextRequest) {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { searchParams } = new URL(request.url);
     const dateParam = searchParams.get('date') || new Date().toISOString().split('T')[0];
     const studentIdParam = searchParams.get('studentId');
@@ -96,8 +92,9 @@ export async function GET(request: NextRequest) {
 
     const records = attRecords || [];
 
-    // 4. Compute summaries per standard class
-    const classSummaries = STANDARD_CLASSES.map((className) => {
+    // 4. Compute summaries for each of the school’s own classes
+    const classNames = await getClassNames(sb);
+    const classSummaries = classNames.map((className) => {
       const clsObj = (dbClasses || []).find((c: any) => c.name === className);
       const classId = clsObj?.id;
 
@@ -158,7 +155,7 @@ export async function GET(request: NextRequest) {
 
     const staffRecords = (staffList || []).map((st: any) => ({
       id: st.id,
-      employeeId: st.employee_id || 'OAK-STF',
+      employeeId: st.employee_id || '—',
       name: `${st.first_name || ''} ${st.last_name || ''}`.trim(),
       role: st.role || 'Personnel',
       department: st.department || 'Academics',
@@ -193,7 +190,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const body = await request.json();
 
     const className = body.class || body.className;
@@ -222,7 +219,7 @@ export async function POST(request: NextRequest) {
     }
 
     const classId = classObj.id;
-    const schoolId = classObj.school_id || 'a0000000-0000-0000-0000-000000000001';
+    const schoolId = classObj.school_id || sb.schoolId;
 
     // 2. Resolve Active Academic Session and Term
     const { data: sessionObj } = await sb

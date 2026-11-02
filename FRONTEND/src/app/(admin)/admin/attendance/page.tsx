@@ -15,6 +15,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { getClassTeacherMap, normalizeClass } from '@/lib/class-utils';
+import { useClassNames } from '@/lib/use-class-names';
 
 interface StudentAttendanceRecord {
   id: string;
@@ -26,9 +27,9 @@ interface StudentAttendanceRecord {
   remarks?: string;
 }
 
-const CLASSES = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'] as const;
 
 export default function AdminAttendanceAuditPage() {
+  const CLASSES = useClassNames();
   const [selectedClass, setSelectedClass] = useState<string>('JSS 1');
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     return new Date().toISOString().split('T')[0];
@@ -122,7 +123,7 @@ export default function AdminAttendanceAuditPage() {
 
         const mapped: StudentAttendanceRecord[] = classPupils.map((s, idx) => ({
           id: s.id || `std-${idx}`,
-          admissionNo: s.admissionNumber || s.admissionNo || `OAK-${idx + 1}`,
+          admissionNo: s.admissionNumber || s.admissionNo || '—',
           name: s.fullName || s.name || 'Student',
           gender: s.gender === 'Female' ? 'Female' : 'Male',
           status: 'present',
@@ -137,7 +138,7 @@ export default function AdminAttendanceAuditPage() {
         // Default roster awaiting roll call
         const mapped: StudentAttendanceRecord[] = classPupils.map((s, idx) => ({
           id: s.id || `std-${idx}`,
-          admissionNo: s.admissionNumber || s.admissionNo || `OAK-${idx + 1}`,
+          admissionNo: s.admissionNumber || s.admissionNo || '—',
           name: s.fullName || s.name || 'Student',
           gender: s.gender === 'Female' ? 'Female' : 'Male',
           status: 'pending',

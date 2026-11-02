@@ -150,7 +150,7 @@ export default function TeacherCBTOverviewPage() {
         <div className="flex flex-wrap items-center gap-2.5">
           <a
             href="/api/cbt/template"
-            download="oakland_cbt_template.xlsx"
+            download="cbt_template.xlsx"
             className="px-3.5 py-2.5 rounded-xl bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold transition shadow-xs inline-flex items-center gap-2 min-h-[44px] cursor-pointer"
           >
             <Download className="w-3.5 h-3.5 text-teal-700" />

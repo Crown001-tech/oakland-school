@@ -3,6 +3,7 @@
 import React from 'react';
 import { usePathname } from 'next/navigation';
 import { Menu, ChevronRight, School } from 'lucide-react';
+import { SchoolName } from '@/components/common/SchoolName';
 
 interface PortalHeaderProps {
   portalName: string;
@@ -52,7 +53,7 @@ export function PortalHeader({
         {children}
         <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 border border-slate-200 text-xs">
           <School className="w-3.5 h-3.5 text-slate-500" />
-          <span className="text-slate-600 font-medium">Oakland Schools</span>
+          <span className="text-slate-600 font-medium"><SchoolName /></span>
         </div>
       </div>
     </header>

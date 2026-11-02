@@ -1,21 +1,15 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getServerPrincipalDelegations } from '@/lib/delegations';
 import { getCaller, isAdminRole } from '@/lib/caller';
-import {
-  generateStaffTempPassword,
-  getSupabaseAdmin,
-  hashInviteToken,
-} from '@/lib/supabase/admin';
+import { generateStaffTempPassword, hashInviteToken } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET() {
   try {
     // Contact numbers and initial passwords are for administrators only; other staff get the directory.
     const canSeeCredentials = isAdminRole((await getCaller()).role);
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { data, error } = await sb
       .from('staff_profiles')
       .select('*')
@@ -96,7 +90,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     // Verify delegation if called by Admin / Principal
     const roleCookie = (await getCaller()).role;
@@ -297,9 +291,9 @@ export async function POST(request: NextRequest) {
           const { data: inserted, error: insertError } = await sb
             .from('staff_profiles')
             .insert({
-              school_id: 'a0000000-0000-0000-0000-000000000001',
+              school_id: sb.schoolId,
               user_id: authUserId,
-              employee_id: item.employeeId || `OAK/STF/${Math.floor(100 + Math.random() * 900)}`,
+              employee_id: item.employeeId || `${sb.idPrefix}/STF/${Math.floor(100 + Math.random() * 900)}`,
               first_name: firstName,
               last_name: lastName,
               email: cleanEmail,
@@ -331,7 +325,7 @@ export async function POST(request: NextRequest) {
           // 3. Upsert school_memberships for role resolution
           if (authUserId) {
             await sb.from('school_memberships').upsert({
-              school_id: 'a0000000-0000-0000-0000-000000000001',
+              school_id: sb.schoolId,
               user_id: authUserId,
               role: dbRole,
               is_active: true,
@@ -362,7 +356,7 @@ export async function DELETE(request: NextRequest) {
     const employeeId = searchParams.get('employeeId');
     const all = searchParams.get('all') === 'true';
 
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     if (all) {
       const { data: allStaff } = await sb.from('staff_profiles').select('id, user_id, email, role');

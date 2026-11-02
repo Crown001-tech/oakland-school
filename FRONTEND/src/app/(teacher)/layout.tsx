@@ -27,6 +27,8 @@ import {
 } from 'lucide-react';
 import { BrandLoader } from '@/components/ui/BrandLoader';
 import { PortalHeader } from '@/components/layout/PortalHeader';
+import { isModuleEnabled, moduleForPath } from '@/lib/modules';
+import { useModules } from '@/lib/use-modules';
 
 interface NavItem {
   label: string;
@@ -40,6 +42,7 @@ interface NavGroup {
 }
 
 export default function TeacherLayout({ children }: { children: React.ReactNode }) {
+  const modules = useModules();
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [hasTeacherAuth, setHasTeacherAuth] = useState<boolean | null>(null);
@@ -106,9 +109,9 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
 
           const teacherData = {
             id: profile.id || data.user?.id,
-            employeeId: profile.employeeId || 'OAK-TCH',
+            employeeId: profile.employeeId || '—',
             name: profile.name || 'Faculty Member',
-            email: profile.email || data.user?.email || 'teacher@oaklandschools.edu',
+            email: profile.email || data.user?.email || '',
             role: isCT ? 'Class Teacher' : 'Subject Teacher',
             roleDisplay,
             department: profile.department || 'Academics',
@@ -270,7 +273,7 @@ export default function TeacherLayout({ children }: { children: React.ReactNode 
               <p className="px-3 text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-1">
                 {group.category}
               </p>
-              {group.items.map((item) => {
+              {group.items.filter((item) => isModuleEnabled(modules, moduleForPath(item.href))).map((item) => {
                 const Icon = item.icon;
                 const active = item.href === '/teacher'
                   ? pathname === '/teacher'

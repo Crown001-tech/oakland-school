@@ -1,4 +1,5 @@
 'use client';
+import { SchoolName, PrincipalName } from '@/components/common/SchoolName';
 
 import React, { useState, useEffect } from 'react';
 import { useStudent } from '@/context/StudentContext';
@@ -124,7 +125,7 @@ export default function StudentResultsPage() {
         <div className="space-y-6">
           {/* Printable Official Header */}
           <div className="hidden print:block text-center border-b pb-6 mb-6">
-            <h2 className="text-2xl font-bold font-serif text-slate-900">Oakland International School</h2>
+            <h2 className="text-2xl font-bold font-serif text-slate-900"><SchoolName /></h2>
             <p className="text-xs uppercase tracking-widest text-slate-600 mt-1">Excellence and Integrity</p>
             <p className="text-sm font-semibold text-slate-800 mt-3">Official Terminal Report Card</p>
             <div className="mt-3 text-xs text-slate-600 flex justify-center gap-6">
@@ -170,16 +171,16 @@ export default function StudentResultsPage() {
               </span>
               <p
                 className={`text-xl font-bold mt-1 ${
-                  reportCard.status === 'Passed' || (typeof reportCard.average === 'number' && reportCard.average >= 50)
+                  reportCard.status === 'Passed' || (typeof reportCard.average === 'number' && reportCard.average >= reportCard.passMark)
                     ? 'text-emerald-700'
-                    : reportCard.status === 'Needs Improvement' || (typeof reportCard.average === 'number' && reportCard.average < 50)
+                    : reportCard.status === 'Needs Improvement' || (typeof reportCard.average === 'number' && reportCard.average < reportCard.passMark)
                     ? 'text-amber-700'
                     : 'text-slate-500'
                 }`}
               >
                 {reportCard.status ||
                   (typeof reportCard.average === 'number'
-                    ? reportCard.average >= 50
+                    ? reportCard.average >= reportCard.passMark
                       ? 'Passed'
                       : 'Needs Improvement'
                     : '—')}
@@ -256,7 +257,7 @@ export default function StudentResultsPage() {
 
             <div className="p-5 rounded-2xl bg-white border border-slate-200/90 shadow-xs space-y-2">
               <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
-                Principal Endorsement &bull; Mr Seyi Bankole
+                Principal Endorsement &bull; <PrincipalName />
               </span>
               <p className="text-xs text-slate-700 italic">
                 {reportCard.principalRemark || '—'}

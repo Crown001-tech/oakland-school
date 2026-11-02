@@ -1,17 +1,14 @@
+import { getPrincipalName } from '@/lib/school-people';
 import { NextResponse, type NextRequest } from 'next/server';
 import { getCaller, isAdminRole } from '@/lib/caller';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 // GET /api/communications - Fetch dispatches history from PostgreSQL
 export async function GET() {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     // Administrators see all dispatches; guardians see only broadcasts addressed to them; nobody else reads this feed.
     const caller = await getCaller();
@@ -39,13 +36,12 @@ export async function GET() {
         recipientsGroup: n.recipient_name || 'All Guardians',
         recipientCount: n.attempts_count || 1,
         subject: n.subject,
-        channels: ['email', 'sms'],
         priority: isUrgent ? 'urgent' : 'normal',
         severity: isCritical ? 'critical' : 'low',
         sentAt: n.created_at
           ? `${new Date(n.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}, ${new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
           : 'Recent',
-        status: n.status === 'sent' || n.status === 'delivered' ? 'Delivered' : 'Delivered',
+        status: 'Posted',
         content: n.content_html,
       };
     });
@@ -65,7 +61,7 @@ export async function GET() {
 // POST /api/communications - Dispatch announcement to guardians or staff
 export async function POST(req: NextRequest) {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const body = await req.json();
 
     const {
@@ -73,7 +69,6 @@ export async function POST(req: NextRequest) {
       recipientCount = 1,
       subject,
       message,
-      channels = ['email', 'sms'],
       deliveryTiming = 'now',
     } = body;
 
@@ -89,8 +84,8 @@ export async function POST(req: NextRequest) {
     const { data: newNotification, error: notifErr } = await sb
       .from('notifications')
       .insert({
-        school_id: DEFAULT_SCHOOL_ID,
-        recipient_email: 'broadcast@oakland.school',
+        school_id: sb.schoolId,
+        recipient_email: 'broadcast@school.invalid',
         recipient_name: recipientsGroup,
         notification_type: 'broadcast',
         subject: subject.trim(),
@@ -107,12 +102,14 @@ export async function POST(req: NextRequest) {
       console.warn('Notifications insert notice:', notifErr.message);
     }
 
+    const principalName = await getPrincipalName(sb);
+
     // Mirror to staff_broadcasts if dispatched to All Staff
     if (recipientsGroup === 'All Staff') {
       try {
         await sb.from('staff_broadcasts').insert({
-          school_id: DEFAULT_SCHOOL_ID,
-          sender_name: 'Mr Seyi Bankole (Principal)',
+          school_id: sb.schoolId,
+          sender_name: principalName,
           title: subject.trim(),
           message: message.trim(),
           priority: 'normal',
@@ -126,7 +123,7 @@ export async function POST(req: NextRequest) {
     // Record in audit_logs
     try {
       await sb.from('audit_logs').insert({
-        school_id: DEFAULT_SCHOOL_ID,
+        school_id: sb.schoolId,
         actor_role: 'Principal',
         action: 'COMMUNICATION_DISPATCH',
         resource_type: 'notifications',
@@ -134,9 +131,8 @@ export async function POST(req: NextRequest) {
           recipientsGroup,
           recipientCount,
           subject: subject.trim(),
-          channels,
           timing: deliveryTiming,
-          publishedBy: 'Mr Seyi Bankole',
+          publishedBy: principalName,
         },
       });
     } catch {}
@@ -146,9 +142,8 @@ export async function POST(req: NextRequest) {
       recipientsGroup,
       recipientCount,
       subject: subject.trim(),
-      channels,
       sentAt: `${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}, ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
-      status: deliveryTiming === 'now' ? 'Delivered' : 'Scheduled',
+      status: deliveryTiming === 'now' ? 'Posted' : 'Scheduled',
     };
 
     return NextResponse.json({

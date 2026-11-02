@@ -1,7 +1,5 @@
 import { getSupabaseAdmin } from '@/lib/supabase/admin';
 
-const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
-
 export interface RateLimitStatus {
   locked: boolean;
   justLocked?: boolean;
@@ -67,7 +65,7 @@ export async function recordAuthAttempt(params: {
     success,
     targetLabel,
     ipAddress = '127.0.0.1',
-    schoolId = DEFAULT_SCHOOL_ID,
+    schoolId,
     maxAttempts = 5,
     lockoutMinutes = 15,
   } = params;
@@ -95,7 +93,7 @@ export async function recordAuthAttempt(params: {
     };
 
     // On the 5th failed attempt (when lockout triggers), alert the Principal and write to audit_logs
-    if (result.justLocked) {
+    if (result.justLocked && schoolId) {
       const scopeLabel =
         scope === 'pickup_pin'
           ? 'Guardian Pickup PIN'
@@ -132,7 +130,7 @@ export async function recordAuthAttempt(params: {
 
       try {
         // Resolve real principal email and contact from staff_profiles or schools
-        let principalEmail = 'admin@oaklandschools.com';
+        let principalEmail: string | null = null;
         let principalName = 'Principal';
 
         const { data: principalStaff } = await sb
@@ -157,7 +155,7 @@ export async function recordAuthAttempt(params: {
           }
         }
 
-        await sb.from('notification_logs').insert({
+        if (principalEmail) await sb.from('notification_logs').insert({
           school_id: schoolId,
           channel: 'email',
           recipient: principalEmail,

@@ -1,11 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 // Junior-only subjects (strictly for JSS 1 - JSS 3)
 const JUNIOR_ONLY_SUBJECTS = new Set([
@@ -38,7 +34,7 @@ const SENIOR_ONLY_SUBJECTS = new Set([
 
 export async function GET(request: NextRequest) {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { searchParams } = new URL(request.url);
     const filterClassId = searchParams.get('classId');
     const filterClassName = searchParams.get('class') || searchParams.get('className');
@@ -179,7 +175,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     const { name, code, category, isActive = true } = body;
 
@@ -193,7 +189,7 @@ export async function POST(request: NextRequest) {
       .from('subjects')
       .upsert(
         {
-          school_id: DEFAULT_SCHOOL_ID,
+          school_id: sb.schoolId,
           name: name.trim(),
           code: generatedCode,
           category: category || 'General',
@@ -221,7 +217,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Subject ID is required' }, { status: 400 });
     }
 
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { error } = await sb.from('subjects').delete().eq('id', id);
 
     if (error) throw error;

@@ -1,9 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export interface NavBadgeItem {
   count: number;
@@ -14,7 +11,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const requestedRole = searchParams.get('role')?.toLowerCase() || 'proprietor';
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     // Parallel fetch of real database entities
     const [admRes, staffRes, leaveRes, pickupRes, schoolRes, rcRes] = await Promise.all([
@@ -55,8 +52,8 @@ export async function GET(request: NextRequest) {
       // For now, if report cards exist and not endorsed, count classes
       const { data: dbClasses } = await sb.from('classes').select('id, name');
       const { data: enrollments } = await sb.from('class_enrollments').select('id, class_id').eq('status', 'active');
-      const enrollmentClassMap = new Map((enrollments || []).map((e: any) => [e.id, e.class_id]));
-      const classIdMap = new Map((dbClasses || []).map((c: any) => [c.id, c.name]));
+      const enrollmentClassMap = new Map<string, string>((enrollments || []).map((e: any) => [e.id, e.class_id]));
+      const classIdMap = new Map<string, string>((dbClasses || []).map((c: any) => [c.id, c.name]));
       
       const classCardCount = new Set<string>();
       (rcRes.data || []).forEach((rc: any) => {

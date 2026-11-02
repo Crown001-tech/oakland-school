@@ -23,6 +23,8 @@ import {
   Clock,
   ShieldAlert,
 } from 'lucide-react';
+import { isModuleEnabled, moduleForPath } from '@/lib/modules';
+import { useModules } from '@/lib/use-modules';
 
 interface NavItem {
   label: string;
@@ -37,6 +39,7 @@ interface NavGroup {
 }
 
 export default function SecurityLayout({ children }: { children: React.ReactNode }) {
+  const modules = useModules();
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -121,7 +124,7 @@ export default function SecurityLayout({ children }: { children: React.ReactNode
           setIsAuthorized(true);
           setOfficerProfile({
             name: data.profile?.name || 'Security Desk',
-            employeeId: data.profile?.employeeId || 'OAK-SEC-001',
+            employeeId: data.profile?.employeeId || '—',
             role: 'Security & Reception',
           });
         }
@@ -273,7 +276,7 @@ export default function SecurityLayout({ children }: { children: React.ReactNode
               <p className="px-3 text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-1">
                 {group.category}
               </p>
-              {group.items.map((item) => {
+              {group.items.filter((item) => isModuleEnabled(modules, moduleForPath(item.href))).map((item) => {
                 const Icon = item.icon;
                 const active = pathname === item.href;
                 const badgeInfo = navBadges[item.href];
@@ -346,7 +349,7 @@ export default function SecurityLayout({ children }: { children: React.ReactNode
                   {officerProfile?.name || 'Security Desk'}
                 </p>
                 <p className="text-[10px] text-slate-400 leading-tight truncate font-mono">
-                  {officerProfile?.employeeId || 'OAK-SEC-001'}
+                  {officerProfile?.employeeId || '—'}
                 </p>
               </div>
             </div>

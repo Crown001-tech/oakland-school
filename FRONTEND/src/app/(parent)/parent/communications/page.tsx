@@ -11,6 +11,7 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { BrandLoader } from '@/components/ui/BrandLoader';
+import { SchoolName } from '@/components/common/SchoolName';
 
 export default function ParentCommunicationsPage() {
   const [notices, setNotices] = useState<any[]>([]);
@@ -209,7 +210,7 @@ export default function ParentCommunicationsPage() {
 
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
               <span className="text-[11px] text-slate-400">
-                Oakland International School &bull; Office of the Principal
+                <SchoolName /> &bull; Office of the Principal
               </span>
               <button
                 type="button"

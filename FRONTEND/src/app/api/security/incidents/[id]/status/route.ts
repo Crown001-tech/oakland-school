@@ -1,12 +1,13 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/server';
+import { getSchoolDb } from '@/lib/school-db';
+
 
 export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const admin = createAdminClient();
+    const admin = await getSchoolDb();
     const { id } = await params;
     const body = await req.json();
 

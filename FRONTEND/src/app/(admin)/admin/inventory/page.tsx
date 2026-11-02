@@ -168,14 +168,14 @@ export default function InventoryPage() {
           action: 'approve_request',
           id,
           decision: 'approved',
-          approverName: 'Mr Seyi Bankole (Principal)',
+          approverName: 'Principal',
         }),
       });
 
       const data = await res.json();
       if (data.success) {
         setRequests((prev) =>
-          prev.map((r) => (r.id === id ? { ...r, status: 'approved', approvedBy: 'Mr Seyi Bankole (Principal)' } : r))
+          prev.map((r) => (r.id === id ? { ...r, status: 'approved', approvedBy: 'Principal' } : r))
         );
         showToast('Purchase request approved');
       } else {
@@ -195,7 +195,7 @@ export default function InventoryPage() {
           action: 'approve_request',
           id,
           decision: 'rejected',
-          approverName: 'Mr Seyi Bankole (Principal)',
+          approverName: 'Principal',
         }),
       });
 
@@ -293,7 +293,7 @@ export default function InventoryPage() {
           estimatedUnitCost: Number(reqCost) || 0,
           urgency: reqUrgency,
           justification: reqJustification.trim(),
-          requestedByName: 'Mr Seyi Bankole (Principal)',
+          requestedByName: 'Principal',
         }),
       });
 

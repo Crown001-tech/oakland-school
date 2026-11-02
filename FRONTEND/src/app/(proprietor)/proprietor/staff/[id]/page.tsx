@@ -34,6 +34,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { EditStaffModal } from '@/components/common/EditStaffModal';
+import { SchoolName, PrincipalName } from '@/components/common/SchoolName';
 
 type TabType = 'overview' | 'assignment' | 'payroll_security';
 
@@ -936,7 +937,7 @@ export default function ProprietorStaffProfilePage() {
         <div className="border-b-2 border-brand-primary pb-4 mb-6 flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-black text-brand-primary tracking-tight uppercase">
-              Oakland International School
+              <SchoolName />
             </h1>
             <p className="text-xs italic font-serif text-slate-600 mt-0.5">
               Knowledge, Integrity and Excellence
@@ -1107,7 +1108,7 @@ export default function ProprietorStaffProfilePage() {
             <p className="font-bold text-slate-900 mb-8">Authorized Institutional Endorsement:</p>
             <div className="border-b border-slate-400 w-48 mb-1"></div>
             <p className="font-bold text-slate-800">Office of the Proprietor</p>
-            <p className="text-[10px] text-slate-500">Oakland International School Governing Board</p>
+            <p className="text-[10px] text-slate-500"><SchoolName /> Governing Board</p>
           </div>
           <div className="text-right flex flex-col items-end">
             <div className="w-24 h-24 border-2 border-dashed border-slate-300 rounded-full flex items-center justify-center text-center p-2 text-[9px] text-slate-400 uppercase font-bold">

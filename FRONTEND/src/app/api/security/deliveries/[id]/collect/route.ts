@@ -1,12 +1,13 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/server';
+import { getSchoolDb } from '@/lib/school-db';
+
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const admin = createAdminClient();
+    const admin = await getSchoolDb();
     const { id } = await params;
     const body = await req.json();
 
@@ -71,7 +72,7 @@ export async function POST(
 
         if (staff?.email) {
           await admin.from('notifications').insert({
-            school_id: 'a0000000-0000-0000-0000-000000000001',
+            school_id: admin.schoolId,
             recipient_email: staff.email.toLowerCase(),
             recipient_name: staff.first_name || existing.recipient_name,
             subject: `Package Handover Confirmed: ${existing.tracking_code}`,

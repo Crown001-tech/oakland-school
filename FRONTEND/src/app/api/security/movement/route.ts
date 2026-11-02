@@ -1,10 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/server';
+
 import { getCaller, getLinkedStudentIds } from '@/lib/caller';
+import { getSchoolDb } from '@/lib/school-db';
 
 export async function GET(req: NextRequest) {
   try {
-    const admin = createAdminClient();
+    const admin = await getSchoolDb();
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status');
     const search = searchParams.get('search')?.trim().toLowerCase();
@@ -99,7 +100,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const admin = createAdminClient();
+    const admin = await getSchoolDb();
     const body = await req.json();
 
     const {
@@ -153,7 +154,7 @@ export async function POST(req: NextRequest) {
     let data: any = null;
     for (let attempt = 0; attempt < 5; attempt++) {
       const randomPin = Math.floor(1000 + Math.random() * 9000);
-      const passNumber = `OAK-MOV-${randomPin}`;
+      const passNumber = `${admin.idPrefix}-MOV-${randomPin}`;
 
       const result = await admin
         .from('student_movements')
@@ -214,7 +215,7 @@ export async function POST(req: NextRequest) {
 
         if (staff?.email) {
           await admin.from('notifications').insert({
-            school_id: 'a0000000-0000-0000-0000-000000000001',
+            school_id: admin.schoolId,
             recipient_email: staff.email.toLowerCase(),
             recipient_name: authorizedByName.trim(),
             subject: `Student Intra-day Departure: ${studentName.trim()}`,
@@ -241,7 +242,7 @@ export async function POST(req: NextRequest) {
       const guardianEmail = (sgRows?.[0]?.guardians as any)?.email;
       if (guardianEmail) {
         await admin.from('notifications').insert({
-          school_id: 'a0000000-0000-0000-0000-000000000001',
+          school_id: admin.schoolId,
           recipient_email: guardianEmail.toLowerCase(),
           recipient_name: (sgRows?.[0]?.guardians as any)?.first_name || 'Guardian',
           subject: 'Student Intra-day Gate Pass Issued',

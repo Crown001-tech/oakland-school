@@ -15,6 +15,8 @@ import {
   X,
 } from 'lucide-react';
 import { BrandLoader } from '@/components/ui/BrandLoader';
+import { SchoolName } from '@/components/common/SchoolName';
+import { useSchoolProfile } from '@/lib/use-school-profile';
 
 export type LetterType =
   | 'Query Letter'
@@ -47,13 +49,13 @@ const TEMPLATES: Record<LetterType, { subject: string; body: string }> = {
 
 Such conduct constitutes a breach of institutional staff regulations and compromises the academic continuity of our students.
 
-You are hereby required to respond in writing to this query within forty-eight (48) hours of receipt of this memorandum, stating reasons why disciplinary proceedings should not be instituted against you in accordance with Oakland International School Staff Regulations.
+You are hereby required to respond in writing to this query within forty-eight (48) hours of receipt of this memorandum, stating reasons why disciplinary proceedings should not be instituted against you in accordance with the school Staff Regulations.
 
 Your written representation should be addressed directly to the Office of the Principal.`,
   },
   'Termination Letter': {
     subject: 'FORMAL NOTICE OF TERMINATION OF EMPLOYMENT CONTRACT',
-    body: `Pursuant to the resolution of the Governing Council and directive of the School Proprietor, we regret to inform you that your appointment as a member of staff at Oakland International School is hereby terminated with immediate effect.
+    body: `Pursuant to the resolution of the Governing Council and directive of the School Proprietor, we regret to inform you that your appointment as a member of staff at the school is hereby terminated with immediate effect.
 
 You are instructed to immediately hand over all school property in your possession, including student assessment gradebooks, attendance registries, physical keys, and identity credentials, to the Vice Principal.
 
@@ -81,7 +83,7 @@ Attendance is compulsory for all full-time and specialist academic teaching staf
   },
   'Resumption Notice': {
     subject: 'OFFICIAL NOTICE: TERM RESUMPTION AND CALENDAR ADJUSTMENT',
-    body: `The Management of Oakland International School hereby issues this official circular regarding the adjusted academic calendar and term resumption schedule.
+    body: `The Management of the school hereby issues this official circular regarding the adjusted academic calendar and term resumption schedule.
 
 Following campus facility upgrades and laboratory infrastructure installations, the official resumption date for all boarding and day students has been adjusted as follows:
 
@@ -93,11 +95,11 @@ All class teachers, subject specialists, and administrative personnel are expect
   },
   'Letter of Commendation': {
     subject: 'LETTER OF OFFICIAL COMMENDATION: OUTSTANDING ACADEMIC DISTINCTION',
-    body: `On behalf of the Proprietor, Governing Council, and Academic Staff of Oakland International School, I have the privilege of presenting this official commendation in recognition of your exemplary dedication, teaching excellence, and diligent service.
+    body: `On behalf of the Proprietor, Governing Council, and Academic Staff of the school, I have the privilege of presenting this official commendation in recognition of your exemplary dedication, teaching excellence, and diligent service.
 
 Your innovative pedagogical methods and exceptional mentorship have resulted in noteworthy academic performance and commendable discipline among our students during the current academic term.
 
-The school leadership values your steadfast commitment to the high standards of Oakland International School. A copy of this letter has been officially deposited in your personnel file.
+The school leadership values your steadfast commitment to the high standards of the school. A copy of this letter has been officially deposited in your personnel file.
 
 Please accept our highest congratulations. Keep up the sterling performance!`,
   },
@@ -117,6 +119,7 @@ Kindly confirm your availability upon receipt of this official notice.`,
 };
 
 export default function AdminLettersPage() {
+  const school = useSchoolProfile();
   const [letters, setLetters] = useState<OfficialLetter[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedLetter, setSelectedLetter] = useState<OfficialLetter | null>(null);
@@ -133,9 +136,9 @@ export default function AdminLettersPage() {
   const [formRecipientEmail, setFormRecipientEmail] = useState('');
   const [formSubject, setFormSubject] = useState(TEMPLATES['Query Letter'].subject);
   const [formBody, setFormBody] = useState(TEMPLATES['Query Letter'].body);
-  const [formRefNo, setFormRefNo] = useState(`OAK/PRIN/QRY/2026/0${Math.floor(10 + Math.random() * 90)}`);
+  const [formRefNo, setFormRefNo] = useState(`PRIN/QRY/${new Date().getFullYear()}/0${Math.floor(10 + Math.random() * 90)}`);
   const [formIncludeSeal, setFormIncludeSeal] = useState(true);
-  const principalName = 'Mr Seyi Bankole';
+  const principalName = school.principalName || 'Principal';
 
   const loadData = async () => {
     try {
@@ -193,7 +196,7 @@ export default function AdminLettersPage() {
       type === 'Meeting Notice' ? 'MTG' :
       type === 'Resumption Notice' ? 'CIR' :
       type === 'Letter of Commendation' ? 'COM' : 'DSC';
-    setFormRefNo(`OAK/PRIN/${prefix}/2026/0${Math.floor(10 + Math.random() * 90)}`);
+    setFormRefNo(`PRIN/${prefix}/${new Date().getFullYear()}/0${Math.floor(10 + Math.random() * 90)}`);
   };
 
   const handleSelectStaff = (name: string) => {
@@ -269,8 +272,8 @@ export default function AdminLettersPage() {
 
   const handleDownloadLetter = (ltr: OfficialLetter) => {
     const letterText = `================================================================================
-                         OAKLAND INTERNATIONAL SCHOOL
-          Administrative Wing, Victoria Island, Lagos, Nigeria
+                         ${school.name.toUpperCase()}
+          ${school.address}
                       OFFICE OF THE SCHOOL PRINCIPAL
 ================================================================================
 
@@ -280,7 +283,7 @@ DATE: ${ltr.date}
 TO:
 ${ltr.recipientName}
 ${ltr.recipientRole}${ltr.recipientEmail ? `\n${ltr.recipientEmail}` : ''}
-Oakland International School, Lagos
+${school.name}
 
 SUBJECT:
 ${ltr.subject}
@@ -295,7 +298,7 @@ Yours faithfully,
 
 ${ltr.issuedBy}
 ${ltr.signatoryRole}
-Oakland International School
+${school.name}
 
 [OFFICIAL DIGITAL VERIFICATION SEAL AFFIXED]
 ================================================================================`;
@@ -746,7 +749,7 @@ Oakland International School
                   O
                 </div>
                 <h1 className="text-xl sm:text-2xl font-black uppercase tracking-[0.18em] text-brand-primary font-serif">
-                  Oakland International School
+                  <SchoolName />
                 </h1>
                 <p className="text-[11px] font-bold text-brand-accent tracking-widest uppercase">
                   Per Ardua Ad Astra &bull; Excellence &bull; Integrity &bull; Leadership
@@ -770,7 +773,7 @@ Oakland International School
                 {selectedLetter.recipientEmail && (
                   <p className="text-slate-400 font-mono text-[11px]">{selectedLetter.recipientEmail}</p>
                 )}
-                <p className="text-slate-600">Oakland International School, Lagos</p>
+                <p className="text-slate-600">{school.name}</p>
               </div>
 
               {/* Subject Title */}
@@ -794,7 +797,7 @@ Oakland International School
                   </div>
                   <p className="font-bold text-xs text-slate-900">{selectedLetter.issuedBy}</p>
                   <p className="text-[10px] text-slate-500 uppercase font-semibold">{selectedLetter.signatoryRole}</p>
-                  <p className="text-[9.5px] text-slate-400">Oakland International School</p>
+                  <p className="text-[9.5px] text-slate-400">{school.name}</p>
                 </div>
 
                 {selectedLetter.includeSeal && (

@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { BrandLoader } from '@/components/ui/BrandLoader';
 import { Clock, Calendar, User, Printer } from 'lucide-react';
+import { useClassNames } from '@/lib/use-class-names';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 const PERIODS = [
@@ -21,13 +22,16 @@ const PERIODS = [
   { id: 'p8', label: 'Period 8', time: '14:30 – 15:15' },
 ];
 
-const CLASSES = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'];
 
 type TimetableCell = { subject: string; teacher: string } | null;
 type TimetableData = Record<string, Record<string, Record<string, TimetableCell>>>;
 
 export default function ProprietorTimetablePage() {
-  const [selectedClass, setSelectedClass] = useState('JSS 1');
+  const CLASSES = useClassNames();
+  const [selectedClass, setSelectedClass] = useState('');
+  useEffect(() => {
+    if (!selectedClass && CLASSES[0]) setSelectedClass(CLASSES[0]);
+  }, [CLASSES, selectedClass]);
   const [mobileDay, setMobileDay] = useState('Monday');
   const [timetable, setTimetable] = useState<TimetableData>({});
   const [loading, setLoading] = useState(true);

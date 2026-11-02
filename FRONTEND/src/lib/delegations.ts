@@ -1,4 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
+import type { SchoolDb } from '@/lib/school-scope';
 
 export interface PrincipalDelegations {
   canOnboardStaff: boolean;
@@ -47,7 +47,7 @@ export async function fetchPrincipalDelegations(): Promise<PrincipalDelegations>
 /**
  * Server-side helper to read live Principal Delegations directly from schools table.
  */
-export async function getServerPrincipalDelegations(sb: SupabaseClient): Promise<PrincipalDelegations> {
+export async function getServerPrincipalDelegations(sb: Pick<SchoolDb, 'from'>): Promise<PrincipalDelegations> {
   try {
     const { data: school } = await sb
       .from('schools')

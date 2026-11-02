@@ -28,7 +28,7 @@ export default function ParentPickupPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [escortName, setEscortName] = useState('');
   const [escortPhone, setEscortPhone] = useState('');
-  const [escortRelation, setEscortRelation] = useState('Relative');
+  const [escortRelation, setEscortRelation] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [addMessage, setAddMessage] = useState<string | null>(null);
 

@@ -1,7 +1,11 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { SCHOOL_LOGO } from '@/lib/school-assets';
 import { PRODUCT_NAME, isEductiveBrand } from '@/lib/brand';
+import { useSchoolProfile } from '@/lib/use-school-profile';
 
 interface LogoProps {
   variant?: 'full' | 'mark' | 'image';
@@ -18,6 +22,10 @@ export function Logo({
   href,
   className = '',
 }: LogoProps) {
+  // The school's own name: its first word large, the rest small
+  const school = useSchoolProfile();
+  const [nameFirst, ...nameRestWords] = school.name.split(' ');
+  const nameRest = nameRestWords.join(' ');
   const sizeMap = {
     sm: { img: 30, mark: 26, title: 'text-sm', sub: 'text-[8.5px]' },
     md: { img: 40, mark: 36, title: 'text-lg', sub: 'text-[10px]' },
@@ -151,8 +159,8 @@ export function Logo({
     content = (
       <div className={`inline-flex items-center select-none group ${className}`}>
         <Image
-          src="/logo.jpg"
-          alt="Oakland Schools"
+          src={SCHOOL_LOGO}
+          alt={school.name || 'School logo'}
           width={img * 3}
           height={img * 3}
           className="rounded-lg object-contain"
@@ -177,14 +185,14 @@ export function Logo({
               theme === 'dark' ? 'text-white' : 'text-slate-900'
             }`}
           >
-            Oakland
+            {nameFirst}
           </span>
           <span
             className={`font-bold tracking-[0.32em] uppercase font-sans ${sub} ${
               theme === 'dark' ? 'text-slate-300' : 'text-slate-700'
             }`}
           >
-            Schools
+            {nameRest}
           </span>
         </div>
       </div>

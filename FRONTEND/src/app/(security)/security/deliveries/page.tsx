@@ -24,6 +24,7 @@ import {
   ExternalLink,
 } from 'lucide-react';
 import { BrandLoader } from '@/components/ui/BrandLoader';
+import { SchoolName } from '@/components/common/SchoolName';
 
 interface DeliveryItem {
   id: string;
@@ -1020,7 +1021,7 @@ export default function SecurityDeliveriesPage() {
             <div className="border-2 border-dashed border-indigo-400/50 rounded-xl p-4 bg-indigo-50/20 space-y-3 text-center">
               <div>
                 <p className="text-[10px] font-bold text-brand-accent uppercase tracking-widest">
-                  Oakland International School
+                  <SchoolName />
                 </p>
                 <p className="text-xs font-semibold text-slate-700">Reception Parcel Intake</p>
               </div>

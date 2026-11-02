@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
+import { getSchoolDb } from '@/lib/school-db';
 
 export async function POST(
   request: NextRequest,
@@ -8,7 +9,7 @@ export async function POST(
   try {
     const { id: assessmentId } = await params;
     const supabase = await createClient();
-    const adminClient = createAdminClient();
+    const adminClient = await getSchoolDb();
 
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
     if (authErr || !user) {

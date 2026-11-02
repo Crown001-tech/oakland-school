@@ -30,6 +30,9 @@ import {
   Laptop,
   Lock,
 } from 'lucide-react';
+import { SchoolName, PrincipalName } from '@/components/common/SchoolName';
+import { isModuleEnabled, moduleForPath } from '@/lib/modules';
+import { useModules } from '@/lib/use-modules';
 
 interface NavItem {
   label: string;
@@ -81,6 +84,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { label: 'Communications', href: '/admin/communications', icon: MessageSquare },
       { label: 'Document Centre', href: '/admin/documents', icon: FolderArchive },
+      { label: 'Letters', href: '/admin/letters', icon: FileText },
       { label: 'Admissions', href: '/admin/admissions', icon: UserPlus },
       { label: 'Audit Log', href: '/admin/audit', icon: ShieldAlert },
       { label: 'Settings', href: '/admin/settings', icon: Settings },
@@ -89,6 +93,7 @@ const NAV_GROUPS: NavGroup[] = [
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const modules = useModules();
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -148,8 +153,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           setIsAuthenticated(true);
           setIsAuthorized(true);
           setPrincipalProfile({
-            name: data.profile?.name || 'Mr Seyi Bankole',
-            email: data.profile?.email || data.user?.email || 'principal@oaklandschools.edu',
+            name: data.profile?.name || '',
+            email: data.profile?.email || data.user?.email || '',
           });
         }
       } catch {
@@ -266,7 +271,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <p className="px-3 text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-1">
                 {group.category}
               </p>
-              {group.items.map((item) => {
+              {group.items.filter((item) => isModuleEnabled(modules, moduleForPath(item.href))).map((item) => {
                 const Icon = item.icon;
                 const active = pathname === item.href;
                 const badgeInfo = navBadges[item.href];
@@ -336,7 +341,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-semibold text-white leading-tight truncate">
-                  {principalProfile?.name || 'Mr Seyi Bankole'}
+                  {principalProfile?.name || 'Principal'}
                 </p>
                 <p className="text-[10px] text-teal-300 leading-tight truncate">
                   Head of School
@@ -376,7 +381,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex items-center gap-3">
             <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs">
               <School className="w-3 h-3 text-slate-500" />
-              <span className="text-slate-600 font-medium">Oakland Schools</span>
+              <span className="text-slate-600 font-medium"><SchoolName /></span>
             </div>
           </div>
         </header>

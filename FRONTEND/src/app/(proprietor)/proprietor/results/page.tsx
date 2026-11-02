@@ -1,4 +1,5 @@
 'use client';
+import { useSchoolProfile } from '@/lib/use-school-profile';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardTitle, CardDescription, CardContent, CardHeader } from '@/components/ui/Card';
@@ -25,9 +26,10 @@ import {
   Sparkles,
   ExternalLink,
 } from 'lucide-react';
+import { SchoolName } from '@/components/common/SchoolName';
 
 interface ClassResultSummary {
-  class: 'JSS 1' | 'JSS 2' | 'JSS 3' | 'SS 1' | 'SS 2' | 'SS 3';
+  class: string;
   classTeacher: string;
   totalStudents: number;
   averageScore: number;
@@ -49,20 +51,12 @@ interface ParentEmailDelivery {
   totalScore: string;
 }
 
-const DEFAULT_CLASSES: ClassResultSummary[] = [
-  { class: 'JSS 1', classTeacher: 'Unassigned', totalStudents: 0, averageScore: 0, passRate: 0, topStudents: [], status: 'Scores Pending', scoresSubmitted: 0 },
-  { class: 'JSS 2', classTeacher: 'Unassigned', totalStudents: 0, averageScore: 0, passRate: 0, topStudents: [], status: 'Scores Pending', scoresSubmitted: 0 },
-  { class: 'JSS 3', classTeacher: 'Unassigned', totalStudents: 0, averageScore: 0, passRate: 0, topStudents: [], status: 'Scores Pending', scoresSubmitted: 0 },
-  { class: 'SS 1', classTeacher: 'Unassigned', totalStudents: 0, averageScore: 0, passRate: 0, topStudents: [], status: 'Scores Pending', scoresSubmitted: 0 },
-  { class: 'SS 2', classTeacher: 'Unassigned', totalStudents: 0, averageScore: 0, passRate: 0, topStudents: [], status: 'Scores Pending', scoresSubmitted: 0 },
-  { class: 'SS 3', classTeacher: 'Unassigned', totalStudents: 0, averageScore: 0, passRate: 0, topStudents: [], status: 'Scores Pending', scoresSubmitted: 0 },
-];
-
 export default function ProprietorResultsPage() {
-  const [classesResults, setClassesResults] = useState<ClassResultSummary[]>(DEFAULT_CLASSES);
+  const school = useSchoolProfile();
+  const [classesResults, setClassesResults] = useState<ClassResultSummary[]>([]);
   const [parentEmailDeliveries, setParentEmailDeliveries] = useState<ParentEmailDelivery[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedInspectClass, setSelectedInspectClass] = useState<string>('JSS 3');
+  const [selectedInspectClass, setSelectedInspectClass] = useState<string>('');
   const [showSampleModal, setShowSampleModal] = useState(false);
   const [showEmailPreviewModal, setShowEmailPreviewModal] = useState(false);
   const [isDispatching, setIsDispatching] = useState(false);
@@ -179,8 +173,8 @@ export default function ProprietorResultsPage() {
         </head>
         <body>
           <div class="header">
-            <h1 class="title">Oakland International School</h1>
-            <p class="subtitle">Official Terminal Examination Broadsheet &bull; First Term 2026/2027 Academic Session</p>
+            <h1 class="title">${school.name}</h1>
+            <p class="subtitle">Official Terminal Examination Broadsheet &bull; ${[school.currentTerm, school.currentSession].filter(Boolean).join(" ")} Academic Session</p>
           </div>
           <div class="meta-grid">
             <div>
@@ -217,7 +211,7 @@ export default function ProprietorResultsPage() {
             </div>
             <div>
               <div class="sig-title">Head of School</div>
-              <div class="sig-line">Mr Seyi Bankole</div>
+              <div class="sig-line">${school.principalName}</div>
             </div>
             <div>
               <div class="sig-title">Executive Ratification</div>
@@ -254,7 +248,7 @@ export default function ProprietorResultsPage() {
             size="sm"
             variant="outline"
             onClick={() => {
-              setSelectedInspectClass('JSS 3');
+              setSelectedInspectClass(classesResults[0]?.class || '');
               setShowSampleModal(true);
             }}
             className="text-xs font-semibold text-slate-700 whitespace-nowrap shrink-0"
@@ -515,7 +509,7 @@ export default function ProprietorResultsPage() {
             <div className="flex items-start justify-between pb-3 border-b-2 border-brand-primary">
               <div>
                 <h3 className="text-lg font-black text-slate-900 uppercase">
-                  Oakland International School &bull; Terminal Examination Broadsheet
+                  <SchoolName /> &bull; Terminal Examination Broadsheet
                 </h3>
                 <p className="text-xs text-slate-500 font-mono">
                   Inspecting: {selectedInspectClass} &bull; First Term 2026/2027 Academic Session
@@ -609,7 +603,7 @@ export default function ProprietorResultsPage() {
                     </p>
                     <p>
                       <strong className="text-blue-900">Principal Vetting Remark:</strong>{' '}
-                      <span className="italic text-blue-950">Vetted and verified by Mr Seyi Bankole (Head of School). Recommended for executive endorsement.</span>
+                      <span className="italic text-blue-950">Vetted and verified by {school.principalName || "the Head of School"}. Recommended for executive endorsement.</span>
                     </p>
                     <p className="pt-2 border-t border-slate-200 text-brand-primary">
                       <strong>Proprietor Endorsement:</strong>{' '}
@@ -654,17 +648,16 @@ export default function ProprietorResultsPage() {
             <div className="border border-slate-200 rounded-xl overflow-hidden shadow-xs text-xs bg-slate-50">
               {/* Header metadata */}
               <div className="p-3 bg-white border-b border-slate-200 space-y-1 font-mono text-[11px] text-slate-600">
-                <p><strong className="text-slate-900">From:</strong> Oakland International School &lt;results@oaklandschools.edu.ng&gt;</p>
-                <p><strong className="text-slate-900">To:</strong> Registered Guardian &lt;guardian.contact@gmail.com&gt;</p>
-                <p><strong className="text-slate-900">Date:</strong> 26 September 2026, 02:15 PM</p>
-                <p><strong className="text-slate-900">Subject:</strong> Official Terminal Report Card &bull; First Term 2026/2027</p>
+                <p><strong className="text-slate-900">From:</strong> <SchoolName /></p>
+                <p><strong className="text-slate-900">To:</strong> Registered guardian</p>
+                <p><strong className="text-slate-900">Subject:</strong> Official Terminal Report Card</p>
               </div>
 
               {/* Body */}
               <div className="p-5 bg-white space-y-3.5 text-slate-800 leading-relaxed">
                 <div className="text-center pb-3 border-b border-slate-100">
                   <span className="font-extrabold text-sm text-brand-primary tracking-tight uppercase block">
-                    Oakland International School
+                    <SchoolName />
                   </span>
                   <span className="text-[10px] text-slate-400 font-mono">
                     Office of the Principal
@@ -674,7 +667,7 @@ export default function ProprietorResultsPage() {
                 <p>Dear <strong>Guardian</strong>,</p>
 
                 <p>
-                  We are pleased to present the official First Term 2026/2027 Terminal Report Card for your ward.
+                  We are pleased to present the official Terminal Report Card for your ward.
                 </p>
 
                 {/* Performance Summary Banner */}
@@ -689,10 +682,6 @@ export default function ProprietorResultsPage() {
                   </div>
                 </div>
 
-                <p className="text-[11px] text-slate-600 italic">
-                  &quot;Consistently demonstrates high intellectual capacity and leadership in academics.&quot; — <strong>Mr Seyi Bankole (Head of School)</strong>
-                </p>
-
                 {/* PDF Attachment Box */}
                 <div className="p-3 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
@@ -703,7 +692,7 @@ export default function ProprietorResultsPage() {
                       <p className="font-bold text-slate-900 text-xs">
                         Official_Terminal_Report_Card.pdf
                       </p>
-                      <p className="text-[10px] text-slate-400">142 KB &bull; Digitally Endorsed with Proprietor Seal</p>
+                      <p className="text-[10px] text-slate-400">Endorsed by the Proprietor</p>
                     </div>
                   </div>
 
@@ -722,7 +711,7 @@ export default function ProprietorResultsPage() {
                 </div>
 
                 <p className="text-[10px] text-slate-400 pt-2 border-t border-slate-100">
-                  Resumption for Second Term is scheduled for <strong>Monday, 11 January 2027</strong>. Parents may also view results anytime on the Parent Portal.
+                  Parents may also view results at any time on the Parent Portal.
                 </p>
               </div>
             </div>

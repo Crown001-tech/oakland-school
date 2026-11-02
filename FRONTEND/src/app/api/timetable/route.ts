@@ -1,15 +1,12 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getServerPrincipalDelegations } from '@/lib/delegations';
 import { getCaller } from '@/lib/caller';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET() {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { data: school, error } = await sb
       .from('schools')
       .select('id, settings')
@@ -47,7 +44,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     // Verify delegation if called by Admin / Principal
     const roleCookie = (await getCaller()).role;

@@ -1,14 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getCaller, isAdminRole } from '@/lib/caller';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET() {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     // Documents tied to a student or staff member, and unpublished drafts, are for administrators only.
     const isAdmin = isAdminRole((await getCaller()).role);
     let docQuery = sb.from('documents').select('*');
@@ -50,7 +47,7 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const contentType = request.headers.get('content-type') || '';
 
     let title = '';
@@ -221,7 +218,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Document ID is required' }, { status: 400 });
     }
 
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { error } = await sb.from('documents').delete().eq('id', id);
 
     if (error) throw error;

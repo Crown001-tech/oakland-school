@@ -1,14 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 import { getCaller, formatRoleLabel } from '@/lib/caller';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET() {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { data: rows, error } = await sb
       .from('admission_applications')
       .select('*')
@@ -48,20 +45,14 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const sb = getAdminClient();
+    const sb = await getSchoolDb({ allowVisitor: true });
 
-    // 1. Resolve school_id
-    const { data: school } = await sb
-      .from('schools')
-      .select('id')
-      .limit(1)
-      .maybeSingle();
-
-    const schoolId = school?.id || 'a0000000-0000-0000-0000-000000000001';
+    // 1. The application is for the school of the address it came in on
+    const schoolId = sb.schoolId;
 
     // 2. Generate structured reference number
     const randSuffix = Math.floor(1000 + Math.random() * 9000);
-    const referenceNumber = `OSC-ADM-2026-${randSuffix}`;
+    const referenceNumber = `${sb.idPrefix}-ADM-${new Date().getFullYear()}-${randSuffix}`;
 
     const firstName = (body.firstName || body.applicantFirstName || '').trim();
     const lastName = (body.surname || body.lastName || body.applicantLastName || '').trim();
@@ -73,7 +64,10 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const applyingForClass = (body.appliedClass || body.applyingForClass || body.classApplyingFor || 'JSS 1').trim();
+    const applyingForClass = String(body.appliedClass || body.applyingForClass || body.classApplyingFor || '').trim();
+    if (!applyingForClass) {
+      return NextResponse.json({ success: false, message: 'Select the class applying for.' }, { status: 400 });
+    }
     const guardianName = (body.parentName || body.guardianName || 'Guardian').trim();
     const guardianPhone = (body.parentPhone || body.guardianPhone || '—').trim();
     const guardianEmail = (body.parentEmail || body.guardianEmail || '—').trim();
@@ -172,7 +166,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ success: false, message: 'id and action (accept | decline) required' }, { status: 400 });
     }
 
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     // 1. Fetch the application
     const { data: app, error: appErr } = await sb
@@ -195,7 +189,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     // 2. Action === 'accept': Enroll student into PostgreSQL
-    const schoolId = app.school_id || 'a0000000-0000-0000-0000-000000000001';
+    const schoolId = sb.schoolId;
     const fName = (app.applicant_first_name || '').trim();
     const lName = (app.applicant_last_name || '').trim();
 

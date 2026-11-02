@@ -1,13 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
-
+// Open to visitors, for the school of the address they came in on (the public site and the sign-in page)
 export async function GET() {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb({ allowVisitor: true });
 
     // 1. Fetch School Details
     const { data: school, error: schoolErr } = await sb
@@ -32,7 +29,8 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       data: {
-        id: school?.id || 'a0000000-0000-0000-0000-000000000001',
+        id: sb.schoolId,
+        idPrefix: sb.idPrefix,
         name: school?.name || '',
         code: school?.code || '',
         motto: school?.motto || '',
@@ -70,7 +68,7 @@ export async function GET() {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     // 1. Retrieve current school row
     const { data: currentSchool } = await sb
@@ -79,7 +77,7 @@ export async function PUT(request: NextRequest) {
       .limit(1)
       .maybeSingle();
 
-    const schoolId = currentSchool?.id || 'a0000000-0000-0000-0000-000000000001';
+    const schoolId = sb.schoolId;
     const mergedSettings = {
       ...(currentSchool?.settings || {}),
       rc_number: body.rcNumber || currentSchool?.settings?.rc_number,

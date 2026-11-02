@@ -1,16 +1,12 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getAuthenticatedActor, getCaller, getLinkedStudentIds, isAdminRole } from '@/lib/caller';
+import { getClassNames } from '@/lib/school-classes';
+import { resolveTuition } from '@/lib/tuition';
 import { computeStaffPay, isOnPayroll, resolveSalaryScales } from '@/lib/payroll';
 import { isExpenditureCategory, isPettyCashCategory } from '@/types/finance';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
-const STANDARD_CLASSES = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'] as const;
-
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET() {
   try {
@@ -23,7 +19,7 @@ export async function GET() {
     }
     const linkedStudentIds = isGuardian ? await getLinkedStudentIds(caller.email) : [];
 
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     // 1. Fetch School Settings
     const { data: school } = await sb
@@ -32,7 +28,7 @@ export async function GET() {
       .limit(1)
       .maybeSingle();
 
-    const schoolId = school?.id || DEFAULT_SCHOOL_ID;
+    const schoolId = school?.id || sb.schoolId;
     const settings = school?.settings || {};
 
     const salaryScales = resolveSalaryScales(settings);
@@ -61,7 +57,7 @@ export async function GET() {
           id,
           class_id,
           status,
-          classes:class_id ( id, name )
+          classes:class_id ( id, name, level )
         ),
         student_guardians (
           id,
@@ -136,20 +132,8 @@ export async function GET() {
       const guardianName = guardian ? `${guardian.first_name || ''} ${guardian.last_name || ''}`.trim() : 'Guardian';
       const guardianPhone = guardian?.phone || '—';
 
-      // Rate from fee_structures or settings (0 if no class assigned)
-      let rate = 0;
-      if (clsName.startsWith('JSS')) {
-        rate = tuitionJSS;
-      } else if (clsName === 'SS 3') {
-        rate = tuitionSS3;
-      } else if (clsName.startsWith('SS')) {
-        rate = tuitionSS12;
-      }
-
-      const matchedStructure = (feeStructures || []).find((f: any) => f.class_name === clsName);
-      if (matchedStructure && Number(matchedStructure.total_amount) > 0) {
-        rate = Number(matchedStructure.total_amount);
-      }
+      // The same tuition rule the payment function uses, so the screen and the payment check agree
+      const rate = resolveTuition(clsName, settings, feeStructures, enrollment?.classes?.level);
 
       const financialAccount = accountsMap.get(s.id);
       const txPaid = txPaidMap.get(s.id) || 0;
@@ -177,17 +161,11 @@ export async function GET() {
     });
 
     // 6. Build Class Breakdowns
-    const classBreakdowns = STANDARD_CLASSES.map((cls) => {
-      let feePerStudent = cls.startsWith('JSS')
-        ? tuitionJSS
-        : cls === 'SS 3'
-        ? tuitionSS3
-        : tuitionSS12;
-
-      const matchedStructure = (feeStructures || []).find((f: any) => f.class_name === cls);
-      if (matchedStructure && Number(matchedStructure.total_amount) > 0) {
-        feePerStudent = Number(matchedStructure.total_amount);
-      }
+    const classNames = await getClassNames(sb, schoolId);
+    const { data: classLevels } = await sb.from('classes').select('name, level').eq('school_id', schoolId);
+    const levelOf = new Map<string, string | null>((classLevels || []).map((c: { name: string; level: string | null }) => [c.name, c.level]));
+    const classBreakdowns = classNames.map((cls) => {
+      const feePerStudent = resolveTuition(cls, settings, feeStructures, levelOf.get(cls));
 
       const classStudents = studentLedger.filter((s: any) => s.class === cls);
       const enrolled = classStudents.length;
@@ -426,8 +404,8 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const sb = getAdminClient();
-    const schoolId = actor.schoolId || DEFAULT_SCHOOL_ID;
+    const sb = await getSchoolDb();
+    const schoolId = actor.schoolId || sb.schoolId;
 
     const { action } = body;
 

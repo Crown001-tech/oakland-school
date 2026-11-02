@@ -1,8 +1,10 @@
 'use client';
+import { SchoolName, PrincipalName } from '@/components/common/SchoolName';
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { SCHOOL_LOGO } from '@/lib/school-assets';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -469,10 +471,10 @@ export default function TeacherProfilePage() {
         <div className="border-b-2 border-slate-900 pb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-14 h-14 rounded-xl overflow-hidden border border-slate-300 relative">
-              <Image src="/logo.jpg" alt="Oakland Schools Logo" fill className="object-cover" />
+              <Image src={SCHOOL_LOGO} alt="School logo" fill className="object-cover" />
             </div>
             <div>
-              <h1 className="text-xl font-black uppercase tracking-tight text-slate-900">Oakland Schools</h1>
+              <h1 className="text-xl font-black uppercase tracking-tight text-slate-900"><SchoolName /></h1>
               <p className="text-xs text-slate-600 font-medium">Faculty Credential and Institutional Profile Record</p>
               <p className="text-[10px] text-slate-500">2026/2027 Academic Session &bull; First Term</p>
             </div>
@@ -599,14 +601,14 @@ export default function TeacherProfilePage() {
         {/* Signature & Seal Block */}
         <div className="pt-8 flex items-end justify-between">
           <div className="text-[10px] text-slate-500 max-w-xs leading-relaxed">
-            This document constitutes an official internal faculty record of Oakland Schools. Any alterations render this document invalid.
+            This document constitutes an official internal faculty record of the school. Any alterations render this document invalid.
           </div>
           <div className="text-center w-60">
             <div className="border-b border-slate-900 pb-1 mb-1">
-              <span className="font-serif italic text-base text-slate-800 font-bold">Mr Seyi Bankole</span>
+              <span className="font-serif italic text-base text-slate-800 font-bold"><PrincipalName /></span>
             </div>
             <p className="text-xs font-bold text-slate-900">Head of School / Principal</p>
-            <p className="text-[10px] text-slate-500">Oakland Schools</p>
+            <p className="text-[10px] text-slate-500"><SchoolName /></p>
           </div>
         </div>
       </div>
@@ -1112,7 +1114,7 @@ export default function TeacherProfilePage() {
                   <span className="font-bold text-slate-900 mt-1 block">
                     {isClassTeacher ? 'Faculty Grade (Homeroom Allowance Included)' : 'Faculty Grade (Standard)'}
                   </span>
-                  <p className="text-[10px] text-slate-400 mt-0.5">Disbursed monthly via Oakland Bursary</p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">Disbursed monthly by the school bursary</p>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200/80">
@@ -1157,7 +1159,7 @@ export default function TeacherProfilePage() {
               </div>
               <h3 className="text-lg font-bold text-white">Complete Staff Profile and Security</h3>
               <p className="text-xs text-slate-300 mt-1 leading-relaxed">
-                Welcome to Oakland Schools. To safeguard academic records, please set a personal password and update your details.
+                Welcome. To safeguard academic records, please set a personal password and update your details.
               </p>
             </div>
 

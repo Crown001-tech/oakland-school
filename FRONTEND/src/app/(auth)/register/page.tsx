@@ -10,6 +10,7 @@ import {
   ArrowRight,
   ShieldCheck,
 } from 'lucide-react';
+import { SchoolName } from '@/components/common/SchoolName';
 
 export default function RegisterIndexPage() {
   return (
@@ -21,7 +22,7 @@ export default function RegisterIndexPage() {
         </div>
         <div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 font-serif">
-            Oakland International School
+            <SchoolName />
           </h1>
           <p className="text-xs text-slate-500 font-medium mt-1">
             Portal Registration & Intake Directory

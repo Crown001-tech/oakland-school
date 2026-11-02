@@ -40,10 +40,11 @@ import { ReceiptModal } from '@/components/finance/ReceiptModal';
 import { VoucherModal } from '@/components/finance/VoucherModal';
 import { SalaryAdjustmentModal } from '@/components/finance/SalaryAdjustmentModal';
 import { PettyCashModal } from '@/components/finance/PettyCashModal';
+import { useClassNames } from '@/lib/use-class-names';
 
-const CLASSES = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'] as const;
 
 export default function ProprietorFinancesPage() {
+  const CLASSES = useClassNames();
   const [activeTab, setActiveTab] = useState<'tuition' | 'payroll' | 'expenditures' | 'pettycash'>('tuition');
   const [loading, setLoading] = useState(true);
 
@@ -53,6 +54,9 @@ export default function ProprietorFinancesPage() {
   const [pettyCash, setPettyCash] = useState<PettyCashTransaction[]>([]);
   const [studentLedger, setStudentLedger] = useState<StudentFeeLedgerItem[]>([]);
   const [payments, setPayments] = useState<PaymentTransaction[]>([]);
+  const [classBreakdowns, setClassBreakdowns] = useState<
+    { class: string; feePerStudent: number; enrolled: number; expected: number; collected: number; outstanding: number; pct: number }[]
+  >([]);
   const [tuitionRates, setTuitionRates] = useState({
     jss: 0,
     ss12: 0,
@@ -103,6 +107,7 @@ export default function ProprietorFinancesPage() {
         setPettyCash(json.data.pettyCash || []);
         setPayments(json.data.payments || []);
         if (json.data.tuitionRates) setTuitionRates(json.data.tuitionRates);
+        if (Array.isArray(json.data.classBreakdowns)) setClassBreakdowns(json.data.classBreakdowns);
         if (json.data.institutionalBankAccounts) {
           setBankAccounts(json.data.institutionalBankAccounts);
         }
@@ -118,32 +123,7 @@ export default function ProprietorFinancesPage() {
     loadData();
   }, []);
 
-  // Class Breakdown Calculations
-  const classBreakdowns = CLASSES.map((cls) => {
-    const feePerStudent = cls.startsWith('JSS')
-      ? tuitionRates.jss
-      : cls === 'SS 3'
-      ? tuitionRates.ss3
-      : tuitionRates.ss12;
-
-    const classStudents = studentLedger.filter((s) => s.class === cls);
-    const enrolled = classStudents.length;
-    const expected = enrolled * feePerStudent;
-    const collected = classStudents.reduce((acc, s) => acc + s.amountPaid, 0);
-    const outstanding = Math.max(0, expected - collected);
-    const pct = expected > 0 ? Math.round((collected / expected) * 100) : 0;
-
-    return {
-      class: cls,
-      feePerStudent,
-      enrolled,
-      expected,
-      collected,
-      outstanding,
-      pct,
-    };
-  });
-
+  // Per-class fees come from the server, which uses the same tuition rule as the payment check
   // Overall Financial Totals
   const totalExpectedRevenue = classBreakdowns.reduce((a, b) => a + b.expected, 0);
   const totalCollectedRevenue = classBreakdowns.reduce((a, b) => a + b.collected, 0);
@@ -246,7 +226,7 @@ export default function ProprietorFinancesPage() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', 'Oakland_Schools_NIP_Bank_Transfer_Schedule.csv');
+    link.setAttribute('download', 'NIP_Bank_Transfer_Schedule.csv');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -465,7 +445,7 @@ export default function ProprietorFinancesPage() {
                 Tuition Performance
               </h2>
               <p className="text-xs text-slate-500">
-                Term tuition schedules across the 6 classes (JSS 1 to SS 3). Fee amounts are configurable in School Settings.
+                Term tuition schedules by class. Fee amounts are configurable in School Settings.
               </p>
             </div>
             <div className="text-xs text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">

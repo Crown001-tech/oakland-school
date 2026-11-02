@@ -1,4 +1,5 @@
 'use client';
+import { SchoolName, PrincipalName } from '@/components/common/SchoolName';
 
 import React, { useState, useEffect } from 'react';
 import { useActiveChild } from '@/context/ParentContext';
@@ -50,18 +51,8 @@ export default function ParentFeesPage() {
       };
     }
 
-    const rates = finances.tuitionRates || finances.settings || {};
-    const clsName = (activeChild.currentClass || '').trim().toUpperCase();
-    const isJSS = clsName.startsWith('JSS');
-    const isSS3 = !isJSS && clsName.startsWith('SS 3');
-    const isSS12 = !isJSS && (clsName.startsWith('SS 1') || clsName.startsWith('SS 2'));
-
-    let tuition = Number(rates.jss ?? rates.tuitionJSS ?? 0);
-    if (isSS12) {
-      tuition = Number(rates.ss12 ?? rates.tuitionSS12 ?? 0);
-    } else if (isSS3) {
-      tuition = Number(rates.ss3 ?? rates.tuitionSS3 ?? 0);
-    }
+    // The amount billed comes from the server's ledger, which applies the school's own rule for each class
+    let tuition = 0;
 
     // Look for real student payment records in finances
     const studentList = finances.studentLedger || finances.allStudents || [];
@@ -276,7 +267,7 @@ export default function ParentFeesPage() {
             {/* Receipt Body */}
             <div className="space-y-3 p-4 rounded-xl bg-slate-50/80 border border-slate-100 text-xs text-slate-700">
               <div className="text-center pb-2 border-b border-slate-200/80">
-                <p className="font-bold text-slate-900 text-sm font-serif">Oakland International School</p>
+                <p className="font-bold text-slate-900 text-sm font-serif"><SchoolName /></p>
                 <p className="text-[10px] text-slate-500">Official Bursary Financial Receipt</p>
               </div>
 

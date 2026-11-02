@@ -24,7 +24,7 @@ const EMPTY_PROFILE: SchoolProfile = {
   currentTerm: '',
 };
 
-export function PublicFooter() {
+export function PublicFooter({ showLongPages = false }: { showLongPages?: boolean }) {
   const [profile, setProfile] = useState<SchoolProfile>(EMPTY_PROFILE);
 
   // Everything shown here comes from the school's record; a missing field is left out
@@ -53,7 +53,9 @@ export function PublicFooter() {
           <div className="ok-footer-brand">
             <Logo theme="dark" size="sm" />
             <p>
-              An elite British-Nigerian educational institution cultivating scholars of moral distinction, intellectual rigor, and visionary leadership.
+              {showLongPages
+                ? 'An elite British-Nigerian educational institution cultivating scholars of moral distinction, intellectual rigor, and visionary leadership.'
+                : profile.name}
             </p>
           </div>
 
@@ -61,9 +63,13 @@ export function PublicFooter() {
             <h5>Quick Links</h5>
             <ul>
               <li><Link href="/">Home</Link></li>
-              <li><Link href="/about">About Oakland</Link></li>
-              <li><Link href="/academics">Curriculum &amp; Academics</Link></li>
-              <li><Link href="/our-values">Our Values</Link></li>
+              {showLongPages && (
+                <>
+                  <li><Link href="/about">About {profile.name}</Link></li>
+                  <li><Link href="/academics">Curriculum &amp; Academics</Link></li>
+                  <li><Link href="/our-values">Our Values</Link></li>
+                </>
+              )}
               <li><Link href="/admissions">Admissions</Link></li>
               <li><Link href="/login">Staff Portal</Link></li>
             </ul>

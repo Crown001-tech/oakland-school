@@ -31,6 +31,7 @@ import {
   type PrincipalDelegations,
 } from '@/lib/delegations';
 import { DelegationRestrictedBanner } from '@/components/common/DelegationRestrictedBanner';
+import { useClassNames } from '@/lib/use-class-names';
 
 interface StudentReportVetting {
   id: string;
@@ -51,13 +52,14 @@ interface StudentReportVetting {
 
 const PRINCIPAL_COMMENT_PRESETS = [
   'An exceptional academic outcome reflecting discipline and high intellectual capacity. Recommended for executive academic commendation.',
-  'Consistently high standards maintained across all subjects. A proud reflection of Oakland scholarly values.',
+  'Consistently high standards maintained across all subjects. A proud reflection of scholarly values.',
   'A very satisfying terminal score. With focused attention on revision, greater heights can be reached.',
   'Good terminal progress. Encouraged to demonstrate more active classroom engagement and eliminate minor distractions.',
   'Satisfactory result. Needs to exhibit greater academic discipline and punctuality in the upcoming term.',
 ];
 
 export default function AdminResultsVettingPage() {
+  const CLASSES = useClassNames();
   const [selectedClass, setSelectedClass] = useState<string>('JSS 3');
   const [classTeacherName, setClassTeacherName] = useState<string>('Unassigned');
   const [students, setStudents] = useState<StudentReportVetting[]>([]);
@@ -150,7 +152,7 @@ export default function AdminResultsVettingPage() {
 
               return {
                 id: s.id || `std-${idx}`,
-                admissionNo: s.admissionNo || s.admissionNumber || `OAK-${idx + 1}`,
+                admissionNo: s.admissionNo || s.admissionNumber || '—',
                 name: s.fullName || s.name || 'Student',
                 gender: (s.gender === 'Female' || s.gender === 'female' ? 'Female' : 'Male'),
                 hasScores: hasRecordedScores,
@@ -332,7 +334,7 @@ export default function AdminResultsVettingPage() {
       <div className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-bold text-slate-700 mr-2">Select Class:</span>
-          {(['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'] as const).map((cls) => {
+          {CLASSES.map((cls) => {
             const isSelected = selectedClass === cls;
             return (
               <button

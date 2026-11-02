@@ -1,12 +1,13 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/server';
+import { getSchoolDb } from '@/lib/school-db';
+
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const admin = createAdminClient();
+    const admin = await getSchoolDb();
     const { id } = await params;
 
     const { data: delivery, error: findErr } = await admin
@@ -64,7 +65,7 @@ export async function POST(
     }
 
     await admin.from('notifications').insert({
-      school_id: 'a0000000-0000-0000-0000-000000000001',
+      school_id: admin.schoolId,
       recipient_email: recipientEmail.toLowerCase(),
       recipient_name: recipientName,
       subject: `Reminder: Package Awaiting Collection (${delivery.tracking_code})`,

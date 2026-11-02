@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { BrandLoader } from '@/components/ui/BrandLoader';
+import { SCHOOL_LOGO } from '@/lib/school-assets';
 import {
   Building2,
   Mail,
@@ -25,30 +26,30 @@ export default function SchoolProfilePage() {
   const [saveToast, setSaveToast] = useState(false);
 
   // School Identity State
-  const [schoolName, setSchoolName] = useState('Oakland International School');
-  const [motto, setMotto] = useState('Knowledge, Integrity and Excellence');
-  const [code, setCode] = useState('OAK-001');
+  const [schoolName, setSchoolName] = useState('');
+  const [motto, setMotto] = useState('');
+  const [code, setCode] = useState('');
   const [rcNumber, setRcNumber] = useState('');
-  const [foundedYear, setFoundedYear] = useState('2014');
+  const [foundedYear, setFoundedYear] = useState('');
   const [accreditation, setAccreditation] = useState('');
 
   // Contact & Campus
-  const [address, setAddress] = useState('14 Academic Crescent, Victoria Island, Lagos');
-  const [primaryPhone, setPrimaryPhone] = useState('+234 800 625 5263');
+  const [address, setAddress] = useState('');
+  const [primaryPhone, setPrimaryPhone] = useState('');
   const [secondaryPhone, setSecondaryPhone] = useState('');
-  const [primaryEmail, setPrimaryEmail] = useState('admin@oaklandschools.edu');
-  const [admissionsEmail, setAdmissionsEmail] = useState('admissions@oaklandschools.edu');
-  const [websiteUrl, setWebsiteUrl] = useState('https://oaklandschools.edu');
+  const [primaryEmail, setPrimaryEmail] = useState('');
+  const [admissionsEmail, setAdmissionsEmail] = useState('');
+  const [websiteUrl, setWebsiteUrl] = useState('');
 
   // Academic Calendar
-  const [currentSession, setCurrentSession] = useState('2026/2027');
-  const [currentTerm, setCurrentTerm] = useState('First Term');
-  const [termStartDate, setTermStartDate] = useState('2026-09-01');
-  const [termEndDate, setTermEndDate] = useState('2026-12-18');
+  const [currentSession, setCurrentSession] = useState('');
+  const [currentTerm, setCurrentTerm] = useState('');
+  const [termStartDate, setTermStartDate] = useState('');
+  const [termEndDate, setTermEndDate] = useState('');
   const [nextTermResumption, setNextTermResumption] = useState('2027-01-11');
 
   // Leadership
-  const [principalName, setPrincipalName] = useState('Mr Seyi Bankole');
+  const [principalName, setPrincipalName] = useState('');
   const [proprietorName, setProprietorName] = useState('');
 
   useEffect(() => {
@@ -59,24 +60,24 @@ export default function SchoolProfilePage() {
         const json = await res.json();
         if (json.success && json.data && isMounted) {
           const d = json.data;
-          setSchoolName(d.name || 'Oakland International School');
-          setMotto(d.motto || 'Knowledge, Integrity and Excellence');
-          setCode(d.code || 'OAK-001');
+          setSchoolName(d.name || '');
+          setMotto(d.motto || '');
+          setCode(d.code || '');
           setRcNumber(d.rcNumber || '');
-          setFoundedYear(d.foundedYear || '2014');
+          setFoundedYear(d.foundedYear || '');
           setAccreditation(d.accreditation || '');
-          setAddress(d.address || '14 Academic Crescent, Victoria Island, Lagos');
-          setPrimaryPhone(d.phone || '+234 800 625 5263');
+          setAddress(d.address || '');
+          setPrimaryPhone(d.phone || '');
           setSecondaryPhone(d.secondaryPhone || '');
-          setPrimaryEmail(d.email || 'admin@oaklandschools.edu');
-          setAdmissionsEmail(d.admissionsEmail || 'admissions@oaklandschools.edu');
-          setWebsiteUrl(d.websiteUrl || 'https://oaklandschools.edu');
-          setCurrentSession(d.currentSession || '2026/2027');
-          setCurrentTerm(d.currentTerm || 'First Term');
+          setPrimaryEmail(d.email || '');
+          setAdmissionsEmail(d.admissionsEmail || '');
+          setWebsiteUrl(d.websiteUrl || '');
+          setCurrentSession(d.currentSession || '');
+          setCurrentTerm(d.currentTerm || '');
           setTermStartDate(d.termStartDate || '');
           setTermEndDate(d.termEndDate || '');
           setNextTermResumption(d.nextTermResumption || '');
-          setPrincipalName(d.principalName || 'Mr Seyi Bankole');
+          setPrincipalName(d.principalName || '');
           setProprietorName(d.proprietorName || '');
         }
       } catch (err) {
@@ -186,8 +187,8 @@ export default function SchoolProfilePage() {
         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 pb-6 border-b border-slate-100">
           <div className="w-28 h-28 rounded-2xl bg-white border-2 border-slate-200/80 p-2 shrink-0 flex items-center justify-center shadow-xs">
             <Image
-              src="/logo.jpg"
-              alt="Oakland Crest"
+              src={SCHOOL_LOGO}
+              alt="School logo"
               width={100}
               height={100}
               className="object-contain rounded-lg"
@@ -202,17 +203,13 @@ export default function SchoolProfilePage() {
                   <h2 className="text-2xl font-black text-slate-900 tracking-tight font-serif">
                     {schoolName}
                   </h2>
-                  <span className="font-mono text-xs font-bold text-[#b3141f] bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                  <span className="font-mono text-xs font-bold text-brand-accent bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
                     {code}
                   </span>
                 </div>
 
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
                   Motto: "{motto}"
-                </p>
-
-                <p className="text-xs text-slate-600 leading-relaxed max-w-xl">
-                  Co-educational secondary institution offering rigorous academic instruction from JSS 1 through SS 3 with comprehensive STEM, humanities, and moral leadership.
                 </p>
               </>
             ) : (
@@ -256,7 +253,7 @@ export default function SchoolProfilePage() {
           {/* Campus Contacts */}
           <div className="space-y-3">
             <p className="font-bold text-slate-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-              <MapPin className="w-4 h-4 text-[#b3141f]" /> Campus Contacts
+              <MapPin className="w-4 h-4 text-brand-accent" /> Campus Contacts
             </p>
 
             {!isEditing ? (
@@ -272,7 +269,7 @@ export default function SchoolProfilePage() {
                 </p>
                 <p className="flex items-center gap-2">
                   <span className="font-semibold text-slate-800">Website:</span>{' '}
-                  <a href={websiteUrl} target="_blank" rel="noreferrer" className="text-[#0f3a3e] font-semibold underline">
+                  <a href={websiteUrl} target="_blank" rel="noreferrer" className="text-brand-primary font-semibold underline">
                     {websiteUrl}
                   </a>
                 </p>
@@ -315,7 +312,7 @@ export default function SchoolProfilePage() {
           {/* Academic Calendar */}
           <div className="space-y-3">
             <p className="font-bold text-slate-900 uppercase tracking-wider text-[11px] flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-[#b3141f]" /> Academic Calendar Dates
+              <Calendar className="w-4 h-4 text-brand-accent" /> Academic Calendar Dates
             </p>
 
             {!isEditing ? (

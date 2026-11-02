@@ -42,6 +42,8 @@ const PUBLIC_ENDPOINTS: PublicRule[] = [
   { path: '/api/admissions', methods: ['POST'] },
   { path: '/api/register/staff', methods: ['POST'] },
   { path: '/api/schools/profile', methods: ['GET'] },
+  { path: '/api/schools/classes', methods: ['GET'] },
+  { path: '/api/schools/modules', methods: ['GET'] },
 ];
 
 interface RoleRule {
@@ -59,6 +61,7 @@ const WRITE = ['POST', 'PUT', 'PATCH', 'DELETE'];
 // First match wins, so more specific prefixes come first. Prefixes with no rule need only a verified session.
 const ROLE_RULES: RoleRule[] = [
   { prefix: '/api/audit-logs', roles: ADMIN_ROLES },
+  { prefix: '/api/custom-requests', roles: ADMIN_ROLES },
   { prefix: '/api/staff-approvals', roles: ADMIN_ROLES },
   { prefix: '/api/letters', roles: ADMIN_ROLES },
   { prefix: '/api/inventory', roles: ADMIN_ROLES },

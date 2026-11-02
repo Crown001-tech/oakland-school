@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import { SCHOOL_LOGO } from '@/lib/school-assets';
 import { PRODUCT_NAME, isEductiveBrand } from '@/lib/brand';
 
 interface BrandLoaderProps {
@@ -40,7 +41,7 @@ export function BrandLoader({
           </div>
         ) : (
           <Image
-            src="/logo.jpg"
+            src={SCHOOL_LOGO}
             alt="Oakland School"
             width={dimension}
             height={dimension}

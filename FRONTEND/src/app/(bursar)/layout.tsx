@@ -19,6 +19,9 @@ import {
   Lock,
   School,
 } from 'lucide-react';
+import { SchoolName } from '@/components/common/SchoolName';
+import { isModuleEnabled, moduleForPath } from '@/lib/modules';
+import { useModules } from '@/lib/use-modules';
 
 interface NavItem {
   label: string;
@@ -33,6 +36,7 @@ interface NavGroup {
 }
 
 export default function BursarLayout({ children }: { children: React.ReactNode }) {
+  const modules = useModules();
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -93,7 +97,7 @@ export default function BursarLayout({ children }: { children: React.ReactNode }
           setIsAuthorized(true);
           setBursarProfile({
             name: data.profile?.name || 'Mrs Folake Esther',
-            email: data.profile?.email || data.user?.email || 'folakeesther6@gmail.com',
+            email: data.profile?.email || data.user?.email || '',
           });
         }
       } catch {
@@ -230,7 +234,7 @@ export default function BursarLayout({ children }: { children: React.ReactNode }
               <p className="px-3 text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-1">
                 {group.category}
               </p>
-              {group.items.map((item) => {
+              {group.items.filter((item) => isModuleEnabled(modules, moduleForPath(item.href))).map((item) => {
                 const Icon = item.icon;
                 const active = pathname === item.href;
                 const badgeInfo = navBadges[item.href];
@@ -358,7 +362,7 @@ export default function BursarLayout({ children }: { children: React.ReactNode }
           <div className="flex items-center gap-3">
             <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200 text-xs">
               <School className="w-3 h-3 text-slate-500" />
-              <span className="text-slate-600 font-medium">Oakland Schools</span>
+              <span className="text-slate-600 font-medium"><SchoolName /></span>
             </div>
           </div>
         </header>

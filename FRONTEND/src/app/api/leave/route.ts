@@ -1,16 +1,12 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getCaller, isAdminRole } from '@/lib/caller';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET() {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     // Administrators see every request; other staff see only their own
     const caller = await getCaller();
     const isAdmin = isAdminRole(caller.role);
@@ -58,7 +54,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     const {
       staffName,
@@ -92,7 +88,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await sb
       .from('workflow_instances')
       .insert({
-        school_id: DEFAULT_SCHOOL_ID,
+        school_id: sb.schoolId,
         definition_id: definitionId,
         entity_type: 'leave_request',
         entity_id: employeeId || 'leave-' + Date.now(),
@@ -121,7 +117,7 @@ export async function POST(request: NextRequest) {
     // Institutional Audit Log (DEF-003)
     try {
       await sb.from('audit_logs').insert({
-        school_id: DEFAULT_SCHOOL_ID,
+        school_id: sb.schoolId,
         actor_name: staffName,
         actor_role: role || 'Teacher',
         action: 'LEAVE.SUBMITTED',
@@ -153,7 +149,7 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { id, action, notes } = body;
 
     if (!id || !action) {
@@ -227,7 +223,7 @@ export async function PATCH(request: NextRequest) {
     // Institutional Audit Log (DEF-003)
     try {
       await sb.from('audit_logs').insert({
-        school_id: DEFAULT_SCHOOL_ID,
+        school_id: sb.schoolId,
         actor_id: caller.userId,
         actor_name: approverName,
         actor_role: approverRole,

@@ -1,4 +1,5 @@
 'use client';
+import { useSchoolProfile } from '@/lib/use-school-profile';
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
@@ -21,6 +22,7 @@ interface ExecutiveAuditEvent {
 }
 
 export default function ProprietorActivityPage() {
+  const school = useSchoolProfile();
   const [logs, setLogs] = useState<ExecutiveAuditEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedRole, setSelectedRole] = useState('All');
@@ -79,7 +81,7 @@ export default function ProprietorActivityPage() {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Institutional Audit Log - Oakland International School</title>
+          <title>Institutional Audit Log - ${school.name}</title>
           <style>
             @page { size: portrait; margin: 15mm; }
             body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 24px; color: #0f172a; line-height: 1.4; }
@@ -94,7 +96,7 @@ export default function ProprietorActivityPage() {
         </head>
         <body>
           <div class="header">
-            <h1 class="title">Oakland International School</h1>
+            <h1 class="title">${school.name}</h1>
             <p class="subtitle">Official Institutional Activity Log &bull; Generated ${new Date().toLocaleDateString('en-GB')}</p>
           </div>
           <table>

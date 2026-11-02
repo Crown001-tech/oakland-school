@@ -22,6 +22,7 @@ import {
   FileText,
 } from 'lucide-react';
 import { BrandLoader } from '@/components/ui/BrandLoader';
+import { SchoolName } from '@/components/common/SchoolName';
 
 interface Visitor {
   id: string;
@@ -736,7 +737,7 @@ export default function VisitorsPage() {
             <div className="border-2 border-dashed border-brand-accent/30 rounded-xl p-4 bg-slate-50/50 space-y-3 text-center">
               <div>
                 <p className="text-[10px] font-bold text-brand-accent uppercase tracking-widest">
-                  Oakland International School
+                  <SchoolName />
                 </p>
                 <p className="text-xs font-semibold text-slate-700">Visitor Clearance Pass</p>
               </div>

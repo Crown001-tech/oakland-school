@@ -1,19 +1,12 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import {
-  generateStaffTempPassword,
-  getSupabaseAdmin,
-  hashInviteToken,
-} from '@/lib/supabase/admin';
+import { generateStaffTempPassword, hashInviteToken } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET() {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { data: apps, error } = await sb
       .from('staff_applications')
       .select('*')
@@ -53,7 +46,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     const {
       applicantId,
@@ -121,9 +114,9 @@ export async function POST(request: NextRequest) {
     const { data: newStaff, error: staffErr } = await sb
       .from('staff_profiles')
       .insert({
-        school_id: DEFAULT_SCHOOL_ID,
+        school_id: sb.schoolId,
         user_id: userId,
-        employee_id: employeeId || `OAK-STF-${Math.floor(100 + Math.random() * 900)}`,
+        employee_id: employeeId || `${sb.idPrefix}-STF-${Math.floor(100 + Math.random() * 900)}`,
         first_name: firstName,
         last_name: lastName,
         email: email.toLowerCase(),
@@ -155,7 +148,7 @@ export async function POST(request: NextRequest) {
     // 4. Institutional Audit Log (DEF-003)
     try {
       await sb.from('audit_logs').insert({
-        school_id: DEFAULT_SCHOOL_ID,
+        school_id: sb.schoolId,
         actor_name: 'Office of the Proprietor',
         actor_role: 'Proprietor',
         action: 'STAFF.APPOINTED',
@@ -192,7 +185,7 @@ export async function POST(request: NextRequest) {
 export async function PATCH(request: NextRequest) {
   try {
     const body = await request.json();
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     const { applicantId, action } = body;
     if (!applicantId) {
@@ -210,7 +203,7 @@ export async function PATCH(request: NextRequest) {
     // Institutional Audit Log (DEF-003)
     try {
       await sb.from('audit_logs').insert({
-        school_id: DEFAULT_SCHOOL_ID,
+        school_id: sb.schoolId,
         actor_name: 'Office of the Proprietor',
         actor_role: 'Proprietor',
         action: action === 'decline' ? 'STAFF.APPLICATION_DECLINED' : 'STAFF.APPLICATION_STATUS_UPDATED',

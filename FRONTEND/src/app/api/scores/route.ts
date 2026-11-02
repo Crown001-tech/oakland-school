@@ -1,13 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { resolveGradingConfig } from '@/lib/grading-config';
+import { getSchoolDb } from '@/lib/school-db';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET(request: NextRequest) {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { searchParams } = new URL(request.url);
     const className = searchParams.get('class') || searchParams.get('className');
     const subject = searchParams.get('subject');
@@ -71,7 +69,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const body = await request.json();
 
     const className = body.class || body.className;
@@ -103,6 +101,21 @@ export async function POST(request: NextRequest) {
     }
 
     const existingSettings = school.settings || {};
+
+    // Marks above the school’s own limits are refused, whatever the page sent
+    const grading = resolveGradingConfig(existingSettings);
+    const tooHigh = scores.find(
+      (s: any) => Number(s?.ca1) > grading.ca1Max || Number(s?.ca2) > grading.ca2Max || Number(s?.exam) > grading.examMax
+    );
+    if (tooHigh) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Marks cannot exceed ${grading.ca1Max} for CA 1, ${grading.ca2Max} for CA 2 and ${grading.examMax} for the exam.`,
+        },
+        { status: 400 }
+      );
+    }
     const existingScoresMap: Record<string, any> = existingSettings.subject_scores || {};
     const scoreKey = `${className}_${subject}`;
     const currentEntry = existingScoresMap[scoreKey];

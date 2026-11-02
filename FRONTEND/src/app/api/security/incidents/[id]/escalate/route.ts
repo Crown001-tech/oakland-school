@@ -1,17 +1,18 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/server';
+import { getSchoolDb } from '@/lib/school-db';
+
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const admin = createAdminClient();
+    const admin = await getSchoolDb();
     const { id } = await params;
     const body = await req.json().catch(() => ({}));
 
     const {
-      escalatedTo = 'Principal - Mr Seyi Bankole',
+      escalatedTo,
       notes = '',
     } = body;
 
@@ -53,11 +54,11 @@ export async function POST(
         .eq('role', 'admin')
         .maybeSingle();
 
-      const principalEmail = principal?.email || 'seyibankole@gmail.com';
-      const principalName = principal ? `${principal.first_name} ${principal.last_name}` : 'Mr Seyi Bankole';
+      const principalEmail = principal?.email;
+      const principalName = principal ? `${principal.first_name} ${principal.last_name}`.trim() : 'the Principal';
 
-      await admin.from('notifications').insert({
-        school_id: 'a0000000-0000-0000-0000-000000000001',
+      if (principalEmail) await admin.from('notifications').insert({
+        school_id: admin.schoolId,
         recipient_email: principalEmail.toLowerCase(),
         recipient_name: principalName,
         subject: `⚠️ INCIDENT ESCALATION: ${updated.incident_number} (${updated.title})`,

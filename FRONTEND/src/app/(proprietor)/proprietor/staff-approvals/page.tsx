@@ -1,4 +1,5 @@
 'use client';
+import { useSchoolProfile } from '@/lib/use-school-profile';
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardTitle, CardDescription } from '@/components/ui/Card';
@@ -21,8 +22,8 @@ import {
 } from 'lucide-react';
 
 import { BrandLoader } from '@/components/ui/BrandLoader';
+import { useClassNames } from '@/lib/use-class-names';
 
-const CLASSES = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'];
 
 interface PendingStaff {
   id: string;
@@ -46,6 +47,8 @@ interface PendingStaff {
 }
 
 export default function StaffApprovalsPage() {
+  const school = useSchoolProfile();
+  const CLASSES = useClassNames();
   const [filterTab, setFilterTab] = useState<'pending' | 'approved' | 'all'>('pending');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStaff, setSelectedStaff] = useState<PendingStaff | null>(null);
@@ -105,30 +108,23 @@ export default function StaffApprovalsPage() {
 
   // Generate role-originated Employee ID whenever role changes
   useEffect(() => {
-    let prefix = 'OAK-TCH';
+    let prefix = `${school.idPrefix}-TCH`;
     if (assignedRole === 'admin') {
-      prefix = 'OAK-ADM';
+      prefix = `${school.idPrefix}-ADM`;
     } else if (assignedRole === 'bursar') {
-      prefix = 'OAK-BUR';
+      prefix = `${school.idPrefix}-BUR`;
     }
     const randomNum = Math.floor(100 + Math.random() * 900);
     setGeneratedEmployeeId(`${prefix}-${randomNum}`);
-  }, [assignedRole]);
+  }, [assignedRole, school.idPrefix]);
 
   const handleOpenApproveModal = (staff: PendingStaff) => {
     setSelectedStaff(staff);
     setAssignedRole(staff.desiredRole);
 
-    if (staff.department.includes('Science')) {
-      setAssignedSubject('Basic Science');
-      setSelectedTeachingClasses(['SS 1', 'SS 2', 'SS 3']);
-    } else if (staff.department.includes('English') || staff.department.includes('Language')) {
-      setAssignedSubject('English Language');
-      setSelectedTeachingClasses(['JSS 1', 'JSS 2', 'JSS 3']);
-    } else {
-      setAssignedSubject('Mathematics');
-      setSelectedTeachingClasses(['SS 1', 'SS 2']);
-    }
+    // The proprietor chooses the subject and classes; nothing is assumed from the applicant’s department
+    setAssignedSubject('');
+    setSelectedTeachingClasses([]);
   };
 
   const toggleTeachingClass = (cls: string) => {
@@ -524,7 +520,7 @@ export default function StaffApprovalsPage() {
 
                   <div>
                     <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide mb-1.5">
-                      3. Assign Teaching Classes (JSS 1 through SS 3)
+                      3. Assign Teaching Classes
                     </label>
                     <p className="text-[11px] text-slate-500 mb-2">
                       Select which of the 6 classes this teacher will teach {assignedSubject} in:
@@ -580,7 +576,7 @@ export default function StaffApprovalsPage() {
                   </Badge>
                 </div>
                 <p className="text-[10px] text-slate-400 mt-1">
-                  Prefix reflects role: <code className="font-bold">OAK-TCH</code> for Teaching Faculty, <code className="font-bold">OAK-ADM</code> for Admin, <code className="font-bold">OAK-BUR</code> for Bursar.
+                  Prefix reflects role: <code className="font-bold">{school.idPrefix}-TCH</code> for Teaching Faculty, <code className="font-bold">{school.idPrefix}-ADM</code> for Admin, <code className="font-bold">{school.idPrefix}-BUR</code> for Bursar.
                 </p>
               </div>
             </div>

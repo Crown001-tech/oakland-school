@@ -24,10 +24,11 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 import { getClassTeacherMap, normalizeClass } from '@/lib/class-utils';
+import { loadClassNames } from '@/lib/use-class-names';
 
 export default function AdminDashboardPage() {
-  const [principalName, setPrincipalName] = React.useState('Mr Seyi Bankole');
-  const [employeeId, setEmployeeId] = React.useState('OAK-ADM-001');
+  const [principalName, setPrincipalName] = React.useState('');
+  const [employeeId, setEmployeeId] = React.useState('');
   const [academicSession, setAcademicSession] = React.useState('2026/2027');
   const [currentTerm, setCurrentTerm] = React.useState('Term 1');
   const [totalEnrolled, setTotalEnrolled] = React.useState(0);
@@ -124,8 +125,8 @@ export default function AdminDashboardPage() {
     const loadState = async () => {
       try {
         if (!activeUserResolved) {
-          setPrincipalName('Mr Seyi Bankole');
-          setEmployeeId('PRIN-2026-001');
+          setPrincipalName('');
+          setEmployeeId('');
         }
 
         // Live teachers map
@@ -167,7 +168,8 @@ export default function AdminDashboardPage() {
         } catch {}
 
         // Map class status & metrics (real database numbers, zero fake 100% defaults)
-        const updatedClasses = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'].map((className) => {
+        const schoolClassNames = await loadClassNames();
+        const updatedClasses = schoolClassNames.map((className) => {
           const classStudents = studentsList.filter((s) => normalizeClass(s.class) === className);
           const enrolled = classStudents.length;
 

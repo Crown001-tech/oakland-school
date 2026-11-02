@@ -201,7 +201,7 @@ export default function SecurityIncidentsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          escalatedTo: 'Principal - Mr Seyi Bankole',
+          escalatedTo: 'Principal',
           notes: 'Officer initiated urgent executive escalation from security portal.',
         }),
       });
@@ -831,7 +831,7 @@ export default function SecurityIncidentsPage() {
                     Escalate Immediately to Principal
                   </span>
                   <span className="text-[11px] text-amber-700 block">
-                    Dispatches an urgent push notification alert to Mr Seyi Bankole's administrative inbox.
+                    Dispatches an urgent push notification alert to the principal's inbox.
                   </span>
                 </label>
               </div>

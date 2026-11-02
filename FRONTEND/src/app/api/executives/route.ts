@@ -1,17 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import {
-  generateStaffTempPassword,
-  getSupabaseAdmin,
-  hashInviteToken,
-} from '@/lib/supabase/admin';
+import { generateStaffTempPassword, hashInviteToken } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET() {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { data: staff, error } = await sb
       .from('staff_profiles')
       .select('*')
@@ -71,7 +65,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const targetRole = type === 'principal' ? 'admin' : 'bursar';
     const names = (data.name || '').trim().split(' ');
     const firstName = names[0] || (type === 'principal' ? 'Principal' : 'Bursar');
@@ -131,15 +125,15 @@ export async function POST(request: NextRequest) {
     await sb
       .from('staff_profiles')
       .update({ is_active: false })
-      .eq('school_id', 'a0000000-0000-0000-0000-000000000001')
+      .eq('school_id', sb.schoolId)
       .eq('role', targetRole)
       .neq('email', cleanEmail);
 
     // 2. Upsert staff profile in PostgreSQL database
     const { data: upserted, error } = await sb.from('staff_profiles').upsert({
-      school_id: 'a0000000-0000-0000-0000-000000000001',
+      school_id: sb.schoolId,
       user_id: authUserId,
-      employee_id: data.employeeId || (type === 'principal' ? 'OAK-ADM-001' : 'OAK-BUR-001'),
+      employee_id: data.employeeId || (type === 'principal' ? `${sb.idPrefix}-ADM-001` : `${sb.idPrefix}-BUR-001`),
       first_name: firstName,
       last_name: lastName,
       email: cleanEmail,
@@ -161,7 +155,7 @@ export async function POST(request: NextRequest) {
     // 3. Upsert school_memberships for role resolution on login
     if (authUserId) {
       await sb.from('school_memberships').upsert({
-        school_id: 'a0000000-0000-0000-0000-000000000001',
+        school_id: sb.schoolId,
         user_id: authUserId,
         role: targetRole,
         is_active: true,
@@ -195,7 +189,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const dbRole = roleParam === 'principal' ? 'admin' : 'bursar';
 
     const { error } = await sb

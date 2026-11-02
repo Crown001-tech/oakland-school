@@ -19,8 +19,10 @@ import {
   X,
   ShieldCheck,
 } from 'lucide-react';
-import { getClassTeacherMap, STANDARD_CLASSES } from '@/lib/class-utils';
+import { getClassTeacherMap } from '@/lib/class-utils';
+import { loadClassNames, useClassNames } from '@/lib/use-class-names';
 import { BrandLoader } from '@/components/ui/BrandLoader';
+import { STARTER_GRADING_CONFIG, resolveGradingConfig } from '@/lib/grading-config';
 
 interface StudentScore {
   id: string;
@@ -33,10 +35,23 @@ interface StudentScore {
 }
 
 export default function SubjectScoresPage() {
+  // Each school sets its own mark limits (see lib/grading-config.ts); the starter pack applies until they load
+  const schoolClasses = useClassNames();
+  const [limits, setLimits] = useState({ ca1: STARTER_GRADING_CONFIG.ca1Max, ca2: STARTER_GRADING_CONFIG.ca2Max, exam: STARTER_GRADING_CONFIG.examMax });
+  useEffect(() => {
+    fetch('/api/schools/settings')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (!j?.success || !j.data) return;
+        const c = resolveGradingConfig(j.data);
+        setLimits({ ca1: c.ca1Max, ca2: c.ca2Max, exam: c.examMax });
+      })
+      .catch(() => {});
+  }, []);
   const [currentTeacher, setCurrentTeacher] = useState<any>(null);
   const [classTeacherMap, setClassTeacherMap] = useState<Record<string, string>>({});
-  const [availableClasses, setAvailableClasses] = useState<string[]>(['JSS 1', 'JSS 2', 'JSS 3']);
-  const [selectedClass, setSelectedClass] = useState<string>('JSS 2');
+  const [availableClasses, setAvailableClasses] = useState<string[]>([]);
+  const [selectedClass, setSelectedClass] = useState<string>('');
   const [availableSubjects, setAvailableSubjects] = useState<string[]>(['Mathematics']);
   const [selectedSubject, setSelectedSubject] = useState<string>('Mathematics');
 
@@ -109,7 +124,8 @@ export default function SubjectScoresPage() {
               classes = Array.from(new Set(assignments.flatMap((ta: any) => ta.classes || []))).filter(Boolean) as string[];
             }
 
-            const uniqueClasses = STANDARD_CLASSES.filter((c) => classes.includes(c));
+            const schoolClassNames = await loadClassNames();
+            const uniqueClasses = schoolClassNames.filter((c) => classes.includes(c));
             const finalClasses = uniqueClasses.length > 0 ? uniqueClasses : classes;
             setAvailableClasses(finalClasses);
 
@@ -193,7 +209,7 @@ export default function SubjectScoresPage() {
           const existing = scoreLookup.get(s.id) || scoreLookup.get(s.admissionNo);
           return {
             id: s.id || `std-${idx}`,
-            admissionNo: s.admissionNo || `OAK-${idx + 1}`,
+            admissionNo: s.admissionNo || '—',
             name: s.fullName || s.name || `${s.firstName || ''} ${s.lastName || ''}`.trim() || 'Student',
             ca1: typeof existing?.ca1 === 'number' ? existing.ca1 : 0,
             ca2: typeof existing?.ca2 === 'number' ? existing.ca2 : 0,
@@ -246,7 +262,7 @@ export default function SubjectScoresPage() {
   ) => {
     if (isLocked) return;
     const num = Math.max(0, parseInt(value, 10) || 0);
-    const max = field === 'exam' ? 60 : 20;
+    const max = field === 'exam' ? limits.exam : field === 'ca1' ? limits.ca1 : limits.ca2;
     const capped = Math.min(num, max);
 
     setScores((prev) =>
@@ -547,7 +563,7 @@ export default function SubjectScoresPage() {
                   } else if (currentTeacher?.assignedClass) {
                     classesForSub = [currentTeacher.assignedClass];
                   }
-                  const final = STANDARD_CLASSES.filter((c) => classesForSub.includes(c));
+                  const final = schoolClasses.filter((c) => classesForSub.includes(c));
                   const resolved = final.length > 0 ? final : classesForSub;
                   setAvailableClasses(resolved);
                   if (resolved.length > 0) {
@@ -587,7 +603,7 @@ export default function SubjectScoresPage() {
             <Award className="w-3.5 h-3.5 text-slate-400" />
           </div>
           <p className="text-xs font-extrabold text-slate-900">
-            CA 1 (20) + CA 2 (20) + Exam (60)
+            CA 1 ({limits.ca1}) + CA 2 ({limits.ca2}) + Exam ({limits.exam})
           </p>
         </div>
 
@@ -658,9 +674,9 @@ export default function SubjectScoresPage() {
               <tr>
                 <th className="py-3 px-4 w-10">#</th>
                 <th className="py-3 px-4 min-w-[180px]">Student Name and ID</th>
-                <th className="py-3 px-3 text-center w-24">CA 1 (20)</th>
-                <th className="py-3 px-3 text-center w-24">CA 2 (20)</th>
-                <th className="py-3 px-3 text-center w-24">Exam (60)</th>
+                <th className="py-3 px-3 text-center w-24">CA 1 ({limits.ca1})</th>
+                <th className="py-3 px-3 text-center w-24">CA 2 ({limits.ca2})</th>
+                <th className="py-3 px-3 text-center w-24">Exam ({limits.exam})</th>
                 <th className="py-3 px-3 text-center w-24">Total (100)</th>
                 <th className="py-3 px-3 text-center w-20">Grade</th>
                 <th className="py-3 px-4 min-w-[200px]">Subject Remark</th>
@@ -694,7 +710,7 @@ export default function SubjectScoresPage() {
                       <Input
                         type="number"
                         min={0}
-                        max={20}
+                        max={limits.ca1}
                         disabled={isLocked}
                         data-row={idx}
                         data-col={0}
@@ -711,7 +727,7 @@ export default function SubjectScoresPage() {
                       <Input
                         type="number"
                         min={0}
-                        max={20}
+                        max={limits.ca2}
                         disabled={isLocked}
                         data-row={idx}
                         data-col={1}
@@ -728,7 +744,7 @@ export default function SubjectScoresPage() {
                       <Input
                         type="number"
                         min={0}
-                        max={60}
+                        max={limits.exam}
                         disabled={isLocked}
                         data-row={idx}
                         data-col={2}

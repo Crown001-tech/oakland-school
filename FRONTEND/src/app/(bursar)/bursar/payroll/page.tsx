@@ -226,7 +226,7 @@ export default function BursarPayrollPage() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', 'Oakland_Schools_Bank_Payroll_Schedule.csv');
+    link.setAttribute('download', 'Bank_Payroll_Schedule.csv');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

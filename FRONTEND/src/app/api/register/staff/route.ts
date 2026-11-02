@@ -1,8 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 import crypto from 'crypto';
 
-const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,7 +33,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const sb = getSupabaseAdmin();
+    // A staff application is for the school of the address it came in on
+    const sb = await getSchoolDb({ allowVisitor: true });
     const normalizedEmail = email.trim().toLowerCase();
 
     // Check if an application is already pending with this email
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       .from('staff_applications')
       .select('id, status')
       .eq('email', normalizedEmail)
-      .eq('school_id', DEFAULT_SCHOOL_ID)
+      .eq('school_id', sb.schoolId)
       .maybeSingle();
 
     if (existingApp && existingApp.status === 'pending') {
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
       .from('staff_profiles')
       .select('id')
       .eq('email', normalizedEmail)
-      .eq('school_id', DEFAULT_SCHOOL_ID)
+      .eq('school_id', sb.schoolId)
       .maybeSingle();
 
     if (existingStaff) {
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
     const { data: newApp, error: insertError } = await sb
       .from('staff_applications')
       .insert({
-        school_id: DEFAULT_SCHOOL_ID,
+        school_id: sb.schoolId,
         first_name: firstName.trim(),
         last_name: lastName.trim(),
         email: normalizedEmail,
@@ -112,7 +112,7 @@ export async function POST(request: NextRequest) {
     // Create audit log
     try {
       await sb.from('audit_logs').insert({
-        school_id: DEFAULT_SCHOOL_ID,
+        school_id: sb.schoolId,
         actor_name: `${firstName.trim()} ${lastName.trim()}`,
         actor_role: 'Applicant',
         action: 'STAFF.APPLICATION_SUBMITTED',

@@ -19,10 +19,10 @@ export async function insertSession(db: PGlite, schoolId: string): Promise<strin
   return rows[0].id;
 }
 
-export async function insertClass(db: PGlite, schoolId: string, name: string, gradeLevel: number): Promise<string> {
+export async function insertClass(db: PGlite, schoolId: string, name: string, gradeLevel: number, level?: string, arm?: string): Promise<string> {
   const { rows } = await db.query<{ id: string }>(
-    `INSERT INTO public.classes (school_id, name, grade_level) VALUES ($1, $2, $3) RETURNING id`,
-    [schoolId, name, gradeLevel]
+    `INSERT INTO public.classes (school_id, name, grade_level, level, arm) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+    [schoolId, name, gradeLevel, level ?? null, arm ?? null]
   );
   return rows[0].id;
 }

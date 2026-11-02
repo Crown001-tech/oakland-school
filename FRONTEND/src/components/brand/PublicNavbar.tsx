@@ -15,7 +15,10 @@ const NAV_LINKS = [
   { label: 'Admissions', href: '/admissions' },
 ];
 
-export function PublicNavbar() {
+// Pages written for one school; other schools have only the short page
+const LONG_PAGES = ['/about', '/academics', '/our-values'];
+
+export function PublicNavbar({ showLongPages = false }: { showLongPages?: boolean }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const pathname = usePathname();
 
@@ -35,7 +38,7 @@ export function PublicNavbar() {
 
           {/* Desktop Nav Links (Hidden on screens <= 1024px) */}
           <ul className="ok-nav-links">
-            {NAV_LINKS.map((link) => {
+            {NAV_LINKS.filter((l) => showLongPages || !LONG_PAGES.includes(l.href)).map((link) => {
               const isActive = pathname === link.href;
               return (
                 <li key={link.href}>
@@ -71,10 +74,7 @@ export function PublicNavbar() {
       </nav>
 
       {/* Slide-in Mobile Drawer */}
-      <MobileNavDrawer
-        isOpen={isDrawerOpen}
-        onClose={handleClose}
-      />
+      <MobileNavDrawer isOpen={isDrawerOpen} onClose={handleClose} showLongPages={showLongPages} />
     </>
   );
 }

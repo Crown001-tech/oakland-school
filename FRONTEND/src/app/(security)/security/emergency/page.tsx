@@ -1,4 +1,5 @@
 'use client';
+import { SchoolName, PrincipalName } from '@/components/common/SchoolName';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -366,7 +367,7 @@ export default function SecurityEmergencyPage() {
         >
           <div>
             <p className="text-[10px] font-bold text-indigo-800 uppercase tracking-wider">Principal Line</p>
-            <p className="text-sm font-bold font-mono text-indigo-900">Mr Seyi Bankole</p>
+            <p className="text-sm font-bold font-mono text-indigo-900"><PrincipalName /></p>
           </div>
           <div className="w-9 h-9 rounded-lg bg-indigo-600 text-white flex items-center justify-center shadow-xs group-hover:scale-105 transition">
             <Building className="w-4 h-4" />

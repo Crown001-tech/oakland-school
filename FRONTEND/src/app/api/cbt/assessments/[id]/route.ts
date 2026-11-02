@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { getVerifiedRole } from '@/lib/caller';
+import { getSchoolDb } from '@/lib/school-db';
 
 export async function GET(
   request: NextRequest,
@@ -10,7 +11,7 @@ export async function GET(
   try {
     const { id: assessmentId } = await params;
     const supabase = await createClient();
-    const adminClient = createAdminClient();
+    const adminClient = await getSchoolDb();
 
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
     if (authErr || !user) {
@@ -112,7 +113,7 @@ export async function GET(
               .select('*')
               .eq('session_id', att.id);
 
-            const answerMap = new Map((answers || []).map((ans: any) => [ans.question_id, ans]));
+            const answerMap = new Map<string, any>((answers || []).map((ans: any) => [ans.question_id, ans]));
             reviewBreakdown = (questionSnapshots || []).map((qSnap: any) => {
               const snap = qSnap.snapshot_question || {};
               const ansRecord = answerMap.get(qSnap.question_id);
@@ -197,7 +198,7 @@ export async function PATCH(
   try {
     const { id: assessmentId } = await params;
     const supabase = await createClient();
-    const adminClient = createAdminClient();
+    const adminClient = await getSchoolDb();
 
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
     if (authErr || !user) {
@@ -241,7 +242,7 @@ export async function DELETE(
   try {
     const { id: assessmentId } = await params;
     const supabase = await createClient();
-    const adminClient = createAdminClient();
+    const adminClient = await getSchoolDb();
 
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
     if (authErr || !user) {

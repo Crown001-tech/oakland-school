@@ -35,6 +35,8 @@ import {
   getDefaultCurriculumSpecs,
   type ClassCurriculumSpec,
 } from '@/lib/timetable-csp-solver';
+import { SchoolName, PrincipalName } from '@/components/common/SchoolName';
+import { loadClassNames, useClassNames } from '@/lib/use-class-names';
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
@@ -59,14 +61,13 @@ const DEFAULT_PERIODS: PeriodSlot[] = [
   { id: 'p8', label: 'Period 8', time: '14:30 – 15:15' },
 ];
 
-const CLASSES = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'];
 
 type TimetableCell = { subject: string; teacher: string } | null;
 type TimetableData = Record<string, Record<string, Record<string, TimetableCell>>>;
 
-function generateBlankTimetable(periodsList: PeriodSlot[]): TimetableData {
+function generateBlankTimetable(periodsList: PeriodSlot[], classes: readonly string[]): TimetableData {
   const data: TimetableData = {};
-  CLASSES.forEach((cls) => {
+  classes.forEach((cls) => {
     data[cls] = {};
     periodsList.forEach((period) => {
       if (period.isBreak) return;
@@ -90,7 +91,11 @@ interface StaffMember {
 }
 
 export default function AdminTimetablePage() {
-  const [selectedClass, setSelectedClass] = useState('JSS 1');
+  const CLASSES = useClassNames();
+  const [selectedClass, setSelectedClass] = useState('');
+  useEffect(() => {
+    if (!selectedClass && CLASSES[0]) setSelectedClass(CLASSES[0]);
+  }, [CLASSES, selectedClass]);
   const [periods, setPeriods] = useState<PeriodSlot[]>(DEFAULT_PERIODS);
   const [timetable, setTimetable] = useState<TimetableData>({});
   const [curriculum, setCurriculum] = useState<SubjectItem[]>([]);
@@ -150,11 +155,11 @@ export default function AdminTimetablePage() {
         if (payload?.success && payload.data && Object.keys(payload.data).length > 0) {
           setTimetable(payload.data);
         } else {
-          setTimetable(generateBlankTimetable(activePeriods));
+          loadClassNames().then((names) => setTimetable(generateBlankTimetable(activePeriods, names)));
         }
       })
       .catch(() => {
-        setTimetable(generateBlankTimetable(DEFAULT_PERIODS));
+        loadClassNames().then((names) => setTimetable(generateBlankTimetable(DEFAULT_PERIODS, names)));
       });
   }, []);
 
@@ -653,7 +658,7 @@ export default function AdminTimetablePage() {
       {/* Official Print Header (Only visible on paper / printout) */}
       <div className="hidden print:block mb-4 text-center border-b-2 border-slate-900 pb-3">
         <h1 className="text-xl font-black uppercase tracking-wider text-slate-900">
-          Oakland International School, Lagos
+          <SchoolName />
         </h1>
         <p className="text-xs text-slate-700 font-medium">
           Official Class Timetable &bull; Academic Session 2026/2027 (First Term)
@@ -821,7 +826,7 @@ export default function AdminTimetablePage() {
           <p className="text-[10px] text-slate-500">Signature and Official Stamp</p>
         </div>
         <div className="text-center">
-          <p className="text-[10px] text-slate-400">Oakland Schools Academic Registry</p>
+          <p className="text-[10px] text-slate-400"><SchoolName /> Academic Registry</p>
           <p className="text-[9px] text-slate-400">Printed: {new Date().toLocaleDateString('en-GB')}</p>
         </div>
         <div className="text-right">

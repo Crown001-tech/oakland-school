@@ -4,6 +4,8 @@ import './globals.css';
 import { PRODUCT_NAME, getBrandId, isEductiveBrand } from '@/lib/brand';
 import { isDemoModeEnabled } from '@/lib/demo-mode';
 import { isLocalReviewFlagOn } from '@/lib/local-review';
+import { brandCssVariables } from '@/lib/brand-colors';
+import { getHostSchoolBrand } from '@/lib/school-brand';
 import { FloatingDemoSwitcher } from '@/components/demo/FloatingDemoSwitcher';
 
 const inter = Inter({
@@ -36,11 +38,12 @@ export const metadata: Metadata = isEductiveBrand()
         'Flagship school management platform for Oakland Schools. Internal administration, student records, attendance tracking, and academic assessment.',
     };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const brand = await getHostSchoolBrand();
   const isEductive = isEductiveBrand();
   const isDemo = isDemoModeEnabled();
   const showSwitcher = isDemo || isLocalReviewFlagOn();
@@ -49,7 +52,7 @@ export default function RootLayout({
     : inter.variable;
 
   return (
-    <html lang="en" data-brand={getBrandId()} className={`${fontClasses} h-full antialiased`} suppressHydrationWarning>
+    <html lang="en" data-brand={getBrandId()} style={brandCssVariables(brand.primary ?? process.env.NEXT_PUBLIC_BRAND_PRIMARY, brand.accent ?? process.env.NEXT_PUBLIC_BRAND_ACCENT)} className={`${fontClasses} h-full antialiased`} suppressHydrationWarning>
       <body
         suppressHydrationWarning
         className={`min-h-full flex flex-col bg-[var(--background)] text-slate-900 selection:bg-brand-accent selection:text-white ${

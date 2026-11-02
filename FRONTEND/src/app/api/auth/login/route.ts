@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
+import { studentAuthEmail } from '@/lib/school-config';
 import { hashInviteToken } from '@/lib/supabase/admin';
 import { ROLE_COOKIE, roleCookieOptions, signRoleCookie } from '@/lib/auth-role';
 import { checkAuthRateLimit, extractClientIp, recordAuthAttempt } from '@/lib/rate-limit';
+import { getSchoolDb } from '@/lib/school-db';
 
 export async function POST(request: Request) {
   try {
@@ -39,7 +41,8 @@ export async function POST(request: Request) {
 
     const cookieStore = await cookies();
     const supabase = await createClient();
-    const adminClient = createAdminClient();
+    // Signing in is for the school of the address the person came in on
+    const adminClient = await getSchoolDb({ allowVisitor: true });
 
     let cleanEmail = rawIdentifier.toLowerCase();
     let studentMatch: any = null;
@@ -53,9 +56,9 @@ export async function POST(request: Request) {
         .maybeSingle();
       if (data) {
         studentMatch = data;
-        cleanEmail = `${data.admission_number.toLowerCase()}@student.oakland.ng`;
+        cleanEmail = studentAuthEmail(data.admission_number, adminClient.studentEmailDomain);
       }
-    } else if (cleanEmail.includes('@student.oakland.ng')) {
+    } else if (cleanEmail.endsWith(`@${adminClient.studentEmailDomain}`)) {
       const admPart = cleanEmail.split('@')[0];
       const { data } = await adminClient
         .from('students')
@@ -157,6 +160,7 @@ export async function POST(request: Request) {
         success: false,
         targetLabel: rawIdentifier,
         ipAddress: clientIp,
+      schoolId: adminClient.schoolId,
       });
 
       if (attempt.locked) {
@@ -189,6 +193,7 @@ export async function POST(request: Request) {
       success: true,
       targetLabel: rawIdentifier,
       ipAddress: clientIp,
+      schoolId: adminClient.schoolId,
     });
 
     const user = authData.user;
@@ -299,18 +304,6 @@ export async function POST(request: Request) {
           };
         }
       } catch {}
-    }
-
-    // Canonical Proprietor check
-    if (!effectiveRole && cleanEmail === 'proprietor@oaklandschool.com.ng') {
-      effectiveRole = 'proprietor';
-      redirectUrl = '/proprietor';
-      profileData = {
-        id: user.id,
-        name: user.user_metadata?.full_name || 'Proprietor',
-        email: user.email,
-        role: 'proprietor',
-      };
     }
 
     // Parent and student accounts without a profile row keep their limited portal access

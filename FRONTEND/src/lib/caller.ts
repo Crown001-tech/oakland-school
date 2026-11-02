@@ -2,8 +2,6 @@ import { cookies, headers } from 'next/headers';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
 import { ROLE_COOKIE, resolveVerifiedRole, verifyRoleCookie } from '@/lib/auth-role';
 
-const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
-
 export interface Caller {
   userId: string | null;
   email: string | null;
@@ -102,6 +100,19 @@ export function formatRoleLabel(role: string | undefined): string {
 }
 
 /**
+ * The school of the signed-in person: the one on their record, else the one their account belongs to.
+ * A person who belongs to no school is refused; a school is never guessed.
+ */
+async function schoolIdFor(admin: ReturnType<typeof createAdminClient>, caller: Caller, known: string | null | undefined): Promise<string> {
+  if (known) return known;
+  // Loaded when needed: school-db.ts depends on this file
+  const { findSchoolIdForUser } = await import('@/lib/school-db');
+  const id = caller.userId ? await findSchoolIdForUser(admin, caller.userId, caller.email) : null;
+  if (!id) throw new Error('This account is not linked to a school.');
+  return id;
+}
+
+/**
  * Resolves the real signed-in user's identity (userId, fullName, role label, and schoolId)
  * from PostgreSQL so financial and audit logs record the actual person, never hardcoded role strings.
  */
@@ -114,7 +125,7 @@ export async function getAuthenticatedActor(): Promise<AuthenticatedActor> {
       ...caller,
       actorName: 'Unauthenticated',
       actorRoleLabel: roleLabel,
-      schoolId: DEFAULT_SCHOOL_ID,
+      schoolId: '',
     };
   }
 
@@ -137,7 +148,7 @@ export async function getAuthenticatedActor(): Promise<AuthenticatedActor> {
         ...caller,
         actorName: fullName || staff.email || caller.email || caller.userId,
         actorRoleLabel: roleLabel,
-        schoolId: staff.school_id || DEFAULT_SCHOOL_ID,
+        schoolId: await schoolIdFor(admin, caller, staff.school_id),
       };
     }
 
@@ -159,7 +170,7 @@ export async function getAuthenticatedActor(): Promise<AuthenticatedActor> {
           ...caller,
           actorName: String(propName).trim(),
           actorRoleLabel: 'Proprietor',
-          schoolId: school?.id || DEFAULT_SCHOOL_ID,
+          schoolId: await schoolIdFor(admin, caller, school?.id),
         };
       }
     }
@@ -178,7 +189,7 @@ export async function getAuthenticatedActor(): Promise<AuthenticatedActor> {
           ...caller,
           actorName: fullName || guardian.email || caller.email || caller.userId,
           actorRoleLabel: 'Parent',
-          schoolId: guardian.school_id || DEFAULT_SCHOOL_ID,
+          schoolId: await schoolIdFor(admin, caller, guardian.school_id),
         };
       }
     }
@@ -195,14 +206,14 @@ export async function getAuthenticatedActor(): Promise<AuthenticatedActor> {
       ...caller,
       actorName: String(metaName),
       actorRoleLabel: roleLabel,
-      schoolId: DEFAULT_SCHOOL_ID,
+      schoolId: await schoolIdFor(admin, caller, null),
     };
   } catch {
     return {
       ...caller,
       actorName: caller.email || caller.userId,
       actorRoleLabel: roleLabel,
-      schoolId: DEFAULT_SCHOOL_ID,
+      schoolId: await schoolIdFor(createAdminClient(), caller, null),
     };
   }
 }

@@ -1,7 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { getVerifiedRole } from '@/lib/caller';
+import { getSchoolDb } from '@/lib/school-db';
 
 export async function GET(
   request: NextRequest,
@@ -10,7 +11,7 @@ export async function GET(
   try {
     const { id: assignmentId } = await params;
     const supabase = await createClient();
-    const adminClient = createAdminClient();
+    const adminClient = await getSchoolDb();
 
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
     if (authErr || !user) {
@@ -114,7 +115,7 @@ export async function GET(
       .select('*')
       .eq('assignment_id', assignmentId);
 
-    const submissionsMap = new Map((submissions || []).map((s: any) => [s.student_id, s]));
+    const submissionsMap = new Map<string, any>((submissions || []).map((s: any) => [s.student_id, s]));
 
     const roster = (classEnrollments || []).map((enr: any) => {
       const st = Array.isArray(enr.student) ? enr.student[0] : enr.student;
@@ -146,8 +147,8 @@ export async function GET(
         ...assignment,
         roster,
         totalEnrolled: roster.length,
-        totalSubmitted: roster.filter((r) => r.submission).length,
-        totalGraded: roster.filter((r) => r.status === 'graded').length,
+        totalSubmitted: roster.filter((r: any) => r.submission).length,
+        totalGraded: roster.filter((r: any) => r.status === 'graded').length,
       },
     });
   } catch (err: any) {
@@ -162,7 +163,7 @@ export async function PATCH(
   try {
     const { id: assignmentId } = await params;
     const supabase = await createClient();
-    const adminClient = createAdminClient();
+    const adminClient = await getSchoolDb();
 
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
     if (authErr || !user) {
@@ -209,7 +210,7 @@ export async function DELETE(
   try {
     const { id: assignmentId } = await params;
     const supabase = await createClient();
-    const adminClient = createAdminClient();
+    const adminClient = await getSchoolDb();
 
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
     if (authErr || !user) {

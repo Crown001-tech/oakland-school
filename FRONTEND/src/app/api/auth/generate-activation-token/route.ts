@@ -1,12 +1,13 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
 import { getVerifiedRole } from '@/lib/caller';
+import { getSchoolDb } from '@/lib/school-db';
 
-function generateToken(): string {
+function generateToken(prefix: string): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let token = 'OAK-';
+  let token = `${prefix}-`;
   for (let i = 0; i < 6; i++) {
     const randomIndex = crypto.randomInt(0, chars.length);
     token += chars[randomIndex];
@@ -18,7 +19,7 @@ export async function POST(request: Request) {
   try {
     const cookieStore = await cookies();
     const supabase = await createClient();
-    const adminClient = createAdminClient();
+    const adminClient = await getSchoolDb();
 
     // Verify authorized caller (Admin, Principal, or Proprietor)
     const { data: { user } } = await supabase.auth.getUser();
@@ -55,7 +56,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const token = generateToken();
+    const token = generateToken(adminClient.idPrefix);
     const expiresAt = new Date(Date.now() + expiryDays * 24 * 60 * 60 * 1000).toISOString();
 
     const { error: updateErr } = await adminClient

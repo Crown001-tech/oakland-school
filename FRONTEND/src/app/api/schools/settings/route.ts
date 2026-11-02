@@ -1,16 +1,14 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getClassNames } from '@/lib/school-classes';
+import { tuitionGroup, type TuitionGroup } from '@/lib/tuition';
 import { getCaller, formatRoleLabel } from '@/lib/caller';
+import { getSchoolDb } from '@/lib/school-db';
 
-const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET() {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     // 1. Fetch School & Settings JSON
     const { data: school, error: schoolErr } = await sb
@@ -117,7 +115,22 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
+
+    // Grading rules must be usable: weights add up to 100 so every total is out of 100
+    const sentWeights = ['ca1Weight', 'ca2Weight', 'examWeight'].filter((k) => body[k] !== undefined);
+    if (sentWeights.length > 0) {
+      const [a, b, c] = [body.ca1Weight, body.ca2Weight, body.examWeight].map(Number);
+      if (sentWeights.length !== 3 || [a, b, c].some((n) => !Number.isFinite(n) || n < 0) || !(c > 0) || Math.round((a + b + c) * 100) / 100 !== 100) {
+        return NextResponse.json(
+          { success: false, message: 'CA 1, CA 2 and exam marks must add up to 100, and the exam must be more than 0.' },
+          { status: 400 }
+        );
+      }
+    }
+    if (body.passMark !== undefined && !(Number(body.passMark) > 0 && Number(body.passMark) <= 100)) {
+      return NextResponse.json({ success: false, message: 'The pass mark must be between 1 and 100.' }, { status: 400 });
+    }
 
     // 1. Fetch current school ID
     const { data: school } = await sb
@@ -126,7 +139,7 @@ export async function POST(request: NextRequest) {
       .limit(1)
       .maybeSingle();
 
-    const schoolId = school?.id || DEFAULT_SCHOOL_ID;
+    const schoolId = school?.id || sb.schoolId;
 
     // 2. Persist atomically using merge_school_settings RPC (DEF-113)
     const { data: updatedSettings, error: rpcErr } = await sb.rpc('merge_school_settings', {
@@ -150,27 +163,21 @@ export async function POST(request: NextRequest) {
         .eq('school_id', schoolId);
     }
 
-    // 4. Update Tuition in fee_structures in PostgreSQL
-    if (typeof body.tuitionJSS === 'number' && body.tuitionJSS > 0) {
+    // 4. Keep each class’s fee structure in step with the tuition rates (the school’s own classes only)
+    const classNames = await getClassNames(sb, schoolId);
+    const syncTuition = async (group: TuitionGroup, rate: unknown) => {
+      if (typeof rate !== 'number' || rate <= 0) return;
+      const names = classNames.filter((n) => tuitionGroup(n) === group);
+      if (names.length === 0) return;
       await sb
         .from('fee_structures')
-        .update({ tuition_fee: body.tuitionJSS, total_amount: body.tuitionJSS })
-        .in('class_name', ['JSS 1', 'JSS 2', 'JSS 3']);
-    }
-
-    if (typeof body.tuitionSS12 === 'number' && body.tuitionSS12 > 0) {
-      await sb
-        .from('fee_structures')
-        .update({ tuition_fee: body.tuitionSS12, total_amount: body.tuitionSS12 })
-        .in('class_name', ['SS 1', 'SS 2']);
-    }
-
-    if (typeof body.tuitionSS3 === 'number' && body.tuitionSS3 > 0) {
-      await sb
-        .from('fee_structures')
-        .update({ tuition_fee: body.tuitionSS3, total_amount: body.tuitionSS3 })
-        .eq('class_name', 'SS 3');
-    }
+        .update({ tuition_fee: rate, total_amount: rate })
+        .eq('school_id', schoolId)
+        .in('class_name', names);
+    };
+    await syncTuition('jss', body.tuitionJSS);
+    await syncTuition('ss12', body.tuitionSS12);
+    await syncTuition('ss3', body.tuitionSS3);
 
     // Log to audit_logs
     try {

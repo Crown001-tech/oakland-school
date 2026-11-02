@@ -1,16 +1,12 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient as createServerAuthClient } from '@/lib/supabase/server';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET(req: NextRequest) {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { searchParams } = new URL(req.url);
     const classId = searchParams.get('classId');
     const className = searchParams.get('class') || searchParams.get('className');
@@ -83,7 +79,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const body = await req.json();
 
     const {
@@ -133,7 +129,7 @@ export async function POST(req: NextRequest) {
     const { data, error } = await sb
       .from('learning_materials')
       .insert({
-        school_id: DEFAULT_SCHOOL_ID,
+        school_id: sb.schoolId,
         title: title.trim(),
         description: description.trim(),
         class_id: classId,
@@ -163,7 +159,7 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { searchParams } = new URL(req.url);
     const id = searchParams.get('id');
 

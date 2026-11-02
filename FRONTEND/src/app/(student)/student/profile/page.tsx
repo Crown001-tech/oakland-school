@@ -1,4 +1,5 @@
 'use client';
+import { SchoolName, PrincipalName } from '@/components/common/SchoolName';
 
 import React, { useState } from 'react';
 import { useStudent } from '@/context/StudentContext';
@@ -114,7 +115,7 @@ export default function StudentProfilePage() {
             Academic Session
           </span>
           <p className="font-bold text-slate-900 text-sm">2026/2027</p>
-          <p className="text-slate-500">Oakland International School</p>
+          <p className="text-slate-500"><SchoolName /></p>
         </div>
       </div>
 

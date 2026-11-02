@@ -1,4 +1,5 @@
 'use client';
+import { SchoolName, PrincipalName } from '@/components/common/SchoolName';
 
 import React, { useState, useEffect } from 'react';
 import { useActiveChild } from '@/context/ParentContext';
@@ -115,7 +116,7 @@ export default function ParentResultsPage() {
         <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden space-y-6 p-6">
           {/* Printable Header */}
           <div className="hidden print:block text-center border-b pb-4 mb-4">
-            <h2 className="text-xl font-bold font-serif">Oakland International School</h2>
+            <h2 className="text-xl font-bold font-serif"><SchoolName /></h2>
             <p className="text-xs text-slate-600">Official Terminal Report Card</p>
             <p className="text-xs font-mono mt-1">Student: {activeChild?.name} ({activeChild?.admissionNumber}) | Class: {activeChild?.currentClass}</p>
           </div>

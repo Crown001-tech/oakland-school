@@ -1,4 +1,5 @@
 'use client';
+import { useClassNames } from '@/lib/use-class-names';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -45,7 +46,8 @@ export default function ProprietorStudentsPage() {
   const [enrollSuccessToast, setEnrollSuccessToast] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const classes = ['All', 'JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'];
+  const schoolClasses = useClassNames();
+  const classes = ['All', ...schoolClasses];
 
   const [students, setStudents] = useState<StudentRecord[]>([]);
   const [classTeachers, setClassTeachers] = useState<Record<string, string>>({});
@@ -53,7 +55,7 @@ export default function ProprietorStudentsPage() {
   // Enrollment Form State
   const [enrollFirstName, setEnrollFirstName] = useState('');
   const [enrollLastName, setEnrollLastName] = useState('');
-  const [enrollClass, setEnrollClass] = useState('JSS 1');
+  const [enrollClass, setEnrollClass] = useState('');
   const [enrollDepartment, setEnrollDepartment] = useState('');
   const [enrollGender, setEnrollGender] = useState<'Male' | 'Female'>('Male');
   const [enrollGuardianName, setEnrollGuardianName] = useState('');
@@ -79,7 +81,7 @@ export default function ProprietorStudentsPage() {
       const rawStudents = Array.isArray(studentsRes?.data) ? studentsRes.data : [];
       const mapped: StudentRecord[] = rawStudents.map((s: any) => {
         const parts = (s.fullName || '').trim().split(' ');
-        const targetClass = normalizeClass(s.class) || 'JSS 1';
+        const targetClass = normalizeClass(s.class) || s.class || '';
         const assignedTeacher =
           teacherMap[targetClass] && teacherMap[targetClass] !== 'Unassigned'
             ? teacherMap[targetClass]
@@ -174,11 +176,11 @@ export default function ProprietorStudentsPage() {
     const newStudents = importedRows.map((r) => ({
       admissionNo: r.admissionNo || undefined,
       fullName: r.fullName,
-      class: r.class || 'JSS 1',
-      gender: r.gender || 'Male',
-      guardianName: r.guardianName || 'Guardian',
-      guardianPhone: r.guardianPhone || '—',
-      guardianEmail: r.guardianEmail || '—',
+      class: r.class,
+      gender: r.gender,
+      guardianName: r.guardianName || undefined,
+      guardianPhone: r.guardianPhone || undefined,
+      guardianEmail: r.guardianEmail || undefined,
     }));
 
     try {
@@ -237,7 +239,7 @@ export default function ProprietorStudentsPage() {
             Student Directory
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Complete student roster across JSS 1 through SS 3 with guardian contact records.
+            Complete student roster with guardian contact records.
           </p>
         </div>
 
@@ -282,25 +284,29 @@ export default function ProprietorStudentsPage() {
 
         <Card className="p-4 border-slate-200">
           <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">
-            Junior School
+            Classes
           </span>
-          <p className="text-2xl font-bold text-slate-900 mt-1">
-            {(classCounts['JSS 1'] || 0) + (classCounts['JSS 2'] || 0) + (classCounts['JSS 3'] || 0)}
-          </p>
+          <p className="text-2xl font-bold text-slate-900 mt-1">{schoolClasses.length}</p>
           <p className="text-[11px] text-slate-500 mt-1">
-            JSS 1: {classCounts['JSS 1'] || 0} &bull; JSS 2: {classCounts['JSS 2'] || 0} &bull; JSS 3: {classCounts['JSS 3'] || 0}
+            {schoolClasses.filter((c) => (classCounts[c] || 0) > 0).length} with enrolled students
           </p>
         </Card>
 
         <Card className="p-4 border-slate-200">
           <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wide">
-            Senior School
+            Largest Class
           </span>
           <p className="text-2xl font-bold text-slate-900 mt-1">
-            {(classCounts['SS 1'] || 0) + (classCounts['SS 2'] || 0) + (classCounts['SS 3'] || 0)}
+            {(() => {
+              const top = schoolClasses.reduce<string>((best, c) => ((classCounts[c] || 0) > (classCounts[best] || 0) ? c : best), schoolClasses[0] || '');
+              return top && (classCounts[top] || 0) > 0 ? top : '—';
+            })()}
           </p>
           <p className="text-[11px] text-slate-500 mt-1">
-            SS 1: {classCounts['SS 1'] || 0} &bull; SS 2: {classCounts['SS 2'] || 0} &bull; SS 3: {classCounts['SS 3'] || 0}
+            {(() => {
+              const top = schoolClasses.reduce<string>((best, c) => ((classCounts[c] || 0) > (classCounts[best] || 0) ? c : best), schoolClasses[0] || '');
+              return top && (classCounts[top] || 0) > 0 ? `${classCounts[top]} students` : 'No students enrolled yet';
+            })()}
           </p>
         </Card>
 

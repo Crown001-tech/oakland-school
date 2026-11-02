@@ -17,6 +17,8 @@ import {
   CheckCircle2,
   Shield,
 } from 'lucide-react';
+import { SchoolSessionLine } from '@/components/common/SchoolName';
+import { useClassNames } from '@/lib/use-class-names';
 
 interface StudentItem {
   id: string;
@@ -67,6 +69,7 @@ interface AttendanceMetrics {
 }
 
 export default function ProprietorDashboardPage() {
+  const CLASSES = useClassNames();
   const [students, setStudents] = useState<StudentItem[]>([]);
   const [staff, setStaff] = useState<StaffItem[]>([]);
   const [classes, setClasses] = useState<ClassItem[]>([]);
@@ -168,7 +171,7 @@ export default function ProprietorDashboardPage() {
       value: String(students.length),
       sub: `${capacityPct}% capacity utilized (${students.length}/${totalCapacity})`,
       icon: GraduationCap,
-      color: 'text-[#0f3a3e]',
+      color: 'text-brand-primary',
       bg: 'bg-teal-50',
     },
     {
@@ -176,7 +179,7 @@ export default function ProprietorDashboardPage() {
       value: String(staff.length),
       sub: `${staff.length} active personnel registered`,
       icon: Users,
-      color: 'text-[#0f3a3e]',
+      color: 'text-brand-primary',
       bg: 'bg-teal-50',
     },
     {
@@ -186,7 +189,7 @@ export default function ProprietorDashboardPage() {
         ? `${attendance.totalPresent} of ${attendance.totalEnrolled} present`
         : 'Morning roll call pending',
       icon: CalendarCheck,
-      color: 'text-[#0f3a3e]',
+      color: 'text-brand-primary',
       bg: 'bg-emerald-50',
     },
     {
@@ -194,12 +197,12 @@ export default function ProprietorDashboardPage() {
       value: `₦${finances.collectedRevenue.toLocaleString()}`,
       sub: `${finances.collectionPct}% collected (₦${finances.expectedRevenue.toLocaleString()} target)`,
       icon: Wallet,
-      color: 'text-[#0f3a3e]',
+      color: 'text-brand-primary',
       bg: 'bg-amber-50',
     },
   ];
 
-  const standardGrades = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'];
+  const standardGrades = CLASSES;
   const gradeCapacities = standardGrades.map((gradeName) => {
     const classData = classes.find((c) => c.name === gradeName);
     const capacity = Number(classData?.capacity) || defaultCapacity;
@@ -223,7 +226,7 @@ export default function ProprietorDashboardPage() {
             Dashboard
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Oakland International College &bull; Academic Session 2026/2027 &bull; Term 1 (Week 1 of 14)
+            <SchoolSessionLine />
           </p>
         </div>
 
@@ -232,7 +235,7 @@ export default function ProprietorDashboardPage() {
             <Button
               size="sm"
               variant="accent"
-              className="bg-[#b3141f] hover:bg-[#961019] text-white shadow-xs"
+              className="bg-brand-accent hover:bg-brand-accent-hover text-white shadow-xs"
               leftIcon={<UserCheck className="w-3.5 h-3.5" />}
             >
               Review Staff
@@ -247,7 +250,7 @@ export default function ProprietorDashboardPage() {
       </div>
 
       {/* Operational Readiness Banner */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#0f3a3e] to-[#164e53] text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md">
+      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-brand-primary to-brand-primary-light text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md">
         <div className="flex items-start sm:items-center gap-3.5">
           <div className="p-2.5 rounded-xl bg-white/10 text-white shrink-0 border border-white/10">
             <Building2 className="w-6 h-6" />
@@ -265,7 +268,7 @@ export default function ProprietorDashboardPage() {
         <Link href="/proprietor/admissions" className="shrink-0">
           <Button
             size="sm"
-            className="bg-white text-[#0f3a3e] hover:bg-teal-50 font-bold px-4 shadow-xs"
+            className="bg-white text-brand-primary hover:bg-teal-50 font-bold px-4 shadow-xs"
             rightIcon={<ArrowRight className="w-3.5 h-3.5" />}
           >
             Admissions Board
@@ -304,7 +307,7 @@ export default function ProprietorDashboardPage() {
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div>
             <CardTitle className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-              <Shield className="w-4 h-4 text-[#b3141f]" />
+              <Shield className="w-4 h-4 text-brand-accent" />
               Perimeter Safety
             </CardTitle>
             <CardDescription className="text-xs text-slate-500">
@@ -376,8 +379,8 @@ export default function ProprietorDashboardPage() {
                       className={`h-full rounded-full transition-all ${item.pct >= 95
                         ? 'bg-rose-500'
                         : item.pct >= 90
-                          ? 'bg-[#b3141f]'
-                          : 'bg-[#0f3a3e]'
+                          ? 'bg-brand-accent'
+                          : 'bg-brand-primary'
                         }`}
                       style={{ width: `${Math.max(item.pct, item.enrolled > 0 ? 4 : 0)}%` }}
                     />
@@ -401,7 +404,7 @@ export default function ProprietorDashboardPage() {
 
               <Link
                 href="/proprietor/students"
-                className="text-xs font-semibold text-[#0f3a3e] hover:underline flex items-center gap-1"
+                className="text-xs font-semibold text-brand-primary hover:underline flex items-center gap-1"
               >
                 View Directory <ArrowRight className="w-3.5 h-3.5" />
               </Link>
@@ -420,7 +423,7 @@ export default function ProprietorDashboardPage() {
                 students.slice(0, 4).map((student) => (
                   <div key={student.id} className="p-4 sm:p-5 flex items-center justify-between gap-4 hover:bg-slate-50/60 transition-colors">
                     <div className="flex items-center gap-3.5">
-                      <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#0f3a3e] font-bold text-xs flex items-center justify-center border border-teal-100 shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-teal-50 text-brand-primary font-bold text-xs flex items-center justify-center border border-teal-100 shrink-0">
                         {student.fullName.split(' ').map((n) => n[0]).join('').slice(0, 2)}
                       </div>
                       <div>
@@ -448,10 +451,10 @@ export default function ProprietorDashboardPage() {
           <Card className="p-5 border-slate-200 space-y-4 shadow-xs">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <CardTitle className="text-sm font-bold text-slate-900 flex items-center gap-2">
-                <Shield className="w-4 h-4 text-[#0f3a3e]" />
+                <Shield className="w-4 h-4 text-brand-primary" />
                 Administration Appointments
               </CardTitle>
-              <Link href="/proprietor/staff" className="text-[11px] font-bold text-[#0f3a3e] hover:underline">
+              <Link href="/proprietor/staff" className="text-[11px] font-bold text-brand-primary hover:underline">
                 Manage Staff &rarr;
               </Link>
             </div>

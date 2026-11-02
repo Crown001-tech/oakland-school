@@ -1,14 +1,14 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { getVerifiedRole } from '@/lib/caller';
+import { getSchoolDb } from '@/lib/school-db';
 
-const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
-    const adminClient = createAdminClient();
+    const adminClient = await getSchoolDb();
 
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
     if (authErr || !user) {
@@ -187,7 +187,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient();
-    const adminClient = createAdminClient();
+    const adminClient = await getSchoolDb();
 
     const { data: { user }, error: authErr } = await supabase.auth.getUser();
     if (authErr || !user) {
@@ -302,7 +302,7 @@ export async function POST(request: NextRequest) {
         const { data: cls } = await adminClient.from('classes').select('name').eq('id', classId).maybeSingle();
         const className = cls?.name || 'Class';
         await adminClient.from('notifications').insert({
-          school_id: DEFAULT_SCHOOL_ID,
+          school_id: adminClient.schoolId,
           recipient_name: `Students of ${className}`,
           recipient_email: `class:${className}`,
           notification_type: 'cbt',

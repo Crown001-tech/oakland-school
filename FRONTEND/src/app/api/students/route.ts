@@ -1,19 +1,15 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { getAssignedClassName, getCaller, isAdminRole } from '@/lib/caller';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET(request: NextRequest) {
   try {
     const caller = await getCaller();
     const isAdmin = isAdminRole(caller.role);
     const homeroomClass = caller.role === 'teacher' ? await getAssignedClassName(caller.email) : null;
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { searchParams } = new URL(request.url);
     const classFilter = searchParams.get('class');
     const search = searchParams.get('search');
@@ -109,7 +105,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     const studentList = Array.isArray(body)
       ? body
@@ -128,7 +124,7 @@ export async function POST(request: NextRequest) {
     const { data: initialStudents } = await sb
       .from('students')
       .select('id, admission_number, first_name, last_name, status, dob, gender')
-      .eq('school_id', DEFAULT_SCHOOL_ID);
+      .eq('school_id', sb.schoolId);
 
     const existingStudents: any[] = [...(initialStudents || [])];
 
@@ -154,8 +150,12 @@ export async function POST(request: NextRequest) {
 
       const explicitAdmNo = (item.admissionNo || item.admission_number || '').trim();
       const gender = (item.gender || 'male').toLowerCase() === 'female' ? 'female' : 'male';
-      const targetClass = (item.class || item.className || 'JSS 1').trim();
-      const classId = classMap.get(targetClass.toLowerCase()) || classes?.[0]?.id;
+      const targetClass = String(item.class || item.className || '').trim();
+      const classId = classMap.get(targetClass.toLowerCase());
+      if (!classId) {
+        lastError = targetClass ? `Class "${targetClass}" is not one of this school's classes.` : 'A class is required to enrol a student.';
+        continue;
+      }
 
       // PostgreSQL students table: dob is optional/nullable (DEF-152)
       let rawDob = item.dob || item.dateOfBirth;
@@ -201,10 +201,11 @@ export async function POST(request: NextRequest) {
         // New student: generate admission number if not explicitly provided
         let finalAdmNo = explicitAdmNo;
         if (!finalAdmNo) {
-          let candidate = `OAK-2026-${Math.floor(100 + Math.random() * 900)}`;
+          const admYear = new Date().getFullYear();
+          let candidate = `${sb.idPrefix}-${admYear}-${Math.floor(100 + Math.random() * 900)}`;
           let attempts = 0;
           while (existingStudents.some((s) => s.admission_number === candidate) && attempts < 50) {
-            candidate = `OAK-2026-${Math.floor(100 + Math.random() * 900)}`;
+            candidate = `${sb.idPrefix}-${admYear}-${Math.floor(100 + Math.random() * 900)}`;
             attempts++;
           }
           finalAdmNo = candidate;
@@ -213,7 +214,7 @@ export async function POST(request: NextRequest) {
         const { data: newStu, error: stuError } = await sb
           .from('students')
           .insert({
-            school_id: DEFAULT_SCHOOL_ID,
+            school_id: sb.schoolId,
             admission_number: finalAdmNo,
             first_name: firstName,
             last_name: lastName,
@@ -261,7 +262,7 @@ export async function POST(request: NextRequest) {
         const gLast = gParts.slice(1).join(' ') || 'Parent';
         const gEmail = item.guardianEmail && item.guardianEmail !== '—'
           ? item.guardianEmail
-          : `parent.${Date.now()}.${Math.floor(Math.random() * 1000)}@oakland.ng`;
+          : `parent.${Date.now()}.${Math.floor(Math.random() * 1000)}@${sb.studentEmailDomain}`;
 
         try {
           let guardianId: string | null = null;
@@ -269,7 +270,7 @@ export async function POST(request: NextRequest) {
             const { data: existingG } = await sb
               .from('guardians')
               .select('id')
-              .eq('school_id', DEFAULT_SCHOOL_ID)
+              .eq('school_id', sb.schoolId)
               .eq('phone', item.guardianPhone)
               .maybeSingle();
             if (existingG) guardianId = existingG.id;
@@ -279,7 +280,7 @@ export async function POST(request: NextRequest) {
             const { data: gRecord } = await sb
               .from('guardians')
               .insert({
-                school_id: DEFAULT_SCHOOL_ID,
+                school_id: sb.schoolId,
                 first_name: gFirst,
                 last_name: gLast,
                 email: gEmail,
@@ -310,7 +311,7 @@ export async function POST(request: NextRequest) {
           await sb
             .from('student_financial_accounts')
             .upsert({
-              school_id: DEFAULT_SCHOOL_ID,
+              school_id: sb.schoolId,
               student_id: student.id,
               total_billed: 0,
               total_paid: 0,
@@ -343,7 +344,7 @@ export async function DELETE(request: NextRequest) {
     const all = searchParams.get('all') === 'true';
     const permanent = searchParams.get('permanent') === 'true';
 
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     if (all) {
       // Cascade delete all student dependent records and students

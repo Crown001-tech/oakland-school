@@ -6,6 +6,7 @@ import { Logo } from '@/components/brand/Logo';
 import { PaymentTransaction, StudentFeeLedgerItem } from '@/types/finance';
 import { numberToNairaWords, formatNaira } from '@/lib/finance-data';
 import { Printer, X, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { SchoolContactLine, SchoolName, PrincipalName } from '@/components/common/SchoolName';
 
 interface ReceiptModalProps {
   payment: PaymentTransaction | null;
@@ -80,7 +81,7 @@ export function ReceiptModal({ payment, studentItem, onClose }: ReceiptModalProp
           {/* Subtle Watermark */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03]">
             <span className="text-8xl font-black rotate-[-25deg] text-slate-900 tracking-widest uppercase">
-              OAKLAND
+              <SchoolName upper />
             </span>
           </div>
 
@@ -90,10 +91,10 @@ export function ReceiptModal({ payment, studentItem, onClose }: ReceiptModalProp
               <Logo size="lg" />
             </div>
             <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight uppercase">
-              Oakland Schools, Lagos
+              <SchoolName />
             </h1>
             <p className="text-xs text-slate-600 font-medium">
-              14 Academic Crescent, Victoria Island, Lagos State &bull; Tel: +234 800 625 5263
+              <SchoolContactLine />
             </p>
             <p className="text-[10px] text-teal-800 font-mono font-semibold uppercase tracking-wider mt-0.5">
               Bursary • Official Fee Receipt
@@ -197,7 +198,7 @@ export function ReceiptModal({ payment, studentItem, onClose }: ReceiptModalProp
             {/* Stamp simulation */}
             <div className="p-3 border-2 border-dashed border-emerald-700 rounded-xl text-center bg-emerald-50/30">
               <div className="text-[9px] font-black text-emerald-900 uppercase tracking-widest">
-                OAKLAND SCHOOLS BURSARY
+                <SchoolName upper /> BURSARY
               </div>
               <div className="text-xs font-black text-emerald-700 uppercase my-0.5">
                 ★ OFFICIAL RECEIPT PAID ★
@@ -212,13 +213,13 @@ export function ReceiptModal({ payment, studentItem, onClose }: ReceiptModalProp
                 {bursarName} (Bursar)
               </div>
               <p className="font-extrabold text-slate-900 mt-1">{bursarName}</p>
-              <p className="text-[10px] text-slate-500">Bursar &bull; Bursary Department &bull; OAK-BUR-001</p>
+              <p className="text-[10px] text-slate-500">Bursar &bull; Bursary Department</p>
             </div>
           </div>
 
           {/* Legal disclaimer */}
           <p className="text-center text-[9px] text-slate-400 mt-5 italic">
-            Fees paid are non-refundable and subject to Oakland Schools terms of admission. Valid without physical stamp if electronically verified.
+            Fees paid are non-refundable and subject to the school terms of admission. Valid without physical stamp if electronically verified.
           </p>
         </div>
       </div>

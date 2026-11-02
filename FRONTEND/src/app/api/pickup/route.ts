@@ -1,11 +1,9 @@
+import { getPrincipalContact } from '@/lib/school-people';
 import { NextResponse, type NextRequest } from 'next/server';
 import { getCaller, getLinkedStudentIds } from '@/lib/caller';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { checkAuthRateLimit, extractClientIp, recordAuthAttempt } from '@/lib/rate-limit';
+import { getSchoolDb } from '@/lib/school-db';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -43,7 +41,7 @@ export async function GET(req: NextRequest) {
     const caller = await getCaller();
     const isParent = caller.role === 'parent';
     const linkedIds = isParent ? await getLinkedStudentIds(caller.email) : [];
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { searchParams } = new URL(req.url);
     const lookupQuery = searchParams.get('query')?.trim().toUpperCase();
 
@@ -117,7 +115,7 @@ export async function GET(req: NextRequest) {
           fullName: `${g.first_name} ${g.last_name}`.trim(),
           relationship: sg.relationship || 'Guardian',
           phone: g.phone || '—',
-          qrToken: sg.pickup_pin ? `OAK-PK-${sg.pickup_pin}` : '—',
+          qrToken: sg.pickup_pin ? `${sb.idPrefix}-PK-${sg.pickup_pin}` : '—',
           pickupPin: sg.pickup_pin || '—',
           isActive: sg.authorized_pickup !== false,
           isGuardian: true,
@@ -186,6 +184,7 @@ export async function GET(req: NextRequest) {
           success: true,
           targetLabel: lookupQuery,
           ipAddress: clientIp,
+          schoolId: sb.schoolId,
         });
         // Fetch student details
         const { data: studentRow } = await sb
@@ -255,6 +254,7 @@ export async function GET(req: NextRequest) {
         success: false,
         targetLabel: lookupQuery,
         ipAddress: clientIp,
+        schoolId: sb.schoolId,
       });
 
       if (attempt.locked) {
@@ -297,7 +297,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const caller = await getCaller();
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const body = await req.json();
     const { action } = body;
 
@@ -358,6 +358,7 @@ export async function POST(req: NextRequest) {
           success: false,
           targetLabel: `${studentName || studentId} (${pickedUpByName})`,
           ipAddress: clientIp,
+          schoolId: sb.schoolId,
         });
         if (attempt.locked) {
           return NextResponse.json(
@@ -386,6 +387,7 @@ export async function POST(req: NextRequest) {
         success: true,
         targetLabel: `${studentName || studentId}`,
         ipAddress: clientIp,
+        schoolId: sb.schoolId,
       });
 
       const { data, error } = await sb
@@ -425,7 +427,7 @@ export async function POST(req: NextRequest) {
         const guardianEmail = (sgRows?.[0]?.guardians as any)?.email;
         if (guardianEmail) {
           await sb.from('notifications').insert({
-            school_id: 'a0000000-0000-0000-0000-000000000001',
+            school_id: sb.schoolId,
             recipient_email: guardianEmail.toLowerCase(),
             recipient_name: (sgRows?.[0]?.guardians as any)?.first_name || 'Guardian',
             subject: 'Student Dismissal Clearance',
@@ -489,10 +491,11 @@ export async function POST(req: NextRequest) {
 
       // Cross-portal dispatch: Urgent alert to Principal and Admin
       try {
-        await sb.from('notifications').insert({
-          school_id: 'a0000000-0000-0000-0000-000000000001',
-          recipient_email: 'seyibankole@gmail.com',
-          recipient_name: 'Mr Seyi Bankole (Principal)',
+        const principal = await getPrincipalContact(sb);
+        if (principal.email) await sb.from('notifications').insert({
+          school_id: sb.schoolId,
+          recipient_email: principal.email.toLowerCase(),
+          recipient_name: principal.name,
           subject: 'Urgent: Flagged Dismissal Alert',
           content_html: `Security Flag: Unauthorized or suspicious dismissal attempt for ${studentName} (${studentClass}). Escort presented: ${pickedUpByName || 'Unknown'}. Reason: ${reason}`,
           notification_type: 'broadcast',
@@ -553,7 +556,7 @@ export async function POST(req: NextRequest) {
           { status: 500 }
         );
       }
-      const qrToken = `OAK-PK-${randomPin}`;
+      const qrToken = `${sb.idPrefix}-PK-${randomPin}`;
 
       const { data, error } = await sb
         .from('authorized_pickup_persons')

@@ -140,7 +140,7 @@ export default function AdminCalendarPage() {
           endDate: newEndDate,
           allDay: true,
           audience: newAudience,
-          location: newLocation.trim() || 'Oakland Main Campus',
+          location: newLocation.trim() || '',
         }),
       });
 

@@ -1,15 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET() {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     // Fetch classes
     const { data: classes, error: classError } = await sb
@@ -18,6 +14,8 @@ export async function GET() {
         id,
         name,
         grade_level,
+        level,
+        arm,
         capacity,
         class_enrollments ( id, status ),
         teacher_assignments (
@@ -26,7 +24,8 @@ export async function GET() {
           staff_profiles:staff_id ( id, first_name, last_name, email )
         )
       `)
-      .order('grade_level', { ascending: true });
+      .order('grade_level', { ascending: true })
+      .order('name', { ascending: true });
 
     if (classError) throw classError;
 
@@ -72,6 +71,8 @@ export async function GET() {
         id: c.id,
         name: c.name,
         gradeLevel: c.grade_level,
+        level: c.level || c.name,
+        arm: c.arm || '',
         capacity: typeof c.capacity === 'number' && c.capacity > 0 ? c.capacity : masterCapacity,
         enrolledCount: activeEnrollments,
         classTeacher: teacherName,
@@ -89,7 +90,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     const { classId, teacherId, capacity } = body;
 
@@ -127,7 +128,7 @@ export async function POST(request: NextRequest) {
         await sb
           .from('teacher_assignments')
           .insert({
-            school_id: DEFAULT_SCHOOL_ID,
+            school_id: sb.schoolId,
             staff_id: teacherId,
             class_id: classId,
             session_id: sessionId,
@@ -151,4 +152,42 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   return POST(request);
+}
+
+/**
+ * Deletes a class that has no students. A class that has ever had a student enrolled is kept, because its
+ * report cards, fees and attendance belong to those students; move or withdraw them first. Deleting a class
+ * also removes its timetable and teacher assignments, and clears it as any teacher's own class.
+ */
+export async function DELETE(request: NextRequest) {
+  try {
+    const id = new URL(request.url).searchParams.get('id') || '';
+    if (!id) return NextResponse.json({ success: false, message: 'Choose a class to delete.' }, { status: 400 });
+
+    const sb = await getSchoolDb();
+    const { data: cls } = await sb.from('classes').select('id, name').eq('id', id).maybeSingle();
+    if (!cls) return NextResponse.json({ success: false, message: 'Class not found.' }, { status: 404 });
+
+    const { count, error: countError } = await sb.from('class_enrollments').select('id', { count: 'exact', head: true }).eq('class_id', id);
+    if (countError) throw countError;
+    if ((count ?? 0) > 0) {
+      return NextResponse.json(
+        { success: false, message: `${cls.name} has ${count} ${count === 1 ? 'student' : 'students'} on record. Move or withdraw them before deleting the class.` },
+        { status: 409 }
+      );
+    }
+
+    await sb.from('staff_profiles').update({ assigned_class: null }).eq('assigned_class', cls.name);
+    const { error } = await sb.from('classes').delete().eq('id', id);
+    if (error) throw error;
+
+    try {
+      await sb.from('audit_logs').insert({ actor_role: 'staff', action: 'CLASS_DELETED', resource_type: 'classes', resource_id: id, metadata: { summary: `Class ${cls.name} was deleted` } });
+    } catch {
+      // The audit entry is not allowed to block the delete
+    }
+    return NextResponse.json({ success: true, message: `${cls.name} deleted.` });
+  } catch (err: any) {
+    return NextResponse.json({ success: false, message: err?.message || 'Could not delete the class.' }, { status: 500 });
+  }
 }

@@ -1,13 +1,11 @@
+import { getPrincipalName } from '@/lib/school-people';
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET() {
   try {
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { data: rows, error } = await sb
       .from('documents')
       .select('*')
@@ -18,7 +16,7 @@ export async function GET() {
 
     const letters = (rows || []).map((row: any) => ({
       id: row.id,
-      refNo: row.metadata?.refNo || 'OAK/PRIN/MEM/2026/001',
+      refNo: row.metadata?.refNo || '—',
       type: row.metadata?.type || 'Meeting Notice',
       recipientName: row.metadata?.recipientName || 'Staff Member',
       recipientRole: row.metadata?.recipientRole || 'Recipient',
@@ -32,7 +30,7 @@ export async function GET() {
           month: 'long',
           year: 'numeric',
         }),
-      issuedBy: row.metadata?.issuedBy || 'Mr Seyi Bankole',
+      issuedBy: row.metadata?.issuedBy || '—',
       signatoryRole: row.metadata?.signatoryRole || 'School Principal',
       includeSeal: row.metadata?.includeSeal ?? true,
       status: row.status === 'published' ? 'Issued' : 'Draft',
@@ -73,7 +71,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const cleanRef = refNo.replace(/[\/\\]/g, '_');
 
     const { data: doc, error } = await sb
@@ -102,7 +100,7 @@ export async function POST(request: NextRequest) {
               month: 'long',
               year: 'numeric',
             }),
-          issuedBy: issuedBy || 'Mr Seyi Bankole',
+          issuedBy: issuedBy || (await getPrincipalName(sb)),
           signatoryRole: signatoryRole || 'School Principal',
           includeSeal: includeSeal ?? true,
         },
@@ -163,7 +161,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Letter ID is required' }, { status: 400 });
     }
 
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
     const { error } = await sb.from('documents').delete().eq('id', id);
 
     if (error) throw error;

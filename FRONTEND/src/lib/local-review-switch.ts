@@ -43,13 +43,25 @@ async function findAccount(role: DemoRole): Promise<{ userId: string; email: str
   if (staffRole) {
     const { data } = await admin
       .from('staff_profiles')
-      .select('user_id')
+      .select('id, user_id, email')
       .eq('role', staffRole)
       .eq('is_active', true)
-      .not('user_id', 'is', null)
-      .order('created_at', { ascending: true })
-      .limit(1);
-    userId = data?.[0]?.user_id ?? null;
+      .order('created_at', { ascending: true });
+    for (const row of data || []) {
+      // The staff row's link can be stale; the sign-in account is found by id first, then by email
+      if (row.user_id) {
+        const byId = await admin.auth.admin.getUserById(row.user_id);
+        if (byId.data?.user?.email) return { userId: row.user_id, email: byId.data.user.email };
+      }
+      if (!row.email) continue;
+      const { data: list } = await admin.auth.admin.listUsers({ perPage: 1000 });
+      const match = list?.users?.find((u) => u.email?.toLowerCase() === String(row.email).toLowerCase());
+      if (match?.email) {
+        await admin.from('staff_profiles').update({ user_id: match.id }).eq('id', row.id);
+        return { userId: match.id, email: match.email };
+      }
+    }
+    return null;
   } else if (role === 'parent') {
     const { data } = await admin
       .from('guardians')

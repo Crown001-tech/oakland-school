@@ -133,9 +133,9 @@ export default function BursarProfilePage() {
           const p = data.profile;
           const staff: StaffProfile = {
             id: p.id || '',
-            employeeId: p.employeeId || 'OAK-BUR-001',
+            employeeId: p.employeeId || '—',
             name: p.name || 'Mrs Folake Esther',
-            email: p.email || 'folakeesther6@gmail.com',
+            email: p.email || '',
             phone: p.phone || '',
             role: 'Bursar',
             department: p.department || 'Bursary',

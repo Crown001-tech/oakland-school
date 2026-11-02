@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/server';
+import { getSchoolDb } from '@/lib/school-db';
+
 
 export async function POST(
   req: NextRequest,
@@ -16,7 +17,7 @@ export async function POST(
       );
     }
 
-    const admin = createAdminClient();
+    const admin = await getSchoolDb();
     const body = await req.json().catch(() => ({}));
     const { notes } = body;
 

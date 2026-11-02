@@ -18,6 +18,7 @@ import {
   UserCheck,
   Sparkles,
 } from 'lucide-react';
+import { SchoolName } from '@/components/common/SchoolName';
 
 function ActivateStudentForm() {
   const searchParams = useSearchParams();
@@ -110,7 +111,7 @@ function ActivateStudentForm() {
         </div>
         <div>
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-slate-900 font-serif">
-            Oakland International School
+            <SchoolName />
           </h1>
           <p className="text-xs text-slate-500 font-medium mt-1">
             Student Account Activation

@@ -1,4 +1,5 @@
 'use client';
+import { useSchoolProfile } from '@/lib/use-school-profile';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -37,9 +38,9 @@ import {
 import { BulkImportModal } from '@/components/common/BulkImportModal';
 import { EditStaffModal } from '@/components/common/EditStaffModal';
 import {
-  getRegisteredCurriculumSubjectNames,
   filterValidCurriculumSubjects,
 } from '@/lib/curriculum-data';
+import { useSubjectNames } from '@/lib/use-subject-names';
 
 interface ExecutiveData {
   id?: string;
@@ -68,6 +69,8 @@ interface StaffSummary {
 }
 
 export default function ProprietorStaffManagementPage() {
+  const school = useSchoolProfile();
+  const registeredSubjects = useSubjectNames();
   const [principal, setPrincipal] = useState<ExecutiveData | null>(null);
   const [bursar, setBursar] = useState<ExecutiveData | null>(null);
   const [staffList, setStaffList] = useState<StaffSummary[]>([]);
@@ -150,7 +153,7 @@ export default function ProprietorStaffManagementPage() {
   };
 
   const handleBulkImportComplete = async (importedRows: any[]) => {
-    const registeredSubs = getRegisteredCurriculumSubjectNames();
+    const registeredSubs = registeredSubjects;
     const newStaff: StaffSummary[] = importedRows.map((r, i) => {
       let rawSubs: string[] = [];
       if (Array.isArray(r.subjects) && r.subjects.length > 0) {
@@ -172,17 +175,17 @@ export default function ProprietorStaffManagementPage() {
         resolvedAssignedClasses = [r.assignedClass];
       }
 
-      let resolvedHomeroom = role === 'Class Teacher' ? (r.assignedClass || resolvedAssignedClasses[0] || 'JSS 1') : undefined;
+      let resolvedHomeroom = role === 'Class Teacher' ? (r.assignedClass || resolvedAssignedClasses[0]) : undefined;
       if (role === 'Class Teacher' && resolvedHomeroom && !resolvedAssignedClasses.includes(resolvedHomeroom)) {
         resolvedAssignedClasses = [resolvedHomeroom, ...resolvedAssignedClasses];
       }
 
       return {
         id: r.id || `stf-bulk-${Date.now()}-${i}`,
-        employeeId: r.employeeId || `OAK/STF/${Math.floor(100 + Math.random() * 900)}`,
+        employeeId: r.employeeId,
         name: r.name,
         email: r.email,
-        phone: r.phone || '—',
+        phone: r.phone || '',
         role,
         assignedClass: resolvedHomeroom,
         assignedClasses: role === 'Non-Teaching Staff' ? [] : resolvedAssignedClasses,
@@ -255,7 +258,7 @@ export default function ProprietorStaffManagementPage() {
       : customPassword.trim() || `Oak-${Math.floor(100000 + Math.random() * 900000)}`;
 
     const isPrincipal = appointRole === 'principal';
-    const employeeId = isPrincipal ? 'OAK-ADM-001' : 'OAK-BUR-001';
+    const employeeId = isPrincipal ? `${school.idPrefix}-ADM-001` : `${school.idPrefix}-BUR-001`;
     const roleTitle = isPrincipal ? 'School Principal' : 'School Bursar';
 
     const appointedExec: ExecutiveData = {
@@ -402,7 +405,7 @@ export default function ProprietorStaffManagementPage() {
   const copyCredentialsSlip = () => {
     if (!successSlip) return;
     const text = `=========================================
-OAKLAND INTERNATIONAL SCHOOL
+${school.name.toUpperCase()}
 OFFICIAL STAFF CREDENTIALS SLIP
 =========================================
 Role: ${successSlip.roleTitle}
@@ -906,7 +909,7 @@ Issued by the Office of the Proprietor.`;
                 </label>
                 <Input
                   required
-                  placeholder={appointRole === 'principal' ? 'e.g. Mr. Seyi Bankole' : 'e.g. Mrs. Folake Bidemi'}
+                  placeholder={appointRole === 'principal' ? 'Full name' : 'Full name'}
                   value={execName}
                   onChange={(e) => setExecName(e.target.value)}
                   className="text-xs"
@@ -920,7 +923,7 @@ Issued by the Office of the Proprietor.`;
                 <Input
                   required
                   type="email"
-                  placeholder={appointRole === 'principal' ? 'principal@oaklandschools.edu' : 'bursar@oaklandschools.edu'}
+                  placeholder={appointRole === 'principal' ? 'Email address' : 'Email address'}
                   value={execEmail}
                   onChange={(e) => setExecEmail(e.target.value)}
                   className="text-xs"
@@ -1036,7 +1039,7 @@ Issued by the Office of the Proprietor.`;
             {/* Official Credentials Slip Box */}
             <div className="p-4 rounded-xl bg-slate-900 text-slate-100 font-mono text-xs space-y-2 relative shadow-inner">
               <div className="flex items-center justify-between pb-2 border-b border-slate-800 text-[10px] text-slate-400 font-sans uppercase tracking-wider font-bold">
-                <span>Oakland Official Appointment</span>
+                <span>Official Appointment</span>
                 <span className="text-teal-400">Official Record</span>
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs">

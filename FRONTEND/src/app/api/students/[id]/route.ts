@@ -1,9 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
+import { getSchoolDb } from '@/lib/school-db';
 
-function getAdminClient() {
-  return getSupabaseAdmin();
-}
 
 export async function GET(
   request: NextRequest,
@@ -11,7 +8,7 @@ export async function GET(
 ) {
   try {
     const { id } = await context.params;
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     // 1. Fetch Student Record
     let query = sb.from('students').select('*');
@@ -183,7 +180,7 @@ export async function PATCH(
   try {
     const { id } = await context.params;
     const body = await request.json();
-    const sb = getAdminClient();
+    const sb = await getSchoolDb();
 
     // If updating guardian pickup PIN
     if (body.guardianLinkId && body.pickupPin) {

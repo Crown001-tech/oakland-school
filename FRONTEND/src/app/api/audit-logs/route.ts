@@ -1,12 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { getSupabaseAdmin } from '@/lib/supabase/admin';
 import { getCaller, formatRoleLabel } from '@/lib/caller';
+import { getSchoolDb } from '@/lib/school-db';
 
-const DEFAULT_SCHOOL_ID = 'a0000000-0000-0000-0000-000000000001';
 
 export async function GET() {
   try {
-    const sb = getSupabaseAdmin();
+    const sb = await getSchoolDb();
 
     const { data: logs, error } = await sb
       .from('audit_logs')
@@ -82,14 +81,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, message: 'Action required' }, { status: 400 });
     }
 
-    const sb = getSupabaseAdmin();
+    const sb = await getSchoolDb();
     const resolvedRole = actor_role || formatRoleLabel(caller.role);
     const resolvedName = actor_name || caller.email || resolvedRole;
 
     const { data: newLog, error } = await sb
       .from('audit_logs')
       .insert({
-        school_id: DEFAULT_SCHOOL_ID,
+        school_id: sb.schoolId,
         actor_id: caller.userId,
         actor_name: resolvedName,
         actor_role: resolvedRole,

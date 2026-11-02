@@ -3,8 +3,11 @@ import Link from 'next/link';
 import { Logo } from '@/components/brand/Logo';
 import { PublicNavbar } from '@/components/brand/PublicNavbar';
 import { PublicFooter } from '@/components/brand/PublicFooter';
+import { getHostSchoolPublic } from '@/lib/school-brand';
 
-export default function PublicLayout({ children }: { children: React.ReactNode }) {
+export default async function PublicLayout({ children }: { children: React.ReactNode }) {
+  const school = await getHostSchoolPublic();
+  const showLongPages = school?.publicSite === 'full';
   return (
     <div className="ok-public-root" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f5f2ed', overflowX: 'hidden' }}>
       <style>{`
@@ -461,13 +464,13 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       </div>
 
       {/* ── Responsive Navigation Bar ── */}
-      <PublicNavbar />
+      <PublicNavbar showLongPages={showLongPages} />
 
       {/* ── Content ── */}
       <main style={{ flex: 1 }}>{children}</main>
 
       {/* ── Dynamic Footer ── */}
-      <PublicFooter />
+      <PublicFooter showLongPages={showLongPages} />
     </div>
   );
 }

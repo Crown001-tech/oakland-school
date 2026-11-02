@@ -27,6 +27,7 @@ import {
   AlertCircle,
   RefreshCw,
 } from 'lucide-react';
+import { SchoolName, PrincipalName } from '@/components/common/SchoolName';
 
 type TabType = 'overview' | 'academics' | 'attendance' | 'guardians' | 'tuition';
 
@@ -590,7 +591,7 @@ export default function AdminStudentProfilePage() {
         <div className="flex items-center justify-between pb-4 border-b-2 border-slate-900">
           <div>
             <h1 className="text-2xl font-black tracking-tight text-slate-950 uppercase">
-              Oakland International School
+              <SchoolName />
             </h1>
             <p className="text-xs italic text-slate-600">Knowledge, Integrity and Excellence &bull; Academic Session 2026/2027</p>
             <p className="text-[10px] text-slate-500 mt-1">Official Student Record</p>
@@ -650,7 +651,7 @@ export default function AdminStudentProfilePage() {
             <p className="text-[10px] text-slate-500">Signature and Stamp</p>
           </div>
           <div className="text-center text-[10px] text-slate-400">
-            Certified Oakland School Record &bull; Printed: {new Date().toLocaleDateString('en-GB')}
+            Certified <SchoolName /> Record &bull; Printed: {new Date().toLocaleDateString('en-GB')}
           </div>
           <div className="border-t border-slate-800 pt-1 text-center w-48">
             <p className="font-bold">Guidance Officer</p>

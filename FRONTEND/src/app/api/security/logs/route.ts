@@ -1,9 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/server';
+import { getSchoolDb } from '@/lib/school-db';
+
 
 export async function GET(req: NextRequest) {
   try {
-    const admin = createAdminClient();
+    const admin = await getSchoolDb();
     const { searchParams } = new URL(req.url);
     const category = searchParams.get('category') || 'all';
     const search = searchParams.get('search')?.trim().toLowerCase() || '';
@@ -235,7 +236,7 @@ export async function GET(req: NextRequest) {
       }).join('\n');
 
       const csvContent = csvHeader + csvRows;
-      const filename = `oakland_security_logs_${new Date().toISOString().slice(0, 10)}.csv`;
+      const filename = `security_logs_${new Date().toISOString().slice(0, 10)}.csv`;
 
       return new NextResponse(csvContent, {
         headers: {

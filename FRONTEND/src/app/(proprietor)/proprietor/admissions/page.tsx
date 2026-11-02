@@ -1,4 +1,5 @@
 'use client';
+import { useClassNames } from '@/lib/use-class-names';
 
 import React, { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
@@ -43,7 +44,8 @@ export default function ProprietorAdmissionsPage() {
   const [loading, setLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const classes = ['All', 'JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'];
+  const schoolClasses = useClassNames();
+  const classes = ['All', ...schoolClasses];
   const statuses = ['All', 'Pending Review', 'Accepted', 'Declined'];
 
   const showToast = (msg: string) => {

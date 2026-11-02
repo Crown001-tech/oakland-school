@@ -20,6 +20,7 @@ import {
   Building,
 } from 'lucide-react';
 import { BrandLoader } from '@/components/ui/BrandLoader';
+import { SchoolName } from '@/components/common/SchoolName';
 
 interface StudentMovement {
   id: string;
@@ -776,7 +777,7 @@ export default function SecurityMovementPage() {
             <div className="border-2 border-dashed border-amber-500/40 rounded-xl p-4 bg-amber-50/20 space-y-3 text-center">
               <div>
                 <p className="text-[10px] font-bold text-brand-accent uppercase tracking-widest">
-                  Oakland International School
+                  <SchoolName />
                 </p>
                 <p className="text-xs font-semibold text-slate-700">Official Student Gate Pass</p>
               </div>

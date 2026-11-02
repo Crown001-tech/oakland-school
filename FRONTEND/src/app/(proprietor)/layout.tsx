@@ -28,6 +28,8 @@ import {
   Clock,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { isModuleEnabled, moduleForPath } from '@/lib/modules';
+import { useModules } from '@/lib/use-modules';
 
 interface NavItem {
   label: string;
@@ -86,11 +88,13 @@ const NAV_GROUPS: NavGroup[] = [
       { label: 'School Profile', href: '/proprietor/profile', icon: Building2 },
       { label: 'My Profile', href: '/proprietor/my-profile', icon: Shield },
       { label: 'Settings', href: '/proprietor/settings', icon: Settings },
+      { label: 'Custom Requests', href: '/proprietor/requests', icon: FolderArchive },
     ],
   },
 ];
 
 export default function ProprietorLayout({ children }: { children: React.ReactNode }) {
+  const modules = useModules();
   const pathname = usePathname();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
@@ -194,7 +198,7 @@ export default function ProprietorLayout({ children }: { children: React.ReactNo
               <p className="px-3 text-[10px] font-bold text-slate-500 tracking-widest uppercase mb-1">
                 {group.category}
               </p>
-              {group.items.map((item) => {
+              {group.items.filter((item) => isModuleEnabled(modules, moduleForPath(item.href))).map((item) => {
                 const Icon = item.icon;
                 const active = pathname === item.href;
                 const badgeInfo = navBadges[item.href];

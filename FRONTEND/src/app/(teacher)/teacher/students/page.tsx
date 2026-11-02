@@ -110,7 +110,7 @@ export default function ClassStudentsPage() {
               const birthYear = s.dob && s.dob !== '—' ? new Date(s.dob).getFullYear() : null;
               const currentYear = new Date().getFullYear();
               const computedAge = birthYear && !isNaN(birthYear) ? `${currentYear - birthYear} yrs` : '—';
-              const adm = s.admissionNo || `OAK-${idx + 1}`;
+              const adm = s.admissionNo || '—';
 
               return {
                 id: s.id || `std-${idx}`,

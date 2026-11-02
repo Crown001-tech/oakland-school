@@ -1,4 +1,5 @@
 'use client';
+import { useClassNames } from '@/lib/use-class-names';
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
@@ -15,11 +16,10 @@ import {
   Building,
 } from 'lucide-react';
 import {
-  getRegisteredCurriculumSubjectNames,
   filterValidCurriculumSubjects,
 } from '@/lib/curriculum-data';
+import { useSubjectNames } from '@/lib/use-subject-names';
 
-const CLASSES = ['JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'];
 
 interface TeachingAssignment {
   subject: string;
@@ -53,9 +53,11 @@ export function EditStaffModal({
   staff,
   onSuccess,
 }: EditStaffModalProps) {
+  const registeredSubjects = useSubjectNames();
+  const CLASSES = useClassNames();
   const [role, setRole] = useState<'Class Teacher' | 'Subject Teacher' | 'Non-Teaching Staff'>('Subject Teacher');
   const [homeroom, setHomeroom] = useState<string>('');
-  const [department, setDepartment] = useState('Academics');
+  const [department, setDepartment] = useState('');
   const [phone, setPhone] = useState('');
   const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
   const [assignments, setAssignments] = useState<TeachingAssignment[]>([]);
@@ -63,7 +65,7 @@ export function EditStaffModal({
   const [isSaving, setIsSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const curriculumSubjects = getRegisteredCurriculumSubjectNames();
+  const curriculumSubjects = registeredSubjects;
 
   // Populate state when staff changes or modal opens
   useEffect(() => {

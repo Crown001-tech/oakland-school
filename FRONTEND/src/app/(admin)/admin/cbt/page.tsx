@@ -384,7 +384,7 @@ export default function AdminCbtOversightPage() {
                 <span>Active Anti-Cheat Proctoring Protocol</span>
               </div>
               <p className="text-slate-600 leading-relaxed text-[11px]">
-                The Oakland School CBT engine continuously monitors student test environments for security events:
+                The CBT engine continuously monitors student test environments for security events:
                 browser tab switches, window blur events, full screen exits, and unauthorized paste commands.
                 Excessive security flags result in automated assessment termination.
               </p>

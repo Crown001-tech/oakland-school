@@ -83,22 +83,13 @@ export default function ParentDashboard() {
   // Derive child tuition details from finances
   const childTuition = React.useMemo(() => {
     if (!finances || !activeChild) return { tuition: 0, paid: 0, balance: 0 };
-    const settings = finances.settings || {};
-    const clsName = activeChild.currentClass || '';
-    let fee = Number(settings.tuitionJSS ?? 0);
-    if (clsName.includes('SS 1') || clsName.includes('SS 2')) {
-      fee = Number(settings.tuitionSS12 ?? 0);
-    } else if (clsName.includes('SS 3')) {
-      fee = Number(settings.tuitionSS3 ?? 0);
-    }
-
-    // Check student transactions
-    const studentTransactions = finances.allStudents?.find(
-      (s: any) => s.id === activeChild.id || s.admissionNumber === activeChild.admissionNumber
+    // The server bills each child by the school's own rule, so the amounts come straight from its ledger
+    const ledger = (finances.studentLedger || []).find(
+      (s: any) => s.id === activeChild.id || (activeChild.admissionNumber && s.admissionNo === activeChild.admissionNumber)
     );
-
-    const paid = studentTransactions?.amountPaid ?? 0;
-    const balance = Math.max(0, fee - paid);
+    const fee = Number(ledger?.totalBilled ?? 0);
+    const paid = Number(ledger?.amountPaid ?? 0);
+    const balance = ledger?.balance !== undefined ? Number(ledger.balance) : Math.max(0, fee - paid);
 
     return { tuition: fee, paid, balance };
   }, [finances, activeChild]);

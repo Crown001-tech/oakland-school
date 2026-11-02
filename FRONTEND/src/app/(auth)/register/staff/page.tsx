@@ -184,7 +184,7 @@ export default function StaffRegistrationPage() {
                 Staff Registration
               </CardTitle>
               <CardDescription className="text-xs text-slate-500 mt-1">
-                Apply for academic or administrative appointment at Oakland Schools.
+                Apply for academic or administrative appointment at the school.
               </CardDescription>
             </div>
             <Badge variant="crimson" size="sm">
@@ -291,7 +291,7 @@ export default function StaffRegistrationPage() {
                   label="Official Email"
                   type="email"
                   required
-                  placeholder="e.g. david.ade@oaklandschools.edu"
+                  placeholder="name@example.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   leftIcon={<Mail className="w-4 h-4" />}

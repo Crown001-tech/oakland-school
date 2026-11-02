@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { ROLE_COOKIE, roleCookieOptions, signRoleCookie } from '@/lib/auth-role';
+import { studentAuthEmail } from '@/lib/school-config';
 import { checkAuthRateLimit, extractClientIp, recordAuthAttempt } from '@/lib/rate-limit';
+import { getSchoolDb } from '@/lib/school-db';
 
 export async function POST(request: Request) {
   try {
@@ -44,7 +46,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const adminClient = createAdminClient();
+    // Activation is for the school of the address the student came in on
+    const adminClient = await getSchoolDb({ allowVisitor: true });
 
     // Query student by activation token
     let query = adminClient
@@ -67,6 +70,7 @@ export async function POST(request: Request) {
         success: false,
         targetLabel: cleanAdm || cleanToken,
         ipAddress: clientIp,
+        schoolId: adminClient.schoolId,
       });
 
       if (attempt.locked) {
@@ -110,10 +114,11 @@ export async function POST(request: Request) {
       success: true,
       targetLabel: student.admission_number,
       ipAddress: clientIp,
+      schoolId: adminClient.schoolId,
     });
 
     // Standard student email format
-    const studentEmail = `${student.admission_number.toLowerCase()}@student.oakland.ng`;
+    const studentEmail = studentAuthEmail(student.admission_number, adminClient.studentEmailDomain);
     const fullName = `${student.first_name} ${student.last_name}`;
 
     // Manage Supabase Auth user

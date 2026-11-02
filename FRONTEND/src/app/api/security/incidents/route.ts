@@ -1,9 +1,11 @@
+import { getPrincipalName } from '@/lib/school-people';
 import { NextResponse, type NextRequest } from 'next/server';
-import { createAdminClient } from '@/lib/supabase/server';
+import { getSchoolDb } from '@/lib/school-db';
+
 
 export async function GET(req: NextRequest) {
   try {
-    const admin = createAdminClient();
+    const admin = await getSchoolDb();
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status');
     const severity = searchParams.get('severity');
@@ -104,7 +106,7 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const admin = createAdminClient();
+    const admin = await getSchoolDb();
     const body = await req.json();
 
     const {
@@ -117,7 +119,7 @@ export async function POST(req: NextRequest) {
       involvedParties = '',
       actionTaken = '',
       escalateImmediately = false,
-      escalatedTo = 'Principal - Mr Seyi Bankole',
+      escalatedTo,
     } = body;
 
     if (!title?.trim() || !description?.trim() || !location?.trim()) {
@@ -151,7 +153,7 @@ export async function POST(req: NextRequest) {
 
     // Generate Incident Number: OAK-INC-XXXX
     const randomPin = Math.floor(1000 + Math.random() * 9000);
-    const incidentNumber = `OAK-INC-${randomPin}`;
+    const incidentNumber = `${admin.idPrefix}-INC-${randomPin}`;
 
     const { data, error } = await admin
       .from('security_incidents')
@@ -166,7 +168,7 @@ export async function POST(req: NextRequest) {
         involved_parties: involvedParties?.trim() || null,
         action_taken: actionTaken?.trim() || null,
         status: initialStatus,
-        escalated_to: escalateImmediately ? (escalatedTo?.trim() || 'Principal - Mr Seyi Bankole') : null,
+        escalated_to: escalateImmediately ? (escalatedTo?.trim() || `Principal - ${await getPrincipalName(admin)}`) : null,
         incident_time: new Date().toISOString(),
       })
       .select()
@@ -184,11 +186,11 @@ export async function POST(req: NextRequest) {
           .eq('role', 'admin')
           .maybeSingle();
 
-        const principalEmail = principal?.email || 'seyibankole@gmail.com';
-        const principalName = principal ? `${principal.first_name} ${principal.last_name}` : 'Mr Seyi Bankole';
+        const principalEmail = principal?.email;
+        const principalName = principal ? `${principal.first_name} ${principal.last_name}`.trim() : 'the Principal';
 
-        await admin.from('notifications').insert({
-          school_id: 'a0000000-0000-0000-0000-000000000001',
+        if (principalEmail) await admin.from('notifications').insert({
+          school_id: admin.schoolId,
           recipient_email: principalEmail.toLowerCase(),
           recipient_name: principalName,
           subject: `🚨 Security Incident: [${validSeverity.toUpperCase()}] ${title.trim()} (${incidentNumber})`,

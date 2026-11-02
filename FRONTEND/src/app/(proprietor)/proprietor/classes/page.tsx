@@ -19,11 +19,15 @@ import {
 } from 'lucide-react';
 import { normalizeClass, getClassTeacherMap } from '@/lib/class-utils';
 import { BrandLoader } from '@/components/ui/BrandLoader';
+import { BulkImportModal } from '@/components/common/BulkImportModal';
+import { ARM_SUGGESTIONS, LEVEL_LADDER, buildClassName, splitClassName } from '@/lib/class-levels';
+import { tuitionGroup } from '@/lib/tuition';
 
 interface ClassData {
   id: string;
-  name: 'JSS 1' | 'JSS 2' | 'JSS 3' | 'SS 1' | 'SS 2' | 'SS 3';
+  name: string;
   level: string;
+  levelName: string;
   enrolled: number;
   capacity: number;
   classTeacher: string;
@@ -32,83 +36,27 @@ interface ClassData {
   attendanceToday: string;
 }
 
-const BASE_CLASSES: ClassData[] = [
-  {
-    id: 'cls-1',
-    name: 'JSS 1',
-    level: 'Junior Secondary 1',
-    enrolled: 0,
-    capacity: 0,
-    classTeacher: 'Unassigned',
-    classTeacherId: '—',
-    subjectsCount: 0,
-    attendanceToday: '—',
-  },
-  {
-    id: 'cls-2',
-    name: 'JSS 2',
-    level: 'Junior Secondary 2',
-    enrolled: 0,
-    capacity: 0,
-    classTeacher: 'Unassigned',
-    classTeacherId: '—',
-    subjectsCount: 0,
-    attendanceToday: '—',
-  },
-  {
-    id: 'cls-3',
-    name: 'JSS 3',
-    level: 'Junior Secondary 3',
-    enrolled: 0,
-    capacity: 0,
-    classTeacher: 'Unassigned',
-    classTeacherId: '—',
-    subjectsCount: 0,
-    attendanceToday: '—',
-  },
-  {
-    id: 'cls-4',
-    name: 'SS 1',
-    level: 'Senior Secondary 1',
-    enrolled: 0,
-    capacity: 0,
-    classTeacher: 'Unassigned',
-    classTeacherId: '—',
-    subjectsCount: 0,
-    attendanceToday: '—',
-  },
-  {
-    id: 'cls-5',
-    name: 'SS 2',
-    level: 'Senior Secondary 2',
-    enrolled: 0,
-    capacity: 0,
-    classTeacher: 'Unassigned',
-    classTeacherId: '—',
-    subjectsCount: 0,
-    attendanceToday: '—',
-  },
-  {
-    id: 'cls-6',
-    name: 'SS 3',
-    level: 'Senior Secondary 3',
-    enrolled: 0,
-    capacity: 0,
-    classTeacher: 'Unassigned',
-    classTeacherId: '—',
-    subjectsCount: 0,
-    attendanceToday: '—',
-  },
-];
-
 export default function ProprietorClassesPage() {
-  const [classesList, setClassesList] = useState<ClassData[]>(BASE_CLASSES);
+  const [classesList, setClassesList] = useState<ClassData[]>([]);
   const [teachers, setTeachers] = useState<any[]>([]);
   const [assigningClass, setAssigningClass] = useState<ClassData | null>(null);
   const [selectedTeacherId, setSelectedTeacherId] = useState<string>('');
   const [isSavingTeacher, setIsSavingTeacher] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showImport, setShowImport] = useState(false);
+  const [showAdd, setShowAdd] = useState(false);
+  const OTHER = '__other';
+  const [freeMode, setFreeMode] = useState(false);
+  const [newFullName, setNewFullName] = useState('');
+  const [newLevel, setNewLevel] = useState('');
+  const [newLevelText, setNewLevelText] = useState('');
+  const [newArm, setNewArm] = useState('');
+  const [newArmText, setNewArmText] = useState('');
+  const [newCapacity, setNewCapacity] = useState('');
+  const [newTuition, setNewTuition] = useState('');
+  const [addError, setAddError] = useState('');
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -138,33 +86,23 @@ export default function ProprietorClassesPage() {
           }
 
           setClassesList(
-            BASE_CLASSES.map((c) => {
-              const dbMatch = dbClasses.find((dbC: any) => dbC.name === c.name);
-              const enrolledCount = dbStudents.filter((s: any) => normalizeClass(s.class) === c.name).length;
-              const teacherName = dbMatch?.classTeacher && dbMatch.classTeacher !== 'Unassigned'
-                ? dbMatch.classTeacher
-                : 'Unassigned';
-
-              const attMatch = liveAttClasses.find((a: any) => a.class === c.name);
+            dbClasses.map((dbMatch: any): ClassData => {
+              const enrolledCount = dbStudents.filter((st: any) => normalizeClass(st.class) === dbMatch.name).length;
+              const attMatch = liveAttClasses.find((a: any) => a.class === dbMatch.name);
               const attToday = attMatch && attMatch.attendanceRate !== null && attMatch.attendanceRate !== undefined
                 ? `${attMatch.attendanceRate}%`
                 : '—';
 
-              const classSubjectsCount = dbSubjects.filter((s: any) => {
-                if (c.name.startsWith('JSS')) {
-                  return !s.category || s.category === 'Junior' || s.category === 'All' || s.category === 'General';
-                }
-                return !s.category || s.category === 'Senior' || s.category === 'All' || s.category === 'General';
-              }).length;
-
               return {
-                ...c,
-                id: dbMatch?.id || c.id,
-                capacity: dbMatch?.capacity || defaultCapacity,
+                id: dbMatch.id,
+                name: dbMatch.name,
+                level: dbMatch.arm ? dbMatch.level : typeof dbMatch.gradeLevel === 'number' ? `Level ${dbMatch.gradeLevel}` : '',
+                levelName: dbMatch.level || dbMatch.name,
+                capacity: dbMatch.capacity || defaultCapacity,
                 enrolled: enrolledCount,
-                classTeacher: teacherName,
-                classTeacherId: dbMatch?.teacherId ? dbMatch.teacherId.slice(0, 8) : '—',
-                subjectsCount: classSubjectsCount,
+                classTeacher: dbMatch.classTeacher && dbMatch.classTeacher !== 'Unassigned' ? dbMatch.classTeacher : 'Unassigned',
+                classTeacherId: dbMatch.teacherId ? dbMatch.teacherId.slice(0, 8) : '—',
+                subjectsCount: dbSubjects.length,
                 attendanceToday: attToday,
               };
             })
@@ -179,7 +117,7 @@ export default function ProprietorClassesPage() {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [reloadKey]);
 
   useEffect(() => {
     if (!assigningClass) return;
@@ -238,6 +176,79 @@ export default function ProprietorClassesPage() {
   const totalEnrolled = classesList.reduce((acc, c) => acc + c.enrolled, 0);
   const totalCapacity = classesList.reduce((acc, c) => acc + c.capacity, 0);
 
+  const handleImportClasses = async (rows: { name: string; capacity?: number }[]) => {
+    try {
+      const res = await fetch('/api/classes/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ classes: rows }),
+      });
+      const json = await res.json();
+      if (json.success) {
+        setToastMsg(`Added ${json.count} ${json.count === 1 ? 'class' : 'classes'}`);
+        setTimeout(() => setToastMsg(null), 4000);
+        setReloadKey((k) => k + 1);
+      } else {
+        alert(json.message || 'Failed to add classes');
+      }
+    } catch {
+      alert('Network error adding classes');
+    }
+  };
+
+  // The levels offered: the school's own first, then the usual ones it does not have yet
+  const schoolLevels = Array.from(new Set(classesList.map((c) => c.levelName)));
+  const levelOptions = [...schoolLevels, ...LEVEL_LADDER.filter((l) => !schoolLevels.some((x) => x.toLowerCase() === l.toLowerCase()))];
+
+  const chosenLevel = newLevel === OTHER ? newLevelText.trim() : newLevel;
+  const chosenArm = newArm === OTHER ? newArmText.trim() : newArm;
+  const previewName = freeMode ? newFullName.trim() : chosenLevel ? buildClassName(chosenLevel, chosenArm) : '';
+  const feeLevel = freeMode ? splitClassName(newFullName).level : chosenLevel;
+  const showTuition = Boolean(feeLevel) && tuitionGroup(feeLevel) === null;
+
+  const resetAddForm = () => {
+    setFreeMode(false);
+    setNewFullName('');
+    setNewLevel('');
+    setNewLevelText('');
+    setNewArm('');
+    setNewArmText('');
+    setNewCapacity('');
+    setNewTuition('');
+    setAddError('');
+  };
+
+  const handleDeleteClass = async (cls: ClassData) => {
+    if (!window.confirm(`Delete ${cls.name}? Its timetable and teacher assignment are removed too. This cannot be undone.`)) return;
+    try {
+      const res = await fetch(`/api/classes?id=${encodeURIComponent(cls.id)}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (json.success) {
+        setToastMsg(json.message || `${cls.name} deleted`);
+        setTimeout(() => setToastMsg(null), 4000);
+        setReloadKey((k) => k + 1);
+      } else {
+        alert(json.message || 'Could not delete the class');
+      }
+    } catch {
+      alert('Network error deleting the class');
+    }
+  };
+
+  const handleAddClass = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!previewName) return setAddError(freeMode ? 'Enter the class name.' : 'Choose or type a level.');
+    if (classesList.some((c) => c.name.toLowerCase() === previewName.toLowerCase())) return setAddError(`${previewName} already exists.`);
+    const capacity = newCapacity.trim() ? Number(newCapacity) : undefined;
+    if (capacity !== undefined && (!Number.isInteger(capacity) || capacity < 1)) return setAddError('Capacity must be a whole number above 0.');
+    const tuition = showTuition && newTuition.trim() ? Number(newTuition.replace(/,/g, '')) : undefined;
+    if (tuition !== undefined && (!Number.isFinite(tuition) || tuition <= 0)) return setAddError('Tuition must be an amount above 0.');
+    setAddError('');
+    await handleImportClasses([freeMode ? { name: previewName, capacity, tuition } : { level: chosenLevel, arm: chosenArm, capacity, tuition }] as any);
+    setShowAdd(false);
+    resetAddForm();
+  };
+
   if (loading) {
     return <BrandLoader size="lg" />;
   }
@@ -251,7 +262,7 @@ export default function ProprietorClassesPage() {
             Classes
           </h1>
           <p className="text-xs text-slate-500 mt-1">
-            Institutional overview of the 6 classes (JSS 1 to SS 3), student capacity, and appointed Class Teachers.
+            {classesList.length} {classesList.length === 1 ? 'class' : 'classes'} with student capacity and appointed Class Teachers.
           </p>
         </div>
 
@@ -259,6 +270,12 @@ export default function ProprietorClassesPage() {
           <Badge variant="teal" size="sm">
             Enrolled: {totalEnrolled} of {totalCapacity} Capacity
           </Badge>
+          <Button size="sm" onClick={() => setShowAdd(true)} className="min-h-[44px] sm:min-h-0">
+            Add Class
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => setShowImport(true)} className="min-h-[44px] sm:min-h-0">
+            Import Classes
+          </Button>
           <Link href="/proprietor/timetable">
             <Button size="sm" variant="outline">
               Class Timetables
@@ -275,7 +292,13 @@ export default function ProprietorClassesPage() {
         </div>
       )}
 
-      {/* Class Cards Grid (The 6 Classes) */}
+      {/* Class Cards Grid */}
+      {classesList.length === 0 && (
+        <Card className="p-8 text-center border-slate-200">
+          <p className="text-sm font-semibold text-slate-800">No classes yet</p>
+          <p className="text-xs text-slate-500 mt-1">Use Import Classes to add this school's classes.</p>
+        </Card>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {classesList.map((cls) => {
           const pct = Math.round((cls.enrolled / (cls.capacity || 1)) * 100);
@@ -366,6 +389,18 @@ export default function ProprietorClassesPage() {
                   </Button>
                 </div>
               </div>
+
+              {cls.enrolled === 0 && (
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteClass(cls)}
+                    className="min-h-[44px] sm:min-h-0 px-2 text-[11px] font-semibold text-rose-700 hover:underline cursor-pointer"
+                  >
+                    Delete class
+                  </button>
+                </div>
+              )}
 
               {/* Action Buttons */}
               <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
@@ -461,6 +496,80 @@ export default function ProprietorClassesPage() {
           </div>
         </div>
       )}
+      {showAdd && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 overflow-y-auto" onClick={() => setShowAdd(false)}>
+          <form onSubmit={handleAddClass} onClick={(e) => e.stopPropagation()} className="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full p-6 space-y-4 my-8">
+            <div>
+              <h2 className="text-lg font-bold text-slate-900">Add Class</h2>
+              <p className="text-xs text-slate-500">A class is a level plus an arm, for example JSS 1 and Diamond. Every arm of a level pays the same tuition; the timetable, class teacher and capacity are set for each class.</p>
+            </div>
+
+            {!freeMode ? (
+              <>
+                <label className="block text-xs font-semibold text-slate-700">
+                  Level
+                  <select value={newLevel} onChange={(e) => setNewLevel(e.target.value)} className="mt-1 w-full min-h-[44px] px-3 border border-slate-300 rounded-lg text-sm font-normal bg-white">
+                    <option value="">Select a level</option>
+                    {levelOptions.map((l) => (
+                      <option key={l} value={l}>{l}</option>
+                    ))}
+                    <option value={OTHER}>Other (type your own)</option>
+                  </select>
+                </label>
+                {newLevel === OTHER && (
+                  <input value={newLevelText} onChange={(e) => setNewLevelText(e.target.value)} placeholder="Level name" aria-label="Level name" className="w-full min-h-[44px] px-3 border border-slate-300 rounded-lg text-sm" />
+                )}
+                <label className="block text-xs font-semibold text-slate-700">
+                  Arm (optional)
+                  <select value={newArm} onChange={(e) => setNewArm(e.target.value)} className="mt-1 w-full min-h-[44px] px-3 border border-slate-300 rounded-lg text-sm font-normal bg-white">
+                    <option value="">No arm</option>
+                    {ARM_SUGGESTIONS.map((a) => (
+                      <option key={a} value={a}>{a}</option>
+                    ))}
+                    <option value={OTHER}>Other (type your own)</option>
+                  </select>
+                </label>
+                {newArm === OTHER && (
+                  <input value={newArmText} onChange={(e) => setNewArmText(e.target.value)} placeholder="Arm name, for example Diamond" aria-label="Arm name" className="w-full min-h-[44px] px-3 border border-slate-300 rounded-lg text-sm" />
+                )}
+              </>
+            ) : (
+              <label className="block text-xs font-semibold text-slate-700">
+                Full class name
+                <input value={newFullName} onChange={(e) => setNewFullName(e.target.value)} className="mt-1 w-full min-h-[44px] px-3 border border-slate-300 rounded-lg text-sm font-normal bg-white" />
+              </label>
+            )}
+            <button type="button" onClick={() => setFreeMode((v) => !v)} className="text-xs font-semibold text-brand-primary underline min-h-[44px]">
+              {freeMode ? 'Choose a level and arm instead' : 'Type the full class name myself'}
+            </button>
+
+            {previewName && (
+              <p className="text-xs text-slate-600">
+                Will be added as <span className="font-bold text-slate-900">{previewName}</span>
+              </p>
+            )}
+
+            <label className="block text-xs font-semibold text-slate-700">
+              Capacity (optional)
+              <input inputMode="numeric" value={newCapacity} onChange={(e) => setNewCapacity(e.target.value)} className="mt-1 w-full min-h-[44px] px-3 border border-slate-300 rounded-lg text-sm font-normal bg-white" />
+              <span className="block text-[11px] font-normal text-slate-400 mt-1">Left empty, it takes the class capacity from School Settings.</span>
+            </label>
+            {showTuition && (
+              <label className="block text-xs font-semibold text-slate-700">
+                Tuition per term for {feeLevel} (optional)
+                <input inputMode="numeric" value={newTuition} onChange={(e) => setNewTuition(e.target.value)} className="mt-1 w-full min-h-[44px] px-3 border border-slate-300 rounded-lg text-sm font-normal bg-white" />
+                <span className="block text-[11px] font-normal text-slate-400 mt-1">Applies to every arm of {feeLevel}. Ignored if {feeLevel} already has a fee. JSS and SS levels use the rates in School Settings.</span>
+              </label>
+            )}
+            {addError && <p className="text-xs text-rose-700">{addError}</p>}
+            <div className="flex justify-end gap-2 pt-2">
+              <Button type="button" variant="outline" size="sm" onClick={() => { setShowAdd(false); resetAddForm(); }} className="min-h-[44px] sm:min-h-0">Cancel</Button>
+              <Button type="submit" size="sm" className="min-h-[44px] sm:min-h-0">Add Class</Button>
+            </div>
+          </form>
+        </div>
+      )}
+      <BulkImportModal isOpen={showImport} onClose={() => setShowImport(false)} importType="classes" onImportComplete={handleImportClasses} />
     </div>
   );
 }

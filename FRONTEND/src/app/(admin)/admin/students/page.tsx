@@ -1,4 +1,5 @@
 'use client';
+import { useClassNames } from '@/lib/use-class-names';
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -30,9 +31,9 @@ interface StudentRecord {
 
 const DEFAULT_STUDENTS: StudentRecord[] = [];
 
-const CLASSES = ['All', 'JSS 1', 'JSS 2', 'JSS 3', 'SS 1', 'SS 2', 'SS 3'];
-
 export default function AdminStudentsPage() {
+  const schoolClasses = useClassNames();
+  const CLASSES = ['All', ...schoolClasses];
   const [students, setStudents] = useState<StudentRecord[]>(DEFAULT_STUDENTS);
   const [selectedClass, setSelectedClass] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -63,10 +64,10 @@ export default function AdminStudentsPage() {
     const newStudents = importedRows.map((r) => ({
       admissionNo: r.admissionNo || undefined,
       fullName: r.fullName,
-      class: r.class || 'JSS 1',
-      gender: r.gender || 'Male',
-      guardianName: r.guardianName || 'Guardian',
-      guardianPhone: r.guardianPhone || '—',
+      class: r.class,
+      gender: r.gender,
+      guardianName: r.guardianName || undefined,
+      guardianPhone: r.guardianPhone || undefined,
     }));
 
     try {

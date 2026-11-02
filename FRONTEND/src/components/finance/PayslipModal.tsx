@@ -7,6 +7,7 @@ import { Logo } from '@/components/brand/Logo';
 import { PayrollRecord } from '@/types/finance';
 import { numberToNairaWords, formatNaira } from '@/lib/finance-data';
 import { Printer, X, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { SchoolContactLine, SchoolName, PrincipalName } from '@/components/common/SchoolName';
 
 interface PayslipModalProps {
   record: PayrollRecord | null;
@@ -80,10 +81,10 @@ export function PayslipModal({ record, onClose }: PayslipModalProps) {
               <Logo size="md" />
               <div>
                 <h1 className="text-lg sm:text-xl font-black text-slate-900 uppercase tracking-tight">
-                  Oakland Schools, Lagos
+                  <SchoolName />
                 </h1>
                 <p className="text-[11px] text-slate-500">
-                  14 Academic Crescent, Victoria Island, Lagos &bull; +234 800 625 5263
+                  <SchoolContactLine />
                 </p>
                 <p className="text-[10px] text-teal-800 font-semibold font-mono">
                   Bursary &bull; Salary Advice
@@ -241,7 +242,7 @@ export function PayslipModal({ record, onClose }: PayslipModalProps) {
                 Folake Esther
               </div>
               <p className="font-extrabold text-slate-900 mt-1">Mrs Folake Esther</p>
-              <p className="text-[10px] text-slate-500">Bursar &bull; OAK-BUR-001</p>
+              <p className="text-[10px] text-slate-500">Bursar</p>
             </div>
 
             <div className="text-right">
@@ -255,7 +256,7 @@ export function PayslipModal({ record, onClose }: PayslipModalProps) {
 
           {/* Footer Note */}
           <div className="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
-            <span>This is an official computer-generated payslip issued by Oakland Schools Bursary.</span>
+            <span>This is an official computer-generated payslip issued by the school bursary.</span>
             <span>Electronic Copy &bull; Confirmed</span>
           </div>
         </div>
