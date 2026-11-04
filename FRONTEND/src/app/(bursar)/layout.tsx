@@ -18,6 +18,9 @@ import {
   ChevronRight,
   Lock,
   School,
+  CreditCard,
+  Tag,
+  MessageSquare,
 } from 'lucide-react';
 import { SchoolName } from '@/components/common/SchoolName';
 import { isModuleEnabled, moduleForPath } from '@/lib/modules';
@@ -126,6 +129,9 @@ export default function BursarLayout({ children }: { children: React.ReactNode }
       category: 'PAYMENTS',
       items: [
         { label: 'Tuition', href: '/bursar/fees', icon: Receipt },
+        { label: 'Online Payments', href: '/bursar/online-payments', icon: CreditCard },
+        { label: 'Discounts and Plans', href: '/bursar/adjustments', icon: Tag },
+        { label: 'Messages', href: '/bursar/messages', icon: MessageSquare },
         { label: 'Salaries', href: '/bursar/payroll', icon: Users },
         { label: 'Expenditures', href: '/bursar/expenditures', icon: ShoppingBag },
         { label: 'Petty Cash', href: '/bursar/petty-cash', icon: Wallet },
@@ -347,6 +353,12 @@ export default function BursarLayout({ children }: { children: React.ReactNode }
                   ? 'My Profile'
                   : pathname === '/bursar/fees'
                   ? 'Tuition'
+                  : pathname === '/bursar/online-payments'
+                  ? 'Online Payments'
+                  : pathname === '/bursar/adjustments'
+                  ? 'Discounts and Plans'
+                  : pathname === '/bursar/messages'
+                  ? 'Messages'
                   : pathname === '/bursar/payroll'
                   ? 'Salaries'
                   : pathname === '/bursar/expenditures'

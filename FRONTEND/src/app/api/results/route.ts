@@ -3,6 +3,7 @@ import { getAuthenticatedActor, getCaller, getLinkedStudentIds, getOwnStudentId,
 import { resolveGradingConfig } from '@/lib/grading-config';
 import { getClassNames } from '@/lib/school-classes';
 import { getSchoolDb } from '@/lib/school-db';
+import { notifyResultsReleased } from '@/lib/messaging/events';
 
 
 export async function GET(request: NextRequest) {
@@ -291,7 +292,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { data: school } = await sb.from('schools').select('id, settings').limit(1).maybeSingle();
-    const { data: term } = await sb.from('academic_terms').select('id').eq('is_current', true).maybeSingle();
+    const { data: term } = await sb.from('academic_terms').select('id, name').eq('is_current', true).maybeSingle();
     if (!school || !term) {
       return NextResponse.json({ success: false, error: 'No current term is set.' }, { status: 409 });
     }
@@ -305,7 +306,7 @@ export async function POST(request: NextRequest) {
     for (const className of classes) {
       const { data: cards } = await sb
         .from('report_cards')
-        .select('id, principal_approved, proprietor_endorsed')
+        .select('id, enrollment_id, principal_approved, proprietor_endorsed')
         .eq('class_name', className)
         .eq('term_id', term.id);
 
@@ -336,6 +337,12 @@ export async function POST(request: NextRequest) {
         .in('id', eligible.map((c: any) => c.id));
       if (updateError) throw updateError;
       processed.push(className);
+
+      // Results published to families: tell the parents of each child whose card was released
+      if (!isForward) {
+        const { data: released } = await sb.from('class_enrollments').select('student_id').in('id', eligible.map((c: any) => c.enrollment_id));
+        await notifyResultsReleased(sb, { studentIds: (released || []).map((r: any) => r.student_id), term: String(term.name || 'Term'), releaseKey: `${term.id}:${className}` });
+      }
     }
 
     if (processed.length === 0) {

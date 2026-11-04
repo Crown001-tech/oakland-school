@@ -5,6 +5,9 @@ import { resolveTuition } from '@/lib/tuition';
 import { computeStaffPay, isOnPayroll, resolveSalaryScales } from '@/lib/payroll';
 import { isExpenditureCategory, isPettyCashCategory } from '@/types/finance';
 import { getSchoolDb } from '@/lib/school-db';
+import { adjustmentTotal, instalmentStatus, netBilled, suggestedPayment, type Adjustment } from '@/lib/fee-adjustments';
+import { notifyPaymentReceived } from '@/lib/messaging/events';
+import { onlinePaymentsReady, readPaymentSettings } from '@/lib/payments/online-payments';
 
 
 
@@ -42,6 +45,15 @@ export async function GET() {
       .from('fee_structures')
       .select('*')
       .order('class_name', { ascending: true });
+
+    // Scholarships, discounts, sibling discounts and waivers, by student
+    const { data: adjustmentRows } = await sb.from('fee_adjustments').select('student_id, kind, amount, percent, reason').eq('is_active', true);
+    const adjustmentsOf = new Map<string, (Adjustment & { reason: string })[]>();
+    for (const a of adjustmentRows || []) {
+      const list = adjustmentsOf.get(a.student_id) ?? [];
+      list.push({ kind: a.kind, amount: a.amount != null ? Number(a.amount) : null, percent: a.percent != null ? Number(a.percent) : null, reason: a.reason });
+      adjustmentsOf.set(a.student_id, list);
+    }
 
     // 3. Fetch Enrolled Students with Class & Guardians
     const { data: studentsData, error: stuErr } = await sb
@@ -133,7 +145,9 @@ export async function GET() {
       const guardianPhone = guardian?.phone || '—';
 
       // The same tuition rule the payment function uses, so the screen and the payment check agree
-      const rate = resolveTuition(clsName, settings, feeStructures, enrollment?.classes?.level);
+      const grossRate = resolveTuition(clsName, settings, feeStructures, enrollment?.classes?.level);
+      const studentAdjustments = adjustmentsOf.get(s.id) ?? [];
+      const rate = netBilled(grossRate, studentAdjustments);
 
       const financialAccount = accountsMap.get(s.id);
       const txPaid = txPaidMap.get(s.id) || 0;
@@ -153,6 +167,9 @@ export async function GET() {
         parentName: guardianName,
         parentPhone: guardianPhone,
         totalBilled: rate,
+        grossBilled: grossRate,
+        discount: adjustmentTotal(grossRate, studentAdjustments),
+        adjustments: studentAdjustments.map((a) => ({ kind: a.kind, reason: a.reason, amount: a.amount ?? null, percent: a.percent ?? null })),
         amountPaid: paid,
         balance,
         creditBalance,
@@ -169,7 +186,7 @@ export async function GET() {
 
       const classStudents = studentLedger.filter((s: any) => s.class === cls);
       const enrolled = classStudents.length;
-      const expected = enrolled * feePerStudent;
+      const expected = classStudents.reduce((acc: number, st: any) => acc + Number(st.totalBilled || 0), 0);
       const collected = classStudents.reduce((acc: number, s: any) => acc + s.amountPaid, 0);
       const outstanding = Math.max(0, expected - collected);
       const pct = expected > 0 ? Math.round((collected / expected) * 100) : 0;
@@ -319,9 +336,29 @@ export async function GET() {
 
     if (isGuardian) {
       const ownIds = new Set(linkedStudentIds);
+      const own = [...ownIds];
+      const todayLagos = new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Lagos' });
+      const [{ data: planRows }, { data: accountRows }, { data: onlineRows }] = own.length
+        ? await Promise.all([
+            sb.from('fee_instalments').select('student_id, sequence, due_date, amount').in('student_id', own).order('sequence', { ascending: true }),
+            sb.from('student_virtual_accounts').select('student_id, account_number, bank_name, account_name').in('student_id', own),
+            sb.from('online_payments').select('student_id, reference, amount, status, created_at').in('student_id', own).order('created_at', { ascending: false }).limit(20),
+          ])
+        : [{ data: [] }, { data: [] }, { data: [] }];
+      const ledgerOf = new Map<string, any>(studentLedger.map((l: any) => [l.id, l]));
+      const instalments: Record<string, unknown> = {};
+      for (const id of own) {
+        const plan = (planRows || []).filter((p: any) => p.student_id === id).map((p: any) => ({ sequence: p.sequence, due_date: String(p.due_date).slice(0, 10), amount: Number(p.amount) }));
+        if (plan.length === 0) continue;
+        const paid = Number(ledgerOf.get(id)?.amountPaid ?? 0);
+        instalments[id] = { plan: instalmentStatus(plan, paid, todayLagos), next: suggestedPayment(plan, paid, todayLagos) };
+      }
       return NextResponse.json({
         success: true,
         data: {
+          onlinePayments: { ready: onlinePaymentsReady(readPaymentSettings(settings)), recent: (onlineRows || []).map((o: any) => ({ studentId: o.student_id, reference: o.reference, amount: Number(o.amount), status: o.status, createdAt: o.created_at })) },
+          instalments,
+          virtualAccounts: Object.fromEntries((accountRows || []).map((a: any) => [a.student_id, { accountNumber: a.account_number, bankName: a.bank_name, accountName: a.account_name }])),
           studentLedger: studentLedger.filter((s: any) => ownIds.has(s.id)),
           payments: (paymentsRes.data || [])
             .filter((p: any) => ownIds.has(p.student_id))
@@ -799,6 +836,16 @@ export async function POST(request: NextRequest) {
           );
         }
         throw rpcErr;
+      }
+
+      // Tell the parents once, the first time this payment is recorded
+      if (!rpcResult?.idempotent_replay && rpcResult?.transaction?.receipt_number) {
+        await notifyPaymentReceived(sb, {
+          studentId,
+          amount: numAmount,
+          receipt: String(rpcResult.transaction.receipt_number),
+          balance: Number(rpcResult.account?.outstanding_balance ?? 0),
+        });
       }
 
       return NextResponse.json({

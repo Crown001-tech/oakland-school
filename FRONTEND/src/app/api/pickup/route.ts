@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { getCaller, getLinkedStudentIds } from '@/lib/caller';
 import { checkAuthRateLimit, extractClientIp, recordAuthAttempt } from '@/lib/rate-limit';
 import { getSchoolDb } from '@/lib/school-db';
+import { notifyGateRelease } from '@/lib/messaging/events';
 
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -416,6 +417,9 @@ export async function POST(req: NextRequest) {
         }
         throw error;
       }
+
+      // Tell the parents the child has left, by message
+      await notifyGateRelease(sb, { studentId, logId: String(data.id), collectedBy: String(pickedUpByName).trim(), at: new Date() });
 
       // Cross-portal dispatch: Notify guardian of cleared departure
       try {

@@ -222,9 +222,18 @@ export async function getAuthenticatedActor(): Promise<AuthenticatedActor> {
 export async function getLinkedStudentIds(email: string | null): Promise<string[]> {
   if (!email) return [];
   const admin = createAdminClient();
-  const { data: guardian } = await admin.from('guardians').select('id').eq('email', email).maybeSingle();
-  if (!guardian) return [];
-  const { data: links } = await admin.from('student_guardians').select('student_id').eq('guardian_id', guardian.id);
+  // Only the guardian record in the caller's own school: the same email may be a guardian at another school
+  const caller = await getCaller();
+  let schoolId: string | null = null;
+  if (caller.userId) {
+    const { findSchoolIdForUser } = await import('@/lib/school-db');
+    schoolId = await findSchoolIdForUser(admin, caller.userId, caller.email);
+  }
+  let query = admin.from('guardians').select('id').eq('email', email);
+  if (schoolId) query = query.eq('school_id', schoolId);
+  const { data: guardians } = await query;
+  if (!guardians || guardians.length === 0) return [];
+  const { data: links } = await admin.from('student_guardians').select('student_id').in('guardian_id', guardians.map((g: { id: string }) => g.id));
   return (links || []).map((l: any) => l.student_id);
 }
 

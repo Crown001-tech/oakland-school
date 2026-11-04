@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { getCaller, getLinkedStudentIds, getOwnStudentId, isAdminRole } from '@/lib/caller';
 import { getClassNames } from '@/lib/school-classes';
 import { getSchoolDb } from '@/lib/school-db';
+import { notifyAttendance } from '@/lib/messaging/events';
 
 
 export async function GET(request: NextRequest) {
@@ -194,7 +195,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     const className = body.class || body.className;
-    const date = body.date || new Date().toISOString().split('T')[0];
+    const date = body.date || new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Lagos' });
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date)) || Number.isNaN(Date.parse(String(date)))) {
+      return NextResponse.json({ success: false, message: 'Give the date as a date.' }, { status: 400 });
+    }
     const records = Array.isArray(body.records) ? body.records : [];
 
     if (!className || records.length === 0) {
@@ -234,8 +238,12 @@ export async function POST(request: NextRequest) {
       .eq('is_current', true)
       .maybeSingle();
 
-    const sessionId = sessionObj?.id || 'b0000000-0000-0000-0000-000000000001';
-    const termId = termObj?.id || 'c0000000-0000-0000-0000-000000000001';
+    // Attendance belongs to the school's current session and term; none is invented
+    if (!sessionObj?.id || !termObj?.id) {
+      return NextResponse.json({ success: false, message: 'No current session and term are set, so attendance cannot be recorded yet.' }, { status: 409 });
+    }
+    const sessionId = sessionObj.id;
+    const termId = termObj.id;
 
     // 3. Fetch active students to map admissions/ids
     const { data: dbStudents } = await sb
@@ -276,7 +284,7 @@ export async function POST(request: NextRequest) {
         term_id: termId,
         date: date,
         status: validStatus,
-        check_in_time: validStatus === 'absent' ? null : (item.arrivalTime || '08:00:00'),
+        check_in_time: validStatus === 'absent' ? null : (item.arrivalTime || null),
         late_reason: item.reason || null,
         updated_at: new Date().toISOString(),
       });
@@ -299,6 +307,11 @@ export async function POST(request: NextRequest) {
         { success: false, message: upsertErr.message },
         { status: 500 }
       );
+    }
+
+    // Tell the parents of any child marked absent or late today. A day is told once, however often it is saved.
+    for (const rec of toUpsert) {
+      if (rec.status === 'absent' || rec.status === 'late') await notifyAttendance(sb, { studentId: rec.student_id, status: rec.status, isoDate: String(date) });
     }
 
     return NextResponse.json({

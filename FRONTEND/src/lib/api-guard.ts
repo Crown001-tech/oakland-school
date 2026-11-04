@@ -44,6 +44,13 @@ const PUBLIC_ENDPOINTS: PublicRule[] = [
   { path: '/api/schools/profile', methods: ['GET'] },
   { path: '/api/schools/classes', methods: ['GET'] },
   { path: '/api/schools/modules', methods: ['GET'] },
+  // Services calling us, not people: each proves itself with a signature or a secret of its own, checked in the route.
+  { path: '/api/webhooks/paystack', methods: ['POST'] },
+  { path: '/api/webhooks/termii', methods: ['POST'] },
+  { path: '/api/cron/messages', methods: ['GET', 'POST'] },
+  { path: '/api/cron/reminders', methods: ['GET', 'POST'] },
+  // A parent setting their own password from the link they were sent; the link's token is the proof.
+  { path: '/api/auth/parent-invite/accept', methods: ['GET', 'POST'] },
 ];
 
 interface RoleRule {
@@ -68,6 +75,17 @@ const ROLE_RULES: RoleRule[] = [
   { prefix: '/api/executives', roles: ADMIN_ROLES },
   { prefix: '/api/admissions', roles: ADMIN_ROLES },
   { prefix: '/api/auth/generate-activation-token', roles: ADMIN_ROLES },
+
+  // Online fees and messaging
+  { prefix: '/api/payments/initialize', roles: ['parent'] },
+  { prefix: '/api/payments/verify', roles: [...ADMIN_ROLES, 'bursar', 'parent'] },
+  { prefix: '/api/payments/settings', methods: WRITE, roles: ['proprietor'] },
+  { prefix: '/api/payments/settings', methods: READ, roles: [...ADMIN_ROLES, 'bursar'] },
+  { prefix: '/api/payments', roles: [...ADMIN_ROLES, 'bursar'] },
+  { prefix: '/api/messages/opt-out', roles: [...ADMIN_ROLES, 'bursar', 'parent'] },
+  { prefix: '/api/messages/settings', methods: WRITE, roles: ['proprietor'] },
+  { prefix: '/api/messages', roles: [...ADMIN_ROLES, 'bursar'] },
+  { prefix: '/api/parent-invites', roles: ADMIN_ROLES },
 
   // Single-record endpoints carry personal and credential data
   { prefix: '/api/staff', pattern: /^\/api\/staff\/(?!broadcasts(\/|$))[^/]+/, roles: ADMIN_ROLES },

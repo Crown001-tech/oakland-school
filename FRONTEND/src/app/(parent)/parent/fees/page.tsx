@@ -19,6 +19,9 @@ export default function ParentFeesPage() {
   const [finances, setFinances] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedReceipt, setSelectedReceipt] = useState<any | null>(null);
+  const [payAmount, setPayAmount] = useState('');
+  const [isPaying, setIsPaying] = useState(false);
+  const [payError, setPayError] = useState('');
 
   useEffect(() => {
     fetch('/api/finances')
@@ -47,6 +50,8 @@ export default function ParentFeesPage() {
         tuition: 0,
         paid: 0,
         balance: 0,
+        discount: 0,
+        adjustments: [] as any[],
         transactions: [],
       };
     }
@@ -91,8 +96,41 @@ export default function ParentFeesPage() {
         status: 'Reconciled',
       }));
 
-    return { tuition, paid, balance, transactions };
+    const discount = Number(studentRecord?.discount ?? 0);
+    const adjustments: any[] = Array.isArray(studentRecord?.adjustments) ? studentRecord.adjustments : [];
+
+    return { tuition, paid, balance, discount, adjustments, transactions };
   }, [finances, activeChild]);
+
+  const online = finances?.onlinePayments;
+  const childId: string | undefined = activeChild?.id;
+  const plan: any = childId ? finances?.instalments?.[childId] : undefined;
+  const bankAccount: any = childId ? finances?.virtualAccounts?.[childId] : undefined;
+  const attempts: any[] = (online?.recent || []).filter((o: any) => o.studentId === childId && o.status !== 'success');
+  const canPayOnline = Boolean(online?.ready) && feeDetails.balance > 0;
+
+  const startPayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!childId) return;
+    setPayError('');
+    setIsPaying(true);
+    try {
+      const res = await fetch('/api/payments/initialize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentId: childId, amount: payAmount }),
+      });
+      const data = await res.json();
+      if (data.success && data.data?.authorizationUrl) {
+        window.location.assign(data.data.authorizationUrl);
+        return;
+      }
+      setPayError(data.message || 'Could not start the payment. Nothing was charged.');
+    } catch {
+      setPayError('Could not reach the payment service. Nothing was charged.');
+    }
+    setIsPaying(false);
+  };
 
   return (
     <div className="max-w-5xl mx-auto space-y-7">
@@ -117,7 +155,9 @@ export default function ParentFeesPage() {
             ₦{feeDetails.tuition.toLocaleString()}
           </div>
           <p className="text-[11px] text-slate-500 font-medium">
-            Standard rate for {activeChild?.currentClass || '—'}
+            {feeDetails.discount > 0
+              ? `After ₦${feeDetails.discount.toLocaleString()} off: ${feeDetails.adjustments.map((a: any) => a.reason).filter(Boolean).join(', ')}`
+              : `Standard rate for ${activeChild?.currentClass || '—'}`}
           </p>
         </div>
 
@@ -155,6 +195,158 @@ export default function ParentFeesPage() {
           </p>
         </div>
       </div>
+
+      {/* Pay online: a part payment or the whole balance */}
+      {canPayOnline && (
+        <form onSubmit={startPayment} className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-6 space-y-4">
+          <div className="flex items-center gap-2">
+            <CreditCard className="w-4 h-4 text-brand-primary" />
+            <h2 className="text-sm font-bold text-slate-900">Pay Online</h2>
+          </div>
+          <p className="text-[11px] text-slate-500 leading-relaxed">
+            Pay any amount up to the balance. You are taken to Paystack to pay by card, bank or transfer, and the school records the payment as soon as Paystack confirms it.
+          </p>
+          <div className="flex flex-col sm:flex-row sm:items-end gap-3">
+            <div className="flex-1">
+              <label htmlFor="pay-amount" className="block text-[11px] font-bold text-slate-600 mb-1.5">
+                Amount in naira
+              </label>
+              <input
+                id="pay-amount"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={feeDetails.balance}
+                required
+                value={payAmount}
+                onChange={(e) => setPayAmount(e.target.value)}
+                className="w-full min-h-[44px] px-3.5 border border-slate-200 rounded-xl text-sm font-mono font-bold text-slate-900 focus:outline-hidden focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={isPaying || !payAmount}
+              className="min-h-[44px] px-6 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-bold transition shadow-xs disabled:opacity-50 cursor-pointer"
+            >
+              {isPaying ? 'Opening Paystack' : 'Pay Now'}
+            </button>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setPayAmount(String(feeDetails.balance))}
+              className="min-h-[44px] px-3.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer"
+            >
+              Full balance, ₦{feeDetails.balance.toLocaleString()}
+            </button>
+            {plan?.next ? (
+              <button
+                type="button"
+                onClick={() => setPayAmount(String(Math.min(Number(plan.next), feeDetails.balance)))}
+                className="min-h-[44px] px-3.5 rounded-lg border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer"
+              >
+                Next instalment, ₦{Number(plan.next).toLocaleString()}
+              </button>
+            ) : null}
+          </div>
+          {payError && (
+            <p role="alert" className="text-xs font-semibold text-rose-700">
+              {payError}
+            </p>
+          )}
+        </form>
+      )}
+
+      {/* Payments that were started and not finished */}
+      {attempts.length > 0 && (
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-6 space-y-3">
+          <div className="flex items-center gap-2">
+            <Clock className="w-4 h-4 text-brand-primary" />
+            <h2 className="text-sm font-bold text-slate-900">Payments Not Completed</h2>
+          </div>
+          <p className="text-[11px] text-slate-500 leading-relaxed">
+            If you were charged and the payment is not shown below as received, check it again. It is only ever recorded once.
+          </p>
+          <ul className="divide-y divide-slate-100">
+            {attempts.map((a: any) => (
+              <li key={a.reference} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-3 text-xs">
+                <span>
+                  <span className="font-mono font-bold text-slate-900">₦{Number(a.amount).toLocaleString()}</span>
+                  <span className="text-slate-500"> &middot; {new Date(a.createdAt).toLocaleString('en-GB', { timeZone: 'Africa/Lagos', day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })} &middot; {a.status === 'mismatch' ? 'Held for the bursar to check' : a.status === 'failed' ? 'Failed' : a.status === 'abandoned' ? 'Not finished' : 'Waiting for confirmation'}</span>
+                </span>
+                {a.status !== 'mismatch' && (
+                  <a
+                    href={`/parent/fees/verify?reference=${encodeURIComponent(a.reference)}`}
+                    className="min-h-[44px] sm:min-h-[32px] px-3.5 inline-flex items-center justify-center rounded-lg bg-brand-primary/10 hover:bg-brand-primary/20 text-brand-primary text-xs font-bold border border-brand-primary/20"
+                  >
+                    Check Again
+                  </a>
+                )}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Instalment schedule the school set for this student */}
+      {Array.isArray(plan?.plan) && plan.plan.length > 0 && (
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-6 space-y-3">
+          <h2 className="text-sm font-bold text-slate-900">Instalment Plan</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs text-left">
+              <thead>
+                <tr className="border-b border-slate-200 bg-slate-50/70 text-slate-600 font-bold uppercase text-[10px] tracking-wider">
+                  <th className="py-3 px-4">Instalment</th>
+                  <th className="py-3 px-4">Due</th>
+                  <th className="py-3 px-4 text-right">Amount</th>
+                  <th className="py-3 px-4 text-right">Paid</th>
+                  <th className="py-3 px-4">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                {plan.plan.map((i: any) => (
+                  <tr key={i.sequence}>
+                    <td className="py-3 px-4 font-bold text-slate-900">{i.sequence}</td>
+                    <td className="py-3 px-4">{new Date(`${i.due_date}T12:00:00Z`).toLocaleDateString('en-GB', { timeZone: 'Africa/Lagos', day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                    <td className="py-3 px-4 text-right font-mono">₦{Number(i.amount).toLocaleString()}</td>
+                    <td className="py-3 px-4 text-right font-mono">₦{Number(i.paid).toLocaleString()}</td>
+                    <td className={`py-3 px-4 font-bold ${i.state === 'paid' ? 'text-emerald-700' : i.state === 'overdue' ? 'text-rose-700' : 'text-slate-600'}`}>
+                      {i.state === 'paid' ? 'Paid' : i.state === 'overdue' ? 'Overdue' : i.state === 'partial' ? 'Part paid' : 'Upcoming'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* The student's own bank account for transfers, when the school has one for them */}
+      {bankAccount && (
+        <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 sm:p-6 space-y-2">
+          <div className="flex items-center gap-2">
+            <Building className="w-4 h-4 text-brand-primary" />
+            <h2 className="text-sm font-bold text-slate-900">Pay by Bank Transfer</h2>
+          </div>
+          <p className="text-[11px] text-slate-500 leading-relaxed">
+            Transfer any amount to this account from your bank app. It belongs to {activeChild?.name || 'this student'} alone, so the school records your transfer against the right child automatically.
+          </p>
+          <dl className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-1">
+            <div>
+              <dt className="text-slate-400">Bank</dt>
+              <dd className="font-bold text-slate-900">{bankAccount.bankName}</dd>
+            </div>
+            <div>
+              <dt className="text-slate-400">Account number</dt>
+              <dd className="font-mono font-bold text-slate-900">{bankAccount.accountNumber}</dd>
+            </div>
+            <div>
+              <dt className="text-slate-400">Account name</dt>
+              <dd className="font-bold text-slate-900">{bankAccount.accountName}</dd>
+            </div>
+          </dl>
+        </div>
+      )}
 
       {/* Official Reconciled Receipts Table */}
       <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs overflow-hidden space-y-4 p-5 sm:p-6">
@@ -227,7 +419,9 @@ export default function ParentFeesPage() {
         <div className="pt-4 border-t border-slate-100 flex items-start gap-2.5 text-[11px] text-slate-500 leading-relaxed">
           <Info className="w-4 h-4 text-brand-primary shrink-0 mt-0.5" />
           <span>
-            <strong>Bursary Notice:</strong> In line with institutional financial policies, all school tuition and levies are collected strictly via official school bank accounts and reconciled directly by the Bursar. Online credit card payments are not processed through this portal.
+            {online?.ready
+              ? 'Payments go straight to the school’s own bank account through Paystack. Payments made at the bursary or by bank transfer are recorded by the Bursar and appear here too.'
+              : 'Online payment is not switched on for this school yet. Pay at the bursary or by bank transfer, and the Bursar will record it here.'}
           </span>
         </div>
       </div>

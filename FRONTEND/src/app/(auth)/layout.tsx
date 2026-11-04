@@ -15,7 +15,7 @@ export default function AuthLayout({
         <Logo size="sm" href="/" />
         <Link
           href="/"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-brand-primary transition-colors"
+          className="inline-flex items-center gap-1.5 min-h-[44px] text-xs font-semibold text-slate-600 hover:text-brand-primary transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           Back to Public Website

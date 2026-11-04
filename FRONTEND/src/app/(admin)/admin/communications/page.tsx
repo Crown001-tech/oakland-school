@@ -47,7 +47,8 @@ export default function AdminCommunicationsPage() {
 
   // Form State: Who -> What -> Channel -> When -> Send
   const [recipientType, setRecipientType] = useState<'all_parents' | 'all_staff' | 'class' | 'students'>('all_parents');
-  const [selectedClass, setSelectedClass] = useState('JSS 1');
+  const [selectedClass, setSelectedClass] = useState('');
+  const [connected, setConnected] = useState<{ sms: boolean; email: boolean; whatsapp: boolean } | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState('none');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
@@ -65,11 +66,17 @@ export default function AdminCommunicationsPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [commRes, studRes, staffRes] = await Promise.all([
+        const [commRes, studRes, staffRes, msgRes] = await Promise.all([
           fetch('/api/communications'),
           fetch('/api/students'),
           fetch('/api/staff'),
+          fetch('/api/messages'),
         ]);
+
+        if (msgRes.ok) {
+          const mData = await msgRes.json();
+          if (mData.success && mData.data?.connected) setConnected(mData.data.connected);
+        }
 
         if (commRes.ok) {
           const cData = await commRes.json();
@@ -143,6 +150,10 @@ export default function AdminCommunicationsPage() {
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!subject.trim() || !message.trim()) return;
+    if (recipientType === 'class' && !selectedClass) {
+      showToast('Choose a class first.');
+      return;
+    }
 
     setIsSending(true);
 
@@ -160,6 +171,8 @@ export default function AdminCommunicationsPage() {
         body: JSON.stringify({
           recipientsGroup: recipientGroupName,
           recipientCount: currentRecipientCount,
+          audience: recipientType,
+          className: recipientType === 'class' ? selectedClass : undefined,
           subject: subject.trim(),
           message: message.trim(),
           deliveryTiming,
@@ -169,7 +182,13 @@ export default function AdminCommunicationsPage() {
       const data = await res.json();
       if (data.success && data.record) {
         setHistory((prev) => [data.record, ...prev]);
-        showToast(`Notice dispatched to ${recipientGroupName} (${currentRecipientCount} recipients).`);
+        const queued = Number(data.messages?.queued ?? 0);
+        const skipped = Number(data.messages?.skipped ?? 0);
+        showToast(
+          recipientType === 'all_staff'
+            ? `Notice posted to ${recipientGroupName}.`
+            : `Notice posted to ${recipientGroupName}. ${queued} message${queued === 1 ? '' : 's'} queued${skipped > 0 ? `, ${skipped} not sent (no number, or opted out)` : ''}.`,
+        );
         setSubject('');
         setMessage('');
         setSelectedTemplate('none');
@@ -349,7 +368,7 @@ export default function AdminCommunicationsPage() {
                 </div>
                 <div className="font-bold text-sm leading-tight">Specific Class</div>
                 <div className={`text-xs mt-1 font-medium ${recipientType === 'class' ? 'text-teal-100' : 'text-slate-500'}`}>
-                  {classParentsCount} guardians in {selectedClass}
+                  {selectedClass ? `${classParentsCount} guardians in ${selectedClass}` : 'Choose a class'}
                 </div>
               </button>
             </div>
@@ -415,7 +434,7 @@ export default function AdminCommunicationsPage() {
                 <select
                   value={selectedTemplate}
                   onChange={(e) => handleTemplateChange(e.target.value)}
-                  className="border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-hidden focus:border-brand-primary bg-white font-semibold text-slate-800 cursor-pointer shadow-2xs"
+                  className="min-h-[44px] border border-slate-200 rounded-xl px-3 py-1.5 text-xs focus:outline-hidden focus:border-brand-primary bg-white font-semibold text-slate-800 cursor-pointer shadow-2xs"
                 >
                   <option value="none">Blank Notice</option>
                   <option value="resumption">Term Resumption</option>
@@ -436,7 +455,7 @@ export default function AdminCommunicationsPage() {
                   placeholder="e.g. End of Term Resumption Notice"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  className="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-hidden focus:border-brand-primary focus:ring-1 focus:ring-brand-primary font-semibold text-slate-900 text-xs shadow-2xs"
+                  className="w-full min-h-[44px] px-3.5 py-2.5 border border-slate-200 rounded-xl focus:outline-hidden focus:border-brand-primary focus:ring-1 focus:ring-brand-primary font-semibold text-slate-900 text-xs shadow-2xs"
                 />
               </div>
 
@@ -465,19 +484,26 @@ export default function AdminCommunicationsPage() {
           <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs space-y-3">
             <div>
               <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Delivery Channels</h3>
-              <p className="text-[11px] text-slate-500">The notice is always posted to each parent's portal. The other channels switch on when the school's messaging account is connected.</p>
+              <p className="text-[11px] text-slate-500">The notice is always posted to each parent's portal. Each parent also gets it by WhatsApp, SMS or email, whichever the school has connected and the parent has not turned off.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div className="flex items-center justify-between gap-2 min-h-[44px] px-3 rounded-xl border border-emerald-600 bg-emerald-600 text-white font-semibold">
                 <span>Parent Portal</span>
                 <Check className="w-3 h-3 stroke-[3]" />
               </div>
-              {['Email', 'SMS', 'WhatsApp'].map((label) => (
-                <div key={label} aria-disabled="true" className="flex items-center justify-between gap-2 min-h-[44px] px-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 font-semibold cursor-not-allowed">
-                  <span>{label}</span>
-                  <span className="text-[10px] font-medium">Not connected yet</span>
-                </div>
-              ))}
+              {([['Email', connected?.email], ['SMS', connected?.sms], ['WhatsApp', connected?.whatsapp]] as const).map(([label, on]) =>
+                on ? (
+                  <div key={label} className="flex items-center justify-between gap-2 min-h-[44px] px-3 rounded-xl border border-emerald-600 bg-emerald-600 text-white font-semibold">
+                    <span>{label}</span>
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
+                ) : (
+                  <div key={label} aria-disabled="true" className="flex items-center justify-between gap-2 min-h-[44px] px-3 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 font-semibold cursor-not-allowed">
+                    <span>{label}</span>
+                    <span className="text-[10px] font-medium">Not connected yet</span>
+                  </div>
+                ),
+              )}
             </div>
           </div>
 
@@ -490,7 +516,7 @@ export default function AdminCommunicationsPage() {
             <Button
               type="submit"
               disabled={isSending}
-              className="bg-brand-primary hover:bg-[#134b50] text-white text-xs font-bold px-6 py-3 rounded-xl flex items-center justify-center gap-2 shadow-md transition cursor-pointer disabled:opacity-50"
+              className="bg-brand-primary hover:bg-[#134b50] text-white text-xs font-bold px-6 py-3 min-h-[44px] rounded-xl flex items-center justify-center gap-2 shadow-md transition cursor-pointer disabled:opacity-50"
             >
               <Send className="w-4 h-4" />
               <span>{isSending ? 'Dispatching...' : 'Dispatch Notice'}</span>

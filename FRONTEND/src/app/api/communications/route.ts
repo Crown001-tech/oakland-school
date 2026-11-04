@@ -2,6 +2,7 @@ import { getPrincipalName } from '@/lib/school-people';
 import { NextResponse, type NextRequest } from 'next/server';
 import { getCaller, isAdminRole } from '@/lib/caller';
 import { getSchoolDb } from '@/lib/school-db';
+import { notifyBroadcast } from '@/lib/messaging/events';
 
 
 
@@ -67,6 +68,8 @@ export async function POST(req: NextRequest) {
     const {
       recipientsGroup = 'All Guardians',
       recipientCount = 1,
+      audience,
+      className: audienceClass,
       subject,
       message,
       deliveryTiming = 'now',
@@ -81,6 +84,20 @@ export async function POST(req: NextRequest) {
 
     const idempotencyKey = `comm-${Date.now()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
+    // Who the notice is for is worked out here, from the school's records, never from a number the page sends
+    let studentIds: string[] | null = null;
+    if (audience === 'all_parents') {
+      const { data } = await sb.from('students').select('id').eq('status', 'active');
+      studentIds = (data || []).map((r: { id: string }) => r.id);
+    } else if (audience === 'class') {
+      const { data: cls } = await sb.from('classes').select('id').eq('name', String(audienceClass || '')).maybeSingle();
+      if (!cls) return NextResponse.json({ success: false, message: 'Choose a class that exists.' }, { status: 404 });
+      const { data } = await sb.from('class_enrollments').select('student_id').eq('class_id', cls.id).eq('status', 'active');
+      studentIds = (data || []).map((r: { student_id: string }) => r.student_id);
+    }
+    const counts = studentIds ? await notifyBroadcast(sb, { studentIds, subject: subject.trim(), text: message.trim(), broadcastKey: idempotencyKey }) : { queued: 0, skipped: 0 };
+    const reached = studentIds ? counts.queued + counts.skipped : recipientCount;
+
     const { data: newNotification, error: notifErr } = await sb
       .from('notifications')
       .insert({
@@ -92,7 +109,7 @@ export async function POST(req: NextRequest) {
         content_html: message.trim(),
         status: 'delivered',
         idempotency_key: idempotencyKey,
-        attempts_count: recipientCount,
+        attempts_count: reached,
       })
       .select()
       .maybeSingle();
@@ -129,7 +146,9 @@ export async function POST(req: NextRequest) {
         resource_type: 'notifications',
         metadata: {
           recipientsGroup,
-          recipientCount,
+          recipientCount: reached,
+          queued: counts.queued,
+          skipped: counts.skipped,
           subject: subject.trim(),
           timing: deliveryTiming,
           publishedBy: principalName,
@@ -140,7 +159,7 @@ export async function POST(req: NextRequest) {
     const record = {
       id: newNotification?.id || `msg-${Date.now()}`,
       recipientsGroup,
-      recipientCount,
+      recipientCount: reached,
       subject: subject.trim(),
       sentAt: `${new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}, ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
       status: deliveryTiming === 'now' ? 'Posted' : 'Scheduled',
@@ -148,8 +167,9 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Message dispatched to ${recipientsGroup} (${recipientCount} recipients).`,
+      message: `Notice posted to ${recipientsGroup}.`,
       record,
+      messages: counts,
     });
   } catch (err: any) {
     return NextResponse.json(

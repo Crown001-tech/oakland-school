@@ -26,6 +26,9 @@ import {
   UserCheck,
   FolderArchive,
   Clock,
+  CreditCard,
+  MessageSquare,
+  Smartphone,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { isModuleEnabled, moduleForPath } from '@/lib/modules';
@@ -78,7 +81,16 @@ const NAV_GROUPS: NavGroup[] = [
     category: 'FINANCE',
     items: [
       { label: 'Finances', href: '/proprietor/finances', icon: Wallet },
+      { label: 'Online Payments', href: '/proprietor/online-payments', icon: CreditCard },
       { label: 'Activity Log', href: '/proprietor/activity', icon: Activity },
+    ],
+  },
+  {
+    category: 'PARENTS',
+    items: [
+      { label: 'Parent Accounts', href: '/proprietor/parents', icon: Smartphone },
+      { label: 'Messages', href: '/proprietor/messages', icon: MessageSquare },
+      { label: 'Messaging Setup', href: '/proprietor/messaging-setup', icon: Settings },
     ],
   },
   {
