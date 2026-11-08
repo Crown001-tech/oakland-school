@@ -141,6 +141,11 @@ export function AdjustmentsPanel() {
         <h2 className="text-sm font-bold text-slate-900">Choose a Student</h2>
         <label htmlFor="adj-search" className="sr-only">Search by name or admission number</label>
         <input id="adj-search" type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by name or admission number" className={field} />
+        {search.trim() && matches.length === 0 && (
+          <p role="status" className="text-xs text-slate-500">
+            No student at the school matches “{search.trim()}”. Check the spelling, or search by admission number.
+          </p>
+        )}
         {matches.length > 0 && (
           <ul className="divide-y divide-slate-100 border border-slate-200 rounded-xl overflow-hidden">
             {matches.map((s) => (

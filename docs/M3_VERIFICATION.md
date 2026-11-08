@@ -49,25 +49,25 @@ Set these in `FRONTEND/.env.local`, then **restart `pnpm dev`** (a running serve
 | `RESEND_API_KEY`, `EMAIL_FROM` | Email | resend.com. **UNVERIFIED** against the live service. |
 | `CRON_SECRET` | 16 or more random characters. Make your own. | Any password generator |
 
-- [ ] With none of these set, open http://localhost:3000/proprietor/online-payments and http://localhost:3000/proprietor/messaging-setup. They say plainly that Paystack or the messaging account is not connected. No error, no crash.
+- [ ] With none of these set, open http://localhost:3001/proprietor/online-payments and http://localhost:3001/proprietor/messaging-setup. They say plainly that Paystack or the messaging account is not connected. No error, no crash.
 
 ## 3. Parent portal pages (no keys needed)
 
-Sign in with the role switcher at http://localhost:3000/login.
+Sign in with the role switcher at http://localhost:3001/login.
 
-- [ ] Parent: http://localhost:3000/parent/fees shows the bill, payments and receipts. With online payment not set up it says: "Online payment is not switched on for this school yet." There is no Pay Online button.
-- [ ] Parent: http://localhost:3000/parent/profile has "Messages to My Phone". Untick "Child absent or late"; reload; it stays unticked. Untick "Receive messages from the school": every other box greys out. Tick it again. (Needs the parent's phone to be on their record at the school.)
-- [ ] http://localhost:3000/activate/parent (no link) shows "This link cannot be used" with no form.
-- [ ] http://localhost:3000/parent/fees/verify (no reference) shows "No payment to check".
+- [ ] Parent: http://localhost:3001/parent/fees shows the bill, payments and receipts. With online payment not set up it says: "Online payment is not switched on for this school yet." There is no Pay Online button.
+- [ ] Parent: http://localhost:3001/parent/profile has "Messages to My Phone". Untick "Child absent or late"; reload; it stays unticked. Untick "Receive messages from the school": every other box greys out. Tick it again. (Needs the parent's phone to be on their record at the school.)
+- [ ] http://localhost:3001/activate/parent (no link) shows "This link cannot be used" with no form.
+- [ ] http://localhost:3001/parent/fees/verify (no reference) shows "No payment to check".
 
 ## 4. Connect the school's bank account (Paystack test mode)
 
 Needs `PAYSTACK_SECRET_KEY` (test).
 
-- [ ] Proprietor: http://localhost:3000/proprietor/online-payments shows a blue "Paystack is in test mode" notice.
+- [ ] Proprietor: http://localhost:3001/proprietor/online-payments shows a blue "Paystack is in test mode" notice.
 - [ ] The bank list loads in the Bank box (it comes from Paystack).
 - [ ] Enter an account name, a bank, and a 10-digit number. **UNVERIFIED:** Paystack's test mode may only accept its own test account numbers; if it refuses, its message is shown to you. Connect Account. It then shows "account ending XXXX". Only the last four digits are stored: check `select settings->'payments' from schools;` holds `subaccountCode` and `accountLast4` and **no** full account number.
-- [ ] Turn Off, then reload http://localhost:3000/parent/fees as a parent: no Pay Online button. Turn On: it is back.
+- [ ] Turn Off, then reload http://localhost:3001/parent/fees as a parent: no Pay Online button. Turn On: it is back.
 - [ ] Change "Who pays Paystack's fee" and confirm it sticks.
 - [ ] Bursar and Principal cannot change this: as Bursar, `POST /api/payments/settings` is refused (the screen is proprietor only).
 
@@ -75,13 +75,13 @@ Needs `PAYSTACK_SECRET_KEY` (test).
 
 You must make Paystack's webhook reach your machine. Paystack cannot call `localhost`: use a tunnel (for example `ngrok http 3000`) and in the Paystack dashboard, Settings, API Keys and Webhooks, set the **Test Webhook URL** to `https://<your-tunnel>/api/webhooks/paystack`.
 
-- [ ] Give a student a real bill (set JSS tuition in http://localhost:3000/proprietor/settings if it is empty). Sign in as that student's parent.
-- [ ] http://localhost:3000/parent/fees now shows **Pay Online** with an empty amount box (nothing pre-filled), "Full balance" and, if there is a plan, "Next instalment".
+- [ ] Give a student a real bill (set JSS tuition in http://localhost:3001/proprietor/settings if it is empty). Sign in as that student's parent.
+- [ ] http://localhost:3001/parent/fees now shows **Pay Online** with an empty amount box (nothing pre-filled), "Full balance" and, if there is a plan, "Next instalment".
 - [ ] Type an amount **above the balance**: refused with how much is owed. Type **below ₦100** (if the balance is larger): refused.
 - [ ] Pay a **part** amount. You are sent to Paystack. Use the test card Paystack publishes on its "Test Payments" documentation page. **Do not use a real card.**
 - [ ] You come back to `/parent/fees/verify?reference=...`. It says "Payment received" and shows the receipt number.
-- [ ] Bursar: http://localhost:3000/bursar/online-payments lists it as **Received**, matched to the student, with the Paystack fee. **Nothing was typed.** This is the M3 "done when" test.
-- [ ] http://localhost:3000/bursar/fees shows the payment and the new balance. The receipt number matches.
+- [ ] Bursar: http://localhost:3001/bursar/online-payments lists it as **Received**, matched to the student, with the Paystack fee. **Nothing was typed.** This is the M3 "done when" test.
+- [ ] http://localhost:3001/bursar/fees shows the payment and the new balance. The receipt number matches.
 - [ ] Pay the rest. The balance reaches ₦0 and the Pay Online box disappears.
 - [ ] **Replay:** in the Paystack dashboard, resend the same webhook event. Nothing new appears: still one payment, one receipt.
 - [ ] **Closed too soon:** start a payment, pay on Paystack, then close the tab before returning. Within a minute the webhook records it anyway. (Check `/bursar/online-payments`.)
@@ -91,12 +91,12 @@ You must make Paystack's webhook reach your machine. Paystack cannot call `local
 
 ## 6. Discounts, plans and sibling discounts
 
-Bursar: http://localhost:3000/bursar/adjustments
+Bursar: http://localhost:3001/bursar/adjustments
 
 - [ ] Search a student. The top line shows class tuition, less any discounts, and the amount billed.
 - [ ] Add a **scholarship** of 20 percent with a reason. The billed amount drops by 20 percent of the **full** tuition. Add a ₦5,000 **discount** too: the two add up, they do not compound.
 - [ ] Leave the reason empty: refused. Give both an amount and a percentage: refused.
-- [ ] As that student's parent, http://localhost:3000/parent/fees shows the lower bill and "After ₦X off: <reason>".
+- [ ] As that student's parent, http://localhost:3001/parent/fees shows the lower bill and "After ₦X off: <reason>".
 - [ ] Switch the scholarship off. The bill goes back up. It stays listed, struck through, with who gave it.
 - [ ] **Sibling discount:** for a family with two or more children, set a percentage and Give Discount. The first child (admitted first) pays in full; every later child gets it. Press it again: nothing is given twice.
 - [ ] **Instalment plan:** Set Up a Plan, with two or more dates and amounts. Try a total that does not equal the bill: refused, and the screen shows the difference. Save with the right total. As the parent: the plan shows on `/parent/fees`, "Next instalment" appears, and paying it ticks the first instalment off. Remove Plan works.
@@ -105,16 +105,18 @@ Bursar: http://localhost:3000/bursar/adjustments
 
 ## 7. Messages
 
+In plain words: when something happens to a child, the school's system sends the parent a short message on their phone (WhatsApp first, SMS if WhatsApp is not possible, email if there is no phone). **A parent does not need an account to receive these.** The Messages page is the record of what was sent, to whom, whether it arrived, and what it cost. Messaging Setup holds the technical details (the sender name parents see, WhatsApp templates, the cost of one SMS) and the fee reminder days; Eductive normally fills in the technical part with you once.
+
 Without Termii connected, the queue still fills, and nothing is sent. That is by design.
 
-- [ ] Bursar records a manual payment for a student at http://localhost:3000/bursar/fees. Then open http://localhost:3000/bursar/messages: a "Payment received" message is waiting for each parent who has a phone or email on record. The message is queued once per receipt, however many times the page is saved or the request is repeated.
+- [ ] Bursar records a manual payment for a student at http://localhost:3001/bursar/fees. Then open http://localhost:3001/bursar/messages: a "Payment received" message is waiting for each parent who has a phone or email on record. The message is queued once per receipt, however many times the page is saved or the request is repeated.
 - [ ] Parent with **no** phone or email: the message shows "Not sent" with the reason, not an error.
 - [ ] Parent who has opted out (section 3): "Not sent", reason opted out.
-- [ ] Teacher marks a child **absent** at http://localhost:3000/teacher/attendance: one message queued. Save the register again: still one. Mark **late**: a separate "late" message. Mark **present**: none.
+- [ ] Teacher marks a child **absent** at http://localhost:3001/teacher/attendance: one message queued. Save the register again: still one. Mark **late**: a separate "late" message. Mark **present**: none.
 - [ ] If no academic session or term is current, saving attendance is refused with a clear message. It no longer invents one.
-- [ ] Gate: security releases a child at http://localhost:3000/security/pickup (or admin http://localhost:3000/admin/pickup): a "Left school" message is queued.
-- [ ] Results: the Proprietor releases a class's report cards at http://localhost:3000/proprietor/results: one "Results released" message per child's guardians. **This one and the gate one have no route-level automated test; check them by hand.**
-- [ ] Notice: Principal at http://localhost:3000/admin/communications. Choose All Guardians, write a notice, send. The toast says how many messages were queued and how many were not sent. A parent with three children in the audience gets **one** message. Choose a class and send: only that class's parents. The channel tiles show "Not connected yet" until a provider is connected, and turn green when it is.
+- [ ] Gate: security releases a child at http://localhost:3001/security/pickup (or admin http://localhost:3001/admin/pickup): a "Left school" message is queued.
+- [ ] Results: the Proprietor releases a class's report cards at http://localhost:3001/proprietor/results: one "Results released" message per child's guardians. **This one and the gate one have no route-level automated test; check them by hand.**
+- [ ] Notice: Principal at http://localhost:3001/admin/communications. Choose All Guardians, write a notice, send. The toast says how many messages were queued and how many were not sent. A parent with three children in the audience gets **one** message. Choose a class and send: only that class's parents. The channel tiles show "Not connected yet" until a provider is connected, and turn green when it is.
 - [ ] Nothing the school sends contains a score, a fee figure or a name that is not in the school's records.
 
 **With Termii connected** (needs the keys and a **registered sender ID**; until Termii approves it, SMS to Nigerian numbers will be refused by the network):
@@ -122,23 +124,23 @@ Without Termii connected, the queue still fills, and nothing is sent. That is by
 - [ ] The scheduler sends queued messages. For testing, call it yourself (replace the secret):
 
 ```bash
-curl -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:3000/api/cron/messages
+curl -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:3001/api/cron/messages
 ```
 
 - [ ] The message moves to **Sent**, shows its channel, and, once Termii reports it, **Delivered** with a cost. **UNVERIFIED:** the delivery report's signature check depends on `TERMII_WEBHOOK_SECRET`. Register `https://<your-host>/api/webhooks/termii` as the delivery-report URL on Termii.
 - [ ] Send a message with the wrong key: it shows **Failed** with the reason, and **Try Again** works.
-- [ ] **WhatsApp:** **UNVERIFIED.** WhatsApp lets a school start a conversation only with a template WhatsApp has approved. Fill in the template id and value names for each message at http://localhost:3000/proprietor/messaging-setup. A message with no template goes by SMS instead. Test each template once on your own phone.
-- [ ] Cost on http://localhost:3000/proprietor/messages: "Cost this month" is what Termii reported, or your "cost of one SMS part" estimate. Messages with no cost yet are counted in a separate note, never as ₦0.
+- [ ] **WhatsApp:** **UNVERIFIED.** WhatsApp lets a school start a conversation only with a template WhatsApp has approved. Fill in the template id and value names for each message at http://localhost:3001/proprietor/messaging-setup. A message with no template goes by SMS instead. Test each template once on your own phone.
+- [ ] Cost on http://localhost:3001/proprietor/messages: "Cost this month" is what Termii reported, or your "cost of one SMS part" estimate. Messages with no cost yet are counted in a separate note, never as ₦0.
 
 ## 8. Fee reminders
 
-http://localhost:3000/proprietor/messaging-setup
+http://localhost:3001/proprietor/messaging-setup
 
 - [ ] Set "Fees fall due on" a few days ahead, days before as `3, 1`, days after as `1, 7`, turn reminders on, Save.
 - [ ] Run the daily job:
 
 ```bash
-curl -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:3000/api/cron/reminders
+curl -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:3001/api/cron/reminders
 ```
 
 - [ ] Only parents whose child still owes fees get a reminder, for the right amount. Run it again the same day: no new messages. A student on an instalment plan is reminded about the next instalment instead. A parent who opted out of reminders gets none. A paid-up student gets none.
@@ -147,12 +149,12 @@ curl -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:3000/api/cron/
 
 ## 9. Parent activation by invite
 
-Parent Accounts: http://localhost:3000/admin/parents (also http://localhost:3000/proprietor/parents)
+Invite Parents: http://localhost:3001/admin/parents (also http://localhost:3001/proprietor/parents)
 
 - [ ] The top shows "N of M" parents activated and a percentage. For a school with no parents it shows a dash, not 0%. M counts only guardians who have a child at the school: on 4 November Oakland showed **8 of 27 (30%)**. (Oakland's database also holds 54 leftover guardian records with no child, and several people appear in more than one record. They are not counted. See section 13.)
 - [ ] The "Not activated" list shows each parent with children and a hidden-middle phone number. A parent with no phone and no email has the button disabled and says why.
-- [ ] Send Invite. With Termii connected the link goes to the parent's phone. With nothing connected, the screen shows the link **once** so you can hand it over yourself.
-- [ ] Open the link http://localhost:3000/activate/parent?token=... in a private window. It shows the school name and the parent's first name. A weak password (short, or no number) is refused. Choose a good one: "Your account is ready". Sign in at http://localhost:3000/login with that email and password and land on the parent portal with their own children only.
+- [ ] **Send Link to All N Parents** (top right) sends a link to every parent who has a child, no account, no invite still open, and a phone or email. It asks you to confirm, then says how many were queued, how many were not sent, and how many have no phone or email. Pressing it again sends nothing new. **Send Invite** on one row does the same for one parent. With Termii connected the link goes to the parent's phone. With nothing connected the messages wait in the queue (see Messages) and go out when a provider is connected; a parent with no phone or email shows the link once on screen so you can hand it over.
+- [ ] Open the link http://localhost:3001/activate/parent?token=... in a private window. It shows the school name and the parent's first name. A weak password (short, or no number) is refused. Choose a good one: "Your account is ready". Sign in at http://localhost:3001/login with that email and password and land on the parent portal with their own children only.
 - [ ] Open the same link again: "This link cannot be used".
 - [ ] A link older than 7 days, or replaced by a newer invite, is refused.
 - [ ] Enter an email that already belongs to someone else's account: refused. It does not take the account over.
@@ -161,7 +163,7 @@ Parent Accounts: http://localhost:3000/admin/parents (also http://localhost:3000
 
 ## 10. Security checks
 
-- [ ] `curl -X POST http://localhost:3000/api/webhooks/paystack -d "{}"` is refused (no signature). With no key set it answers that payments are not set up.
+- [ ] `curl -X POST http://localhost:3001/api/webhooks/paystack -d "{}"` is refused (no signature). With no key set it answers that payments are not set up.
 - [ ] A webhook with a valid signature for a **reference that does not exist** records nothing.
 - [ ] As a parent, open `/api/payments/online` : refused (staff only). As a parent, `/api/payments/verify?reference=` for **another family's** payment: "not found".
 - [ ] As a teacher, `/api/messages` and `/api/payments/adjustments` are refused.
@@ -176,13 +178,13 @@ Done on 4 November 2026 against Oakland's database after 031, by script and scre
 
 **Still to do by hand, because they need a real payment, key or parent:** the filled-in states of the online payments table, the messages table with real rows, the Parent Accounts invite result, the instalment editor with a student chosen, and every page at desktop width with real rows.
 
-- [ ] http://localhost:3000/parent/fees
-- [ ] http://localhost:3000/parent/fees/verify?reference=anything
-- [ ] http://localhost:3000/parent/profile
-- [ ] http://localhost:3000/activate/parent?token=anything
-- [ ] http://localhost:3000/bursar/online-payments, /bursar/adjustments, /bursar/messages
-- [ ] http://localhost:3000/proprietor/online-payments, /proprietor/messages, /proprietor/messaging-setup, /proprietor/parents
-- [ ] http://localhost:3000/admin/parents, /admin/messages, /admin/communications
+- [ ] http://localhost:3001/parent/fees
+- [ ] http://localhost:3001/parent/fees/verify?reference=anything
+- [ ] http://localhost:3001/parent/profile
+- [ ] http://localhost:3001/activate/parent?token=anything
+- [ ] http://localhost:3001/bursar/online-payments, /bursar/adjustments, /bursar/messages
+- [ ] http://localhost:3001/proprietor/online-payments, /proprietor/messages, /proprietor/messaging-setup, /proprietor/parents
+- [ ] http://localhost:3001/admin/parents, /admin/messages, /admin/communications
 
 ## 12. PRD "done when" for M3
 

@@ -2,7 +2,9 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { BrandLoader } from '@/components/ui/BrandLoader';
+import { ChevronDown } from 'lucide-react';
 import { callApi } from '@/lib/client-api';
+import { SwitchRow } from '@/components/ui/SwitchRow';
 import { CATEGORY_OF, type MessageEvent } from '@/lib/messaging/templates';
 
 interface Messaging {
@@ -110,10 +112,11 @@ export function MessagingSettingsPanel() {
         className={card}
       >
         <h2 className="text-sm font-bold text-slate-900">Messages to Parents</h2>
-        <label className="flex items-center gap-3 min-h-[44px] text-xs font-semibold text-slate-800 cursor-pointer">
-          <input type="checkbox" checked={enabled} onChange={(e) => setEnabled(e.target.checked)} className="w-5 h-5" />
-          Send messages to parents
-        </label>
+        <p className="text-[11px] text-slate-500 leading-relaxed">The school messages a parent’s phone when something happens to their child: a payment arrives, the child is absent or late, the child leaves school, results are out, or the school sends a notice. Each parent can turn any of these off from their own portal.</p>
+        <SwitchRow strong label="Send messages to parents" hint="Turn this off to stop every message from this school." checked={enabled} onChange={setEnabled} />
+        <details className="border-t border-slate-100 pt-3 group">
+          <summary className="min-h-[44px] flex items-center justify-between gap-2 text-xs font-bold text-slate-700 cursor-pointer list-none">Technical settings (Eductive normally sets these up with you)<ChevronDown className="w-4 h-4 shrink-0 transition-transform group-open:rotate-180" /></summary>
+          <div className="space-y-4 pt-2">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label htmlFor="ms-sender" className="block text-[11px] font-bold text-slate-600 mb-1.5">Sender name (3 to 11 letters or digits)</label>
@@ -129,10 +132,9 @@ export function MessagingSettingsPanel() {
             <input id="ms-cost" type="number" inputMode="decimal" min={0} max={1000} step="0.01" value={smsUnitCost} onChange={(e) => setSmsUnitCost(e.target.value)} className={field} />
             <p className="text-[11px] text-slate-500 mt-1">Used to estimate cost when the provider does not report it.</p>
           </div>
-          <label className="flex items-center gap-3 min-h-[44px] text-xs font-semibold text-slate-800 cursor-pointer sm:self-center">
-            <input type="checkbox" checked={useDndRoute} onChange={(e) => setUseDndRoute(e.target.checked)} className="w-5 h-5" />
-            Use the route that reaches numbers with Do Not Disturb on
-          </label>
+          <div className="sm:self-center">
+            <SwitchRow label="Reach numbers with Do Not Disturb on" hint="Uses a route that costs more." checked={useDndRoute} onChange={setUseDndRoute} />
+          </div>
         </div>
 
         <div className="pt-3 border-t border-slate-100 space-y-3">
@@ -152,6 +154,8 @@ export function MessagingSettingsPanel() {
             </div>
           ))}
         </div>
+          </div>
+        </details>
 
         <button type="submit" disabled={busy} className={`${button} bg-brand-primary hover:bg-brand-primary-light text-white`}>Save</button>
       </form>
@@ -165,10 +169,7 @@ export function MessagingSettingsPanel() {
       >
         <h2 className="text-sm font-bold text-slate-900">Fee Reminders</h2>
         <p className="text-[11px] text-slate-500 leading-relaxed">Parents who still owe fees get a message on the days you choose. A reminder is never sent twice for the same day, and not to a parent who has opted out.</p>
-        <label className="flex items-center gap-3 min-h-[44px] text-xs font-semibold text-slate-800 cursor-pointer">
-          <input type="checkbox" checked={remindersOn} onChange={(e) => setRemindersOn(e.target.checked)} className="w-5 h-5" />
-          Send fee reminders
-        </label>
+        <SwitchRow strong label="Send fee reminders" checked={remindersOn} onChange={setRemindersOn} />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label htmlFor="rem-due" className="block text-[11px] font-bold text-slate-600 mb-1.5">Fees fall due on</label>

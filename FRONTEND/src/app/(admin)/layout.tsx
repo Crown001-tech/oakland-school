@@ -83,7 +83,7 @@ const NAV_GROUPS: NavGroup[] = [
     category: 'ADMIN',
     items: [
       { label: 'Communications', href: '/admin/communications', icon: MessageSquare },
-      { label: 'Parent Accounts', href: '/admin/parents', icon: Users },
+      { label: 'Invite Parents', href: '/admin/parents', icon: Users },
       { label: 'Messages', href: '/admin/messages', icon: MessageSquare },
       { label: 'Document Centre', href: '/admin/documents', icon: FolderArchive },
       { label: 'Letters', href: '/admin/letters', icon: FileText },

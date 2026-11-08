@@ -88,7 +88,7 @@ const NAV_GROUPS: NavGroup[] = [
   {
     category: 'PARENTS',
     items: [
-      { label: 'Parent Accounts', href: '/proprietor/parents', icon: Smartphone },
+      { label: 'Invite Parents', href: '/proprietor/parents', icon: Smartphone },
       { label: 'Messages', href: '/proprietor/messages', icon: MessageSquare },
       { label: 'Messaging Setup', href: '/proprietor/messaging-setup', icon: Settings },
     ],

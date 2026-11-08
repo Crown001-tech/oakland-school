@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { callApi } from '@/lib/client-api';
+import { SwitchRow } from '@/components/ui/SwitchRow';
 
 const CATEGORIES: { value: string; label: string }[] = [
   { value: 'payment', label: 'Payment receipts' },
@@ -16,7 +17,7 @@ const CATEGORIES: { value: string; label: string }[] = [
 export function ParentMessagePreferences() {
   const [stopped, setStopped] = useState<string[] | null>(null);
   const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
+  const [saving, setSaving] = useState<string[]>([]);
 
   const load = useCallback(async () => {
     const r = await callApi<{ categories: string[] }>('/api/messages/opt-out');
@@ -31,13 +32,18 @@ export function ParentMessagePreferences() {
     load();
   }, [load]);
 
+  // Each switch changes on its own, at once, and only this one is held while it saves. The others are not touched.
   const change = async (category: string, receive: boolean) => {
-    setBusy(true);
     setError('');
+    setSaving((s) => [...s, category]);
+    setStopped((prev) => (prev ? (receive ? prev.filter((c) => c !== category) : [...prev.filter((c) => c !== category), category]) : prev));
     const r = receive ? await callApi(`/api/messages/opt-out?category=${category}`, { method: 'DELETE' }) : await callApi('/api/messages/opt-out', { method: 'POST', body: { category } });
-    if (!r.ok) setError(r.message);
-    await load();
-    setBusy(false);
+    if (!r.ok) {
+      // It did not save: put this one back
+      setError(r.message);
+      setStopped((prev) => (prev ? (receive ? [...prev.filter((c) => c !== category), category] : prev.filter((c) => c !== category)) : prev));
+    }
+    setSaving((s) => s.filter((c) => c !== category));
   };
 
   if (!stopped) return null;
@@ -49,16 +55,10 @@ export function ParentMessagePreferences() {
         <h2 className="text-sm font-bold text-slate-900">Messages to My Phone</h2>
         <p className="text-[11px] text-slate-500 leading-relaxed">Choose which messages the school sends to your phone. You will still see everything in this portal.</p>
       </div>
-      <label className="flex items-center gap-3 min-h-[44px] text-xs font-bold text-slate-900 cursor-pointer">
-        <input type="checkbox" disabled={busy} checked={!allOff} onChange={(e) => change('all', e.target.checked)} className="w-5 h-5" />
-        Receive messages from the school
-      </label>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6">
+      <SwitchRow strong label="Receive messages from the school" checked={!allOff} disabled={saving.includes('all')} onChange={(on) => change('all', on)} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 border-t border-slate-100 pt-1">
         {CATEGORIES.map((c) => (
-          <label key={c.value} className={`flex items-center gap-3 min-h-[44px] text-xs font-semibold cursor-pointer ${allOff ? 'text-slate-400' : 'text-slate-800'}`}>
-            <input type="checkbox" disabled={busy || allOff} checked={!allOff && !stopped.includes(c.value)} onChange={(e) => change(c.value, e.target.checked)} className="w-5 h-5" />
-            {c.label}
-          </label>
+          <SwitchRow key={c.value} label={c.label} checked={!allOff && !stopped.includes(c.value)} disabled={allOff || saving.includes(c.value)} onChange={(on) => change(c.value, on)} />
         ))}
       </div>
       {error && <p role="alert" className="text-xs font-semibold text-rose-700">{error}</p>}

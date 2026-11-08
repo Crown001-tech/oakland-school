@@ -30,6 +30,7 @@ export function ParentsPanel() {
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
   const [results, setResults] = useState<Record<string, Sent>>({});
+  const [bulk, setBulk] = useState('');
 
   const load = useCallback(async () => {
     const r = await callApi<Data>('/api/parent-invites');
@@ -54,6 +55,22 @@ export function ParentsPanel() {
     load();
   };
 
+  const ready = (data?.parents ?? []).filter((p) => !p.activated && !p.invited && (p.phone || p.hasEmail)).length;
+
+  const inviteAll = async () => {
+    if (!window.confirm(`Send a sign-up link to ${ready} parent${ready === 1 ? '' : 's'}? Each gets it on their phone.`)) return;
+    setBusy('all');
+    setError('');
+    setBulk('');
+    const r = await callApi<{ queued: number; skipped: number; failed: number; nobodyToSendTo: number }>('/api/parent-invites', { method: 'POST', body: { all: true } });
+    if (r.ok) {
+      const d = r.data;
+      setBulk(`${d.queued} link${d.queued === 1 ? '' : 's'} queued to send.${d.skipped ? ` ${d.skipped} not sent (opted out).` : ''}${d.failed ? ` ${d.failed} failed.` : ''}${d.nobodyToSendTo ? ` ${d.nobodyToSendTo} parent${d.nobodyToSendTo === 1 ? ' has' : 's have'} no phone or email on record.` : ''}`);
+    } else setError(r.message);
+    setBusy('');
+    load();
+  };
+
   const shown = useMemo(() => {
     const q = search.trim().toLowerCase();
     return (data?.parents ?? []).filter((p) => (filter === 'all' || (filter === 'activated') === p.activated) && (!q || p.name.toLowerCase().includes(q) || p.children.some((c) => c.toLowerCase().includes(q))));
@@ -65,12 +82,21 @@ export function ParentsPanel() {
 
   return (
     <section className="space-y-4">
-      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 flex flex-wrap items-baseline gap-x-6 gap-y-1">
-        <div>
-          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Parents activated</span>
-          <span className="text-2xl font-bold font-mono text-slate-900">{data.total > 0 ? `${data.activated} of ${data.total}` : '—'}</span>
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-5 space-y-3">
+        <p className="text-xs text-slate-600 leading-relaxed">
+          A parent needs their own account to see their child’s fees and results and to pay online. Send them a link on their phone: they open it, choose a password, and they are in. Nobody types anything for them. Messages from the school (absent, fees received, results) reach a parent’s phone <strong>without</strong> an account.
+        </p>
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <div>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">Parents activated</span>
+            <span className="text-2xl font-bold font-mono text-slate-900">{data.total > 0 ? `${data.activated} of ${data.total}` : '—'}</span>
+            {percent !== null && <span className="ml-3 text-sm font-bold text-slate-600">{percent}%</span>}
+          </div>
+          <button type="button" disabled={busy === 'all' || ready === 0} onClick={inviteAll} className="min-h-[44px] px-5 rounded-xl bg-brand-primary hover:bg-brand-primary-light text-white text-xs font-bold disabled:opacity-50 cursor-pointer sm:ml-auto">
+            {busy === 'all' ? 'Sending' : ready === 0 ? 'Everyone has been invited' : `Send Link to All ${ready} Parents`}
+          </button>
         </div>
-        {percent !== null && <span className="text-sm font-bold text-slate-600">{percent}%</span>}
+        {bulk && <p role="status" className="text-xs font-semibold text-slate-800">{bulk}</p>}
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
