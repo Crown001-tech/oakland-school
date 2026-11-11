@@ -2,6 +2,7 @@
   "name": "oakland-school-monorepo",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@9.15.4",
   "scripts": {
     "dev": "pnpm --filter oakland-school dev",
     "build": "pnpm --filter oakland-school build",
