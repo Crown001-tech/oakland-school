@@ -151,3 +151,4 @@ fs.writeFileSync(path.join(root, 'public', 'icon.png'), png64);
 fs.writeFileSync(path.join(root, 'src', 'app', 'icon.png'), png64);
 
 console.log('Successfully generated Oakland favicon.ico and icon.png!');
+

@@ -7,7 +7,7 @@ import { getHostSchoolPublic } from '@/lib/school-brand';
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const school = await getHostSchoolPublic();
-  const showLongPages = school?.publicSite === 'full';
+  const showLongPages = school ? school.publicSite === 'full' : true;
   return (
     <div className="ok-public-root" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f5f2ed', overflowX: 'hidden' }}>
       <style>{`

@@ -89,7 +89,12 @@ export async function findSchoolIdForHost(admin: SupabaseClient, host: string | 
   }
   if (!id && !subdomainOf(host)) {
     const { data } = await admin.from('schools').select('id').limit(2);
-    if (data && data.length === 1) id = data[0].id;
+    if (data && data.length === 1) {
+      id = data[0].id;
+    } else if (data && data.length > 1) {
+      const { data: oakland } = await admin.from('schools').select('id').eq('code', 'OAK-001').maybeSingle();
+      if (oakland?.id) id = oakland.id;
+    }
   }
 
   hostCache.set(key, { id, expires: Date.now() + MEMBER_TTL_MS });
