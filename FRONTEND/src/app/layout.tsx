@@ -31,11 +31,27 @@ export const metadata: Metadata = isEductiveBrand()
   ? {
       title: `${PRODUCT_NAME} | School Management`,
       description: `${PRODUCT_NAME} demo school: admissions, scores, fees and gate pickup for Nigerian schools.`,
+      icons: {
+        icon: [
+          { url: '/icon.svg', type: 'image/svg+xml' },
+          { url: '/favicon.ico', sizes: 'any' },
+        ],
+        shortcut: '/icon.svg',
+        apple: '/logo.jpg',
+      },
     }
   : {
       title: 'Oakland Schools | Academic Excellence & School Management',
       description:
         'Flagship school management platform for Oakland Schools. Internal administration, student records, attendance tracking, and academic assessment.',
+      icons: {
+        icon: [
+          { url: '/icon.svg', type: 'image/svg+xml' },
+          { url: '/favicon.ico', sizes: 'any' },
+        ],
+        shortcut: '/icon.svg',
+        apple: '/logo.jpg',
+      },
     };
 
 export default async function RootLayout({
