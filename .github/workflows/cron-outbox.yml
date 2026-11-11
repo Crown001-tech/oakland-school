@@ -1,0 +1,21 @@
+name: Scheduled Message Outbox Drain
+
+on:
+  schedule:
+    # Runs every 10 minutes on GitHub Actions (free)
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  drain:
+    name: Drain Queued Messages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Message Outbox API
+        if: ${{ env.APP_URL != '' && env.CRON_SECRET != '' }}
+        env:
+          APP_URL: ${{ secrets.NEXT_PUBLIC_APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          curl -s -f -X POST "${APP_URL}/api/cron/messages" \
+            -H "Authorization: Bearer ${CRON_SECRET}" || true
