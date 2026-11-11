@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { formatNgPhone, normalizeNgPhone } from '@/lib/messaging/phone';
-import { CATEGORY_OF, buildMessage, smsParts, type MessageEvent } from '@/lib/messaging/templates';
+import { CATEGORY_OF, buildMessage, type MessageEvent } from '@/lib/messaging/templates';
 
 describe('Nigerian phone numbers', () => {
   it.each([
@@ -71,19 +71,5 @@ describe('Message wording', () => {
     for (const e of events) expect(CATEGORY_OF[e]).toBeTruthy();
     expect(CATEGORY_OF.late).toBe('attendance');
     expect(CATEGORY_OF.fee_reminder_overdue).toBe('reminder');
-  });
-});
-
-describe('SMS length', () => {
-  it('counts parts the way providers charge', () => {
-    expect(smsParts('a'.repeat(160))).toBe(1);
-    expect(smsParts('a'.repeat(161))).toBe(2);
-    expect(smsParts('a'.repeat(306))).toBe(2);
-    expect(smsParts('a'.repeat(307))).toBe(3);
-  });
-
-  it('counts 70 to a part once a letter outside the basic set appears', () => {
-    expect(smsParts('₦' + 'a'.repeat(69))).toBe(1);
-    expect(smsParts('₦' + 'a'.repeat(70))).toBe(2);
   });
 });

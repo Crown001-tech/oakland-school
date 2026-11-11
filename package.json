@@ -8,7 +8,9 @@
     "start": "pnpm --filter oakland-school start",
     "lint": "pnpm --filter oakland-school lint",
     "typecheck": "pnpm --filter oakland-school typecheck",
-    "test": "pnpm --filter oakland-school test"
+    "test": "pnpm --filter oakland-school test",
+    "db:migrate": "pnpm --filter oakland-backend migrate",
+    "db:audit": "pnpm --filter oakland-backend audit:scope"
   },
   "devDependencies": {
     "playwright": "^1.64.1"

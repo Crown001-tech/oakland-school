@@ -10,7 +10,11 @@ import { pgcrypto } from '@electric-sql/pglite/contrib/pgcrypto';
  * production. Supabase's roles, default grants and `auth` helpers are recreated first.
  */
 
-const MIGRATIONS_DIR = path.resolve(import.meta.dirname, '../../../supabase/migrations');
+const MIGRATIONS_DIR =
+  [
+    path.resolve(import.meta.dirname, '../../../BACKEND/supabase/migrations'),
+    path.resolve(import.meta.dirname, '../../../supabase/migrations'),
+  ].find((d) => fs.existsSync(d)) || path.resolve(import.meta.dirname, '../../../BACKEND/supabase/migrations');
 
 // Migration 005 cannot run on an empty database: migration 001 already created
 // `fee_structures` without `class_name`. Migration 010 later recreates every table 005

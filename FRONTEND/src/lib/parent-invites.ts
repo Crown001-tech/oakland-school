@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 /**
- * Parent invite links. The school sends a parent a link by WhatsApp or SMS; the parent opens it, confirms their
+ * Parent invite links. The school sends a parent a link by WhatsApp; the parent opens it, confirms their
  * email, and chooses their own password. There is no shared or default password.
  *
  *   - The link carries a long random token. Only its hash is kept, so a copy of the database cannot be used to

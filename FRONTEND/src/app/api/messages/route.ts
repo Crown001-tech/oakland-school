@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
       success: true,
       data: {
         usage: summariseUsage(month || []),
-        connected: { sms: Boolean(providers.termii), email: Boolean(providers.email), whatsapp: Boolean(providers.termii) && Boolean(settings.whatsappDeviceId || providers.termii?.whatsappDeviceId) },
+        connected: { email: Boolean(providers.email), whatsapp: Boolean(providers.termii) && Boolean(settings.whatsappDeviceId || providers.termii?.whatsappDeviceId) },
         messages: (messages || []).map((m: any) => ({
           id: m.id,
           event: m.event,

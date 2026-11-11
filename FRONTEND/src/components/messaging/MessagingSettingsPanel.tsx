@@ -9,17 +9,14 @@ import { CATEGORY_OF, type MessageEvent } from '@/lib/messaging/templates';
 
 interface Messaging {
   enabled?: boolean;
-  senderId?: string;
   whatsappDeviceId?: string;
-  smsUnitCost?: number;
-  useDndRoute?: boolean;
   whatsappTemplates?: Record<string, { templateId: string; fields?: string[] }>;
 }
 interface Reminders { enabled?: boolean; daysBefore?: number[]; daysAfter?: number[]; dueDate?: string }
 interface Settings {
   messaging: Messaging;
   reminders: Reminders;
-  providers: { termii: boolean; email: boolean; defaultSenderId: string | null };
+  providers: { whatsapp: boolean; email: boolean };
 }
 
 const EVENT_LABEL: Record<MessageEvent, string> = {
@@ -46,10 +43,7 @@ export function MessagingSettingsPanel() {
   const [busy, setBusy] = useState(false);
 
   const [enabled, setEnabled] = useState(true);
-  const [senderId, setSenderId] = useState('');
   const [whatsappDeviceId, setWhatsappDeviceId] = useState('');
-  const [smsUnitCost, setSmsUnitCost] = useState('');
-  const [useDndRoute, setUseDndRoute] = useState(false);
   const [templates, setTemplates] = useState<Record<string, { templateId: string; fields: string }>>({});
 
   const [remindersOn, setRemindersOn] = useState(false);
@@ -66,10 +60,7 @@ export function MessagingSettingsPanel() {
     const { messaging: m, reminders: rem } = r.data;
     setSettings(r.data);
     setEnabled(m.enabled !== false);
-    setSenderId(m.senderId ?? '');
     setWhatsappDeviceId(m.whatsappDeviceId ?? '');
-    setSmsUnitCost(m.smsUnitCost != null ? String(m.smsUnitCost) : '');
-    setUseDndRoute(Boolean(m.useDndRoute));
     setTemplates(Object.fromEntries(Object.entries(m.whatsappTemplates ?? {}).map(([k, v]) => [k, { templateId: v.templateId, fields: (v.fields ?? []).join(', ') }])));
     setRemindersOn(Boolean(rem.enabled));
     setBefore((rem.daysBefore ?? []).join(', '));
@@ -98,16 +89,16 @@ export function MessagingSettingsPanel() {
     <div className="space-y-6">
       {message && <p role="status" className="text-xs font-semibold text-slate-800 bg-slate-100 rounded-xl px-4 py-3">{message}</p>}
 
-      {!settings.providers.termii && (
+      {!settings.providers.whatsapp && !settings.providers.email && (
         <div role="status" className="p-4 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 font-semibold">
-          No SMS or WhatsApp provider is connected to Eductive yet. You can fill these in now; messages will wait in the queue until it is connected.
+          No WhatsApp or email service is connected to Eductive yet. You can fill these in now; messages will wait in the queue until it is connected.
         </div>
       )}
 
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          save({ messaging: { enabled, senderId, whatsappDeviceId, smsUnitCost, useDndRoute, whatsappTemplates: Object.fromEntries(Object.entries(templates).map(([k, v]) => [k, { templateId: v.templateId, fields: v.fields.split(',').map((f) => f.trim()).filter(Boolean) }])) } }, 'Messaging settings saved.');
+          save({ messaging: { enabled, whatsappDeviceId, whatsappTemplates: Object.fromEntries(Object.entries(templates).map(([k, v]) => [k, { templateId: v.templateId, fields: v.fields.split(',').map((f) => f.trim()).filter(Boolean) }])) } }, 'Messaging settings saved.');
         }}
         className={card}
       >
@@ -117,29 +108,14 @@ export function MessagingSettingsPanel() {
         <details className="border-t border-slate-100 pt-3 group">
           <summary className="min-h-[44px] flex items-center justify-between gap-2 text-xs font-bold text-slate-700 cursor-pointer list-none">Technical settings (Eductive normally sets these up with you)<ChevronDown className="w-4 h-4 shrink-0 transition-transform group-open:rotate-180" /></summary>
           <div className="space-y-4 pt-2">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label htmlFor="ms-sender" className="block text-[11px] font-bold text-slate-600 mb-1.5">Sender name (3 to 11 letters or digits)</label>
-            <input id="ms-sender" value={senderId} maxLength={11} onChange={(e) => setSenderId(e.target.value)} className={field} />
-            <p className="text-[11px] text-slate-500 mt-1">{settings.providers.defaultSenderId ? 'Left empty, messages use Eductive’s own sender name.' : 'The sender name must be registered with the SMS provider first.'}</p>
-          </div>
-          <div>
-            <label htmlFor="ms-wa" className="block text-[11px] font-bold text-slate-600 mb-1.5">WhatsApp device name</label>
-            <input id="ms-wa" value={whatsappDeviceId} onChange={(e) => setWhatsappDeviceId(e.target.value)} className={field} />
-          </div>
-          <div>
-            <label htmlFor="ms-cost" className="block text-[11px] font-bold text-slate-600 mb-1.5">Cost of one SMS part, in naira</label>
-            <input id="ms-cost" type="number" inputMode="decimal" min={0} max={1000} step="0.01" value={smsUnitCost} onChange={(e) => setSmsUnitCost(e.target.value)} className={field} />
-            <p className="text-[11px] text-slate-500 mt-1">Used to estimate cost when the provider does not report it.</p>
-          </div>
-          <div className="sm:self-center">
-            <SwitchRow label="Reach numbers with Do Not Disturb on" hint="Uses a route that costs more." checked={useDndRoute} onChange={setUseDndRoute} />
-          </div>
+        <div className="max-w-sm">
+          <label htmlFor="ms-wa" className="block text-[11px] font-bold text-slate-600 mb-1.5">WhatsApp device name</label>
+          <input id="ms-wa" value={whatsappDeviceId} onChange={(e) => setWhatsappDeviceId(e.target.value)} className={field} />
         </div>
 
         <div className="pt-3 border-t border-slate-100 space-y-3">
           <h3 className="text-xs font-bold text-slate-900">WhatsApp templates</h3>
-          <p className="text-[11px] text-slate-500 leading-relaxed">WhatsApp only lets a school start a conversation with a template that WhatsApp has approved. Enter the template id for each message and the names of the values it is filled with, in order. A message with no template goes by SMS.</p>
+          <p className="text-[11px] text-slate-500 leading-relaxed">WhatsApp only lets a school start a conversation with a template that WhatsApp has approved. Enter the template id for each message and the names of the values it is filled with, in order. A message with no template goes by email if the parent has one on record, and otherwise is not sent.</p>
           {sendable.map((event) => (
             <div key={event} className="grid grid-cols-1 sm:grid-cols-[10rem_1fr_1fr] gap-2 items-end">
               <span className="text-xs font-bold text-slate-800 sm:pb-3">{EVENT_LABEL[event]}</span>

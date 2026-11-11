@@ -1,6 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { sendEmail, sendTermiiSms, sendTermiiWhatsappTemplate, parseTermiiReport, type DeliveryReport, type ProviderEnv, type SendResult } from '@/lib/messaging/providers';
-import { smsParts } from '@/lib/messaging/templates';
+import { sendEmail, sendTermiiWhatsappTemplate, parseTermiiReport, type DeliveryReport, type ProviderEnv, type SendResult } from '@/lib/messaging/providers';
 import type { Channel } from '@/lib/messaging/outbox';
 
 /**
@@ -21,12 +20,9 @@ export const backoffMinutes = (attempts: number) => BACKOFF_MINUTES[Math.min(Mat
 
 export interface SchoolMessaging {
   enabled?: boolean;
-  senderId?: string;
   whatsappDeviceId?: string;
   /** event -> the approved template's id, and the names of the values it is filled with */
   whatsappTemplates?: Record<string, { templateId: string; fields?: string[] }>;
-  smsUnitCost?: number;
-  useDndRoute?: boolean;
 }
 
 export function readMessagingSettings(settings: unknown): SchoolMessaging {
@@ -56,7 +52,7 @@ type Net = { fetchImpl?: typeof fetch };
 
 /** The channels this message can go by, in the order to try them. Pure apart from the sends it builds. */
 export function planChannels(row: OutboxRow, schoolName: string, messaging: SchoolMessaging, providers: ProviderEnv, net: Net = {}): PlannedChannel[] {
-  const plans: Record<Channel, PlannedChannel | null> = { whatsapp: null, sms: null, email: null };
+  const plans: Record<Channel, PlannedChannel | null> = { whatsapp: null, email: null };
   const t = providers.termii;
 
   const deviceId = messaging.whatsappDeviceId || t?.whatsappDeviceId;
@@ -68,17 +64,12 @@ export function planChannels(row: OutboxRow, schoolName: string, messaging: Scho
     plans.whatsapp = { channel: 'whatsapp', send: () => sendTermiiWhatsappTemplate(t, { to: row.recipient_phone!, deviceId, templateId: template.templateId, data }, net) };
   }
 
-  const senderId = messaging.senderId || t?.defaultSenderId;
-  if (t && row.recipient_phone && senderId) {
-    plans.sms = { channel: 'sms', send: () => sendTermiiSms(t, { to: row.recipient_phone!, text: row.body, senderId, route: messaging.useDndRoute ? 'dnd' : 'generic' }, net) };
-  }
-
   if (providers.email && row.recipient_email) {
     const e = providers.email;
     plans.email = { channel: 'email', send: () => sendEmail(e, { to: row.recipient_email!, subject: row.subject || `Message from ${schoolName}`, text: row.body }, net) };
   }
 
-  const order: Channel[] = [row.preferred_channel, ...(['whatsapp', 'sms', 'email'] as Channel[]).filter((c) => c !== row.preferred_channel)];
+  const order: Channel[] = [row.preferred_channel, ...(['whatsapp', 'email'] as Channel[]).filter((c) => c !== row.preferred_channel)];
   return order.map((c) => plans[c]).filter((p): p is PlannedChannel => p !== null);
 }
 
@@ -162,11 +153,9 @@ export async function drainOutbox(o: DrainOptions): Promise<DrainSummary> {
     }
 
     if (delivered) {
-      const unit = school.messaging.smsUnitCost;
-      const estimate = delivered.channel === 'sms' && typeof unit === 'number' && unit >= 0 ? Math.round(unit * smsParts(row.body) * 10000) / 10000 : null;
       await admin
         .from('message_outbox')
-        .update({ status: 'sent', channel_used: delivered.channel, provider_message_id: delivered.id ?? null, sent_at: now.toISOString(), last_error: null, ...(estimate != null ? { cost: estimate } : {}) })
+        .update({ status: 'sent', channel_used: delivered.channel, provider_message_id: delivered.id ?? null, sent_at: now.toISOString(), last_error: null })
         .eq('id', row.id);
       summary.sent += 1;
     } else if (retryable && attempts < MAX_ATTEMPTS) {

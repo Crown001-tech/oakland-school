@@ -31,8 +31,14 @@ const env = Object.fromEntries(
     })
 );
 
+const migrationsDir =
+  [
+    path.join(root, 'BACKEND/supabase/migrations'),
+    path.join(root, 'supabase/migrations'),
+  ].find((d) => fs.existsSync(d)) || path.join(root, 'BACKEND/supabase/migrations');
+
 const files = wanted.map((n) => {
-  const match = fs.readdirSync(path.join(root, 'supabase/migrations')).find((f) => f.startsWith(n + '_'));
+  const match = fs.readdirSync(migrationsDir).find((f) => f.startsWith(n + '_'));
   if (!match) {
     console.error(`No migration starts with ${n}_`);
     process.exit(1);
@@ -45,7 +51,7 @@ await client.connect();
 for (const file of files) {
   try {
     await client.query('BEGIN');
-    await client.query(fs.readFileSync(path.join(root, 'supabase/migrations', file), 'utf8'));
+    await client.query(fs.readFileSync(path.join(migrationsDir, file), 'utf8'));
     await client.query('COMMIT');
     console.log('applied', file);
   } catch (err) {

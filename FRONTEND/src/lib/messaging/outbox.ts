@@ -13,7 +13,7 @@ import { CATEGORY_OF, buildMessage, type MessageEvent, type MessageParams } from
 
 type Db = { from: (table: string) => any; schoolId: string };
 
-export type Channel = 'whatsapp' | 'sms' | 'email';
+export type Channel = 'whatsapp' | 'email';
 
 export interface EnqueueInput {
   event: MessageEvent;

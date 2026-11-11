@@ -26,7 +26,7 @@ export async function GET() {
         enabled: pay.enabled !== false,
         ready: Boolean(cfg) && onlinePaymentsReady(pay),
         feeBearer: pay.feeBearer ?? 'subaccount',
-        messaging: { sms: Boolean(providers.termii), email: Boolean(providers.email) },
+        messaging: { whatsapp: Boolean(providers.termii), email: Boolean(providers.email) },
       },
     });
   } catch (err) {

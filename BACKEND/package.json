@@ -1,0 +1,12 @@
+{
+  "name": "oakland-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Oakland School & Eductive Database, Migrations, and Backend Services Layer",
+  "scripts": {
+    "migrate": "node scripts/apply-migrations.mjs",
+    "new-school:create-owner": "node scripts/new-school/02-create-owner.mjs",
+    "audit:scope": "node scripts/audit-school-scope.mjs"
+  }
+}

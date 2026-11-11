@@ -28,7 +28,7 @@ interface Usage {
 }
 interface Data {
   usage: Usage;
-  connected: { sms: boolean; email: boolean; whatsapp: boolean };
+  connected: { email: boolean; whatsapp: boolean };
   messages: Message[];
 }
 
@@ -52,7 +52,7 @@ const FILTERS = [
   { value: 'failed', label: 'Failed' },
   { value: 'skipped', label: 'Not sent' },
 ];
-const CHANNEL: Record<string, string> = { sms: 'SMS', whatsapp: 'WhatsApp', email: 'Email' };
+const CHANNEL: Record<string, string> = { whatsapp: 'WhatsApp', email: 'Email' };
 
 /** What the school has sent to parents this month, what it cost, and what failed and why. */
 export function MessagesPanel() {
@@ -81,7 +81,7 @@ export function MessagesPanel() {
   if (!data) return error ? <p role="alert" className="text-xs font-semibold text-rose-700">{error}</p> : <BrandLoader size="lg" />;
 
   const { usage, connected } = data;
-  const anyConnected = connected.sms || connected.email || connected.whatsapp;
+  const anyConnected = connected.email || connected.whatsapp;
   const tiles: [string, string][] = [
     ['Messages this month', String(usage.total)],
     ['Delivered', String(usage.byStatus.delivered ?? 0)],
@@ -107,7 +107,7 @@ export function MessagesPanel() {
       </div>
       {usage.withoutCost > 0 && (
         <p className="text-[11px] text-slate-500">
-          {usage.withoutCost} sent message{usage.withoutCost === 1 ? ' has' : 's have'} no cost yet. Cost is added when the provider reports it, or from the SMS cost set in Messaging Setup. It is never counted as free.
+          {usage.withoutCost} sent message{usage.withoutCost === 1 ? ' has' : 's have'} no cost yet. Cost is added when the provider reports it. It is never counted as free.
         </p>
       )}
 

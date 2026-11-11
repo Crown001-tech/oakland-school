@@ -19,7 +19,7 @@ export async function GET() {
       data: {
         messaging: readMessagingSettings(school?.settings),
         reminders: readReminderSettings(school?.settings),
-        providers: { termii: Boolean(providers.termii), email: Boolean(providers.email), defaultSenderId: providers.termii?.defaultSenderId ?? null },
+        providers: { whatsapp: Boolean(providers.termii), email: Boolean(providers.email) },
       },
     });
   } catch (err) {

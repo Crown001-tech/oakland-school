@@ -153,8 +153,8 @@ describe('Telling every guardian of a child', () => {
 describe('Usage and cost', () => {
   it('counts what was sent and adds only the cost that is known', () => {
     const u = summariseUsage([
-      { status: 'delivered', channel_used: 'sms', cost: '4.0000' },
-      { status: 'sent', channel_used: 'sms', cost: null },
+      { status: 'delivered', channel_used: 'email', cost: '4.0000' },
+      { status: 'sent', channel_used: 'email', cost: null },
       { status: 'delivered', channel_used: 'whatsapp', cost: 2.5 },
       { status: 'failed', channel_used: null, cost: null },
       { status: 'queued', channel_used: null, cost: null },
@@ -162,13 +162,13 @@ describe('Usage and cost', () => {
     ]);
     expect(u.total).toBe(6);
     expect(u.byStatus).toMatchObject({ delivered: 2, sent: 1, failed: 1, queued: 1, skipped: 1 });
-    expect(u.byChannel.sms).toEqual({ count: 2, cost: 4 });
+    expect(u.byChannel.email).toEqual({ count: 2, cost: 4 });
     expect(u.byChannel.whatsapp).toEqual({ count: 1, cost: 2.5 });
     expect(u.knownCost).toBe(6.5);
     expect(u.withoutCost).toBe(1);
   });
 
   it('never reports an unknown cost as zero spent', () => {
-    expect(summariseUsage([{ status: 'sent', channel_used: 'sms', cost: null }])).toMatchObject({ knownCost: 0, withoutCost: 1 });
+    expect(summariseUsage([{ status: 'sent', channel_used: 'email', cost: null }])).toMatchObject({ knownCost: 0, withoutCost: 1 });
   });
 });

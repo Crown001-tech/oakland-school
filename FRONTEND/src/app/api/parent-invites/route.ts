@@ -66,7 +66,7 @@ async function inviteOne(sb: Db, guardian: GuardianRow, who: string, base: strin
 }
 
 /**
- * The school invites parents to set up their account. The link goes to the parent's phone by WhatsApp or SMS
+ * The school invites parents to set up their account. The link goes to the parent's phone by WhatsApp
  * (their email if they have no phone). Either one parent (guardianId), or every parent who has a child at the
  * school, has not set up an account, has no invite still open, and has a phone or email to send to (all: true).
  * With one parent, when there is nowhere to send the link it is shown once to the person inviting, to hand over.

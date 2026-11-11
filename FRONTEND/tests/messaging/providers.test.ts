@@ -1,6 +1,6 @@
 import crypto from 'node:crypto';
 import { describe, expect, it, vi } from 'vitest';
-import { parseTermiiReport, providersFromEnv, sendEmail, sendTermiiSms, sendTermiiWhatsappTemplate, verifyTermiiSignature } from '@/lib/messaging/providers';
+import { parseTermiiReport, providersFromEnv, sendEmail, sendTermiiWhatsappTemplate, verifyTermiiSignature } from '@/lib/messaging/providers';
 
 const termii = { apiKey: 'tk_secret', baseUrl: 'https://api.example-termii.test' };
 const answer = (status: number, json: unknown) => vi.fn(async () => new Response(JSON.stringify(json), { status }));
@@ -20,38 +20,16 @@ describe('What is set up', () => {
   });
 });
 
-describe('Sending an SMS', () => {
-  it('sends the fields Termii documents and reads the message id', async () => {
-    const f = answer(200, { code: 'ok', balance: 1047.5, message_id: '301754', message: 'Successfully Sent', message_id_str: '301754' });
-    const r = await sendTermiiSms(termii, { to: '2348031234567', text: 'Hello', senderId: 'Greenfield' }, net(f));
-    expect(r).toEqual({ ok: true, providerMessageId: '301754' });
-    const [url, init] = f.mock.calls[0] as unknown as [string, RequestInit];
-    expect(url).toBe('https://api.example-termii.test/api/sms/send');
-    expect(JSON.parse(String(init.body))).toEqual({ api_key: 'tk_secret', to: '2348031234567', from: 'Greenfield', sms: 'Hello', type: 'plain', channel: 'generic' });
-  });
-
-  it('uses the DND route when asked', async () => {
-    const f = answer(200, { code: 'ok', message_id: '1' });
-    await sendTermiiSms(termii, { to: '2348031234567', text: 'Hello', senderId: 'Greenfield', route: 'dnd' }, net(f));
-    expect(JSON.parse(String((f.mock.calls[0] as unknown as [string, RequestInit])[1].body)).channel).toBe('dnd');
-  });
-
-  it('refuses a sender name Termii would reject, without calling it', async () => {
-    const f = answer(200, {});
-    expect((await sendTermiiSms(termii, { to: '2348031234567', text: 'x', senderId: 'AB' }, net(f))).retryable).toBe(false);
-    expect((await sendTermiiSms(termii, { to: '2348031234567', text: 'x', senderId: 'Far Too Long Name' }, net(f))).ok).toBe(false);
-    expect(f).not.toHaveBeenCalled();
-  });
-
+describe('When Termii refuses or cannot be reached', () => {
   it.each([
-    [400, 'Invalid Sender Id', false],
+    [400, 'Template not approved', false],
     [401, 'Unauthorized', false],
     [422, 'Bad number', false],
     [429, 'Too many requests', true],
     [503, 'Unavailable', true],
     [400, 'Insufficient balance', true],
   ])('treats %s "%s" as retryable: %s', async (status, message, retryable) => {
-    const r = await sendTermiiSms(termii, { to: '2348031234567', text: 'x', senderId: 'Greenfield' }, net(answer(status, { message })));
+    const r = await sendTermiiWhatsappTemplate(termii, { to: '2348031234567', deviceId: 'dev', templateId: 'tpl', data: {} }, net(answer(status, { message })));
     expect(r).toMatchObject({ ok: false, retryable, error: message });
   });
 
@@ -59,7 +37,7 @@ describe('Sending an SMS', () => {
     const f = vi.fn(async () => {
       throw new Error('boom tk_secret');
     });
-    const r = await sendTermiiSms(termii, { to: '2348031234567', text: 'x', senderId: 'Greenfield' }, net(f));
+    const r = await sendTermiiWhatsappTemplate(termii, { to: '2348031234567', deviceId: 'dev', templateId: 'tpl', data: {} }, net(f));
     expect(r).toMatchObject({ ok: false, retryable: true });
     expect(r.error).not.toContain('tk_secret');
   });

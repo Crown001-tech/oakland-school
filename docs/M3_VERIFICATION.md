@@ -3,7 +3,7 @@
 Work through this top to bottom. Each step says what to run or open, and what you should see.
 Paths are relative to `FRONTEND` unless a URL is given. Local addresses assume `pnpm dev` on port 3000.
 
-**What M3 does:** a parent pays fees online through Paystack and the bursar sees the payment matched to the student with nothing typed. The school can part-pay, plan instalments, and give scholarships, discounts and sibling discounts. Parents get WhatsApp, SMS or email messages for payments, absence, lateness, gate release, results and school notices, plus scheduled fee reminders. Parents activate their own accounts from a link sent to their phone.
+**What M3 does:** a parent pays fees online through Paystack and the bursar sees the payment matched to the student with nothing typed. The school can part-pay, plan instalments, and give scholarships, discounts and sibling discounts. Parents get WhatsApp or email messages (there is no SMS) for payments, absence, lateness, gate release, results and school notices, plus scheduled fee reminders. Parents activate their own accounts from a link sent to their phone.
 
 **Be clear about what has and has not been tested.** Everything below marked "automated" runs in the test suite against a real Postgres (the migrations are applied for real) with Paystack and Termii replaced by stand-ins. **Nothing has been run against live Paystack, Termii or Resend.** Sections 4 to 9 are how you find out whether the real services behave the way the code assumes. Where the code rests on something I could not confirm, it is marked **UNVERIFIED**.
 
@@ -32,7 +32,7 @@ What the M3 tests prove, if you want to run one area on its own:
 - [ ] `pnpm vitest run tests/finance/online-payments.test.ts tests/finance/online-payment-flow.test.ts` : a payment is recorded only when Paystack confirms it, for the same amount in naira; the same webhook sent twice, even at the same moment, records one payment and one receipt; a wrong amount is held, not recorded; a payment made while the bill changed is kept as credit; a virtual-account transfer lands on the right student; one school's payment cannot land on another's student.
 - [ ] `pnpm vitest run tests/finance/payment-routes.test.ts` : a parent can pay only for their own child, never more than is owed, and is limited to 5 starts in 10 minutes.
 - [ ] `pnpm vitest run tests/finance/fee-adjustments.test.ts tests/db/net-billing.test.ts` : discounts and sibling discounts lower the bill (a percentage is taken from the full tuition, never compounded); an instalment plan must add up exactly to the bill; the database refuses an overpayment against the net bill.
-- [ ] `pnpm vitest run tests/messaging` : numbers become `234XXXXXXXXXX`; a message with a missing fact is refused, never guessed; one event is queued once; opt-outs are respected; WhatsApp falls back to SMS; failures retry on a schedule and stop after 5 tries; nothing connected leaves messages waiting and uncounted; unknown cost is never counted as free; a delivery report with a bad signature is refused; the scheduled jobs refuse every call when `CRON_SECRET` is not set; an invite works once, expires, and can never take over another person's account.
+- [ ] `pnpm vitest run tests/messaging` : numbers become `234XXXXXXXXXX`; a message with a missing fact is refused, never guessed; one event is queued once; opt-outs are respected; WhatsApp falls back to email; failures retry on a schedule and stop after 5 tries; nothing connected leaves messages waiting and uncounted; unknown cost is never counted as free; a delivery report with a bad signature is refused; the scheduled jobs refuse every call when `CRON_SECRET` is not set; an invite works once, expires, and can never take over another person's account.
 - [ ] `pnpm vitest run tests/messaging/event-wiring.test.ts` : attendance tells parents of an absent or late child only; no arrival time or session is invented; a notice goes to the right audience and the count comes from the school's records.
 
 ## 2. Accounts and keys you need (all optional until you test that part)
@@ -43,7 +43,6 @@ Set these in `FRONTEND/.env.local`, then **restart `pnpm dev`** (a running serve
 |---|---|---|
 | `PAYSTACK_SECRET_KEY` | Use the **test** key `sk_test_...` first | Paystack dashboard, Settings, API Keys |
 | `TERMII_API_KEY`, `TERMII_BASE_URL` | The base URL is the one on your Termii account. There is no default. | Termii dashboard |
-| `TERMII_SENDER_ID` | A sender name Termii has approved | Termii, Sender ID. Approval takes days; ask early. |
 | `TERMII_WHATSAPP_DEVICE_ID` | The WhatsApp device Termii gave you | Termii, WhatsApp |
 | `TERMII_WEBHOOK_SECRET` | Used to check Termii's delivery reports | **UNVERIFIED**: Termii's docs do not say where the signing key is shown. Until set, every delivery report is refused (the messages are still sent; they just stay "Sent" and never become "Delivered"). |
 | `RESEND_API_KEY`, `EMAIL_FROM` | Email | resend.com. **UNVERIFIED** against the live service. |
@@ -105,7 +104,7 @@ Bursar: http://localhost:3001/bursar/adjustments
 
 ## 7. Messages
 
-In plain words: when something happens to a child, the school's system sends the parent a short message on their phone (WhatsApp first, SMS if WhatsApp is not possible, email if there is no phone). **A parent does not need an account to receive these.** The Messages page is the record of what was sent, to whom, whether it arrived, and what it cost. Messaging Setup holds the technical details (the sender name parents see, WhatsApp templates, the cost of one SMS) and the fee reminder days; Eductive normally fills in the technical part with you once.
+In plain words: when something happens to a child, the school's system sends the parent a short message on their phone (WhatsApp first, email if WhatsApp is not possible or there is no phone; there is no SMS). **A parent does not need an account to receive these.** The Messages page is the record of what was sent, to whom, whether it arrived, and what it cost. Messaging Setup holds the technical details (the WhatsApp device and the approved WhatsApp templates) and the fee reminder days; Eductive normally fills in the technical part with you once.
 
 Without Termii connected, the queue still fills, and nothing is sent. That is by design.
 
@@ -119,7 +118,7 @@ Without Termii connected, the queue still fills, and nothing is sent. That is by
 - [ ] Notice: Principal at http://localhost:3001/admin/communications. Choose All Guardians, write a notice, send. The toast says how many messages were queued and how many were not sent. A parent with three children in the audience gets **one** message. Choose a class and send: only that class's parents. The channel tiles show "Not connected yet" until a provider is connected, and turn green when it is.
 - [ ] Nothing the school sends contains a score, a fee figure or a name that is not in the school's records.
 
-**With Termii connected** (needs the keys and a **registered sender ID**; until Termii approves it, SMS to Nigerian numbers will be refused by the network):
+**With Termii connected** (needs the keys and a WhatsApp device):
 
 - [ ] The scheduler sends queued messages. For testing, call it yourself (replace the secret):
 
@@ -129,8 +128,8 @@ curl -H "Authorization: Bearer YOUR_CRON_SECRET" http://localhost:3001/api/cron/
 
 - [ ] The message moves to **Sent**, shows its channel, and, once Termii reports it, **Delivered** with a cost. **UNVERIFIED:** the delivery report's signature check depends on `TERMII_WEBHOOK_SECRET`. Register `https://<your-host>/api/webhooks/termii` as the delivery-report URL on Termii.
 - [ ] Send a message with the wrong key: it shows **Failed** with the reason, and **Try Again** works.
-- [ ] **WhatsApp:** **UNVERIFIED.** WhatsApp lets a school start a conversation only with a template WhatsApp has approved. Fill in the template id and value names for each message at http://localhost:3001/proprietor/messaging-setup. A message with no template goes by SMS instead. Test each template once on your own phone.
-- [ ] Cost on http://localhost:3001/proprietor/messages: "Cost this month" is what Termii reported, or your "cost of one SMS part" estimate. Messages with no cost yet are counted in a separate note, never as ₦0.
+- [ ] **WhatsApp:** **UNVERIFIED.** WhatsApp lets a school start a conversation only with a template WhatsApp has approved. Fill in the template id and value names for each message at http://localhost:3001/proprietor/messaging-setup. A message with no template goes by email if the parent has one on record, and otherwise is not sent, so every message you want parents to get needs a template. Test each template once on your own phone.
+- [ ] Cost on http://localhost:3001/proprietor/messages: "Cost this month" is what Termii reported. Messages with no cost yet are counted in a separate note, never as ₦0.
 
 ## 8. Fee reminders
 
@@ -201,4 +200,4 @@ Done on 4 November 2026 against Oakland's database after 031, by script and scre
 - Scheduled notices (send later) are not supported; a notice is sent when you press send.
 - A parent with two numbers receives messages on the number on record only.
 - "Eductive never holds funds" rests on each school having its own Paystack sub-account. Confirm with Paystack that sub-accounts settle straight to the school's bank under your account's terms.
-- WhatsApp, SMS and email cost money per message. The school pays Termii; the cost shown is what Termii reports or your estimate, not a bill.
+- WhatsApp costs money per message. The school pays Termii; the cost shown is what Termii reports, not a bill.

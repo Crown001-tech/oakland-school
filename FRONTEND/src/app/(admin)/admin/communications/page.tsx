@@ -48,7 +48,7 @@ export default function AdminCommunicationsPage() {
   // Form State: Who -> What -> Channel -> When -> Send
   const [recipientType, setRecipientType] = useState<'all_parents' | 'all_staff' | 'class' | 'students'>('all_parents');
   const [selectedClass, setSelectedClass] = useState('');
-  const [connected, setConnected] = useState<{ sms: boolean; email: boolean; whatsapp: boolean } | null>(null);
+  const [connected, setConnected] = useState<{ email: boolean; whatsapp: boolean } | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState('none');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
@@ -484,14 +484,14 @@ export default function AdminCommunicationsPage() {
           <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs space-y-3">
             <div>
               <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">Delivery Channels</h3>
-              <p className="text-[11px] text-slate-500">The notice is always posted to each parent's portal. Each parent also gets it by WhatsApp, SMS or email, whichever the school has connected and the parent has not turned off.</p>
+              <p className="text-[11px] text-slate-500">The notice is always posted to each parent's portal. Each parent also gets it by WhatsApp or email, whichever the school has connected and the parent has not turned off.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div className="flex items-center justify-between gap-2 min-h-[44px] px-3 rounded-xl border border-emerald-600 bg-emerald-600 text-white font-semibold">
                 <span>Parent Portal</span>
                 <Check className="w-3 h-3 stroke-[3]" />
               </div>
-              {([['Email', connected?.email], ['SMS', connected?.sms], ['WhatsApp', connected?.whatsapp]] as const).map(([label, on]) =>
+              {([['Email', connected?.email], ['WhatsApp', connected?.whatsapp]] as const).map(([label, on]) =>
                 on ? (
                   <div key={label} className="flex items-center justify-between gap-2 min-h-[44px] px-3 rounded-xl border border-emerald-600 bg-emerald-600 text-white font-semibold">
                     <span>{label}</span>

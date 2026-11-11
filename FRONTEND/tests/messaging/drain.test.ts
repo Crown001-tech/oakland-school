@@ -4,7 +4,7 @@ import { MAX_ATTEMPTS, applyDeliveryReport, backoffMinutes, drainOutbox, planCha
 import type { ProviderEnv } from '@/lib/messaging/providers';
 
 const NOW = new Date('2026-11-04T10:00:00.000Z');
-const TERMII = { apiKey: 'k', baseUrl: 'https://t.test', defaultSenderId: 'Greenfield' };
+const TERMII = { apiKey: 'k', baseUrl: 'https://t.test' };
 const EMAIL = { apiKey: 'r', from: 'School <o@s.test>' };
 
 let tables: Record<string, Row[]>;
@@ -26,7 +26,7 @@ const queued = (over: Partial<Row> = {}): Row => ({
   ...over,
 });
 
-/** Answers by URL, so a test can make WhatsApp fail and SMS work. */
+/** Answers by URL, so a test can make WhatsApp fail and email work. */
 const service = (answers: Record<string, { status: number; json: unknown }>) => {
   const calls: string[] = [];
   const fetchImpl = vi.fn(async (url: string) => {
@@ -40,7 +40,7 @@ const service = (answers: Record<string, { status: number; json: unknown }>) => 
 
 beforeEach(() => {
   tables = {
-    schools: [{ id: 'school-1', name: 'Greenfield College', settings: { messaging: { whatsappDeviceId: 'dev1', whatsappTemplates: { payment_received: { templateId: 'tpl1', fields: ['student', 'amount'] } }, smsUnitCost: 4 } } }],
+    schools: [{ id: 'school-1', name: 'Greenfield College', settings: { messaging: { whatsappDeviceId: 'dev1', whatsappTemplates: { payment_received: { templateId: 'tpl1', fields: ['student', 'amount'] }, absent: { templateId: 'tpl2' } } } } }],
     message_outbox: [queued()],
   };
 });
@@ -57,28 +57,30 @@ describe('Sending', () => {
     expect(calls).toEqual(['https://t.test/api/send/template']);
   });
 
-  it('falls back to SMS when WhatsApp refuses for good, and records which channel carried it', async () => {
+  it('falls back to email when WhatsApp refuses for good, and records which channel carried it', async () => {
+    tables.message_outbox = [queued({ recipient_email: 'a@b.test' })];
     const { calls, net } = service({
       '/api/send/template': { status: 400, json: { message: 'Template not approved' } },
-      '/api/sms/send': { status: 200, json: { code: 'ok', message_id: 's1' } },
+      'resend.com': { status: 200, json: { id: 'e9' } },
     });
-    await run({ termii: TERMII }, net);
-    expect(calls).toEqual(['https://t.test/api/send/template', 'https://t.test/api/sms/send']);
-    expect(row()).toMatchObject({ status: 'sent', channel_used: 'sms', provider_message_id: 's1' });
+    await run({ termii: TERMII, email: EMAIL }, net);
+    expect(calls).toEqual(['https://t.test/api/send/template', 'https://api.resend.com/emails']);
+    expect(row()).toMatchObject({ status: 'sent', channel_used: 'email', provider_message_id: 'e9' });
   });
 
-  it('goes straight to SMS when the school has no template for this event', async () => {
-    tables.message_outbox = [queued({ event: 'absent' })];
-    const { calls, net } = service({ '/api/sms/send': { status: 200, json: { code: 'ok', message_id: 's2' } } });
-    await run({ termii: TERMII }, net);
-    expect(calls).toEqual(['https://t.test/api/sms/send']);
+  it('never sends a text message: with no WhatsApp template and no email, nothing is sent', async () => {
+    tables.message_outbox = [queued({ event: 'gate_release' })];
+    const { calls, net } = service({});
+    const s = await run({ termii: TERMII }, net);
+    expect(calls).toEqual([]);
+    expect(s.failed).toBe(1);
+    expect(row()).toMatchObject({ status: 'failed' });
   });
 
-  it('estimates the cost of an SMS from the school\'s rate and the length, until the provider reports the real one', async () => {
-    tables.message_outbox = [queued({ event: 'absent', body: 'a'.repeat(200) })];
-    const { net } = service({ '/api/sms/send': { status: 200, json: { code: 'ok', message_id: 's3' } } });
+  it('records no cost until the provider reports one', async () => {
+    const { net } = service({ '/api/send/template': { status: 200, json: { code: 'ok', message_id: 'w3' } } });
     await run({ termii: TERMII }, net);
-    expect(row().cost).toBe(8); // two parts at 4
+    expect(row().cost ?? null).toBeNull();
   });
 
   it('uses email when there is no phone', async () => {
@@ -104,7 +106,7 @@ describe('Sending', () => {
 
   it('works through no more than the limit in one run', async () => {
     tables.message_outbox = [queued({ id: 'a', event: 'absent' }), queued({ id: 'b', event: 'absent' }), queued({ id: 'c', event: 'absent' })];
-    const { net } = service({ '/api/sms/send': { status: 200, json: { code: 'ok', message_id: 'x' } } });
+    const { net } = service({ '/api/send/template': { status: 200, json: { code: 'ok', message_id: 'x' } } });
     expect((await run({ termii: TERMII }, net, 2)).processed).toBe(2);
   });
 });
@@ -112,7 +114,7 @@ describe('Sending', () => {
 describe('When sending fails', () => {
   it('puts a message back to try later, with a longer wait each time', async () => {
     tables.message_outbox = [queued({ event: 'absent' })];
-    const { net } = service({ '/api/sms/send': { status: 503, json: { message: 'Unavailable' } } });
+    const { net } = service({ '/api/send/template': { status: 503, json: { message: 'Unavailable' } } });
     const s = await run({ termii: TERMII }, net);
     expect(s).toMatchObject({ requeued: 1, sent: 0 });
     expect(row()).toMatchObject({ status: 'queued', attempts: 1 });
@@ -124,7 +126,7 @@ describe('When sending fails', () => {
 
   it('gives up after the last attempt and says why', async () => {
     tables.message_outbox = [queued({ event: 'absent', attempts: MAX_ATTEMPTS - 1 })];
-    const { net } = service({ '/api/sms/send': { status: 503, json: { message: 'Unavailable' } } });
+    const { net } = service({ '/api/send/template': { status: 503, json: { message: 'Unavailable' } } });
     const s = await run({ termii: TERMII }, net);
     expect(s.failed).toBe(1);
     expect(row()).toMatchObject({ status: 'failed', attempts: MAX_ATTEMPTS });
@@ -132,14 +134,14 @@ describe('When sending fails', () => {
 
   it('fails at once for a reason that will never pass, such as a bad number', async () => {
     tables.message_outbox = [queued({ event: 'absent' })];
-    const { net } = service({ '/api/sms/send': { status: 400, json: { message: 'Invalid number' } } });
+    const { net } = service({ '/api/send/template': { status: 400, json: { message: 'Invalid number' } } });
     await run({ termii: TERMII }, net);
     expect(row()).toMatchObject({ status: 'failed', attempts: 1 });
   });
 
   it('waits for a topped-up balance rather than failing', async () => {
     tables.message_outbox = [queued({ event: 'absent' })];
-    const { net } = service({ '/api/sms/send': { status: 400, json: { message: 'Insufficient balance' } } });
+    const { net } = service({ '/api/send/template': { status: 400, json: { message: 'Insufficient balance' } } });
     await run({ termii: TERMII }, net);
     expect(row().status).toBe('queued');
   });
@@ -174,19 +176,19 @@ describe('Channel plan', () => {
 
   it('puts the asked-for channel first, then the others the school can use', () => {
     const plan = planChannels({ ...r, recipient_email: 'a@b.test' }, 'G', { whatsappDeviceId: 'd', whatsappTemplates: { payment_received: { templateId: 't' } } }, { termii: TERMII, email: EMAIL });
-    expect(plan.map((p) => p.channel)).toEqual(['whatsapp', 'sms', 'email']);
-    expect(planChannels({ ...r, preferred_channel: 'sms', recipient_email: 'a@b.test' }, 'G', { whatsappDeviceId: 'd', whatsappTemplates: { payment_received: { templateId: 't' } } }, { termii: TERMII, email: EMAIL }).map((p) => p.channel)).toEqual(['sms', 'whatsapp', 'email']);
+    expect(plan.map((p) => p.channel)).toEqual(['whatsapp', 'email']);
+    expect(planChannels({ ...r, preferred_channel: 'email', recipient_email: 'a@b.test' }, 'G', { whatsappDeviceId: 'd', whatsappTemplates: { payment_received: { templateId: 't' } } }, { termii: TERMII, email: EMAIL }).map((p) => p.channel)).toEqual(['email', 'whatsapp']);
   });
 
   it('offers a channel only when everything it needs is set up', () => {
     expect(planChannels(r, 'G', {}, { termii: { apiKey: 'k', baseUrl: 'https://t.test' } })).toEqual([]);
-    expect(planChannels(r, 'G', { senderId: 'Greenfield' }, { termii: { apiKey: 'k', baseUrl: 'https://t.test' } }).map((p) => p.channel)).toEqual(['sms']);
+    expect(planChannels(r, 'G', { whatsappDeviceId: 'd', whatsappTemplates: { payment_received: { templateId: 't' } } }, { termii: { apiKey: 'k', baseUrl: 'https://t.test' } }).map((p) => p.channel)).toEqual(['whatsapp']);
   });
 });
 
 describe('Delivery reports', () => {
   beforeEach(() => {
-    tables.message_outbox = [queued({ status: 'sent', provider_message_id: 'm-100', channel_used: 'sms' })];
+    tables.message_outbox = [queued({ status: 'sent', provider_message_id: 'm-100', channel_used: 'whatsapp' })];
   });
 
   it('marks a message delivered and records the real cost', async () => {

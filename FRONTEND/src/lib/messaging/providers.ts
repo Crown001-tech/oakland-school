@@ -4,8 +4,8 @@ import crypto from 'node:crypto';
  * The messaging services, over HTTPS. Each call takes the fetch function as a setting, so tests never reach the
  * network, and nothing here logs a key.
  *
- * Termii (SMS and WhatsApp) follows its public documentation: JSON body with api_key, POST /api/sms/send for
- * SMS, POST /api/send/template for a WhatsApp template. Termii gives each account its own base URL, so
+ * Termii (WhatsApp) follows its public documentation: JSON body with api_key, POST /api/send/template for a
+ * WhatsApp template. There is no SMS. Termii gives each account its own base URL, so
  * TERMII_BASE_URL has no default. A WhatsApp message the school starts must use a template WhatsApp has
  * approved; Termii's documentation does not describe how templates are created, so the school's template ids go
  * in its settings. Email uses Resend. The WhatsApp template send and the email send are UNVERIFIED against the live
@@ -21,7 +21,7 @@ export interface SendResult {
 }
 
 export interface ProviderEnv {
-  termii?: { apiKey: string; baseUrl: string; defaultSenderId?: string; whatsappDeviceId?: string };
+  termii?: { apiKey: string; baseUrl: string; whatsappDeviceId?: string };
   email?: { apiKey: string; from: string };
 }
 
@@ -30,7 +30,7 @@ export function providersFromEnv(env: NodeJS.ProcessEnv = process.env): Provider
   const apiKey = (env.TERMII_API_KEY || '').trim();
   const baseUrl = (env.TERMII_BASE_URL || '').trim().replace(/\/+$/, '');
   if (apiKey && baseUrl.startsWith('https://')) {
-    out.termii = { apiKey, baseUrl, defaultSenderId: (env.TERMII_SENDER_ID || '').trim() || undefined, whatsappDeviceId: (env.TERMII_WHATSAPP_DEVICE_ID || '').trim() || undefined };
+    out.termii = { apiKey, baseUrl, whatsappDeviceId: (env.TERMII_WHATSAPP_DEVICE_ID || '').trim() || undefined };
   }
   const emailKey = (env.RESEND_API_KEY || '').trim();
   const from = (env.EMAIL_FROM || '').trim();
@@ -67,32 +67,6 @@ export function classifyTermiiFailure(status: number, message: string): { retrya
   // An empty balance is fixed by topping up, so the message waits
   if (m.includes('insufficient balance')) return { retryable: true };
   return { retryable: false };
-}
-
-export interface SmsInput {
-  to: string;
-  text: string;
-  senderId: string;
-  /** generic for ordinary numbers; dnd reaches numbers that block promotional messages (needs enabling on the account) */
-  route?: 'generic' | 'dnd';
-}
-
-export async function sendTermiiSms(cfg: NonNullable<ProviderEnv['termii']>, input: SmsInput, net: Net = {}): Promise<SendResult> {
-  if (!/^[A-Za-z0-9 ]{3,11}$/.test(input.senderId)) return { ok: false, error: 'The sender name must be 3 to 11 letters or digits.', retryable: false };
-  try {
-    const { status, json } = await post(
-      `${cfg.baseUrl}/api/sms/send`,
-      { api_key: cfg.apiKey, to: input.to, from: input.senderId, sms: input.text, type: 'plain', channel: input.route ?? 'generic' },
-      {},
-      net
-    );
-    const id = json?.message_id_str ?? json?.message_id;
-    if (status === 200 && (json?.code === 'ok' || id)) return { ok: true, providerMessageId: id ? String(id) : undefined };
-    const message = String(json?.message ?? `Termii answered ${status}`);
-    return { ok: false, error: message, ...classifyTermiiFailure(status, message) };
-  } catch {
-    return { ok: false, error: 'Could not reach Termii.', retryable: true };
-  }
 }
 
 export interface WhatsappTemplateInput {

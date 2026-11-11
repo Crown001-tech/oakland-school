@@ -105,15 +105,3 @@ export function buildMessage(event: MessageEvent, p: MessageParams): BuiltMessag
       return { subject: `Set up your ${p.school} parent account`, body: `${p.school}: Set up your parent account here: ${p.link} The link works for 7 days.`, fields };
   }
 }
-
-/**
- * How many SMS parts a text takes. Plain text is 160 letters a part (153 when it spans parts); any letter
- * outside the basic set (an emoji, ₦) makes it Unicode, 70 a part (67 when it spans parts). A provider charges per part.
- */
-export function smsParts(text: string): number {
-  const basic = /^[\x20-\x7E\n\r£¥èéùìòÇØøÅåΔ_ΦΓΛΩΠΨΣΘΞÆæßÉ¤¡ÄÖÑÜ§¿äöñüà]*$/.test(text);
-  const single = basic ? 160 : 70;
-  const multi = basic ? 153 : 67;
-  const len = [...text].length;
-  return len <= single ? 1 : Math.ceil(len / multi);
-}

@@ -402,7 +402,7 @@ export default function AdminSettingsPage() {
               <div className="space-y-4">
                 <div>
                   <h3 className="text-sm font-bold text-slate-900">Automated Parent Alerts</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">Toggle automated parent SMS and email alerts.</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Toggle automated parent alerts by WhatsApp and email.</p>
                 </div>
 
                 <div className="space-y-3">
@@ -414,8 +414,8 @@ export default function AdminSettingsPage() {
                       className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
                     />
                     <div>
-                      <p className="text-xs font-semibold text-slate-900">Gate Security Pickup SMS</p>
-                      <p className="text-[11px] text-slate-500">Send immediate SMS confirmation to parent upon security desk student release.</p>
+                      <p className="text-xs font-semibold text-slate-900">Gate Pickup Alert</p>
+                      <p className="text-[11px] text-slate-500">Message the parent as soon as the security desk releases the student.</p>
                     </div>
                   </label>
 
