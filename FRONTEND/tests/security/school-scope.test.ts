@@ -87,10 +87,11 @@ describe('Which school an address belongs to', () => {
     expect(subdomainOf('Oakland.Example.com:3000')).toBe('oakland');
   });
 
-  it('has no school subdomain on localhost, an IP address or a bare domain', () => {
+  it('has no school subdomain on localhost, an IP address, a bare domain or vercel.app', () => {
     expect(subdomainOf('localhost:3000')).toBeNull();
     expect(subdomainOf('127.0.0.1:3000')).toBeNull();
     expect(subdomainOf('example.com')).toBeNull();
+    expect(subdomainOf('oakland-school.vercel.app')).toBeNull();
     expect(subdomainOf(null)).toBeNull();
   });
 });
