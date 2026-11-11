@@ -30,8 +30,8 @@ const DEFAULT_OAKLAND_SCHOOL: HostSchool = {
   phone: '+234 800 625 5263',
   email: 'admin@oaklandschools.edu',
   publicSite: 'full',
-  primary: '#07181a',
-  accent: '#d4a85a',
+  primary: undefined,
+  accent: undefined,
 };
 
 const cache = new Map<string, { value: HostSchool | null; expires: number }>();
